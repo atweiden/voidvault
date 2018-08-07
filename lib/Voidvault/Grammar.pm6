@@ -1,5 +1,5 @@
 use v6;
-unit grammar Archvault::Grammar;
+unit grammar Voidvault::Grammar;
 
 # match a single lowercase alphanumeric character, or an underscore
 token alnum-lower

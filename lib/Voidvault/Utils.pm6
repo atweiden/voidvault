@@ -1,7 +1,7 @@
 use v6;
-use Archvault::Types;
+use Voidvault::Types;
 use Crypt::Libcrypt:auth<atweiden>;
-unit class Archvault::Utils;
+unit class Voidvault::Utils;
 
 # -----------------------------------------------------------------------------
 # constants
@@ -412,7 +412,7 @@ sub install-expect(--> Nil)
     $*USER == 0
         or die('Sorry, missing pkg expect. Please install: pacman -S expect');
     my Str:D $pacman-expect-cmdline = 'pacman -Sy --needed --noconfirm expect';
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Installing expect...',
         $pacman-expect-cmdline
     );

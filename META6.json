@@ -1,23 +1,23 @@
 {
     "perl"        : "6.*",
-    "name"        : "Archvault",
+    "name"        : "Voidvault",
     "version"     : "1.0.1",
     "author"      : "atweiden",
-    "description" : "Bootstrap Arch with FDE",
+    "description" : "Bootstrap Void with FDE",
     "license"     : "Unlicense",
     "source-type" : "git",
-    "source-url"  : "git://github.com/atweiden/archvault.git",
+    "source-url"  : "git://github.com/atweiden/voidvault.git",
     "support"     : {
-        "bugtracker" : "https://github.com/atweiden/archvault/issues",
-        "source"     : "https://github.com/atweiden/archvault"
+        "bugtracker" : "https://github.com/atweiden/voidvault/issues",
+        "source"     : "https://github.com/atweiden/voidvault"
     },
     "provides" : {
-        "Archvault"            : "lib/Archvault.pm6",
-        "Archvault::Bootstrap" : "lib/Archvault/Bootstrap.pm6",
-        "Archvault::Config"    : "lib/Archvault/Config.pm6",
-        "Archvault::Grammar"   : "lib/Archvault/Grammar.pm6",
-        "Archvault::Types"     : "lib/Archvault/Types.pm6",
-        "Archvault::Utils"     : "lib/Archvault/Utils.pm6",
+        "Voidvault"            : "lib/Voidvault.pm6",
+        "Voidvault::Bootstrap" : "lib/Voidvault/Bootstrap.pm6",
+        "Voidvault::Config"    : "lib/Voidvault/Config.pm6",
+        "Voidvault::Grammar"   : "lib/Voidvault/Grammar.pm6",
+        "Voidvault::Types"     : "lib/Voidvault/Types.pm6",
+        "Voidvault::Utils"     : "lib/Voidvault/Utils.pm6",
         "Crypt::Libcrypt"      : "lib/Crypt/Libcrypt.pm6"
     },
     "resources" : [

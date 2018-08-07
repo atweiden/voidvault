@@ -4,8 +4,8 @@
 
 
 use v6;
-use Archvault;
-use Archvault::Utils;
+use Voidvault;
+use Voidvault::Utils;
 
 
 
@@ -31,7 +31,7 @@ multi sub MAIN(
     %opts<permissions> = $permissions if $permissions;
     %opts<recursive> = $recursive if $recursive;
     %opts<user> = $user if $user;
-    Archvault::Utils.disable-cow(@directory, |%opts);
+    Voidvault::Utils.disable-cow(@directory, |%opts);
 }
 
 
@@ -43,12 +43,12 @@ multi sub MAIN(
 
 multi sub MAIN('gen-pass-hash', Str:D :p(:$pass)!, Bool :g(:$grub) --> Nil)
 {
-    say(Archvault::Utils.gen-pass-hash($pass, :$grub));
+    say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
 }
 
 multi sub MAIN('gen-pass-hash', Bool :g(:$grub) --> Nil)
 {
-    say(Archvault::Utils.prompt-pass-hash(:$grub));
+    say(Voidvault::Utils.prompt-pass-hash(:$grub));
 }
 
 
@@ -123,7 +123,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    Archvault.new(|%opts);
+    Voidvault.new(|%opts);
 }
 
 
@@ -135,22 +135,22 @@ multi sub MAIN(
 
 multi sub MAIN('ls', 'keymaps' --> Nil)
 {
-    Archvault::Utils.ls-keymaps.map({ .say });
+    Voidvault::Utils.ls-keymaps.map({ .say });
 }
 
 multi sub MAIN('ls', 'locales' --> Nil)
 {
-    Archvault::Utils.ls-locales.map({ .say });
+    Voidvault::Utils.ls-locales.map({ .say });
 }
 
 multi sub MAIN('ls', 'partitions' --> Nil)
 {
-    Archvault::Utils.ls-partitions.map({ .say });
+    Voidvault::Utils.ls-partitions.map({ .say });
 }
 
 multi sub MAIN('ls', 'timezones' --> Nil)
 {
-    Archvault::Utils.ls-timezones.map({ .say });
+    Voidvault::Utils.ls-timezones.map({ .say });
 }
 
 
@@ -162,7 +162,7 @@ multi sub MAIN('ls', 'timezones' --> Nil)
 
 multi sub MAIN(Bool:D :version($)! where .so --> Nil)
 {
-    printf("v%s\n", $Archvault::VERSION);
+    printf("v%s\n", $Voidvault::VERSION);
     exit(0);
 }
 
@@ -177,14 +177,14 @@ multi sub USAGE(--> Nil)
 {
     constant $HELP = q:to/EOF/.trim;
     Usage:
-      archvault <command>
+      voidvault <command>
 
     Commands:
       disable-cow          Disable copy-on-write on directories
       gen-pass-hash        Generate password hash
       help                 Show help for subcommands
       ls                   List keymaps, locales, partitions, timezones
-      new                  Bootstrap Arch system with FDE
+      new                  Bootstrap Void system with FDE
 
     Options:
       -h, --help
@@ -199,12 +199,12 @@ multi sub USAGE('disable-cow' --> Nil)
 {
     constant $HELP = qq:to/EOF/.trim;
     Usage:
-      archvault [--clean]
+      voidvault [--clean]
                 [--permissions=<octal>]
                 [--user=<username>]
                 [--group=<groupname>]
                 disable-cow <directory> [<directory> <directory>..]
-      archvault [-r] disable-cow <directory> [<directory> <directory>..]
+      voidvault [-r] disable-cow <directory> [<directory> <directory>..]
 
     Options:
       -c, --clean
@@ -228,7 +228,7 @@ multi sub USAGE('gen-pass-hash' --> Nil)
 {
     constant $HELP = q:to/EOF/.trim;
     Usage:
-      archvault [-g|--grub] [-p|--pass=<password>] gen-pass-hash
+      voidvault [-g|--grub] [-p|--pass=<password>] gen-pass-hash
 
     Options:
       -g, --grub
@@ -243,7 +243,7 @@ multi sub USAGE('ls' --> Nil)
 {
     constant $HELP = q:to/EOF/.trim;
     Usage:
-      archvault ls <positional>
+      voidvault ls <positional>
 
     Positionals
       keymaps           List available keyboard table descriptions
@@ -258,7 +258,7 @@ multi sub USAGE('new' --> Nil)
 {
     constant $HELP = q:to/EOF/.trim;
     Usage:
-      archvault [--admin-name=<username>] [--admin-pass=<password>]
+      voidvault [--admin-name=<username>] [--admin-pass=<password>]
                 [--guest-name=<username>] [--guest-pass=<password>]
                 [--sftp-name=<username>] [--sftp-pass=<password>]
                 [--grub-name=<username>] [--grub-pass=<password>]

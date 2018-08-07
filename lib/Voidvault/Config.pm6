@@ -1,7 +1,7 @@
 use v6;
-use Archvault::Types;
-use Archvault::Utils;
-unit class Archvault::Config;
+use Voidvault::Types;
+use Voidvault::Utils;
+unit class Voidvault::Config;
 
 # -----------------------------------------------------------------------------
 # settings
@@ -12,134 +12,134 @@ unit class Archvault::Config;
 
 # name for admin user (default: live)
 has UserName:D $.user-name-admin =
-    %*ENV<ARCHVAULT_ADMIN_NAME>
-        ?? self.gen-user-name(%*ENV<ARCHVAULT_ADMIN_NAME>)
+    %*ENV<VOIDVAULT_ADMIN_NAME>
+        ?? self.gen-user-name(%*ENV<VOIDVAULT_ADMIN_NAME>)
         !! prompt-name(:user, :admin);
 
 # sha512 password hash for admin user
 has Str:D $.user-pass-hash-admin =
-    %*ENV<ARCHVAULT_ADMIN_PASS_HASH>
-        ?? %*ENV<ARCHVAULT_ADMIN_PASS_HASH>
-        !! %*ENV<ARCHVAULT_ADMIN_PASS>
-            ?? Archvault::Utils.gen-pass-hash(%*ENV<ARCHVAULT_ADMIN_PASS>)
-            !! Archvault::Utils.prompt-pass-hash($!user-name-admin);
+    %*ENV<VOIDVAULT_ADMIN_PASS_HASH>
+        ?? %*ENV<VOIDVAULT_ADMIN_PASS_HASH>
+        !! %*ENV<VOIDVAULT_ADMIN_PASS>
+            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_ADMIN_PASS>)
+            !! Voidvault::Utils.prompt-pass-hash($!user-name-admin);
 
 # name for guest user (default: guest)
 has UserName:D $.user-name-guest =
-    %*ENV<ARCHVAULT_GUEST_NAME>
-        ?? self.gen-user-name(%*ENV<ARCHVAULT_GUEST_NAME>)
+    %*ENV<VOIDVAULT_GUEST_NAME>
+        ?? self.gen-user-name(%*ENV<VOIDVAULT_GUEST_NAME>)
         !! prompt-name(:user, :guest);
 
 # sha512 password hash for guest user
 has Str:D $.user-pass-hash-guest =
-    %*ENV<ARCHVAULT_GUEST_PASS_HASH>
-        ?? %*ENV<ARCHVAULT_GUEST_PASS_HASH>
-        !! %*ENV<ARCHVAULT_GUEST_PASS>
-            ?? Archvault::Utils.gen-pass-hash(%*ENV<ARCHVAULT_GUEST_PASS>)
-            !! Archvault::Utils.prompt-pass-hash($!user-name-guest);
+    %*ENV<VOIDVAULT_GUEST_PASS_HASH>
+        ?? %*ENV<VOIDVAULT_GUEST_PASS_HASH>
+        !! %*ENV<VOIDVAULT_GUEST_PASS>
+            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_GUEST_PASS>)
+            !! Voidvault::Utils.prompt-pass-hash($!user-name-guest);
 
 # name for sftp user (default: variable)
 has UserName:D $.user-name-sftp =
-    %*ENV<ARCHVAULT_SFTP_NAME>
-        ?? self.gen-user-name(%*ENV<ARCHVAULT_SFTP_NAME>)
+    %*ENV<VOIDVAULT_SFTP_NAME>
+        ?? self.gen-user-name(%*ENV<VOIDVAULT_SFTP_NAME>)
         !! prompt-name(:user, :sftp);
 
 # sha512 password hash for sftp user
 has Str:D $.user-pass-hash-sftp =
-    %*ENV<ARCHVAULT_SFTP_PASS_HASH>
-        ?? %*ENV<ARCHVAULT_SFTP_PASS_HASH>
-        !! %*ENV<ARCHVAULT_SFTP_PASS>
-            ?? Archvault::Utils.gen-pass-hash(%*ENV<ARCHVAULT_SFTP_PASS>)
-            !! Archvault::Utils.prompt-pass-hash($!user-name-sftp);
+    %*ENV<VOIDVAULT_SFTP_PASS_HASH>
+        ?? %*ENV<VOIDVAULT_SFTP_PASS_HASH>
+        !! %*ENV<VOIDVAULT_SFTP_PASS>
+            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_SFTP_PASS>)
+            !! Voidvault::Utils.prompt-pass-hash($!user-name-sftp);
 
 # sha512 password hash for root user
 has Str:D $.user-pass-hash-root =
-    %*ENV<ARCHVAULT_ROOT_PASS_HASH>
-        ?? %*ENV<ARCHVAULT_ROOT_PASS_HASH>
-        !! %*ENV<ARCHVAULT_ROOT_PASS>
-            ?? Archvault::Utils.gen-pass-hash(%*ENV<ARCHVAULT_ROOT_PASS>)
-            !! Archvault::Utils.prompt-pass-hash('root');
+    %*ENV<VOIDVAULT_ROOT_PASS_HASH>
+        ?? %*ENV<VOIDVAULT_ROOT_PASS_HASH>
+        !! %*ENV<VOIDVAULT_ROOT_PASS>
+            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_ROOT_PASS>)
+            !! Voidvault::Utils.prompt-pass-hash('root');
 
 # name for grub user (default: grub)
 has UserName:D $.user-name-grub =
-    %*ENV<ARCHVAULT_GRUB_NAME>
-        ?? self.gen-user-name(%*ENV<ARCHVAULT_GRUB_NAME>)
+    %*ENV<VOIDVAULT_GRUB_NAME>
+        ?? self.gen-user-name(%*ENV<VOIDVAULT_GRUB_NAME>)
         !! prompt-name(:user, :grub);
 
 # pbkdf2 password hash for grub user
 has Str:D $.user-pass-hash-grub =
-    %*ENV<ARCHVAULT_GRUB_PASS_HASH>
-        ?? %*ENV<ARCHVAULT_GRUB_PASS_HASH>
-        !! %*ENV<ARCHVAULT_GRUB_PASS>
-            ?? Archvault::Utils.gen-pass-hash(%*ENV<ARCHVAULT_GRUB_PASS>, :grub)
-            !! Archvault::Utils.prompt-pass-hash($!user-name-grub, :grub);
+    %*ENV<VOIDVAULT_GRUB_PASS_HASH>
+        ?? %*ENV<VOIDVAULT_GRUB_PASS_HASH>
+        !! %*ENV<VOIDVAULT_GRUB_PASS>
+            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_GRUB_PASS>, :grub)
+            !! Voidvault::Utils.prompt-pass-hash($!user-name-grub, :grub);
 
 # name for LUKS encrypted volume (default: vault)
 has VaultName:D $.vault-name =
-    %*ENV<ARCHVAULT_VAULT_NAME>
-        ?? self.gen-vault-name(%*ENV<ARCHVAULT_VAULT_NAME>)
+    %*ENV<VOIDVAULT_VAULT_NAME>
+        ?? self.gen-vault-name(%*ENV<VOIDVAULT_VAULT_NAME>)
         !! prompt-name(:vault);
 
 # password for LUKS encrypted volume
 has VaultPass $.vault-pass =
-    %*ENV<ARCHVAULT_VAULT_PASS>
-        ?? self.gen-vault-pass(%*ENV<ARCHVAULT_VAULT_PASS>)
+    %*ENV<VOIDVAULT_VAULT_PASS>
+        ?? self.gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
         !! Nil;
 
 # name for host (default: vault)
 has HostName:D $.host-name =
-    %*ENV<ARCHVAULT_HOSTNAME>
-        ?? self.gen-host-name(%*ENV<ARCHVAULT_HOSTNAME>)
+    %*ENV<VOIDVAULT_HOSTNAME>
+        ?? self.gen-host-name(%*ENV<VOIDVAULT_HOSTNAME>)
         !! prompt-name(:host);
 
 # device path of target partition (default: /dev/sdb)
 has Str:D $.partition =
-    %*ENV<ARCHVAULT_PARTITION>
-        || prompt-partition(Archvault::Utils.ls-partitions);
+    %*ENV<VOIDVAULT_PARTITION>
+        || prompt-partition(Voidvault::Utils.ls-partitions);
 
 # type of processor (default: other)
 has Processor:D $.processor =
-    %*ENV<ARCHVAULT_PROCESSOR>
-        ?? self.gen-processor(%*ENV<ARCHVAULT_PROCESSOR>)
+    %*ENV<VOIDVAULT_PROCESSOR>
+        ?? self.gen-processor(%*ENV<VOIDVAULT_PROCESSOR>)
         !! prompt-processor();
 
 # type of graphics card (default: intel)
 has Graphics:D $.graphics =
-    %*ENV<ARCHVAULT_GRAPHICS>
-        ?? self.gen-graphics(%*ENV<ARCHVAULT_GRAPHICS>)
+    %*ENV<VOIDVAULT_GRAPHICS>
+        ?? self.gen-graphics(%*ENV<VOIDVAULT_GRAPHICS>)
         !! prompt-graphics();
 
 # type of hard drive (default: usb)
 has DiskType:D $.disk-type =
-    %*ENV<ARCHVAULT_DISK_TYPE>
-        ?? self.gen-disk-type(%*ENV<ARCHVAULT_DISK_TYPE>)
+    %*ENV<VOIDVAULT_DISK_TYPE>
+        ?? self.gen-disk-type(%*ENV<VOIDVAULT_DISK_TYPE>)
         !! prompt-disk-type();
 
 # locale (default: en_US)
 has Locale:D $.locale =
-    %*ENV<ARCHVAULT_LOCALE>
-        ?? self.gen-locale(%*ENV<ARCHVAULT_LOCALE>)
+    %*ENV<VOIDVAULT_LOCALE>
+        ?? self.gen-locale(%*ENV<VOIDVAULT_LOCALE>)
         !! prompt-locale();
 
 # keymap (default: us)
 has Keymap:D $.keymap =
-    %*ENV<ARCHVAULT_KEYMAP>
-        ?? self.gen-keymap(%*ENV<ARCHVAULT_KEYMAP>)
+    %*ENV<VOIDVAULT_KEYMAP>
+        ?? self.gen-keymap(%*ENV<VOIDVAULT_KEYMAP>)
         !! prompt-keymap();
 
 # timezone (default: America/Los_Angeles)
 has Timezone:D $.timezone =
-    %*ENV<ARCHVAULT_TIMEZONE>
-        ?? self.gen-timezone(%*ENV<ARCHVAULT_TIMEZONE>)
+    %*ENV<VOIDVAULT_TIMEZONE>
+        ?? self.gen-timezone(%*ENV<VOIDVAULT_TIMEZONE>)
         !! prompt-timezone();
 
 # augment
 has Bool:D $.augment =
-    ?%*ENV<ARCHVAULT_AUGMENT>;
+    ?%*ENV<VOIDVAULT_AUGMENT>;
 
 # reflector
 has Bool:D $.reflector =
-    ?%*ENV<ARCHVAULT_REFLECTOR>;
+    ?%*ENV<VOIDVAULT_REFLECTOR>;
 
 
 # -----------------------------------------------------------------------------
@@ -191,19 +191,19 @@ submethod BUILD(
     $!user-name-guest = self.gen-user-name($guest-name) if $guest-name;
     $!user-name-sftp = self.gen-user-name($sftp-name) if $sftp-name;
     $!user-pass-hash-admin =
-        Archvault::Utils.gen-pass-hash($admin-pass) if $admin-pass;
+        Voidvault::Utils.gen-pass-hash($admin-pass) if $admin-pass;
     $!user-pass-hash-admin = $admin-pass-hash if $admin-pass-hash;
     $!user-pass-hash-grub =
-        Archvault::Utils.gen-pass-hash($grub-pass, :grub) if $grub-pass;
+        Voidvault::Utils.gen-pass-hash($grub-pass, :grub) if $grub-pass;
     $!user-pass-hash-grub = $grub-pass-hash if $grub-pass-hash;
     $!user-pass-hash-guest =
-        Archvault::Utils.gen-pass-hash($guest-pass) if $guest-pass;
+        Voidvault::Utils.gen-pass-hash($guest-pass) if $guest-pass;
     $!user-pass-hash-guest = $guest-pass-hash if $guest-pass-hash;
     $!user-pass-hash-root =
-        Archvault::Utils.gen-pass-hash($root-pass) if $root-pass;
+        Voidvault::Utils.gen-pass-hash($root-pass) if $root-pass;
     $!user-pass-hash-root = $root-pass-hash if $root-pass-hash;
     $!user-pass-hash-sftp =
-        Archvault::Utils.gen-pass-hash($sftp-pass) if $sftp-pass;
+        Voidvault::Utils.gen-pass-hash($sftp-pass) if $sftp-pass;
     $!user-pass-hash-sftp = $sftp-pass-hash if $sftp-pass-hash;
     $!vault-name = self.gen-vault-name($vault-name) if $vault-name;
     $!vault-pass = self.gen-vault-pass($vault-pass) if $vault-pass;
@@ -238,7 +238,7 @@ method new(
         Str :vault-name($),
         Str :vault-pass($)
     )
-    --> Archvault::Config:D
+    --> Voidvault::Config:D
 )
 {
     self.bless(|%opts);
@@ -497,7 +497,7 @@ sub prompt-disk-type(--> DiskType:D)
         my Str:D $confirm-topic = 'disk type selected';
         dprompt(
             DiskType,
-            %Archvault::Types::disktypes,
+            %Voidvault::Types::disktypes,
             :$default-item,
             :$prompt-text,
             :$title,
@@ -515,7 +515,7 @@ sub prompt-graphics(--> Graphics:D)
         my Str:D $confirm-topic = 'graphics card type selected';
         dprompt(
             Graphics,
-            %Archvault::Types::graphics,
+            %Voidvault::Types::graphics,
             :$default-item,
             :$prompt-text,
             :$title,
@@ -533,7 +533,7 @@ sub prompt-keymap(--> Keymap:D)
         my Str:D $confirm-topic = 'keymap selected';
         dprompt(
             Keymap,
-            %Archvault::Types::keymaps,
+            %Voidvault::Types::keymaps,
             :$default-item,
             :$prompt-text,
             :$title,
@@ -551,7 +551,7 @@ sub prompt-locale(--> Locale:D)
         my Str:D $confirm-topic = 'locale selected';
         dprompt(
             Locale,
-            %Archvault::Types::locales,
+            %Voidvault::Types::locales,
             :$default-item,
             :$prompt-text,
             :$title,
@@ -694,7 +694,7 @@ sub prompt-partition(Str:D @partitions --> Str:D)
 {
     my Str:D $partition = do {
         my Str:D $default-item = '/dev/sdb';
-        my Str:D $prompt-text = 'Select partition for installing Arch:';
+        my Str:D $prompt-text = 'Select partition for installing Void:';
         my Str:D $title = 'PARTITION SELECTION';
         my Str:D $confirm-topic = 'partition selected';
         dprompt(
@@ -717,7 +717,7 @@ sub prompt-processor(--> Processor:D)
         my Str:D $confirm-topic = 'processor selected';
         dprompt(
             Processor,
-            %Archvault::Types::processors,
+            %Voidvault::Types::processors,
             :$default-item,
             :$prompt-text,
             :$title,
@@ -729,7 +729,7 @@ sub prompt-processor(--> Processor:D)
 sub prompt-timezone(--> Timezone:D)
 {
     # get list of timezones
-    my Timezone:D @timezones = @Archvault::Types::timezones;
+    my Timezone:D @timezones = @Voidvault::Types::timezones;
 
     # prompt choose region
     my Str:D $region = do {

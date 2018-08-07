@@ -1,15 +1,15 @@
 use v6;
-use Archvault::Config;
-use Archvault::Types;
-use Archvault::Utils;
-unit class Archvault::Bootstrap;
+use Voidvault::Config;
+use Voidvault::Types;
+use Voidvault::Utils;
+unit class Voidvault::Bootstrap;
 
 
 # -----------------------------------------------------------------------------
 # attributes
 # -----------------------------------------------------------------------------
 
-has Archvault::Config:D $.config is required;
+has Voidvault::Config:D $.config is required;
 
 
 # -----------------------------------------------------------------------------
@@ -97,7 +97,7 @@ method !setup(--> Nil)
 
     my Str:D $pacman-dep-cmdline =
         sprintf('pacman -Sy --needed --noconfirm %s', @dep.join(' '));
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
         $pacman-dep-cmdline
     );
@@ -113,7 +113,7 @@ sub reflector(--> Nil)
 {
     my Str:D $pacman-reflector-cmdline =
         'pacman -Sy --needed --noconfirm reflector';
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Installing reflector...',
         $pacman-reflector-cmdline
     );
@@ -128,7 +128,7 @@ sub reflector(--> Nil)
         --number 7
         --save /etc/pacman.d/mirrorlist
     >.join(' ');
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Running reflector to optimize pacman mirrors',
         $reflector-cmdline
     );
@@ -255,13 +255,13 @@ multi sub mkvault-cryptsetup(
         );
 
     # create LUKS encrypted volume, prompt user for vault password
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Creating LUKS vault...',
         $cryptsetup-luks-format-cmdline
     );
 
     # open LUKS encrypted volume, prompt user for vault password
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Opening LUKS vault...',
         $cryptsetup-luks-open-cmdline
     );
@@ -684,7 +684,7 @@ method !disable-cow(--> Nil)
         var/spool
         var/tmp
     >.map(-> Str:D $directory { sprintf(Q{/mnt/%s}, $directory) });
-    Archvault::Utils.disable-cow(|@directory, :recursive);
+    Voidvault::Utils.disable-cow(|@directory, :recursive);
 }
 
 # bootstrap initial chroot with pacstrap
@@ -743,7 +743,7 @@ method !pacstrap-base(--> Nil)
 
     # download and install packages with pacman in chroot
     my Str:D $pacstrap-cmdline = sprintf('pacstrap /mnt %s', @pkg.join(' '));
-    Archvault::Utils.loop-cmdline-proc(
+    Voidvault::Utils.loop-cmdline-proc(
         'Running pacstrap...',
         $pacstrap-cmdline
     );

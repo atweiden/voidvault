@@ -1,7 +1,7 @@
 use v6;
-use Archvault::Bootstrap;
-use Archvault::Config;
-unit class Archvault;
+use Voidvault::Bootstrap;
+use Voidvault::Config;
+unit class Voidvault;
 
 constant $VERSION = v1.0.1;
 
@@ -37,11 +37,11 @@ method new(
     --> Nil
 )
 {
-    # instantiate archvault config, prompting for user input as needed
-    my Archvault::Config $config .= new(|%opts);
+    # instantiate voidvault config, prompting for user input as needed
+    my Voidvault::Config $config .= new(|%opts);
 
-    # bootstrap archvault
-    Archvault::Bootstrap.new(:$config).bootstrap;
+    # bootstrap voidvault
+    Voidvault::Bootstrap.new(:$config).bootstrap;
 }
 
 # vim: set filetype=perl6 foldmethod=marker foldlevel=0:

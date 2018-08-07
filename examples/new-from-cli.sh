@@ -2,7 +2,7 @@
 
 export PATH="bin:$PATH"
 export PERL6LIB="lib"
-archvault --admin-name="live"                                  \
+voidvault --admin-name="live"                                  \
           --admin-pass="your admin user's password"            \
           --guest-name="guest"                                 \
           --guest-pass="your guest user's password"            \
