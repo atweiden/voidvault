@@ -27,7 +27,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!setup;
     self!mkdisk;
     self!disable-cow;
-    self!pacstrap-base;
+    self!xvoidstrap-base;
     self!configure-users;
     self!configure-sudoers;
     self!genfstab;
@@ -63,7 +63,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    # fetch dependencies needed prior to pacstrap
+    # fetch dependencies needed prior to xvoidstrap
     my Str:D @dep = qw<
         arch-install-scripts
         btrfs-progs
@@ -651,8 +651,8 @@ method !disable-cow(--> Nil)
     Voidvault::Utils.disable-cow(|@directory, :recursive);
 }
 
-# bootstrap initial chroot with pacstrap
-method !pacstrap-base(--> Nil)
+# bootstrap initial chroot with xvoidstrap
+method !xvoidstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
 
@@ -704,10 +704,11 @@ method !pacstrap-base(--> Nil)
     push(@pkg, 'intel-ucode') if $processor eq 'intel';
 
     # download and install packages with pacman in chroot
-    my Str:D $pacstrap-cmdline = sprintf('pacstrap /mnt %s', @pkg.join(' '));
+    my Str:D $xvoidstrap-cmdline =
+        sprintf('xvoidstrap /mnt %s', @pkg.join(' '));
     Voidvault::Utils.loop-cmdline-proc(
-        'Running pacstrap...',
-        $pacstrap-cmdline
+        'Running xvoidstrap...',
+        $xvoidstrap-cmdline
     );
 }
 
