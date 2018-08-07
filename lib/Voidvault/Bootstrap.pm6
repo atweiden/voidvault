@@ -65,7 +65,6 @@ method !setup(--> Nil)
 {
     # fetch dependencies needed prior to xvoidstrap
     my Str:D @dep = qw<
-        arch-install-scripts
         btrfs-progs
         coreutils
         cryptsetup
@@ -77,14 +76,14 @@ method !setup(--> Nil)
         glibc
         gptfdisk
         grub
-        haveged
         kbd
         kmod
-        openssl
-        pacman
+        libressl
         procps-ng
         tzdata
         util-linux
+        xbps
+        xtools
     >;
 
     my Str:D $pacman-dep-cmdline =
