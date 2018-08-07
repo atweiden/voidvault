@@ -13,7 +13,7 @@ unit class Voidvault::Config;
 # name for admin user (default: live)
 has UserName:D $.user-name-admin =
     %*ENV<VOIDVAULT_ADMIN_NAME>
-        ?? self.gen-user-name(%*ENV<VOIDVAULT_ADMIN_NAME>)
+        ?? Voidvault::Config.gen-user-name(%*ENV<VOIDVAULT_ADMIN_NAME>)
         !! prompt-name(:user, :admin);
 
 # sha512 password hash for admin user
@@ -27,7 +27,7 @@ has Str:D $.user-pass-hash-admin =
 # name for guest user (default: guest)
 has UserName:D $.user-name-guest =
     %*ENV<VOIDVAULT_GUEST_NAME>
-        ?? self.gen-user-name(%*ENV<VOIDVAULT_GUEST_NAME>)
+        ?? Voidvault::Config.gen-user-name(%*ENV<VOIDVAULT_GUEST_NAME>)
         !! prompt-name(:user, :guest);
 
 # sha512 password hash for guest user
@@ -41,7 +41,7 @@ has Str:D $.user-pass-hash-guest =
 # name for sftp user (default: variable)
 has UserName:D $.user-name-sftp =
     %*ENV<VOIDVAULT_SFTP_NAME>
-        ?? self.gen-user-name(%*ENV<VOIDVAULT_SFTP_NAME>)
+        ?? Voidvault::Config.gen-user-name(%*ENV<VOIDVAULT_SFTP_NAME>)
         !! prompt-name(:user, :sftp);
 
 # sha512 password hash for sftp user
@@ -63,7 +63,7 @@ has Str:D $.user-pass-hash-root =
 # name for grub user (default: grub)
 has UserName:D $.user-name-grub =
     %*ENV<VOIDVAULT_GRUB_NAME>
-        ?? self.gen-user-name(%*ENV<VOIDVAULT_GRUB_NAME>)
+        ?? Voidvault::Config.gen-user-name(%*ENV<VOIDVAULT_GRUB_NAME>)
         !! prompt-name(:user, :grub);
 
 # pbkdf2 password hash for grub user
@@ -77,19 +77,19 @@ has Str:D $.user-pass-hash-grub =
 # name for LUKS encrypted volume (default: vault)
 has VaultName:D $.vault-name =
     %*ENV<VOIDVAULT_VAULT_NAME>
-        ?? self.gen-vault-name(%*ENV<VOIDVAULT_VAULT_NAME>)
+        ?? Voidvault::Config.gen-vault-name(%*ENV<VOIDVAULT_VAULT_NAME>)
         !! prompt-name(:vault);
 
 # password for LUKS encrypted volume
 has VaultPass $.vault-pass =
     %*ENV<VOIDVAULT_VAULT_PASS>
-        ?? self.gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
+        ?? Voidvault::Config.gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
         !! Nil;
 
 # name for host (default: vault)
 has HostName:D $.host-name =
     %*ENV<VOIDVAULT_HOSTNAME>
-        ?? self.gen-host-name(%*ENV<VOIDVAULT_HOSTNAME>)
+        ?? Voidvault::Config.gen-host-name(%*ENV<VOIDVAULT_HOSTNAME>)
         !! prompt-name(:host);
 
 # device path of target partition (default: /dev/sdb)
@@ -100,37 +100,37 @@ has Str:D $.partition =
 # type of processor (default: other)
 has Processor:D $.processor =
     %*ENV<VOIDVAULT_PROCESSOR>
-        ?? self.gen-processor(%*ENV<VOIDVAULT_PROCESSOR>)
+        ?? Voidvault::Config.gen-processor(%*ENV<VOIDVAULT_PROCESSOR>)
         !! prompt-processor();
 
 # type of graphics card (default: intel)
 has Graphics:D $.graphics =
     %*ENV<VOIDVAULT_GRAPHICS>
-        ?? self.gen-graphics(%*ENV<VOIDVAULT_GRAPHICS>)
+        ?? Voidvault::Config.gen-graphics(%*ENV<VOIDVAULT_GRAPHICS>)
         !! prompt-graphics();
 
 # type of hard drive (default: usb)
 has DiskType:D $.disk-type =
     %*ENV<VOIDVAULT_DISK_TYPE>
-        ?? self.gen-disk-type(%*ENV<VOIDVAULT_DISK_TYPE>)
+        ?? Voidvault::Config.gen-disk-type(%*ENV<VOIDVAULT_DISK_TYPE>)
         !! prompt-disk-type();
 
 # locale (default: en_US)
 has Locale:D $.locale =
     %*ENV<VOIDVAULT_LOCALE>
-        ?? self.gen-locale(%*ENV<VOIDVAULT_LOCALE>)
+        ?? Voidvault::Config.gen-locale(%*ENV<VOIDVAULT_LOCALE>)
         !! prompt-locale();
 
 # keymap (default: us)
 has Keymap:D $.keymap =
     %*ENV<VOIDVAULT_KEYMAP>
-        ?? self.gen-keymap(%*ENV<VOIDVAULT_KEYMAP>)
+        ?? Voidvault::Config.gen-keymap(%*ENV<VOIDVAULT_KEYMAP>)
         !! prompt-keymap();
 
 # timezone (default: America/Los_Angeles)
 has Timezone:D $.timezone =
     %*ENV<VOIDVAULT_TIMEZONE>
-        ?? self.gen-timezone(%*ENV<VOIDVAULT_TIMEZONE>)
+        ?? Voidvault::Config.gen-timezone(%*ENV<VOIDVAULT_TIMEZONE>)
         !! prompt-timezone();
 
 # augment
@@ -176,37 +176,58 @@ submethod BUILD(
     --> Nil
 )
 {
-    $!augment = $augment if $augment;
-    $!disk-type = self.gen-disk-type($disk-type) if $disk-type;
-    $!graphics = self.gen-graphics($graphics) if $graphics;
-    $!host-name = self.gen-host-name($hostname) if $hostname;
-    $!keymap = self.gen-keymap($keymap) if $keymap;
-    $!locale = self.gen-locale($locale) if $locale;
-    $!partition = $partition if $partition;
-    $!processor = self.gen-processor($processor) if $processor;
-    $!reflector = $reflector if $reflector;
-    $!timezone = self.gen-timezone($timezone) if $timezone;
-    $!user-name-admin = self.gen-user-name($admin-name) if $admin-name;
-    $!user-name-grub = self.gen-user-name($grub-name) if $grub-name;
-    $!user-name-guest = self.gen-user-name($guest-name) if $guest-name;
-    $!user-name-sftp = self.gen-user-name($sftp-name) if $sftp-name;
-    $!user-pass-hash-admin =
-        Voidvault::Utils.gen-pass-hash($admin-pass) if $admin-pass;
-    $!user-pass-hash-admin = $admin-pass-hash if $admin-pass-hash;
-    $!user-pass-hash-grub =
-        Voidvault::Utils.gen-pass-hash($grub-pass, :grub) if $grub-pass;
-    $!user-pass-hash-grub = $grub-pass-hash if $grub-pass-hash;
-    $!user-pass-hash-guest =
-        Voidvault::Utils.gen-pass-hash($guest-pass) if $guest-pass;
-    $!user-pass-hash-guest = $guest-pass-hash if $guest-pass-hash;
-    $!user-pass-hash-root =
-        Voidvault::Utils.gen-pass-hash($root-pass) if $root-pass;
-    $!user-pass-hash-root = $root-pass-hash if $root-pass-hash;
-    $!user-pass-hash-sftp =
-        Voidvault::Utils.gen-pass-hash($sftp-pass) if $sftp-pass;
-    $!user-pass-hash-sftp = $sftp-pass-hash if $sftp-pass-hash;
-    $!vault-name = self.gen-vault-name($vault-name) if $vault-name;
-    $!vault-pass = self.gen-vault-pass($vault-pass) if $vault-pass;
+    $!augment = $augment
+        if $augment;
+    $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
+        if $disk-type;
+    $!graphics = Voidvault::Config.gen-graphics($graphics)
+        if $graphics;
+    $!host-name = Voidvault::Config.gen-host-name($hostname)
+        if $hostname;
+    $!keymap = Voidvault::Config.gen-keymap($keymap)
+        if $keymap;
+    $!locale = Voidvault::Config.gen-locale($locale)
+        if $locale;
+    $!partition = $partition
+        if $partition;
+    $!processor = Voidvault::Config.gen-processor($processor)
+        if $processor;
+    $!reflector = $reflector
+        if $reflector;
+    $!timezone = Voidvault::Config.gen-timezone($timezone)
+        if $timezone;
+    $!user-name-admin = Voidvault::Config.gen-user-name($admin-name)
+        if $admin-name;
+    $!user-name-grub = Voidvault::Config.gen-user-name($grub-name)
+        if $grub-name;
+    $!user-name-guest = Voidvault::Config.gen-user-name($guest-name)
+        if $guest-name;
+    $!user-name-sftp = Voidvault::Config.gen-user-name($sftp-name)
+        if $sftp-name;
+    $!user-pass-hash-admin = Voidvault::Utils.gen-pass-hash($admin-pass)
+        if $admin-pass;
+    $!user-pass-hash-admin = $admin-pass-hash
+        if $admin-pass-hash;
+    $!user-pass-hash-grub = Voidvault::Utils.gen-pass-hash($grub-pass, :grub)
+        if $grub-pass;
+    $!user-pass-hash-grub = $grub-pass-hash
+        if $grub-pass-hash;
+    $!user-pass-hash-guest = Voidvault::Utils.gen-pass-hash($guest-pass)
+        if $guest-pass;
+    $!user-pass-hash-guest = $guest-pass-hash
+        if $guest-pass-hash;
+    $!user-pass-hash-root = Voidvault::Utils.gen-pass-hash($root-pass)
+        if $root-pass;
+    $!user-pass-hash-root = $root-pass-hash
+        if $root-pass-hash;
+    $!user-pass-hash-sftp = Voidvault::Utils.gen-pass-hash($sftp-pass)
+        if $sftp-pass;
+    $!user-pass-hash-sftp = $sftp-pass-hash
+        if $sftp-pass-hash;
+    $!vault-name = Voidvault::Config.gen-vault-name($vault-name)
+        if $vault-name;
+    $!vault-pass = Voidvault::Config.gen-vault-pass($vault-pass)
+        if $vault-pass;
 }
 
 method new(
