@@ -24,7 +24,6 @@ method new(
         Str :locale($),
         Str :partition($),
         Str :processor($),
-        Bool :reflector($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),

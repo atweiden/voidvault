@@ -63,8 +63,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    my Bool:D $reflector = $.config.reflector;
-
     # initialize pacman-keys
     run(qw<haveged -w 1024>);
     run(qw<pacman-key --init>);
@@ -104,34 +102,6 @@ method !setup(--> Nil)
 
     # use readable font
     run(qw<setfont Lat2-Terminus16>);
-
-    # optionally run reflector
-    reflector() if $reflector;
-}
-
-sub reflector(--> Nil)
-{
-    my Str:D $pacman-reflector-cmdline =
-        'pacman -Sy --needed --noconfirm reflector';
-    Voidvault::Utils.loop-cmdline-proc(
-        'Installing reflector...',
-        $pacman-reflector-cmdline
-    );
-
-    # rank mirrors
-    rename('/etc/pacman.d/mirrorlist', '/etc/pacman.d/mirrorlist.bak');
-    my Str:D $reflector-cmdline = qw<
-        reflector
-        --threads 5
-        --protocol https
-        --fastest 7
-        --number 7
-        --save /etc/pacman.d/mirrorlist
-    >.join(' ');
-    Voidvault::Utils.loop-cmdline-proc(
-        'Running reflector to optimize pacman mirrors',
-        $reflector-cmdline
-    );
 }
 
 # secure disk configuration
@@ -691,7 +661,6 @@ method !disable-cow(--> Nil)
 method !pacstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
-    my Bool:D $reflector = $.config.reflector;
 
     # base packages
     my Str:D @pkg = qw<
@@ -739,7 +708,6 @@ method !pacstrap-base(--> Nil)
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'intel';
-    push(@pkg, 'reflector') if $reflector;
 
     # download and install packages with pacman in chroot
     my Str:D $pacstrap-cmdline = sprintf('pacstrap /mnt %s', @pkg.join(' '));

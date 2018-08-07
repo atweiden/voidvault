@@ -137,10 +137,6 @@ has Timezone:D $.timezone =
 has Bool:D $.augment =
     ?%*ENV<VOIDVAULT_AUGMENT>;
 
-# reflector
-has Bool:D $.reflector =
-    ?%*ENV<VOIDVAULT_REFLECTOR>;
-
 
 # -----------------------------------------------------------------------------
 # class instantation
@@ -164,7 +160,6 @@ submethod BUILD(
     Str :$locale,
     Str :$partition,
     Str :$processor,
-    Bool :$reflector,
     Str :$root-pass,
     Str :$root-pass-hash,
     Str :$sftp-name,
@@ -192,8 +187,6 @@ submethod BUILD(
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
         if $processor;
-    $!reflector = $reflector
-        if $reflector;
     $!timezone = Voidvault::Config.gen-timezone($timezone)
         if $timezone;
     $!user-name-admin = Voidvault::Config.gen-user-name($admin-name)
@@ -249,7 +242,6 @@ method new(
         Str :locale($),
         Str :partition($),
         Str :processor($),
-        Bool :reflector($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),

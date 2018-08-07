@@ -110,7 +110,6 @@ multi sub MAIN(
         Str :locale($),
         Str :partition($),
         Str :processor($),
-        Bool :reflector($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
@@ -306,8 +305,6 @@ multi sub USAGE('new' --> Nil)
         Partition target for install
       --processor=<processor>
         Processor type
-      --reflector
-        Optimize Pacman mirrors
       --root-pass=<password>
         Password for root account
       --root-pass-hash=<passhash>
