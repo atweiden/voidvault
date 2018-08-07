@@ -397,7 +397,7 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
         'srv',
         'usr',
         'var',
-        'var-cache-pacman',
+        'var-cache-xbps',
         'var-lib-ex',
         'var-lib-machines',
         'var-lib-portables',
@@ -443,18 +443,18 @@ multi sub mount-btrfs-subvolume(
 }
 
 multi sub mount-btrfs-subvolume(
-    'var-cache-pacman',
+    'var-cache-xbps',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/cache/pacman';
+    my Str:D $btrfs-dir = 'var/cache/xbps';
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
         -t btrfs
-        -o $mount-options,subvol=@var-cache-pacman
+        -o $mount-options,subvol=@var-cache-xbps
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
