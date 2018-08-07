@@ -86,11 +86,11 @@ method !setup(--> Nil)
         xtools
     >;
 
-    my Str:D $pacman-dep-cmdline =
-        sprintf('pacman -Sy --needed --noconfirm %s', @dep.join(' '));
+    my Str:D $xbps-install-dep-cmdline =
+        sprintf('xbps-install -S --yes %s', @dep.join(' '));
     Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
-        $pacman-dep-cmdline
+        $xbps-install-dep-cmdline
     );
 
     # use readable font
