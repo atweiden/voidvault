@@ -408,13 +408,14 @@ method loop-cmdline-proc(
 
 sub install-expect(--> Nil)
 {
-    # C<pacman -S> requires root privileges
-    $*USER == 0
-        or die('Sorry, missing pkg expect. Please install: pacman -S expect');
-    my Str:D $pacman-expect-cmdline = 'pacman -Sy --needed --noconfirm expect';
+    # Cxbps-install> requires root privileges
+    my Str:D $message =
+        'Sorry, missing pkg expect. Please install: xbps-install expect';
+    $*USER == 0 or die($message);
+    my Str:D $xbps-install-expect-cmdline = 'xbps-install --sync --yes expect';
     Voidvault::Utils.loop-cmdline-proc(
         'Installing expect...',
-        $pacman-expect-cmdline
+        $xbps-install-expect-cmdline
     );
 }
 
