@@ -398,10 +398,6 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
         'usr',
         'var',
         'var-cache-xbps',
-        'var-lib-ex',
-        'var-lib-machines',
-        'var-lib-portables',
-        'var-lib-postgres',
         'var-log',
         'var-opt',
         'var-spool',
@@ -455,81 +451,6 @@ multi sub mount-btrfs-subvolume(
         mount
         -t btrfs
         -o $mount-options,subvol=@var-cache-xbps
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
-    >);
-}
-
-multi sub mount-btrfs-subvolume(
-    'var-lib-ex',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my Str:D $btrfs-dir = 'var/lib/ex';
-    mkdir("/mnt/$btrfs-dir");
-    run(qqw<
-        mount
-        -t btrfs
-        -o $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
-    >);
-    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
-}
-
-multi sub mount-btrfs-subvolume(
-    'var-lib-machines',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my Str:D $btrfs-dir = 'var/lib/machines';
-    mkdir("/mnt/$btrfs-dir");
-    run(qqw<
-        mount
-        -t btrfs
-        -o $mount-options,subvol=@var-lib-machines
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
-    >);
-    chmod(0o700, "/mnt/$btrfs-dir");
-}
-
-multi sub mount-btrfs-subvolume(
-    'var-lib-portables',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my Str:D $btrfs-dir = 'var/lib/portables';
-    mkdir("/mnt/$btrfs-dir");
-    run(qqw<
-        mount
-        -t btrfs
-        -o $mount-options,subvol=@var-lib-portables
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
-    >);
-    chmod(0o700, "/mnt/$btrfs-dir");
-}
-
-multi sub mount-btrfs-subvolume(
-    'var-lib-postgres',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my Str:D $btrfs-dir = 'var/lib/postgres';
-    mkdir("/mnt/$btrfs-dir");
-    run(qqw<
-        mount
-        -t btrfs
-        -o $mount-options,subvol=@var-lib-postgres
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -639,10 +560,6 @@ method !disable-cow(--> Nil)
     my Str:D @directory = qw<
         home
         srv
-        var/lib/ex
-        var/lib/machines
-        var/lib/portables
-        var/lib/postgres
         var/log
         var/spool
         var/tmp
