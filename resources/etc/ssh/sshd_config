@@ -1,0 +1,57 @@
+# authentication
+AddressFamily any
+AuthorizedKeysFile /etc/ssh/authorized_keys/%u .ssh/authorized_keys
+ChallengeResponseAuthentication no
+ListenAddress 0.0.0.0
+ListenAddress ::
+LoginGraceTime 2m
+PasswordAuthentication no
+PermitEmptyPasswords no
+PermitRootLogin no
+Port 22
+UsePAM no
+
+# connection
+ClientAliveCountMax 3
+ClientAliveInterval 60
+Compression yes
+MaxStartups 10:30:100
+TCPKeepAlive yes
+UseDNS no
+
+# cryptography
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+HostKey /etc/ssh/ssh_host_ed25519_key
+HostKey /etc/ssh/ssh_host_rsa_key
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com
+
+# privilege
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+ChrootDirectory none
+GatewayPorts no
+PermitTTY yes
+PermitTunnel no
+PermitUserEnvironment no
+StrictModes yes
+Subsystem sftp internal-sftp
+X11DisplayOffset 10
+X11Forwarding no
+X11UseLocalhost yes
+
+# process
+Banner none
+LogLevel ERROR
+PidFile /run/sshd.pid
+PrintLastLog yes
+PrintMotd no
+SyslogFacility AUTH
+VersionAddendum none
+
+# sftp
+Match Group sftponly
+    ChrootDirectory /srv/ssh/jail
+    ForceCommand internal-sftp -d %u
+    PermitTTY no
+    PermitUserRC no

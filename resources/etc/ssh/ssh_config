@@ -1,0 +1,39 @@
+Host *
+    # authentication
+    AddressFamily any
+    CheckHostIP yes
+    GSSAPIAuthentication no
+    GSSAPIDelegateCredentials no
+    HashKnownHosts yes
+    HostbasedAuthentication no
+    IdentityFile ~/.ssh/id_ed25519
+    PasswordAuthentication yes
+    Port 22
+    Protocol 2
+    StrictHostKeyChecking ask
+
+    # connection
+    ConnectTimeout 0
+    EscapeChar ~
+    RekeyLimit default none
+    ServerAliveCountMax 3
+    ServerAliveInterval 60
+    TCPKeepAlive yes
+    Tunnel no
+    TunnelDevice any:any
+
+    # cryptography
+    Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr
+    HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ssh-ed25519,ssh-rsa
+    HostbasedKeyTypes ssh-ed25519-cert-v01@openssh.com,ssh-rsa-cert-v01@openssh.com,ssh-ed25519,ssh-rsa
+    KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+    MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com,hmac-sha2-512,hmac-sha2-256,umac-128@openssh.com,hmac-md5-96-etm@openssh.com,hmac-md5-etm@openssh.com,umac-64-etm@openssh.com,hmac-md5-96,hmac-md5
+
+    # privilege
+    ForwardAgent no
+    ForwardX11 no
+    PermitLocalCommand no
+
+    # process
+    BatchMode no
+    VisualHostKey no

@@ -1,0 +1,44 @@
+{
+    "perl"        : "6.*",
+    "name"        : "Archvault",
+    "version"     : "1.0.1",
+    "author"      : "atweiden",
+    "description" : "Bootstrap Arch with FDE",
+    "license"     : "Unlicense",
+    "source-type" : "git",
+    "source-url"  : "git://github.com/atweiden/archvault.git",
+    "support"     : {
+        "bugtracker" : "https://github.com/atweiden/archvault/issues",
+        "source"     : "https://github.com/atweiden/archvault"
+    },
+    "provides" : {
+        "Archvault"            : "lib/Archvault.pm6",
+        "Archvault::Bootstrap" : "lib/Archvault/Bootstrap.pm6",
+        "Archvault::Config"    : "lib/Archvault/Config.pm6",
+        "Archvault::Grammar"   : "lib/Archvault/Grammar.pm6",
+        "Archvault::Types"     : "lib/Archvault/Types.pm6",
+        "Archvault::Utils"     : "lib/Archvault/Utils.pm6",
+        "Crypt::Libcrypt"      : "lib/Crypt/Libcrypt.pm6"
+    },
+    "resources" : [
+        "etc/X11/Xwrapper.config",
+        "etc/X11/xorg.conf.d/10-synaptics.conf",
+        "etc/X11/xorg.conf.d/99-security.conf",
+        "etc/hosts",
+        "etc/hosts.allow",
+        "etc/modprobe.d/modprobe.conf",
+        "etc/profile.d/shell-timeout.sh",
+        "etc/resolv.conf.head",
+        "etc/securetty",
+        "etc/ssh/ssh_config",
+        "etc/ssh/sshd_config",
+        "etc/sysctl.d/99-sysctl.conf",
+        "etc/systemd/sleep.conf",
+        "etc/systemd/swap.conf.d/zram.conf",
+        "etc/systemd/system.conf.d/limits.conf",
+        "etc/systemd/system/systemd-logind.service.d/hidepid.conf",
+        "etc/systemd/system/tmp.mount.d/noexec.conf",
+        "etc/tmpfiles.d/tmp.conf",
+        "etc/udev/rules.d/60-io-schedulers.rules"
+    ]
+}
