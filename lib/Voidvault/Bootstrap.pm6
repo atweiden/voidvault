@@ -63,12 +63,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    # initialize pacman-keys
-    run(qw<haveged -w 1024>);
-    run(qw<pacman-key --init>);
-    run(qw<pacman-key --populate archlinux>);
-    run(qw<pkill haveged>);
-
     # fetch dependencies needed prior to pacstrap
     my Str:D @dep = qw<
         arch-install-scripts
