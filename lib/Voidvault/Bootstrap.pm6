@@ -575,45 +575,111 @@ method !xvoidstrap-base(--> Nil)
     # base packages
     my Str:D @pkg = qw<
         acpi
-        arch-install-scripts
-        base
-        base-devel
+        autoconf
+        automake
+        base-system
+        bash
         bash-completion
+        bc
+        binutils
+        bison
         btrfs-progs
+        bzip2
         ca-certificates
+        chrony
+        coreutils
         crda
+        cronie
+        cryptsetup
+        curl
+        device-mapper
         dhclient
+        dhcpcd
         dialog
+        diffutils
         dnscrypt-proxy
         dosfstools
+        dracut
+        e2fsprogs
         ed
         efibootmgr
         ethtool
+        exfat-utils
         expect
+        file
+        findutils
+        flex
+        gawk
+        gcc
+        gettext
+        git
+        glibc
+        gnupg2
         gptfdisk
+        grep
+        groff
         grub
+        gzip
         haveged
-        ifplugd
+        inetutils
         iproute2
+        iputils
         iw
         kbd
+        kmod
+        ldns
+        less
+        libressl
+        libtool
+        linux
+        linux-firmware
+        linux-firmware-network
+        logrotate
         lz4
+        m4
+        make
+        man-db
+        man-pages
+        mlocate
         net-tools
         nftables
         openresolv
         openssh
-        pacman-contrib
+        patch
+        pciutils
+        perl
+        pinentry
+        pkgconf
+        procps-ng
+        psmisc
+        rakudo
         rsync
-        systemd-swap
+        sed
+        shadow
+        socat
+        socklog-void
+        sudo
+        sysfsutils
+        tar
+        texinfo
         tmux
+        tzdata
         unzip
+        usb-modeswitch
+        usbutils
+        util-linux
         vim
         wget
-        wireless-regdb
+        which
         wireless_tools
         wpa_actiond
         wpa_supplicant
+        xbps
+        xtools
+        xz
         zip
+        zlib
+        zstd
     >;
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
