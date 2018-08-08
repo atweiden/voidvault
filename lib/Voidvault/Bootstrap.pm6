@@ -759,18 +759,22 @@ multi sub useradd(
 {
     my Str:D $user-group-admin = qw<
         audio
-        games
-        log
+        cdrom
+        floppy
+        input
+        kvm
         lp
+        mail
         network
         optical
-        power
         proc
         scanner
+        socklog
         storage
         users
         video
         wheel
+        xbuilder
     >.join(',');
     my Str:D $user-shell-admin = '/bin/bash';
 
