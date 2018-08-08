@@ -686,6 +686,9 @@ method !voidstrap-base(--> Nil)
 
     # download and install packages with voidstrap in chroot
     voidstrap('/mnt', @pkg);
+
+    # rm pkg void-artwork
+    void-chroot('/mnt', 'xbps-remove void-artwork');
 }
 
 # secure user configuration
