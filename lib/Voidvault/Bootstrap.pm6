@@ -63,6 +63,47 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
+    # rm pkgs not needed prior to voidstrap
+    my Str:D @rm = qw<
+        acpid
+        dash
+        ethtool
+        f2fs-tools
+        hwids
+        iana-etc
+        iproute2
+        iputils
+        ipw2100-firmware
+        ipw2200-firmware
+        iw
+        libnl3
+        libusb
+        linux-firmware-amd
+        linux-firmware-intel
+        linux-firmware-network
+        linux-firmware-nvidia
+        lvm2
+        man-pages
+        mdadm
+        mdocml
+        openssh
+        os-prober
+        popt
+        psmisc
+        sudo
+        traceroute
+        usbutils
+        void-artwork
+        which
+        wifi-firmware
+        wpa_supplicant
+        xfsprogs
+        zd1211-firmware
+    >;
+    my Str:D $xbps-remove-cmdline =
+        sprintf('xbps-remove --force-revdeps --yes %s', @dep.join(' '));
+    shell($xbps-remove-cmdline);
+
     # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<
         btrfs-progs
