@@ -1224,6 +1224,7 @@ method !enable-runit-services(--> Nil)
     my Str:D @service = qw<
         dnscrypt-proxy
         nftables
+        socklog-unix
         zramswap
     >;
     @service.map(-> Str:D $service {
