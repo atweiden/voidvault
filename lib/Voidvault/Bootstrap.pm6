@@ -730,9 +730,6 @@ method !voidstrap-base(--> Nil)
     # download and install packages with voidstrap in chroot
     voidstrap('/mnt', @pkg);
 
-    # reconfigure
-    void-chroot('/mnt', 'xbps-reconfigure --all --force --verbose');
-
     # rm pkg void-artwork
     void-chroot('/mnt', 'xbps-remove --yes void-artwork');
 }
@@ -1466,7 +1463,7 @@ sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
     my Str:D $repository = 'https://repo.voidlinux.eu/current';
     my Str:D $xbps-install-opts =
         sprintf(
-            Q{--repository %s --force --sync --unpack-only --yes --rootdir %s},
+            Q{--repository %s --force --sync --yes --rootdir %s},
             $repository,
             $chroot-dir
         );
