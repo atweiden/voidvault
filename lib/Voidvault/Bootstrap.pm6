@@ -1019,13 +1019,9 @@ multi sub install-bootloader(
 {
     install-bootloader(:legacy, $partition);
     install-bootloader(:uefi, $partition);
-    void-chroot(
-        '/mnt',
-        qw<
-            cp
-            /usr/share/locale/en@quot/LC_MESSAGES/grub.mo
-            /boot/grub/locale/en.mo
-        >
+    copy(
+        '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
+        '/mnt/boot/grub/locale/en.mo'
     );
     void-chroot('/mnt', 'grub-mkconfig -o /boot/grub/grub.cfg');
 }
