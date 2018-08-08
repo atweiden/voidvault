@@ -983,11 +983,22 @@ method !configure-modprobe(--> Nil)
 
 method !generate-initramfs(--> Nil)
 {
-    my DiskType:D $disk-type = $.config.disk-type;
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
-    replace('mkinitcpio.conf', $disk-type, $graphics, $processor);
-    void-chroot('/mnt', 'mkinitcpio -p linux');
+    replace('dracut.conf.d', $graphics, $processor);
+    # C<uname -r> will fail since kernel not running in chroot
+    my Str:D $linux-version =
+        qx{xbps-query --rootdir /mnt --property pkgver linux}
+        .trim
+        .substr(6..*)
+        .split(/'.'|'_'/)[^2]
+        .join('.');
+    my Str:D $dracut-cmdline =
+        sprintf(Q{dracut --kver %s}, $linux-version);
+    void-chroot('/mnt', $dracut-cmdline);
+    my Str:D $xbps-reconfigure-linux-cmdline =
+        sprintf(Q{xbps-reconfigure --force linux%s}, $linux-version);
+    void-chroot('/mnt', $xbps-reconfigure-linux-cmdline);
 }
 
 method !install-bootloader(--> Nil)
@@ -1078,7 +1089,9 @@ multi sub install-bootloader(
 method !configure-sysctl(--> Nil)
 {
     my DiskType:D $disk-type = $.config.disk-type;
-    my Str:D $path = 'etc/sysctl.d/99-sysctl.conf';
+    my Str:D $base-path = 'etc/sysctl.d';
+    my Str:D $path = "$base-path/99-sysctl.conf";
+    mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
     replace('99-sysctl.conf', $disk-type);
     void-chroot('/mnt', 'sysctl --system');
@@ -1762,132 +1775,76 @@ multi sub replace(
 }
 
 # --- end rc.conf }}}
-# --- mkinitcpio.conf {{{
+# --- dracut.conf.d {{{
 
 multi sub replace(
-    'mkinitcpio.conf',
-    DiskType:D $disk-type,
+    'dracut.conf.d',
     Graphics:D $graphics,
     Processor:D $processor
     --> Nil
 )
 {
-    my Str:D $file = '/mnt/etc/mkinitcpio.conf';
-    my Str:D @replace =
-        $file.IO.lines
-        ==> replace('mkinitcpio.conf', 'MODULES', $graphics, $processor)
-        ==> replace('mkinitcpio.conf', 'HOOKS', $disk-type)
-        ==> replace('mkinitcpio.conf', 'FILES')
-        ==> replace('mkinitcpio.conf', 'BINARIES')
-        ==> replace('mkinitcpio.conf', 'COMPRESSION');
-    my Str:D $replace = @replace.join("\n");
+    replace('dracut.conf.d', 'compress.conf');
+    replace('dracut.conf.d', 'modules.conf', $graphics, $processor);
+    replace('dracut.conf.d', 'policy.conf');
+    replace('dracut.conf.d', 'tmpdir.conf');
+}
+
+multi sub replace(
+    'dracut.conf.d',
+    Str:D $subject where 'compress.conf'
+    --> Nil
+)
+{
+    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $replace = 'compress="zstd"';
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'mkinitcpio.conf',
-    Str:D $subject where 'MODULES',
+    'dracut.conf.d',
+    Str:D $subject where 'modules.conf',
     Graphics:D $graphics,
-    Processor:D $processor,
-    Str:D @line
-    --> Array[Str:D]
+    Processor:D $processor
+    --> Nil
 )
 {
-    # prepare modules
-    my Str:D @modules;
+    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D @modules = qw<crypt btrfs>;
     push(@modules, $processor eq 'INTEL' ?? 'crc32c-intel' !! 'crc32c');
     push(@modules, 'i915') if $graphics eq 'INTEL';
     push(@modules, 'nouveau') if $graphics eq 'NVIDIA';
     push(@modules, 'radeon') if $graphics eq 'RADEON';
-    # for systemd-swap lz4
+    # for zram lz4 compression
     push(@modules, |qw<lz4 lz4_compress>);
-    # replace modules
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=(%s)}, $subject, @modules.join(' '));
-    @line[$index] = $replace;
-    @line;
+    my Str:D $replace =
+        sprintf(Q{add_dracutmodules+=" %s "}, @modules.join(' '));
+    spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'mkinitcpio.conf',
-    Str:D $subject where 'HOOKS',
-    DiskType:D $disk-type,
-    Str:D @line
-    --> Array[Str:D]
+    'dracut.conf.d',
+    Str:D $subject where 'policy.conf'
+    --> Nil
 )
 {
-    # prepare hooks
-    my Str:D @hooks = qw<
-        base
-        udev
-        autodetect
-        modconf
-        keyboard
-        keymap
-        encrypt
-        btrfs
-        filesystems
-        fsck
-        shutdown
-        usr
-    >;
-    $disk-type eq 'USB'
-        ?? @hooks.splice(2, 0, 'block')
-        !! @hooks.splice(4, 0, 'block');
-    # replace hooks
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=(%s)}, $subject, @hooks.join(' '));
-    @line[$index] = $replace;
-    @line;
+    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $replace = 'persistent_policy="by-uuid"';
+    spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'mkinitcpio.conf',
-    Str:D $subject where 'FILES',
-    Str:D @line
-    --> Array[Str:D]
+    'dracut.conf.d',
+    Str:D $subject where 'tmpdir.conf'
+    --> Nil
 )
 {
-    # prepare files
-    my Str:D @files = '/etc/modprobe.d/modprobe.conf';
-    # replace files
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=(%s)}, $subject, @files.join(' '));
-    @line[$index] = $replace;
-    @line;
+    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $replace = 'tmpdir="/tmp"';
+    spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    'mkinitcpio.conf',
-    Str:D $subject where 'BINARIES',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # prepare binaries
-    my Str:D @binaries = '/usr/bin/btrfs';
-    # replace binaries
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=(%s)}, $subject, @binaries.join(' '));
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    'mkinitcpio.conf',
-    Str:D $subject where 'COMPRESSION',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my Str:D $algorithm = 'lz4';
-    my Str:D $compression = sprintf(Q{%s="%s"}, $subject, $algorithm);
-    my UInt:D $index = @line.first(/^'#'$compression/, :k);
-    @line[$index] = $compression;
-    @line;
-}
-
-# --- end mkinitcpio.conf }}}
+# --- end dracut.conf.d }}}
 # --- grub {{{
 
 multi sub replace(
@@ -1928,7 +1885,12 @@ multi sub replace(
             $vault-uuid,
             $vault-name
         );
+    $grub-cmdline-linux ~= ' rd.auto=1';
+    $grub-cmdline-linux ~= ' rd.luks=1';
+    $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
     $grub-cmdline-linux ~= ' loglevel=6';
+    $grub-cmdline-linux ~= ' slub_debug=P'
+    $grub-cmdline-linux ~= ' page_poison=1'
     $grub-cmdline-linux ~= ' printk.time=1';
     $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
     # replace GRUB_CMDLINE_LINUX
@@ -1945,7 +1907,8 @@ multi sub replace(
     --> Array[Str:D]
 )
 {
-    my UInt:D $index = @line.first(/^'#'$subject/, :k);
+    # if C<GRUB_ENABLE_CRYPTODISK> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems + 1;
     my Str:D $replace = sprintf(Q{%s=y}, $subject);
     @line[$index] = $replace;
     @line;
