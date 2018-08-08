@@ -32,7 +32,10 @@
         "etc/securetty",
         "etc/ssh/ssh_config",
         "etc/ssh/sshd_config",
+        "etc/sv/zramswap/control/d",
+        "etc/sv/zramswap/run",
         "etc/sysctl.d/99-sysctl.conf",
-        "etc/udev/rules.d/60-io-schedulers.rules"
+        "etc/udev/rules.d/60-io-schedulers.rules",
+        "usr/bin/zramctrl"
     ]
 }

@@ -43,6 +43,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-modprobe;
     self!generate-initramfs;
     self!install-bootloader;
+    self!configure-zramswap;
     self!configure-sysctl;
     self!configure-nftables;
     self!configure-openssh;
@@ -1098,6 +1099,37 @@ multi sub install-bootloader(
     \EFI\BOOT\BOOTX64.EFI
     EOF
     spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+}
+
+method !configure-zramswap(--> Nil)
+{
+    # install zramctrl executable
+    configure-zramswap('executable');
+    # install zramswap start and stop script
+    configure-zramswap('run');
+    configure-zramswap('control/d');
+}
+
+multi sub configure-zramswap('executable' --> Nil)
+{
+    my Str:D $path = 'usr/bin/zramctrl';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub configure-zramswap('run' --> Nil)
+{
+    my Str:D $base-path = 'etc/sv/zramswap';
+    my Str:D $path = "$base-path/run";
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub configure-zramswap('control/d' --> Nil)
+{
+    my Str:D $base-path = 'etc/sv/zramswap/control';
+    my Str:D $path = "$base-path/d";
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
 method !configure-sysctl(--> Nil)
