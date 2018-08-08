@@ -1784,6 +1784,7 @@ multi sub replace(
 )
 {
     replace('dracut.conf.d', 'compress.conf');
+    replace('dracut.conf.d', 'drivers.conf');
     replace('dracut.conf.d', 'modules.conf', $graphics, $processor);
     replace('dracut.conf.d', 'policy.conf');
     replace('dracut.conf.d', 'tmpdir.conf');
@@ -1797,6 +1798,17 @@ multi sub replace(
 {
     my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
     my Str:D $replace = 'compress="zstd"';
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'dracut.conf.d',
+    Str:D $subject where 'drivers.conf'
+    --> Nil
+)
+{
+    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $replace = 'add_drivers+=" ahci "';
     spurt($file, $replace ~ "\n");
 }
 
