@@ -941,10 +941,6 @@ method !set-locale(--> Nil)
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
 
-    # customize /etc/locale.gen
-    replace('locale.gen', $locale);
-    void-chroot('/mnt', 'locale-gen');
-
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;
     LANG=$locale.UTF-8
@@ -952,17 +948,20 @@ method !set-locale(--> Nil)
     LC_TIME=$locale.UTF-8
     EOF
     spurt('/mnt/etc/locale.conf', $locale-conf);
+
+    # customize /etc/default/libc-locales
+    replace('libc-locales', $locale);
+
+    # regenerate locales
+    void-chroot('/mnt', 'xbps-reconfigure --force glibc-locales');
 }
 
 method !set-keymap(--> Nil)
 {
     my Keymap:D $keymap = $.config.keymap;
-    my Str:D $vconsole = qq:to/EOF/;
-    KEYMAP=$keymap
-    FONT=Lat2-Terminus16
-    FONT_MAP=
-    EOF
-    spurt('/mnt/etc/vconsole.conf', $vconsole);
+    replace('rc.conf', 'KEYMAP', $keymap);
+    replace('rc.conf', 'FONT');
+    replace('rc.conf', 'FONT_MAP');
 }
 
 method !set-timezone(--> Nil)
@@ -1689,24 +1688,70 @@ multi sub replace(
 }
 
 # --- end dnscrypt-proxy.toml }}}
-# --- locale.gen {{{
+# --- libc-locales {{{
 
 multi sub replace(
-    'locale.gen',
+    'libc-locales',
     Locale:D $locale
     --> Nil
 )
 {
-    my Str:D $file = '/mnt/etc/locale.gen';
+    my Str:D $file = '/mnt/etc/default/libc-locales';
     my Str:D @line = $file.IO.lines;
     my Str:D $locale-full = sprintf(Q{%s.UTF-8 UTF-8}, $locale);
-    my UInt:D $index = @line.first(/^'#'$locale-full/, :k);
+    my UInt:D $index = @line.first(/^"#$locale-full"/, :k);
     @line[$index] = $locale-full;
     my Str:D $replace = @line.join("\n");
     spurt($file, $replace ~ "\n");
 }
 
-# --- end locale.gen }}}
+# --- end libc-locales }}}
+# --- rc.conf {{{
+
+multi sub replace(
+    'rc.conf',
+    'KEYMAP',
+    Keymap:D $keymap
+)
+{
+    my Str:D $file = '/mnt/etc/rc.conf';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^'#'?KEYMAP'='/, :k);
+    my Str:D $keymap-line = sprintf(Q{KEYMAP=%s}, $keymap);
+    @line[$index] = $keymap-line;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'rc.conf',
+    'FONT'
+)
+{
+    my Str:D $file = '/mnt/etc/rc.conf';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^'#'?FONT'='/, :k);
+    my Str:D $font-line = 'FONT=Lat2-Terminus16';
+    @line[$index] = $font-line;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'rc.conf',
+    'FONT_MAP'
+)
+{
+    my Str:D $file = '/mnt/etc/rc.conf';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^'#'?FONT_MAP'='/, :k);
+    my Str:D $font-map-line = 'FONT_MAP=';
+    @line[$index] = $font-map-line;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+# --- end rc.conf }}}
 # --- pacman.conf {{{
 
 multi sub replace(
