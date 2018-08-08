@@ -27,7 +27,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!setup;
     self!mkdisk;
     self!disable-cow;
-    self!xvoidstrap-base;
+    self!voidstrap-base;
     self!configure-users;
     self!configure-sudoers;
     self!genfstab;
@@ -63,7 +63,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    # fetch dependencies needed prior to xvoidstrap
+    # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<
         btrfs-progs
         coreutils
@@ -83,7 +83,6 @@ method !setup(--> Nil)
         tzdata
         util-linux
         xbps
-        xtools
     >;
 
     my Str:D $xbps-install-dep-cmdline =
@@ -567,8 +566,8 @@ method !disable-cow(--> Nil)
     Voidvault::Utils.disable-cow(|@directory, :recursive);
 }
 
-# bootstrap initial chroot with xvoidstrap
-method !xvoidstrap-base(--> Nil)
+# bootstrap initial chroot with voidstrap
+method !voidstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
 
@@ -685,13 +684,8 @@ method !xvoidstrap-base(--> Nil)
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'intel';
 
-    # download and install packages with xvoidstrap in chroot
-    my Str:D $xvoidstrap-cmdline =
-        sprintf('xvoidstrap /mnt %s', @pkg.join(' '));
-    Voidvault::Utils.loop-cmdline-proc(
-        'Running xvoidstrap...',
-        $xvoidstrap-cmdline
-    );
+    # download and install packages with voidstrap in chroot
+    voidstrap('/mnt', @pkg);
 }
 
 # secure user configuration
