@@ -1314,7 +1314,7 @@ multi sub arch-chroot-mkdir(
 # end sub arch-chroot-mkdir }}}
 # sub voidstrap {{{
 
-# based on arch-install-tools v18
+# based on arch-install-scripts v18
 sub voidstrap(Str:D $chroot-dir, Str:D @pkg --> Nil)
 {
     my Str:D @*chroot-active-mount;
