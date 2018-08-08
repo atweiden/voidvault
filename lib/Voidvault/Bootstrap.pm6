@@ -1872,7 +1872,9 @@ multi sub replace(
     my Str:D @replace =
         $file.IO.lines
         ==> replace('grub', 'GRUB_CMDLINE_LINUX_DEFAULT', |@opts)
-        ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK');
+        ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK')
+        ==> replace('grub', 'GRUB_TERMINAL_INPUT')
+        ==> replace('grub', 'GRUB_TERMINAL_OUTPUT');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
@@ -1921,6 +1923,32 @@ multi sub replace(
     # if C<GRUB_ENABLE_CRYPTODISK> not found, append to bottom of file
     my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems + 1;
     my Str:D $replace = sprintf(Q{%s=y}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_TERMINAL_INPUT',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems + 1;
+    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems + 1;
+    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
     @line[$index] = $replace;
     @line;
 }
