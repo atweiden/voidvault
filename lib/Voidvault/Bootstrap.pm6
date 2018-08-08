@@ -688,7 +688,7 @@ method !voidstrap-base(--> Nil)
     voidstrap('/mnt', @pkg);
 
     # rm pkg void-artwork
-    void-chroot('/mnt', 'xbps-remove void-artwork');
+    void-chroot('/mnt', 'xbps-remove --yes void-artwork');
 }
 
 # secure user configuration
