@@ -101,7 +101,7 @@ method !setup(--> Nil)
         zd1211-firmware
     >;
     my Str:D $xbps-remove-cmdline =
-        sprintf('xbps-remove --force-revdeps --yes %s', @dep.join(' '));
+        sprintf('xbps-remove --force-revdeps --yes %s', @rm.join(' '));
     shell($xbps-remove-cmdline);
 
     # fetch dependencies needed prior to voidstrap
