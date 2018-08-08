@@ -1944,6 +1944,8 @@ multi sub replace(
             $vault-uuid,
             $vault-name
         );
+    $grub-cmdline-linux ~= ' loglevel=6';
+    $grub-cmdline-linux ~= ' printk.time=1';
     $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
     # replace GRUB_CMDLINE_LINUX
     my UInt:D $index = @line.first(/^$subject'='/, :k);
