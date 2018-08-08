@@ -1308,6 +1308,246 @@ multi sub arch-chroot-mkdir(
 }
 
 # end sub arch-chroot-mkdir }}}
+# sub voidstrap {{{
+
+# based on arch-install-tools v18
+sub voidstrap(Str:D $chroot-dir, Str:D @pkg --> Nil)
+{
+    my Str:D @*chroot-active-mount;
+    create-obligatory-dirs($chroot-dir);
+    chroot-setup($chroot-dir);
+    chroot-add-host-keys($chroot-dir);
+    chroot-add-resolv-conf($chroot-dir);
+    voidstrap-install($chroot-dir, @pkg);
+    LEAVE chroot-teardown();
+}
+
+# --- sub create-obligatory-dirs {{{
+
+multi sub create-obligatory-dirs(Str:D $chroot-dir where .IO.d.so --> Nil)
+{
+    mkdir("$chroot-dir/dev", 0o0755);
+    mkdir("$chroot-dir/etc", 0o0755);
+    mkdir("$chroot-dir/run", 0o0755);
+    mkdir("$chroot-dir/var/log", 0o0755);
+    run(qqw<mkdir --mode=1777 --parents $chroot-dir/tmp>);
+    mkdir("$chroot-dir/proc", 0o0555);
+    mkdir("$chroot-dir/sys", 0o0555);
+}
+
+multi sub create-obligatory-dirs($chroot-dir --> Nil)
+{
+    my Str:D $message = sprintf(Q{Sorry, %s is not a directory}, $chroot-dir);
+    die($message);
+}
+
+# --- end sub create-obligatory-dirs }}}
+# --- sub chroot-setup {{{
+
+# mount API filesystems
+sub chroot-setup(Str:D $chroot-dir --> Nil)
+{
+    chroot-add-mount(|qqw<
+        proc
+        $chroot-dir/proc
+        --types proc
+        --options nodev,noexec,nosuid
+    >);
+    chroot-add-mount(|qqw<
+        sys
+        $chroot-dir/sys
+        --types sysfs
+        --options nodev,noexec,nosuid,ro
+    >);
+    chroot-add-mount(|qqw<
+        efivarfs
+        $chroot-dir/sys/firmware/efi/efivars
+        --types efivarfs
+        --options nodev,noexec,nosuid
+    >) if "$chroot-dir/sys/firmware/efi/efivars".IO.d;
+    chroot-add-mount(|qqw<
+        udev
+        $chroot-dir/dev
+        --types devtmpfs
+        --options mode=0755,nosuid
+    >);
+    chroot-add-mount(|qqw<
+        devpts
+        $chroot-dir/dev/pts
+        --types devpts
+        --options gid=5,mode=0620,noexec,nosuid
+    >);
+    chroot-add-mount(|qqw<
+        shm
+        $chroot-dir/dev/shm
+        --types tmpfs
+        --options mode=1777,nodev,nosuid
+    >);
+    chroot-add-mount(|qqw<
+        run
+        $chroot-dir/run
+        --types tmpfs
+        --options mode=0755,nodev,nosuid
+    >);
+    chroot-add-mount(|qqw<
+        tmp
+        $chroot-dir/tmp
+        --types tmpfs
+        --options mode=1777,nodev,nosuid,strictatime
+    >);
+}
+
+# --- end sub chroot-setup }}}
+# --- sub chroot-teardown {{{
+
+sub chroot-teardown(--> Nil)
+{
+    # C<umount> deeper directories first with C<.reverse>
+    @*chroot-active-mount.reverse.map(-> Str:D $dir { run(qqw<umount $dir>) });
+    @*chroot-active-mount = Empty;
+}
+
+# --- end sub chroot-teardown }}}
+# --- sub chroot-add-mount {{{
+
+sub chroot-add-mount(Str:D $source, Str:D $dest, *@opts --> Nil)
+{
+    my Str:D $mount-cmdline =
+        sprintf(Q{mount %s %s %s}, $source, $dest, @opts.join(' '));
+    my Proc:D $proc = shell($mount-cmdline);
+    $proc.exitcode == 0
+        or die('Sorry, could not add mount');
+    push(@*chroot-active-mount, $dest);
+}
+
+# --- end sub chroot-add-mount }}}
+# --- sub chroot-add-host-keys {{{
+
+# copy existing host keys to the target chroot
+multi sub chroot-add-host-keys(
+    Str:D $chroot-dir,
+    Str:D $host-keys-dir where .IO.d.so = '/var/db/xbps/keys'
+    --> Nil
+)
+{
+    my Str:D $host-keys-chroot-dir =
+        sprintf(Q{%s%s}, $chroot-dir, $host-keys-dir);
+    mkdir($host-keys-chroot-dir);
+    shell("cp --archive $host-keys-dir/* $host-keys-chroot-dir");
+}
+
+# no existing host keys to copy
+multi sub chroot-add-host-keys(
+    Str:D $,
+    Str:D $
+    --> Nil
+)
+{*}
+
+# --- end sub chroot-add-host-keys }}}
+# --- sub chroot-add-resolv-conf {{{
+
+# or C<run(qqw<cp --dereference /etc/resolv.conf $chroot-dir/etc>);>
+multi sub chroot-add-resolv-conf(
+    Str:D $chroot-dir where '/etc/resolv.conf'.IO.e.so
+    --> Nil
+)
+{
+    my Str:D $resolv-conf = '/etc/resolv.conf';
+    my Str:D $chroot-resolv-conf = sprintf(Q{%s%s}, $chroot-dir, $resolv-conf);
+    # the chroot may not have a C<resolv.conf>
+    $chroot-resolv-conf.IO.e.not
+        or return;
+    my Str:D $resolve-resolv-conf =
+        resolve-resolv-conf($chroot-dir, $resolv-conf, $chroot-resolv-conf);
+    chroot-add-mount(|qqw<
+        /etc/resolv.conf
+        $resolve-resolv-conf
+        --bind
+    >);
+}
+
+# nothing to do
+multi sub chroot-add-resolv-conf(
+    Str:D $
+    --> Nil
+)
+{*}
+
+multi sub resolve-resolv-conf(
+    Str:D $chroot-dir,
+    Str:D $resolv-conf,
+    Str:D $chroot-resolv-conf where .IO.l.so
+    --> Str:D
+)
+{
+    # C<readlink> works here because C<$chroot-resolv-conf> is a symlink
+    my Str:D $readlink-resolv-conf = qqx{readlink $chroot-resolv-conf}.trim;
+    my Str:D $resolve-resolv-conf =
+        resolve-resolv-conf-readlink($chroot-dir, $readlink-resolv-conf);
+    # ensure file exists to bind mount over
+    $resolve-resolv-conf.IO.f or do {
+        my Proc:D $proc =
+            shell("install -Dm 644 /dev/null $readlink-resolv-conf");
+        $proc.exitcode == 0
+            or die('Sorry, could not prepare readlink resolv.conf');
+    };
+    $resolve-resolv-conf;
+}
+
+multi sub resolve-resolv-conf(
+    Str:D $chroot-dir,
+    Str:D $resolv-conf,
+    Str:D $chroot-resolv-conf
+    --> Nil
+)
+{
+    my Str:D $resolve-resolv-conf = $chroot-resolv-conf;
+}
+
+multi sub resolve-resolv-conf-readlink(
+    Str:D $chroot-dir,
+    Str:D $readlink-resolv-conf where .IO.absolute.so
+    --> Str:D
+)
+{
+    my Str:D $resolve-resolv-conf-readlink =
+        sprintf(Q{%s%s}, $chroot-dir, $readlink-resolv-conf);
+}
+
+multi sub resolve-resolv-conf-readlink(
+    Str:D $chroot-dir,
+    Str:D $readlink-resolv-conf
+    --> Str:D
+)
+{
+    my Str:D $resolve-resolv-conf-readlink =
+        sprintf(Q{%s/etc/%s}, $chroot-dir, $readlink-resolv-conf);
+}
+
+# --- end sub chroot-add-resolv-conf }}}
+# --- sub voidstrap-install {{{
+
+sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
+{
+    my Str:D $repository = 'https://repo.voidlinux.eu/current';
+    my Str:D $pkgs = @pkg.join(' ');
+    my Str:D $xbps-install-pkg-cmdline =
+        sprintf(
+            Q{xbps-install --repository %s --sync --yes --rootdir %s %s},
+            $repository,
+            $chroot-dir,
+            $pkgs
+        );
+    Voidvault::Utils.loop-cmdline-proc(
+        'Running voidstrap...',
+        $xbps-install-pkg-cmdline
+    );
+}
+
+# --- end sub voidstrap-install }}}
+
+# end sub voidstrap }}}
 # sub replace {{{
 
 # --- sudoers {{{
