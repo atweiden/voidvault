@@ -685,7 +685,7 @@ method !xvoidstrap-base(--> Nil)
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'intel';
 
-    # download and install packages with pacman in chroot
+    # download and install packages with xvoidstrap in chroot
     my Str:D $xvoidstrap-cmdline =
         sprintf('xvoidstrap /mnt %s', @pkg.join(' '));
     Voidvault::Utils.loop-cmdline-proc(
