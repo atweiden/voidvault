@@ -88,7 +88,6 @@ method !setup(--> Nil)
         mdocml
         openssh
         os-prober
-        popt
         psmisc
         sudo
         traceroute
