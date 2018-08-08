@@ -40,7 +40,6 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!set-keymap;
     self!set-timezone;
     self!set-hwclock;
-    self!configure-pacman;
     self!configure-modprobe;
     self!generate-initramfs;
     self!install-bootloader;
@@ -976,11 +975,6 @@ method !set-hwclock(--> Nil)
     void-chroot('/mnt', 'hwclock --systohc --utc');
 }
 
-method !configure-pacman(--> Nil)
-{
-    replace('pacman.conf');
-}
-
 method !configure-modprobe(--> Nil)
 {
     my Str:D $path = 'etc/modprobe.d/modprobe.conf';
@@ -1768,80 +1762,6 @@ multi sub replace(
 }
 
 # --- end rc.conf }}}
-# --- pacman.conf {{{
-
-multi sub replace(
-    'pacman.conf'
-    --> Nil
-)
-{
-    my Str:D $file = '/mnt/etc/pacman.conf';
-    my Str:D @replace =
-        $file.IO.lines
-        # uncomment Color
-        ==> replace('pacman.conf', 'Color')
-        # uncomment TotalDownload
-        ==> replace('pacman.conf', 'TotalDownload')
-        # put ILoveCandy on the line below CheckSpace
-        ==> replace('pacman.conf', 'ILoveCandy');
-    @replace =
-        @replace
-        # uncomment multilib section on 64-bit machines
-        ==> replace('pacman.conf', 'multilib') if $*KERNEL.bits == 64;
-    my Str:D $replace = @replace.join("\n");
-    spurt($file, $replace ~ "\n");
-}
-
-multi sub replace(
-    'pacman.conf',
-    Str:D $subject where 'Color',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^'#'\h*$subject/, :k);
-    @line[$index] = $subject;
-    @line;
-}
-
-multi sub replace(
-    'pacman.conf',
-    Str:D $subject where 'TotalDownload',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^'#'\h*$subject/, :k);
-    @line[$index] = $subject;
-    @line;
-}
-
-multi sub replace(
-    'pacman.conf',
-    Str:D $subject where 'ILoveCandy',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^CheckSpace/, :k);
-    @line.splice($index + 1, 0, $subject);
-    @line;
-}
-
-multi sub replace(
-    'pacman.conf',
-    Str:D $subject where 'multilib',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # uncomment lines starting with C<[multilib]> up to but excluding blank line
-    my UInt:D @index = @line.grep({ /^'#'\h*'['$subject']'/ ff^ /^\h*$/ }, :k);
-    @index.race.map(-> UInt:D $index { @line[$index] .= subst(/^'#'/, '') });
-    @line;
-}
-
-# --- end pacman.conf }}}
 # --- mkinitcpio.conf {{{
 
 multi sub replace(
