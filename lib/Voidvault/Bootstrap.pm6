@@ -896,7 +896,20 @@ method !configure-sudoers(--> Nil)
 
 method !genfstab(--> Nil)
 {
-    shell('genfstab -U -p /mnt >> /mnt/etc/fstab');
+    my Str:D $pkgname = 'arch-install-scripts';
+    my UInt:D $pkgver = 18;
+    run(qqw<
+        curl
+        -O https://sources.archlinux.org/other/$pkgname/$pkgname-$pkgver.tar.gz
+    >);
+    run(qqw<tar -xvzf $pkgname-$pkgver.tar.gz>);
+    indir("$pkgname-$pkgver", {
+        run(qw<make genfstab>);
+    });
+    shell("$pkgname-$pkgver/genfstab -U -p /mnt >> /mnt/etc/fstab");
+    my Str:D $tmp =
+        'tmpfs /tmp tmpfs mode=1777,strictatime,nodev,nodexec,nosuid 0 0';
+    spurt('/mnt/etc/fstab', $tmp ~ "\n", :append);
 }
 
 method !set-hostname(--> Nil)
