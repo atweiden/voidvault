@@ -1515,18 +1515,7 @@ multi sub chroot-add-resolv-conf(
     --> Nil
 )
 {
-    my Str:D $resolv-conf = '/etc/resolv.conf';
-    my Str:D $chroot-resolv-conf = sprintf(Q{%s%s}, $chroot-dir, $resolv-conf);
-    # the chroot may not have a C<resolv.conf>
-    $chroot-resolv-conf.IO.e.not
-        or return;
-    my Str:D $resolve-resolv-conf =
-        resolve-resolv-conf($chroot-dir, $resolv-conf, $chroot-resolv-conf);
-    chroot-add-mount(|qqw<
-        /etc/resolv.conf
-        $resolve-resolv-conf
-        --bind
-    >);
+    run(qqw<cp --dereference /etc/resolv.conf $chroot-dir/etc>);
 }
 
 # nothing to do
@@ -1535,57 +1524,6 @@ multi sub chroot-add-resolv-conf(
     --> Nil
 )
 {*}
-
-multi sub resolve-resolv-conf(
-    Str:D $chroot-dir,
-    Str:D $resolv-conf,
-    Str:D $chroot-resolv-conf where .IO.l.so
-    --> Str:D
-)
-{
-    # C<readlink> works here because C<$chroot-resolv-conf> is a symlink
-    my Str:D $readlink-resolv-conf = qqx{readlink $chroot-resolv-conf}.trim;
-    my Str:D $resolve-resolv-conf =
-        resolve-resolv-conf-readlink($chroot-dir, $readlink-resolv-conf);
-    # ensure file exists to bind mount over
-    $resolve-resolv-conf.IO.f or do {
-        my Proc:D $proc =
-            shell("install -Dm 644 /dev/null $readlink-resolv-conf");
-        $proc.exitcode == 0
-            or die('Sorry, could not prepare readlink resolv.conf');
-    };
-    $resolve-resolv-conf;
-}
-
-multi sub resolve-resolv-conf(
-    Str:D $chroot-dir,
-    Str:D $resolv-conf,
-    Str:D $chroot-resolv-conf
-    --> Str:D
-)
-{
-    my Str:D $resolve-resolv-conf = $chroot-resolv-conf;
-}
-
-multi sub resolve-resolv-conf-readlink(
-    Str:D $chroot-dir,
-    Str:D $readlink-resolv-conf where .IO.absolute.so
-    --> Str:D
-)
-{
-    my Str:D $resolve-resolv-conf-readlink =
-        sprintf(Q{%s%s}, $chroot-dir, $readlink-resolv-conf);
-}
-
-multi sub resolve-resolv-conf-readlink(
-    Str:D $chroot-dir,
-    Str:D $readlink-resolv-conf
-    --> Str:D
-)
-{
-    my Str:D $resolve-resolv-conf-readlink =
-        sprintf(Q{%s/etc/%s}, $chroot-dir, $readlink-resolv-conf);
-}
 
 # --- end sub chroot-add-resolv-conf }}}
 
