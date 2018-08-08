@@ -127,7 +127,7 @@ method !setup(--> Nil)
     >;
 
     my Str:D $xbps-install-dep-cmdline =
-        sprintf('xbps-install --sync --yes %s', @dep.join(' '));
+        sprintf('xbps-install --force --sync --yes %s', @dep.join(' '));
     Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
         $xbps-install-dep-cmdline
@@ -1462,11 +1462,16 @@ multi sub chroot-add-host-keys(
 sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
 {
     my Str:D $repository = 'https://repo.voidlinux.eu/current';
+    my Str:D $xbps-install-opts =
+        sprintf(
+            Q{--repository %s --force --sync --yes --rootdir %s},
+            $repository,
+            $chroot-dir
+        );
     my Str:D $xbps-install-pkg-cmdline =
         sprintf(
-            Q{xbps-install --repository %s --sync --yes --rootdir %s %s},
-            $repository,
-            $chroot-dir,
+            Q{xbps-install %s %s},
+            $xbps-install-opts,
             @pkg.join(' ')
         );
     Voidvault::Utils.loop-cmdline-proc(
