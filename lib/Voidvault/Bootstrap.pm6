@@ -1827,7 +1827,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/default/grub';
     my Str:D @replace =
         $file.IO.lines
-        ==> replace('grub', 'GRUB_CMDLINE_LINUX', |@opts)
+        ==> replace('grub', 'GRUB_CMDLINE_LINUX_DEFAULT', |@opts)
         ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
@@ -1835,7 +1835,7 @@ multi sub replace(
 
 multi sub replace(
     'grub',
-    Str:D $subject where 'GRUB_CMDLINE_LINUX',
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
     Graphics:D $graphics,
     Str:D $partition,
     VaultName:D $vault-name,
@@ -1843,7 +1843,7 @@ multi sub replace(
     --> Array[Str:D]
 )
 {
-    # prepare GRUB_CMDLINE_LINUX
+    # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
     my Str:D $vault-uuid = qqx<blkid -s UUID -o value $partition-vault>.trim;
     my Str:D $grub-cmdline-linux =
@@ -1860,7 +1860,7 @@ multi sub replace(
     $grub-cmdline-linux ~= ' page_poison=1'
     $grub-cmdline-linux ~= ' printk.time=1';
     $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
-    # replace GRUB_CMDLINE_LINUX
+    # replace GRUB_CMDLINE_LINUX_DEFAULT
     my UInt:D $index = @line.first(/^$subject'='/, :k);
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
     @line[$index] = $replace;
