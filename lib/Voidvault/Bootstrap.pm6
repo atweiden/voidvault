@@ -613,12 +613,19 @@ method !voidstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
 
+    my Str:D @core = qw<
+        base-system
+        grub
+    >;
+
+    # download and install core packages with voidstrap in chroot
+    voidstrap('/mnt', @core);
+
     # base packages
     my Str:D @pkg = qw<
         acpi
         autoconf
         automake
-        base-system
         bash
         bash-completion
         bc
@@ -659,7 +666,6 @@ method !voidstrap-base(--> Nil)
         gptfdisk
         grep
         groff
-        grub
         gzip
         haveged
         inetutils
@@ -727,8 +733,10 @@ method !voidstrap-base(--> Nil)
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'intel';
 
-    # download and install packages with voidstrap in chroot
-    voidstrap('/mnt', @pkg);
+    # install pkgs
+    my Str:D $xbps-install-pkg-cmdline =
+        sprintf('xbps-install --force --sync --yes %s', @pkg.join(' '));
+    void-chroot('/mnt', $xbps-install-pkg-cmdline);
 
     # rm pkg void-artwork
     void-chroot('/mnt', 'xbps-remove --yes void-artwork');
