@@ -774,17 +774,18 @@ multi sub useradd(
 
     say("Creating new admin user named $user-name-admin...");
     groupadd($user-name-admin);
-    run(qqw<
-        arch-chroot
-        /mnt
-        useradd
-        -m
-        -g $user-name-admin
-        -G $user-group-admin
-        -p $user-pass-hash-admin
-        -s $user-shell-admin
-        $user-name-admin
-    >);
+    void-chroot(
+        '/mnt',
+        qqw<
+            useradd
+            -m
+            -g $user-name-admin
+            -G $user-group-admin
+            -p $user-pass-hash-admin
+            -s $user-shell-admin
+            $user-name-admin
+        >
+    );
     chmod(0o700, "/mnt/home/$user-name-admin");
 }
 
@@ -800,17 +801,18 @@ multi sub useradd(
 
     say("Creating new guest user named $user-name-guest...");
     groupadd($user-name-guest, 'guests');
-    run(qqw<
-        arch-chroot
-        /mnt
-        useradd
-        -m
-        -g $user-name-guest
-        -G $user-group-guest
-        -p $user-pass-hash-guest
-        -s $user-shell-guest
-        $user-name-guest
-    >);
+    void-chroot(
+        '/mnt',
+        qqw<
+            useradd
+            -m
+            -g $user-name-guest
+            -G $user-group-guest
+            -p $user-pass-hash-guest
+            -s $user-shell-guest
+            $user-name-guest
+        >
+    );
     chmod(0o700, "/mnt/home/$user-name-guest");
 }
 
@@ -830,21 +832,22 @@ multi sub useradd(
     my Str:D @root-dir = $auth-dir, $jail-dir;
 
     say("Creating new SFTP user named $user-name-sftp...");
-    arch-chroot-mkdir(@root-dir, 'root', 'root', 0o755);
+    void-chroot-mkdir(@root-dir, 'root', 'root', 0o755);
     groupadd($user-name-sftp, $user-group-sftp);
-    run(qqw<
-        arch-chroot
-        /mnt
-        useradd
-        -M
-        -d $home-dir
-        -g $user-name-sftp
-        -G $user-group-sftp
-        -p $user-pass-hash-sftp
-        -s $user-shell-sftp
-        $user-name-sftp
-    >);
-    arch-chroot-mkdir($home-dir, $user-name-sftp, $user-name-sftp, 0o700);
+    void-chroot(
+        '/mnt',
+        qqw<
+            useradd
+            -M
+            -d $home-dir
+            -g $user-name-sftp
+            -G $user-group-sftp
+            -p $user-pass-hash-sftp
+            -s $user-shell-sftp
+            $user-name-sftp
+        >
+    );
+    void-chroot-mkdir($home-dir, $user-name-sftp, $user-name-sftp, 0o700);
 }
 
 sub usermod(
@@ -854,13 +857,13 @@ sub usermod(
 )
 {
     say('Updating root password...');
-    run(qqw<arch-chroot /mnt usermod -p $user-pass-hash-root root>);
+    void-chroot('/mnt', "usermod -p $user-pass-hash-root root");
 }
 
 sub groupadd(*@group-name --> Nil)
 {
     @group-name.map(-> Str:D $group-name {
-        run(qqw<arch-chroot /mnt groupadd $group-name>);
+        void-chroot('/mnt', "groupadd $group-name");
     });
 }
 
@@ -929,7 +932,7 @@ method !set-locale(--> Nil)
 
     # customize /etc/locale.gen
     replace('locale.gen', $locale);
-    run(qw<arch-chroot /mnt locale-gen>);
+    void-chroot('/mnt', 'locale-gen');
 
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;
@@ -954,18 +957,12 @@ method !set-keymap(--> Nil)
 method !set-timezone(--> Nil)
 {
     my Timezone:D $timezone = $.config.timezone;
-    run(qqw<
-        arch-chroot
-        /mnt
-        ln
-        -sf /usr/share/zoneinfo/$timezone
-        /etc/localtime
-    >);
+    void-chroot('/mnt', "ln -sf /usr/share/zoneinfo/$timezone /etc/localtime");
 }
 
 method !set-hwclock(--> Nil)
 {
-    run(qw<arch-chroot /mnt hwclock --systohc --utc>);
+    void-chroot('/mnt', 'hwclock --systohc --utc');
 }
 
 method !configure-pacman(--> Nil)
@@ -985,7 +982,7 @@ method !generate-initramfs(--> Nil)
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
     replace('mkinitcpio.conf', $disk-type, $graphics, $processor);
-    run(qw<arch-chroot /mnt mkinitcpio -p linux>);
+    void-chroot('/mnt', 'mkinitcpio -p linux');
 }
 
 method !install-bootloader(--> Nil)
@@ -1022,19 +1019,15 @@ multi sub install-bootloader(
 {
     install-bootloader(:legacy, $partition);
     install-bootloader(:uefi, $partition);
-    run(qw<
-        arch-chroot
-        /mnt
-        cp
-        /usr/share/locale/en@quot/LC_MESSAGES/grub.mo
-        /boot/grub/locale/en.mo
-    >);
-    run(qw<
-        arch-chroot
-        /mnt
-        grub-mkconfig
-        -o /boot/grub/grub.cfg
-    >);
+    void-chroot(
+        '/mnt',
+        qw<
+            cp
+            /usr/share/locale/en@quot/LC_MESSAGES/grub.mo
+            /boot/grub/locale/en.mo
+        >
+    );
+    void-chroot('/mnt', 'grub-mkconfig -o /boot/grub/grub.cfg');
 }
 
 multi sub install-bootloader(
@@ -1044,13 +1037,15 @@ multi sub install-bootloader(
 )
 {
     # legacy bios
-    run(qw<
-        arch-chroot
-        /mnt
-        grub-install
-        --target=i386-pc
-        --recheck
-    >, $partition);
+    void-chroot(
+        '/mnt',
+        qqw<
+            grub-install
+            --target=i386-pc
+            --recheck
+            $partition
+        >
+    );
 }
 
 multi sub install-bootloader(
@@ -1060,14 +1055,16 @@ multi sub install-bootloader(
 )
 {
     # uefi
-    run(qw<
-        arch-chroot
-        /mnt
-        grub-install
-        --target=x86_64-efi
-        --efi-directory=/boot/efi
-        --removable
-    >, $partition);
+    void-chroot(
+        '/mnt',
+        qqw<
+            grub-install
+            --target=x86_64-efi
+            --efi-directory=/boot/efi
+            --removable
+            $partition
+        >
+    );
 
     # fix virtualbox uefi
     my Str:D $nsh = q:to/EOF/;
@@ -1083,7 +1080,7 @@ method !configure-sysctl(--> Nil)
     my Str:D $path = 'etc/sysctl.d/99-sysctl.conf';
     copy(%?RESOURCES{$path}, "/mnt/$path");
     replace('99-sysctl.conf', $disk-type);
-    run(qw<arch-chroot /mnt sysctl --system>);
+    void-chroot('/mnt', 'sysctl --system');
 }
 
 method !configure-nftables(--> Nil)
@@ -1254,7 +1251,7 @@ method !enable-systemd-services(--> Nil)
         systemd-swap
     >;
     @service.map(-> Str:D $service {
-        run(qqw<arch-chroot /mnt systemctl enable $service>);
+        void-chroot('/mnt', "systemctl enable $service");
     });
 }
 
@@ -1277,35 +1274,6 @@ method !unmount(--> Nil)
 # helper functions
 # -----------------------------------------------------------------------------
 
-# sub arch-chroot-mkdir {{{
-
-multi sub arch-chroot-mkdir(
-    Str:D @dir,
-    Str:D $user,
-    Str:D $group,
-    # permissions should be octal: https://doc.perl6.org/routine/chmod
-    UInt:D $permissions
-    --> Nil
-)
-{
-    @dir.map(-> Str:D $dir {
-        arch-chroot-mkdir($dir, $user, $group, $permissions)
-    });
-}
-
-multi sub arch-chroot-mkdir(
-    Str:D $dir,
-    Str:D $user,
-    Str:D $group,
-    UInt:D $permissions
-    --> Nil
-)
-{
-    mkdir("/mnt/$dir", $permissions);
-    run(qqw<arch-chroot /mnt chown $user:$group $dir>);
-}
-
-# end sub arch-chroot-mkdir }}}
 # sub voidstrap {{{
 
 # based on arch-install-scripts v18
@@ -1545,6 +1513,53 @@ sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
 # --- end sub voidstrap-install }}}
 
 # end sub voidstrap }}}
+# sub void-chroot {{{
+
+multi sub void-chroot(Str:D $chroot-dir, Str:D @cmdline --> Nil)
+{
+    my Str:D $cmdline = @cmdline.join(' ');
+    void-chroot($chroot-dir, $cmdline);
+}
+
+multi sub void-chroot(Str:D $chroot-dir, Str:D $cmdline where .so --> Nil)
+{
+    my Str:D @*chroot-active-mount;
+    chroot-setup($chroot-dir);
+    chroot-add-resolv-conf($chroot-dir);
+    shell("SHELL=/bin/bash unshare --fork --pid chroot $chroot-dir $cmdline");
+    LEAVE chroot-teardown();
+}
+
+# end sub void-chroot }}}
+# sub void-chroot-mkdir {{{
+
+multi sub void-chroot-mkdir(
+    Str:D @dir,
+    Str:D $user,
+    Str:D $group,
+    # permissions should be octal: https://doc.perl6.org/routine/chmod
+    UInt:D $permissions
+    --> Nil
+)
+{
+    @dir.map(-> Str:D $dir {
+        void-chroot-mkdir($dir, $user, $group, $permissions)
+    });
+}
+
+multi sub void-chroot-mkdir(
+    Str:D $dir,
+    Str:D $user,
+    Str:D $group,
+    UInt:D $permissions
+    --> Nil
+)
+{
+    mkdir("/mnt/$dir", $permissions);
+    void-chroot('/mnt', "chown $user:$group $dir");
+}
+
+# end sub void-chroot-mkdir }}}
 # sub replace {{{
 
 # --- sudoers {{{
