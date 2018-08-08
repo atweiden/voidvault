@@ -751,6 +751,7 @@ multi sub useradd(
     --> Nil
 )
 {
+    groupadd(:system, 'proc');
     my Str:D $user-group-admin = qw<
         audio
         cdrom
@@ -860,7 +861,14 @@ sub usermod(
     void-chroot('/mnt', "usermod -p $user-pass-hash-root root");
 }
 
-sub groupadd(*@group-name --> Nil)
+multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
+{
+    @group-name.map(-> Str:D $group-name {
+        void-chroot('/mnt', "groupadd --system $group-name");
+    });
+}
+
+multi sub groupadd(*@group-name --> Nil)
 {
     @group-name.map(-> Str:D $group-name {
         void-chroot('/mnt', "groupadd $group-name");
