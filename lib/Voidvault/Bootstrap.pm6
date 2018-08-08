@@ -1529,13 +1529,12 @@ multi sub resolve-resolv-conf-readlink(
 sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
 {
     my Str:D $repository = 'https://repo.voidlinux.eu/current';
-    my Str:D $pkgs = @pkg.join(' ');
     my Str:D $xbps-install-pkg-cmdline =
         sprintf(
             Q{xbps-install --repository %s --sync --yes --rootdir %s %s},
             $repository,
             $chroot-dir,
-            $pkgs
+            @pkg.join(' ')
         );
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
