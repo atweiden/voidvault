@@ -1503,7 +1503,7 @@ multi sub resolve-resolv-conf(
     Str:D $chroot-dir,
     Str:D $resolv-conf,
     Str:D $chroot-resolv-conf
-    --> Nil
+    --> Str:D
 )
 {
     my Str:D $resolve-resolv-conf = $chroot-resolv-conf;
