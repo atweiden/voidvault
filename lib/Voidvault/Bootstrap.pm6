@@ -145,6 +145,7 @@ sub mkefi(Str:D $partition --> Nil)
 {
     # target partition for uefi
     my Str:D $partition-efi = sprintf(Q{%s2}, $partition);
+    run(qw<modprobe vfat>);
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
@@ -377,6 +378,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
 sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
 {
     # create btrfs filesystem on opened vault
+    run(qw<modprobe btrfs>);
     run(qqw<mkfs.btrfs /dev/mapper/$vault-name>);
 
     # set mount options
