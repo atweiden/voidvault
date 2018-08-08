@@ -87,7 +87,7 @@ method !setup(--> Nil)
     >;
 
     my Str:D $xbps-install-dep-cmdline =
-        sprintf('xbps-install -S --yes %s', @dep.join(' '));
+        sprintf('xbps-install --sync --yes %s', @dep.join(' '));
     Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
         $xbps-install-dep-cmdline
