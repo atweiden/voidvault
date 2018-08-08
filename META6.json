@@ -33,12 +33,6 @@
         "etc/ssh/ssh_config",
         "etc/ssh/sshd_config",
         "etc/sysctl.d/99-sysctl.conf",
-        "etc/systemd/sleep.conf",
-        "etc/systemd/swap.conf.d/zram.conf",
-        "etc/systemd/system.conf.d/limits.conf",
-        "etc/systemd/system/systemd-logind.service.d/hidepid.conf",
-        "etc/systemd/system/tmp.mount.d/noexec.conf",
-        "etc/tmpfiles.d/tmp.conf",
         "etc/udev/rules.d/60-io-schedulers.rules"
     ]
 }

@@ -46,11 +46,11 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-sysctl;
     self!configure-nftables;
     self!configure-openssh;
-    self!configure-systemd;
+    self!configure-udev;
     self!configure-hidepid;
     self!configure-securetty;
     self!configure-xorg;
-    self!enable-systemd-services;
+    self!enable-runit-services;
     self!augment if $augment;
     self!unmount;
 }
@@ -652,6 +652,7 @@ method !voidstrap-base(--> Nil)
         psmisc
         rakudo
         rsync
+        runit-void
         sed
         shadow
         socat
@@ -1139,54 +1140,7 @@ multi sub configure-openssh('moduli' --> Nil)
     replace('moduli');
 }
 
-method !configure-systemd(--> Nil)
-{
-    configure-systemd('limits');
-    configure-systemd('mounts');
-    configure-systemd('sleep');
-    configure-systemd('swap');
-    configure-systemd('tmpfiles');
-    configure-systemd('udev');
-}
-
-multi sub configure-systemd('limits' --> Nil)
-{
-    my Str:D $base-path = 'etc/systemd/system.conf.d';
-    my Str:D $path = "$base-path/limits.conf";
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-}
-
-multi sub configure-systemd('mounts' --> Nil)
-{
-    my Str:D $base-path = 'etc/systemd/system/tmp.mount.d';
-    my Str:D $path = "$base-path/noexec.conf";
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-}
-
-multi sub configure-systemd('sleep' --> Nil)
-{
-    my Str:D $path = 'etc/systemd/sleep.conf';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-}
-
-multi sub configure-systemd('swap' --> Nil)
-{
-    my Str:D $base-path = 'etc/systemd/swap.conf.d/';
-    my Str:D $path = "$base-path/zram.conf";
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-}
-
-multi sub configure-systemd('tmpfiles' --> Nil)
-{
-    # https://wiki.archlinux.org/index.php/Tmpfs#Disable_automatic_mount
-    my Str:D $path = 'etc/tmpfiles.d/tmp.conf';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-}
-
-multi sub configure-systemd('udev' --> Nil)
+method !configure-udev(--> Nil)
 {
     my Str:D $base-path = 'etc/udev/rules.d';
     my Str:D $path = "$base-path/60-io-schedulers.rules";
@@ -1196,11 +1150,6 @@ multi sub configure-systemd('udev' --> Nil)
 
 method !configure-hidepid(--> Nil)
 {
-    my Str:D $base-path = 'etc/systemd/system/systemd-logind.service.d';
-    my Str:D $path = "$base-path/hidepid.conf";
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-
     my Str:D $fstab-hidepid = q:to/EOF/;
     # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
     proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
@@ -1257,15 +1206,19 @@ multi sub configure-xorg('99-security.conf' --> Nil)
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
-method !enable-systemd-services(--> Nil)
+method !enable-runit-services(--> Nil)
 {
     my Str:D @service = qw<
-        dnscrypt-proxy.service
+        dnscrypt-proxy
         nftables
-        systemd-swap
+        zramswap
     >;
     @service.map(-> Str:D $service {
-        void-chroot('/mnt', "systemctl enable $service");
+        run(qqw<
+            ln
+            -sf /etc/sv/$service
+            /mnt/etc/runit/runsvdir/default/$service
+        >);
     });
 }
 
