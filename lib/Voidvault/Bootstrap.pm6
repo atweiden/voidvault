@@ -1264,7 +1264,6 @@ sub voidstrap(Str:D $chroot-dir, Str:D @pkg --> Nil)
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
-    chroot-add-resolv-conf($chroot-dir);
     voidstrap-install($chroot-dir, @pkg);
     LEAVE chroot-teardown();
 }
@@ -1392,6 +1391,44 @@ multi sub chroot-add-host-keys(
 {*}
 
 # --- end sub chroot-add-host-keys }}}
+# --- sub voidstrap-install {{{
+
+sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
+{
+    my Str:D $repository = 'https://repo.voidlinux.eu/current';
+    my Str:D $xbps-install-pkg-cmdline =
+        sprintf(
+            Q{xbps-install --repository %s --sync --yes --rootdir %s %s},
+            $repository,
+            $chroot-dir,
+            @pkg.join(' ')
+        );
+    Voidvault::Utils.loop-cmdline-proc(
+        'Running voidstrap...',
+        $xbps-install-pkg-cmdline
+    );
+}
+
+# --- end sub voidstrap-install }}}
+
+# end sub voidstrap }}}
+# sub void-chroot {{{
+
+multi sub void-chroot(Str:D $chroot-dir, Str:D @cmdline --> Nil)
+{
+    my Str:D $cmdline = @cmdline.join(' ');
+    void-chroot($chroot-dir, $cmdline);
+}
+
+multi sub void-chroot(Str:D $chroot-dir, Str:D $cmdline where .so --> Nil)
+{
+    my Str:D @*chroot-active-mount;
+    chroot-setup($chroot-dir);
+    chroot-add-resolv-conf($chroot-dir);
+    shell("SHELL=/bin/bash unshare --fork --pid chroot $chroot-dir $cmdline");
+    LEAVE chroot-teardown();
+}
+
 # --- sub chroot-add-resolv-conf {{{
 
 # or C<run(qqw<cp --dereference /etc/resolv.conf $chroot-dir/etc>);>
@@ -1473,43 +1510,6 @@ multi sub resolve-resolv-conf-readlink(
 }
 
 # --- end sub chroot-add-resolv-conf }}}
-# --- sub voidstrap-install {{{
-
-sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
-{
-    my Str:D $repository = 'https://repo.voidlinux.eu/current';
-    my Str:D $xbps-install-pkg-cmdline =
-        sprintf(
-            Q{xbps-install --repository %s --sync --yes --rootdir %s %s},
-            $repository,
-            $chroot-dir,
-            @pkg.join(' ')
-        );
-    Voidvault::Utils.loop-cmdline-proc(
-        'Running voidstrap...',
-        $xbps-install-pkg-cmdline
-    );
-}
-
-# --- end sub voidstrap-install }}}
-
-# end sub voidstrap }}}
-# sub void-chroot {{{
-
-multi sub void-chroot(Str:D $chroot-dir, Str:D @cmdline --> Nil)
-{
-    my Str:D $cmdline = @cmdline.join(' ');
-    void-chroot($chroot-dir, $cmdline);
-}
-
-multi sub void-chroot(Str:D $chroot-dir, Str:D $cmdline where .so --> Nil)
-{
-    my Str:D @*chroot-active-mount;
-    chroot-setup($chroot-dir);
-    chroot-add-resolv-conf($chroot-dir);
-    shell("SHELL=/bin/bash unshare --fork --pid chroot $chroot-dir $cmdline");
-    LEAVE chroot-teardown();
-}
 
 # end sub void-chroot }}}
 # sub void-chroot-mkdir {{{
