@@ -997,12 +997,10 @@ method !generate-initramfs(--> Nil)
     my Processor:D $processor = $.config.processor;
     replace('dracut.conf.d', $graphics, $processor);
     # C<uname -r> will fail since kernel not running in chroot
+    my Str:D $linux-version-raw =
+        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
     my Str:D $linux-version =
-        qx{xbps-query --rootdir /mnt --property pkgver linux}
-        .trim
-        .substr(6..*)
-        .split(/'.'|'_'/)[^2]
-        .join('.');
+        $linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
     my Str:D $dracut-cmdline =
         sprintf(Q{dracut --kver %s}, $linux-version);
     void-chroot('/mnt', $dracut-cmdline);
@@ -1897,8 +1895,8 @@ multi sub replace(
     $grub-cmdline-linux ~= ' rd.luks=1';
     $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
     $grub-cmdline-linux ~= ' loglevel=6';
-    $grub-cmdline-linux ~= ' slub_debug=P'
-    $grub-cmdline-linux ~= ' page_poison=1'
+    $grub-cmdline-linux ~= ' slub_debug=P';
+    $grub-cmdline-linux ~= ' page_poison=1';
     $grub-cmdline-linux ~= ' printk.time=1';
     $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
     # replace GRUB_CMDLINE_LINUX_DEFAULT
