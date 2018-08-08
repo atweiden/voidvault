@@ -1606,7 +1606,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = '/mnt/etc/dnscrypt-proxy/dnscrypt-proxy.toml';
+    my Str:D $file = '/mnt/etc/dnscrypt-proxy.toml';
     my Str:D @replace =
         $file.IO.lines
         # server must support DNS security extensions (DNSSEC)
