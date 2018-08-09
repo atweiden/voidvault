@@ -1770,7 +1770,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
     my Str:D $replace = 'compress="zstd"';
     spurt($file, $replace ~ "\n");
 }
@@ -1781,7 +1781,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
     my Str:D $replace = 'add_drivers+=" ahci "';
     spurt($file, $replace ~ "\n");
 }
@@ -1794,7 +1794,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
     my Str:D @modules = qw<crypt btrfs>;
     push(@modules, $processor eq 'INTEL' ?? 'crc32c-intel' !! 'crc32c');
     push(@modules, 'i915') if $graphics eq 'INTEL';
@@ -1813,7 +1813,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
     my Str:D $replace = 'persistent_policy="by-uuid"';
     spurt($file, $replace ~ "\n");
 }
@@ -1824,7 +1824,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
     my Str:D $replace = 'tmpdir="/tmp"';
     spurt($file, $replace ~ "\n");
 }
