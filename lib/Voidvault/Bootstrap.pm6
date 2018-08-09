@@ -1041,11 +1041,7 @@ method !generate-initramfs(--> Nil)
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
     replace('dracut.conf.d', $graphics, $processor);
-    # C<uname -r> will fail since kernel not running in chroot
-    my Str:D $linux-version-raw =
-        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
-    my Str:D $linux-version =
-        $linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
+    my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
     my Str:D $dracut-cmdline =
         sprintf(Q{dracut --kver %s}, $linux-version);
     void-chroot('/mnt', $dracut-cmdline);
