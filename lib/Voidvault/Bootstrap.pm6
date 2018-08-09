@@ -1468,13 +1468,13 @@ multi sub void-chroot(Str:D $chroot-dir, Str:D $cmdline where .so --> Nil)
 
 # --- sub chroot-add-resolv-conf {{{
 
-# or C<run(qqw<cp --dereference /etc/resolv.conf $chroot-dir/etc>);>
 multi sub chroot-add-resolv-conf(
     Str:D $chroot-dir where '/etc/resolv.conf'.IO.e.so
     --> Nil
 )
 {
-    run(qqw<cp --dereference /etc/resolv.conf $chroot-dir/etc>);
+    my Str:D $path = 'etc/resolv.conf';
+    copy("/$path", "$chroot-dir/$path");
 }
 
 # nothing to do
