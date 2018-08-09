@@ -1684,6 +1684,7 @@ multi sub replace(
     'rc.conf',
     'KEYMAP',
     Keymap:D $keymap
+    --> Nil
 )
 {
     my Str:D $file = '/mnt/etc/rc.conf';
@@ -1698,6 +1699,7 @@ multi sub replace(
 multi sub replace(
     'rc.conf',
     'FONT'
+    --> Nil
 )
 {
     my Str:D $file = '/mnt/etc/rc.conf';
@@ -1712,6 +1714,7 @@ multi sub replace(
 multi sub replace(
     'rc.conf',
     'FONT_MAP'
+    --> Nil
 )
 {
     my Str:D $file = '/mnt/etc/rc.conf';
@@ -1727,6 +1730,7 @@ multi sub replace(
     'rc.conf',
     'TIMEZONE',
     Timezone:D $timezone
+    --> Nil
 )
 {
     my Str:D $file = '/mnt/etc/rc.conf';
