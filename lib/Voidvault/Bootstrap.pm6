@@ -1138,8 +1138,8 @@ method !configure-sysctl(--> Nil)
 
 method !configure-nftables(--> Nil)
 {
-    # XXX: customize nftables
-    Nil;
+    my Str:D $path = 'etc/nftables.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
 method !configure-openssh(--> Nil)

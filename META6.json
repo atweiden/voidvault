@@ -27,6 +27,7 @@
         "etc/hosts",
         "etc/hosts.allow",
         "etc/modprobe.d/modprobe.conf",
+        "etc/nftables.conf",
         "etc/profile.d/shell-timeout.sh",
         "etc/resolv.conf.head",
         "etc/securetty",
