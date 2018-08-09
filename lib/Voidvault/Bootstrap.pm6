@@ -1045,8 +1045,12 @@ method !generate-initramfs(--> Nil)
     my Str:D $dracut-cmdline =
         sprintf(Q{dracut --kver %s}, $linux-version);
     void-chroot('/mnt', $dracut-cmdline);
+    my Str:D $xbps-linux-version-raw =
+        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
+    my Str:D $xbps-linux-version =
+        $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
     my Str:D $xbps-reconfigure-linux-cmdline =
-        sprintf(Q{xbps-reconfigure --force linux%s}, $linux-version);
+        sprintf(Q{xbps-reconfigure --force linux%s}, $xbps-linux-version);
     void-chroot('/mnt', $xbps-reconfigure-linux-cmdline);
 }
 
