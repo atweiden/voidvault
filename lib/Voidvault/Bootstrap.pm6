@@ -1783,7 +1783,7 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D $replace = 'compress="zstd"';
+    my Str:D $replace = 'compress="lz4"';
     spurt($file, $replace ~ "\n");
 }
 
