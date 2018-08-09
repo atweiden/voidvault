@@ -54,3 +54,10 @@ git clone https://github.com/atweiden/voidfiles ~/.voidfiles
 cd ~/.voidfiles
 ./bootstrap.sh
 ```
+
+get more pkgs:
+
+```
+xbps-install xtools
+xlocate -S
+```
