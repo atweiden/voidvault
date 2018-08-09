@@ -64,9 +64,15 @@ multi sub disable-cow(
     run(qqw<chown $user:$group $orig-dir>);
     run(qqw<chattr -R +C $orig-dir>);
     dir($backup-dir).map(-> IO::Path:D $file {
-        run(qqw<cp -dpr $file $orig-dir>)
+        run(qqw<
+            cp
+            --no-dereference
+            --preserve=links,mode,ownership,timestamps
+            $file
+            $orig-dir
+        >);
     });
-    run(qqw<rm -rf $backup-dir>);
+    run(qqw<rm --recursive --force $backup-dir>);
 }
 
 multi sub disable-cow(

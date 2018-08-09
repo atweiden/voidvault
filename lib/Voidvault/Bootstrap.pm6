@@ -390,7 +390,13 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
 
     # mount main btrfs filesystem on open vault
     mkdir('/mnt2');
-    run(qqw<mount -t btrfs -o $mount-options /dev/mapper/$vault-name /mnt2>);
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options
+        /dev/mapper/$vault-name
+        /mnt2
+    >);
 
     # btrfs subvolumes, starting with root / ('')
     my Str:D @btrfs-dir =
@@ -435,8 +441,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -453,8 +459,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,subvol=@var-cache-xbps
+        --types btrfs
+        --options $mount-options,subvol=@var-cache-xbps
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -471,8 +477,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,nodev,noexec,nosuid,subvol=@var-log
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-log
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -489,8 +495,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,subvol=@var-opt
+        --types btrfs
+        --options $mount-options,subvol=@var-opt
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -507,8 +513,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,nodev,noexec,nosuid,subvol=@var-spool
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-spool
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -525,8 +531,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -543,8 +549,8 @@ multi sub mount-btrfs-subvolume(
     mkdir("/mnt/$btrfs-dir");
     run(qqw<
         mount
-        -t btrfs
-        -o $mount-options,subvol=@$btrfs-dir
+        --types btrfs
+        --options $mount-options,subvol=@$btrfs-dir
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
@@ -796,11 +802,11 @@ multi sub useradd(
         '/mnt',
         qqw<
             useradd
-            -m
-            -g $user-name-admin
-            -G $user-group-admin
-            -p '$user-pass-hash-admin'
-            -s $user-shell-admin
+            --create-home
+            --gid $user-name-admin
+            --groups $user-group-admin
+            --password '$user-pass-hash-admin'
+            --shell $user-shell-admin
             $user-name-admin
         >
     );
@@ -823,11 +829,11 @@ multi sub useradd(
         '/mnt',
         qqw<
             useradd
-            -m
-            -g $user-name-guest
-            -G $user-group-guest
-            -p '$user-pass-hash-guest'
-            -s $user-shell-guest
+            --create-home
+            --gid $user-name-guest
+            --groups $user-group-guest
+            --password '$user-pass-hash-guest'
+            --shell $user-shell-guest
             $user-name-guest
         >
     );
@@ -856,12 +862,12 @@ multi sub useradd(
         '/mnt',
         qqw<
             useradd
-            -M
-            -d $home-dir
-            -g $user-name-sftp
-            -G $user-group-sftp
-            -p '$user-pass-hash-sftp'
-            -s $user-shell-sftp
+            --create-home
+            --home-dir $home-dir
+            --gid $user-name-sftp
+            --groups $user-group-sftp
+            --password '$user-pass-hash-sftp'
+            --shell $user-shell-sftp
             $user-name-sftp
         >
     );
@@ -875,7 +881,7 @@ sub usermod(
 )
 {
     say('Updating root password...');
-    void-chroot('/mnt', "usermod -p '$user-pass-hash-root' root");
+    void-chroot('/mnt', "usermod --password '$user-pass-hash-root' root");
 }
 
 multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
@@ -985,7 +991,16 @@ method !set-keymap(--> Nil)
 method !set-timezone(--> Nil)
 {
     my Timezone:D $timezone = $.config.timezone;
-    void-chroot('/mnt', "ln -sf /usr/share/zoneinfo/$timezone /etc/localtime");
+    void-chroot(
+        '/mnt',
+        qqw<
+            ln
+            --symbolic
+            --force
+            /usr/share/zoneinfo/$timezone
+            /etc/localtime
+        >
+    );
     replace('rc.conf', 'TIMEZONE', $timezone);
 }
 
@@ -1061,7 +1076,7 @@ multi sub install-bootloader(
         '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
         '/mnt/boot/grub/locale/en.mo'
     );
-    void-chroot('/mnt', 'grub-mkconfig -o /boot/grub/grub.cfg');
+    void-chroot('/mnt', 'grub-mkconfig --output=/boot/grub/grub.cfg');
 }
 
 multi sub install-bootloader(
@@ -1244,7 +1259,9 @@ method !enable-runit-services(--> Nil)
     @service.map(-> Str:D $service {
         run(qqw<
             ln
-            -sf /etc/sv/$service
+            --symbolic
+            --force
+            /etc/sv/$service
             /mnt/etc/runit/runsvdir/default/$service
         >);
     });
@@ -1264,7 +1281,7 @@ method !unmount(--> Nil)
         sprintf(Q{Waiting %s seconds for /mnt to cool down...}, $delay);
     say($message);
     sleep($delay);
-    shell('umount -R /mnt');
+    shell('umount --recursive /mnt');
     my VaultName:D $vault-name = $.config.vault-name;
     run(qqw<cryptsetup luksClose $vault-name>);
 }
@@ -1878,7 +1895,12 @@ multi sub replace(
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
-    my Str:D $vault-uuid = qqx<blkid -s UUID -o value $partition-vault>.trim;
+    my Str:D $vault-uuid = qqx<
+        blkid
+        --match-tag UUID
+        --output value
+        $partition-vault
+    >.trim;
     my Str:D $grub-cmdline-linux =
         sprintf(
             Q{cryptdevice=/dev/disk/by-uuid/%s:%s rootflags=subvol=@},
