@@ -43,7 +43,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-modprobe;
     self!generate-initramfs;
     self!install-bootloader;
-    self!configure-zram;
+    self!configure-runit-swap;
     self!configure-sysctl;
     self!configure-nftables;
     self!configure-openssh;
@@ -1103,7 +1103,7 @@ multi sub install-bootloader(
     spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
 }
 
-method !configure-zram(--> Nil)
+method !configure-runit-swap(--> Nil)
 {
     replace('swap.conf');
 }
@@ -1233,8 +1233,8 @@ method !enable-runit-services(--> Nil)
         dnscrypt-proxy
         nanoklogd
         nftables
+        runit-swap
         socklog-unix
-        swap
     >;
     @service.map(-> Str:D $service {
         run(qqw<
