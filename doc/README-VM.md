@@ -4,6 +4,8 @@
 - login as root:voidlinux
 - switch to bash
   - `/bin/bash`
+- free up 100MB disk space
+  - `xbps-remove --force-revdeps linux-firmware-network`
 - install pkgs
   - `xbps-install -Sv curl rakudo tmux`
 - switch on tmux
