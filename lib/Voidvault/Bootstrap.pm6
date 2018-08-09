@@ -43,7 +43,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-modprobe;
     self!generate-initramfs;
     self!install-bootloader;
-    self!configure-zramswap;
+    self!configure-zram;
     self!configure-sysctl;
     self!configure-nftables;
     self!configure-openssh;
@@ -666,6 +666,7 @@ method !voidstrap-base(--> Nil)
         psmisc
         rakudo
         rsync
+        runit-swap
         runit-void
         sed
         shadow
@@ -1139,10 +1140,9 @@ multi sub install-bootloader(
     spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
 }
 
-method !configure-zramswap(--> Nil)
+method !configure-zram(--> Nil)
 {
-    # XXX NYI
-    Nil;
+    replace('swap.conf');
 }
 
 method !configure-sysctl(--> Nil)
@@ -1271,7 +1271,7 @@ method !enable-runit-services(--> Nil)
         nanoklogd
         nftables
         socklog-unix
-        zramswap
+        swap
     >;
     @service.map(-> Str:D $service {
         run(qqw<
@@ -1936,6 +1936,51 @@ multi sub replace(
 }
 
 # --- end 10_linux }}}
+# --- swap.conf {{{
+
+multi sub replace(
+    'swap.conf'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/swap.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        # disable zswap
+        ==> replace('swap.conf', 'zswap_enabled')
+        # enable zram
+        ==> replace('swap.conf', 'zram_enabled');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'swap.conf',
+    Str:D $subject where 'zswap_enabled',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s=0}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'swap.conf',
+    Str:D $subject where 'zram_enabled',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s=1}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+# --- end swap.conf }}}
 # --- 99-sysctl.conf {{{
 
 multi sub replace(
