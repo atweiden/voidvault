@@ -1,3 +1,6 @@
+install
+-------
+
 - boot livecd
 - select second option
   - copy to RAM
@@ -15,13 +18,39 @@
   - `tar xvzf voidvault-master.tar.gz`
   - `cd voidvault-master`
 
+post-install
+------------
+
+get online:
+
 ```sh
-#!/bin/bash
-declare -A _revdeps=()
-for _pkg in "$(xbps-query --list-pkgs | awk '{print $2}')"; do
-  _revdeps["$_pkg"]="$(xbps-query --revdeps "$_pkg")"
-done
-for _i in "${!_revdeps[@]}"; do
-  echo "$_i: ${_revdeps[$_i]}"
-done
+sudo su
+chsh -s /bin/bash
+ln -s /etc/sv/dhcpcd /etc/runit/runsvdir/default/dhcpcd
+```
+
+sync time:
+
+```sh
+ln -s /etc/sv/chronyd /etc/runit/runsvdir/default/chronyd
+```
+
+update system pkgs:
+
+```sh
+xbps-install -Suv
+```
+
+switch back to normal user
+
+```sh
+exit
+```
+
+get voidfiles:
+
+```sh
+git clone https://github.com/atweiden/voidfiles ~/.voidfiles
+cd ~/.voidfiles
+./bootstrap.sh
 ```
