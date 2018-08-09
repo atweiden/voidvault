@@ -1895,12 +1895,8 @@ multi sub replace(
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
-    my Str:D $vault-uuid = qqx<
-        blkid
-        --match-tag UUID
-        --output value
-        $partition-vault
-    >.trim;
+    my Str:D $vault-uuid =
+        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D $grub-cmdline-linux =
         sprintf(
             Q{cryptdevice=/dev/disk/by-uuid/%s:%s rootflags=subvol=@},
