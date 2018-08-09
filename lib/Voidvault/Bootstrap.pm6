@@ -950,7 +950,7 @@ method !genfstab(--> Nil)
     copy(%?RESOURCES{$path}, "/mnt/$path");
     shell('/usr/bin/genfstab -U -p /mnt >> /mnt/etc/fstab');
     my Str:D $tmp =
-        'tmpfs /tmp tmpfs mode=1777,strictatime,nodev,nodexec,nosuid 0 0';
+        'tmpfs /tmp tmpfs mode=1777,strictatime,nodev,noexec,nosuid 0 0';
     spurt('/mnt/etc/fstab', $tmp ~ "\n", :append);
 }
 
