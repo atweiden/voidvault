@@ -1537,36 +1537,41 @@ multi sub replace(
     --> Nil
 )
 {
-    # rm default /tmp mount in fstab
-    replace('fstab', 'rm');
-    # add /tmp mount with options
-    replace('fstab', 'add');
-}
-
-multi sub replace(
-    'fstab',
-    'rm'
-    --> Nil
-)
-{
     my Str:D $file = '/mnt/etc/fstab';
-    my Str:D @line = $file.IO.lines;
-    my UInt:D $index = @line.first(/^tmpfs/, :k);
-    @line.splice($index, 1);
-    my Str:D $replace = @line.join("\n");
+    my Str:D @replace =
+        $file.IO.lines
+        # rm default /tmp mount in fstab
+        ==> replace('fstab', 'rm')
+        # add /tmp mount with options
+        ==> replace('fstab', 'add');
+    my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
     'fstab',
-    'add'
-    --> Nil
+    'rm',
+    Str:D @line
+    --> Array[Str:D]
 )
 {
-    my Str:D $file = '/mnt/etc/fstab';
-    my Str:D $tmp =
+    my UInt:D $index = @line.first(/^tmpfs/, :k);
+    @line.splice($index, 1);
+    @line;
+}
+
+multi sub replace(
+    'fstab',
+    'add',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.elems;
+    my Str:D $replace =
         'tmpfs /tmp tmpfs mode=1777,strictatime,nodev,noexec,nosuid 0 0';
-    spurt($file, $tmp ~ "\n", :append);
+    @line[$index] = $replace;
+    @line;
 }
 
 # --- end fstab }}}
