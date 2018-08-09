@@ -1277,7 +1277,7 @@ method !augment(--> Nil)
 method !unmount(--> Nil)
 {
     my VaultName:D $vault-name = $.config.vault-name;
-    run(qw<umount --recursive /mnt>);
+    run(qw<umount --recursive --verbose /mnt>);
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
