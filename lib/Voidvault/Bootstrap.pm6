@@ -1021,7 +1021,7 @@ method !generate-initramfs(--> Nil)
 {
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
-    replace('dracut.conf.d', $graphics, $processor);
+    replace('dracut.conf', $graphics, $processor);
     my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
     my Str:D $dracut-cmdline =
         sprintf(Q{dracut --force --kver %s}, $linux-version);
@@ -1765,42 +1765,43 @@ multi sub replace(
 }
 
 # --- end rc.conf }}}
-# --- dracut.conf.d {{{
+# --- dracut.conf {{{
 
 multi sub replace(
-    'dracut.conf.d',
+    'dracut.conf',
     Graphics:D $graphics,
     Processor:D $processor
     --> Nil
 )
 {
-    replace('dracut.conf.d', 'compress.conf');
-    replace('dracut.conf.d', 'drivers.conf', $graphics, $processor);
-    replace('dracut.conf.d', 'modules.conf');
-    replace('dracut.conf.d', 'policy.conf');
-    replace('dracut.conf.d', 'tmpdir.conf');
+    replace('dracut.conf', 'compress');
+    replace('dracut.conf', 'add_drivers', $graphics, $processor);
+    replace('dracut.conf', 'add_dracutmodules');
+    replace('dracut.conf', 'omit_dracutmodules');
+    replace('dracut.conf', 'persistent_policy');
+    replace('dracut.conf', 'tmpdir');
 }
 
 multi sub replace(
-    'dracut.conf.d',
-    Str:D $subject where 'compress.conf'
+    'dracut.conf',
+    Str:D $subject where 'compress'
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D $replace = 'compress="lz4"';
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'dracut.conf.d',
-    Str:D $subject where 'drivers.conf',
+    'dracut.conf',
+    Str:D $subject where 'add_drivers',
     Graphics:D $graphics,
     Processor:D $processor
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
     # drivers are C<*.ko*> files in C</lib/modules>
     my Str:D @driver = qw<
         ahci
@@ -1813,51 +1814,64 @@ multi sub replace(
     push(@driver, 'i915') if $graphics eq 'INTEL';
     push(@driver, 'nouveau') if $graphics eq 'NVIDIA';
     push(@driver, 'radeon') if $graphics eq 'RADEON';
-    my Str:D $replace = sprintf(Q{add_drivers+=" %s "}, @driver.join(' '));
+    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @driver.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'dracut.conf.d',
-    Str:D $subject where 'modules.conf'
+    'dracut.conf',
+    Str:D $subject where 'add_dracutmodules'
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
     # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
         btrfs
         crypt
         kernel-modules
     >;
-    my Str:D $replace =
-        sprintf(Q{add_dracutmodules+=" %s "}, @module.join(' '));
+    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'dracut.conf.d',
-    Str:D $subject where 'policy.conf'
+    'dracut.conf',
+    Str:D $subject where 'omit_dracutmodules'
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D $replace = 'persistent_policy="by-uuid"';
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D @module = qw<
+        usrmount
+    >;
+    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'dracut.conf.d',
-    Str:D $subject where 'tmpdir.conf'
+    'dracut.conf',
+    Str:D $subject where 'persistent_policy'
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D $replace = 'tmpdir="/tmp"';
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D $replace = sprintf(Q{%s="by-uuid"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
-# --- end dracut.conf.d }}}
+multi sub replace(
+    'dracut.conf',
+    Str:D $subject where 'tmpdir'
+    --> Nil
+)
+{
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D $replace = sprintf(Q{%s="/tmp"}, $subject);
+    spurt($file, $replace ~ "\n");
+}
+
+# --- end dracut.conf }}}
 # --- grub {{{
 
 multi sub replace(
