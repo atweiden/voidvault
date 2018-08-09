@@ -949,9 +949,44 @@ method !genfstab(--> Nil)
     copy(%?RESOURCES{$path}, "/$path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
     shell('/usr/bin/genfstab -U -p /mnt >> /mnt/etc/fstab');
+    replace('fstab');
+}
+
+multi sub replace(
+    'fstab'
+    --> Nil
+)
+{
+    # rm default /tmp mount in fstab
+    replace('fstab', 'rm');
+    # add /tmp mount with options
+    replace('fstab', 'add');
+}
+
+multi sub replace(
+    'fstab',
+    'rm'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/fstab';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^tmpfs/, :k);
+    @line.splice($index, 1);
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'fstab',
+    'add'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/fstab';
     my Str:D $tmp =
         'tmpfs /tmp tmpfs mode=1777,strictatime,nodev,noexec,nosuid 0 0';
-    spurt('/mnt/etc/fstab', $tmp ~ "\n", :append);
+    spurt($file, $tmp ~ "\n", :append);
 }
 
 method !set-hostname(--> Nil)
