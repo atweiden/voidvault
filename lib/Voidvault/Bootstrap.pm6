@@ -1796,6 +1796,7 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
+    # drivers are C<*.ko*> files in C</lib/modules>
     my Str:D @driver = qw<
         ahci
         btrfs
@@ -1818,6 +1819,7 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
+    # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
         btrfs
         crypt
