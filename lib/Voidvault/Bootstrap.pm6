@@ -1255,13 +1255,16 @@ method !enable-runit-services(--> Nil)
         socklog-unix
     >;
     @service.map(-> Str:D $service {
-        run(qqw<
-            ln
-            --symbolic
-            --force
-            /etc/sv/$service
-            /mnt/etc/runit/runsvdir/default/$service
-        >);
+        void-chroot(
+            '/mnt',
+            qqw<
+                ln
+                --symbolic
+                --force
+                /etc/sv/$service
+                /etc/runit/runsvdir/default/$service
+            >
+        );
     });
 }
 
