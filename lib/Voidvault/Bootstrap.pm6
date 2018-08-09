@@ -1063,7 +1063,7 @@ method !install-bootloader(--> Nil)
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
-    replace('grub', $graphics, $partition, $vault-name);
+    replace('grub', [$graphics, $partition, $vault-name]);
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
     install-bootloader($partition);
@@ -1843,7 +1843,7 @@ multi sub replace(
 
 multi sub replace(
     'grub',
-    *@opts (
+    @opts (
         Graphics:D $graphics,
         Str:D $partition,
         VaultName:D $vault-name
@@ -1854,7 +1854,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/default/grub';
     my Str:D @replace =
         $file.IO.lines
-        ==> replace('grub', 'GRUB_CMDLINE_LINUX_DEFAULT', |@opts)
+        ==> replace('grub', 'GRUB_CMDLINE_LINUX_DEFAULT', @opts)
         ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK')
         ==> replace('grub', 'GRUB_TERMINAL_INPUT')
         ==> replace('grub', 'GRUB_TERMINAL_OUTPUT');
@@ -1865,9 +1865,11 @@ multi sub replace(
 multi sub replace(
     'grub',
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
-    Graphics:D $graphics,
-    Str:D $partition,
-    VaultName:D $vault-name,
+    @ (
+        Graphics:D $graphics,
+        Str:D $partition,
+        VaultName:D $vault-name
+    ),
     Str:D @line
     --> Array[Str:D]
 )
