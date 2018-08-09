@@ -1276,13 +1276,12 @@ method !augment(--> Nil)
 
 method !unmount(--> Nil)
 {
-    my UInt:D $delay = 7;
-    my Str:D $message =
-        sprintf(Q{Waiting %s seconds for /mnt to cool down...}, $delay);
-    say($message);
-    sleep($delay);
-    shell('umount --recursive /mnt');
     my VaultName:D $vault-name = $.config.vault-name;
+    my Str:D $umount-cmdline = 'umount --recursive /mnt';
+    Voidvault::Utils.loop-cmdline-proc(
+        'Attempting to umount /mnt...',
+        $umount-cmdline
+    );
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
