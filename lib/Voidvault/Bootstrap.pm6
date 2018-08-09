@@ -1489,7 +1489,7 @@ sub voidstrap-install(Str:D $chroot-dir, Str:D @pkg --> Nil)
 # end sub voidstrap }}}
 # sub void-chroot {{{
 
-multi sub void-chroot(Str:D $chroot-dir, Str:D @cmdline --> Nil)
+multi sub void-chroot(Str:D $chroot-dir, @cmdline --> Nil)
 {
     my Str:D $cmdline = @cmdline.join(' ');
     void-chroot($chroot-dir, $cmdline);
