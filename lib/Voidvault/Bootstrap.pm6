@@ -666,6 +666,8 @@ method !voidstrap-base(--> Nil)
         gptfdisk
         grep
         groff
+        grub-i386-efi
+        grub-x86_64-efi
         gzip
         haveged
         inetutils
