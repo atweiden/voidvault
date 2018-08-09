@@ -1294,6 +1294,7 @@ method !enable-runit-services(--> Nil)
 {
     my Str:D @service = qw<
         dnscrypt-proxy
+        nanoklogd
         nftables
         socklog-unix
         zramswap
