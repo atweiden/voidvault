@@ -1787,7 +1787,18 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D $replace = 'add_drivers+=" ahci "';
+    my Str:D @driver = qw<
+        ahci
+        btrfs
+        libcrc32c
+        lz4
+        lz4_compress
+    >;
+    push(@driver, 'crc32c-intel') if $processor eq 'INTEL';
+    push(@driver, 'i915') if $graphics eq 'INTEL';
+    push(@driver, 'nouveau') if $graphics eq 'NVIDIA';
+    push(@driver, 'radeon') if $graphics eq 'RADEON';
+    my Str:D $replace = sprintf(Q{add_drivers+=" %s "}, @driver.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -1800,15 +1811,12 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s}, $subject);
-    my Str:D @modules = qw<crypt btrfs>;
-    push(@modules, $processor eq 'INTEL' ?? 'crc32c-intel' !! 'crc32c');
-    push(@modules, 'i915') if $graphics eq 'INTEL';
-    push(@modules, 'nouveau') if $graphics eq 'NVIDIA';
-    push(@modules, 'radeon') if $graphics eq 'RADEON';
-    # for zram lz4 compression
-    push(@modules, |qw<lz4 lz4_compress>);
+    my Str:D @module = qw<
+        btrfs
+        crypt
+    >;
     my Str:D $replace =
-        sprintf(Q{add_dracutmodules+=" %s "}, @modules.join(' '));
+        sprintf(Q{add_dracutmodules+=" %s "}, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
