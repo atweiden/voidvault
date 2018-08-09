@@ -63,7 +63,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    # rm pkgs not needed prior to voidstrap
+    # free up 100MB of disk space
     run(qw<xbps-remove --force-revdeps --yes linux-firmware-network>);
 
     # fetch dependencies needed prior to voidstrap
