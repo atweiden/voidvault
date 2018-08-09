@@ -1006,8 +1006,13 @@ method !generate-initramfs(--> Nil)
     my Processor:D $processor = $.config.processor;
     replace('dracut.conf.d', $graphics, $processor);
     my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
+    my Str:D @file = '/etc/modprobe.d/modprobe.conf';
     my Str:D $dracut-cmdline =
-        sprintf(Q{dracut --force --kver %s}, $linux-version);
+        sprintf(
+            Q{dracut --force --install %s --kver %s},
+            @file.join(' '),
+            $linux-version
+        );
     void-chroot('/mnt', $dracut-cmdline);
     my Str:D $xbps-linux-version-raw =
         qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
