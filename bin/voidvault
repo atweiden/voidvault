@@ -267,6 +267,7 @@ multi sub USAGE('new' --> Nil)
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
+                [--ample-space]
                 [--augment]
                 new
 
@@ -277,6 +278,8 @@ multi sub USAGE('new' --> Nil)
         Password for admin account
       --admin-pass-hash=<passhash>
         Encrypted password hash for admin account
+      --ample-space
+        Do not remove pkgs to make free space
       --augment
         Drop to Bash console mid-execution
       --disk-type=<disktype>

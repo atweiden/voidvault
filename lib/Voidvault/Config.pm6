@@ -133,6 +133,10 @@ has Timezone:D $.timezone =
         ?? Voidvault::Config.gen-timezone(%*ENV<VOIDVAULT_TIMEZONE>)
         !! prompt-timezone();
 
+# do not remove pkgs to free up space
+has Bool:D $.ample-space =
+    ?%*ENV<VOIDVAULT_AMPLE_SPACE>;
+
 # augment
 has Bool:D $.augment =
     ?%*ENV<VOIDVAULT_AUGMENT>;
@@ -146,6 +150,7 @@ submethod BUILD(
     Str :$admin-name,
     Str :$admin-pass,
     Str :$admin-pass-hash,
+    Bool :$ample-space,
     Bool :$augment,
     Str :$disk-type,
     Str :$graphics,
@@ -171,6 +176,8 @@ submethod BUILD(
     --> Nil
 )
 {
+    $!ample-space = $ample-space
+        if $ample-space;
     $!augment = $augment
         if $augment;
     $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
@@ -228,6 +235,7 @@ method new(
         Str :admin-name($),
         Str :admin-pass($),
         Str :admin-pass-hash($),
+        Bool :ample-space($),
         Bool :augment($),
         Str :disk-type($),
         Str :graphics($),

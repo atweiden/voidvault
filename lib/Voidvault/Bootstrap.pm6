@@ -63,8 +63,11 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
+    my Bool:D $ample-space = $.config.ample-space;
+
     # free up 100MB of disk space
-    run(qw<xbps-remove --force-revdeps --yes linux-firmware-network>);
+    run(qw<xbps-remove --force-revdeps --yes linux-firmware-network>)
+        if $ample-space.not;
 
     # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<

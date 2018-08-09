@@ -10,6 +10,7 @@ method new(
         Str :admin-name($),
         Str :admin-pass($),
         Str :admin-pass-hash($),
+        Bool :ample-space($),
         Bool :augment($),
         Str :disk-type($),
         Str :graphics($),
