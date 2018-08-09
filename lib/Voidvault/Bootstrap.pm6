@@ -1763,8 +1763,8 @@ multi sub replace(
 )
 {
     replace('dracut.conf.d', 'compress.conf');
-    replace('dracut.conf.d', 'drivers.conf');
-    replace('dracut.conf.d', 'modules.conf', $graphics, $processor);
+    replace('dracut.conf.d', 'drivers.conf', $graphics, $processor);
+    replace('dracut.conf.d', 'modules.conf');
     replace('dracut.conf.d', 'policy.conf');
     replace('dracut.conf.d', 'tmpdir.conf');
 }
@@ -1782,7 +1782,9 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf.d',
-    Str:D $subject where 'drivers.conf'
+    Str:D $subject where 'drivers.conf',
+    Graphics:D $graphics,
+    Processor:D $processor
     --> Nil
 )
 {
@@ -1804,9 +1806,7 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf.d',
-    Str:D $subject where 'modules.conf',
-    Graphics:D $graphics,
-    Processor:D $processor
+    Str:D $subject where 'modules.conf'
     --> Nil
 )
 {
