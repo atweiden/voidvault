@@ -6,7 +6,9 @@ install
   - copy to RAM
 - login as root:voidlinux
 - switch to bash
-  - `/bin/bash`
+  - `chsh -s /bin/bash`
+  - `exit`
+- log back in as root:voidlinux
 - free up 100MB disk space
   - `xbps-remove --force-revdeps linux-firmware-network`
 - install pkgs
