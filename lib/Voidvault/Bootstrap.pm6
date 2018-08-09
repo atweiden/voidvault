@@ -1008,6 +1008,7 @@ method !set-timezone(--> Nil)
 
 method !set-hwclock(--> Nil)
 {
+    replace('rc.conf', 'HARDWARECLOCK');
     void-chroot('/mnt', 'hwclock --systohc --utc');
 }
 
@@ -1760,6 +1761,21 @@ multi sub replace(
     my UInt:D $index = @line.first(/^'#'?TIMEZONE'='/, :k);
     my Str:D $timezone-line = sprintf(Q{TIMEZONE=%s}, $timezone);
     @line[$index] = $timezone-line;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'rc.conf',
+    'HARDWARECLOCK'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/rc.conf';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^'#'?HARDWARECLOCK'='/, :k);
+    my Str:D $hardwareclock-line = 'HARDWARECLOCK="UTC"';
+    @line[$index] = $hardwareclock-line;
     my Str:D $replace = @line.join("\n");
     spurt($file, $replace ~ "\n");
 }
