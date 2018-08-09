@@ -1990,7 +1990,7 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $file = '/mnt/etc/swap.conf';
+    my Str:D $file = '/mnt/etc/runit/swap.conf';
     my Str:D @replace =
         $file.IO.lines
         # disable zswap
