@@ -1276,12 +1276,7 @@ method !augment(--> Nil)
 
 method !unmount(--> Nil)
 {
-    my VaultName:D $vault-name = $.config.vault-name;
-    my Str:D $umount-cmdline = 'umount --recursive /mnt';
-    Voidvault::Utils.loop-cmdline-proc(
-        'Attempting to umount /mnt...',
-        $umount-cmdline
-    );
+    run(qw<umount --recursive /mnt>);
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
