@@ -1291,6 +1291,11 @@ method !augment(--> Nil)
 
 method !unmount(--> Nil)
 {
+    my UInt:D $delay = 7;
+    my Str:D $message =
+        sprintf(Q{Waiting %s seconds for /mnt to cool down...}, $delay);
+    say($message);
+    sleep($delay);
     shell('umount -R /mnt');
     my VaultName:D $vault-name = $.config.vault-name;
     run(qqw<cryptsetup luksClose $vault-name>);
