@@ -87,7 +87,6 @@ method !setup(--> Nil)
         mdadm
         mdocml
         openssh
-        os-prober
         psmisc
         sudo
         traceroute
