@@ -1860,6 +1860,7 @@ multi sub replace(
             $vault-uuid,
             $vault-name
         );
+    $grub-cmdline-linux ~= ' rw=1';
     $grub-cmdline-linux ~= ' rd.auto=1';
     $grub-cmdline-linux ~= ' rd.luks=1';
     $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
