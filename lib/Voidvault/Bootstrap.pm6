@@ -798,7 +798,7 @@ multi sub useradd(
             -m
             -g $user-name-admin
             -G $user-group-admin
-            -p $user-pass-hash-admin
+            -p '$user-pass-hash-admin'
             -s $user-shell-admin
             $user-name-admin
         >
@@ -825,7 +825,7 @@ multi sub useradd(
             -m
             -g $user-name-guest
             -G $user-group-guest
-            -p $user-pass-hash-guest
+            -p '$user-pass-hash-guest'
             -s $user-shell-guest
             $user-name-guest
         >
@@ -859,7 +859,7 @@ multi sub useradd(
             -d $home-dir
             -g $user-name-sftp
             -G $user-group-sftp
-            -p $user-pass-hash-sftp
+            -p '$user-pass-hash-sftp'
             -s $user-shell-sftp
             $user-name-sftp
         >
@@ -874,7 +874,7 @@ sub usermod(
 )
 {
     say('Updating root password...');
-    void-chroot('/mnt', "usermod -p $user-pass-hash-root root");
+    void-chroot('/mnt', "usermod -p '$user-pass-hash-root' root");
 }
 
 multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
