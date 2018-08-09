@@ -737,9 +737,6 @@ method !voidstrap-base(--> Nil)
     my Str:D $xbps-install-pkg-cmdline =
         sprintf('xbps-install --force --sync --yes %s', @pkg.join(' '));
     void-chroot('/mnt', $xbps-install-pkg-cmdline);
-
-    # rm pkg void-artwork
-    void-chroot('/mnt', 'xbps-remove --yes void-artwork');
 }
 
 # secure user configuration
