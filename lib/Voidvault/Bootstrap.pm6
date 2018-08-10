@@ -26,7 +26,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 
     self!setup;
     self!mkdisk;
-    self!disable-cow;
     self!voidstrap-base;
     self!configure-users;
     self!configure-sudoers;
@@ -124,6 +123,9 @@ method !mkdisk(--> Nil)
 
     # mount efi boot
     mount-efi($partition);
+
+    # disable Btrfs CoW
+    disable-cow();
 }
 
 # partition disk with gdisk
@@ -567,7 +569,7 @@ sub mount-efi(Str:D $partition --> Nil)
     run(qqw<mount $partition-efi $efi-dir>);
 }
 
-method !disable-cow(--> Nil)
+sub disable-cow(--> Nil)
 {
     my Str:D @directory = qw<
         home
