@@ -887,6 +887,8 @@ sub usermod(
 {
     say('Updating root password...');
     void-chroot('/mnt', "usermod --password '$user-pass-hash-root' root");
+    say('Changing root shell to bash...');
+    void-chroot('/mnt', "usermod --shell /bin/bash root");
 }
 
 multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
