@@ -12,13 +12,13 @@
         "source"     : "https://github.com/atweiden/voidvault"
     },
     "provides" : {
+        "Crypt::Libcrypt"      : "lib/Crypt/Libcrypt.pm6",
         "Voidvault"            : "lib/Voidvault.pm6",
         "Voidvault::Bootstrap" : "lib/Voidvault/Bootstrap.pm6",
         "Voidvault::Config"    : "lib/Voidvault/Config.pm6",
         "Voidvault::Grammar"   : "lib/Voidvault/Grammar.pm6",
         "Voidvault::Types"     : "lib/Voidvault/Types.pm6",
-        "Voidvault::Utils"     : "lib/Voidvault/Utils.pm6",
-        "Crypt::Libcrypt"      : "lib/Crypt/Libcrypt.pm6"
+        "Voidvault::Utils"     : "lib/Voidvault/Utils.pm6"
     },
     "resources" : [
         "etc/X11/Xwrapper.config",
