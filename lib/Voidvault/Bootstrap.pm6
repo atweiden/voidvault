@@ -19,13 +19,14 @@ has Voidvault::Config:D $.config is required;
 method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
+    my Bool:D $no-mkdisk = $.config.no-mkdisk;
+    my Bool:D $no-setup = $.config.no-setup;
     # verify root permissions
     $*USER == 0 or die('root privileges required');
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
-
-    self!setup;
-    self!mkdisk;
+    self!setup if $no-setup.not;
+    self!mkdisk if $no-mkdisk.not;
     self!voidstrap-base;
     self!configure-users;
     self!configure-sudoers;
@@ -51,7 +52,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-securetty;
     self!configure-xorg;
     self!enable-runit-services;
-    self!augment if $augment;
+    self!augment if $augment.so;
     self!unmount;
 }
 

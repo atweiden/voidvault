@@ -141,6 +141,14 @@ has Bool:D $.ample-space =
 has Bool:D $.augment =
     ?%*ENV<VOIDVAULT_AUGMENT>;
 
+# do not execute mkdisk action
+has Bool:D $.no-mkdisk =
+    ?%*ENV<VOIDVAULT_NO_MKDISK>;
+
+# do not execute setup action
+has Bool:D $.no-setup =
+    ?%*ENV<VOIDVAULT_NO_SETUP>;
+
 
 # -----------------------------------------------------------------------------
 # class instantation
@@ -163,6 +171,8 @@ submethod BUILD(
     Str :$hostname,
     Str :$keymap,
     Str :$locale,
+    Bool :$no-mkdisk,
+    Bool :$no-setup,
     Str :$partition,
     Str :$processor,
     Str :$root-pass,
@@ -190,6 +200,10 @@ submethod BUILD(
         if $keymap;
     $!locale = Voidvault::Config.gen-locale($locale)
         if $locale;
+    $!no-mkdisk = $no-mkdisk
+        if $no-mkdisk;
+    $!no-setup = $no-setup
+        if $no-setup;
     $!partition = $partition
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
@@ -248,6 +262,8 @@ method new(
         Str :hostname($),
         Str :keymap($),
         Str :locale($),
+        Bool :no-mkdisk($),
+        Bool :no-setup($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),

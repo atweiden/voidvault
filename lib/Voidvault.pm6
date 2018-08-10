@@ -23,6 +23,8 @@ method new(
         Str :hostname($),
         Str :keymap($),
         Str :locale($),
+        Bool :no-mkdisk($),
+        Bool :no-setup($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),

@@ -109,6 +109,8 @@ multi sub MAIN(
         Str :hostname($),
         Str :keymap($),
         Str :locale($),
+        Bool :no-mkdisk($),
+        Bool :no-setup($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),
@@ -270,6 +272,7 @@ multi sub USAGE('new' --> Nil)
                 [--keymap=<keymap>] [--timezone=<timezone>]
                 [--ample-space]
                 [--augment]
+                [--no-mkdisk] [--no-setup]
                 new
 
     Options:
@@ -305,6 +308,10 @@ multi sub USAGE('new' --> Nil)
         Keymap
       --locale=<locale>
         Locale
+      --no-mkdisk
+        Do not execute mkdisk action
+      --no-setup
+        Do not execute setup action
       --partition=<device>
         Partition target for install
       --processor=<processor>
