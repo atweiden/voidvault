@@ -864,7 +864,7 @@ multi sub useradd(
         '/mnt',
         qqw<
             useradd
-            --create-home
+            --no-create-home
             --home-dir $home-dir
             --gid $user-name-sftp
             --groups $user-group-sftp
