@@ -1411,7 +1411,11 @@ multi sub chroot-add-host-keys(
     my Str:D $host-keys-chroot-dir =
         sprintf(Q{%s%s}, $chroot-dir, $host-keys-dir);
     mkdir($host-keys-chroot-dir);
-    shell("cp --archive $host-keys-dir/* $host-keys-chroot-dir");
+    dir($host-keys-dir)
+        .map(-> IO::Path:D $path { $path.basename })
+        .map(-> Str:D $basename {
+            copy("$host-keys-dir/$basename", "$host-keys-chroot-dir/$basename");
+        });
 }
 
 # no existing host keys to copy
