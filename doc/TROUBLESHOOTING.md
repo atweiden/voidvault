@@ -160,7 +160,7 @@ shared libraries, out of date packages are most likely to blame. For
 example:
 
 ```
-/usr/bin/dracut: error while loading shared libraries: libjson-c.so.4: cannot open shared object file: No such file or directory
+/usr/bin/cryptsetup error while loading shared libraries: libjson-c.so.4: cannot open shared object file: No such file or directory
 ```
 
 The package that provides `libjson-c.so.4` is out of date or missing. To
