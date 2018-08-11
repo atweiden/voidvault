@@ -464,7 +464,7 @@ _pkgs=('btrfs-progs'
        'util-linux'
        'vim'
        'xbps')
-./mklive.sh -p "${_pkgs[@]}" -S 250
+./mklive.sh -p "'${_pkgs[@]}'" -S 250
 ```
 
 When using the resulting ISO with `voidvault new`, be sure to specify
