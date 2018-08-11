@@ -684,7 +684,6 @@ method !voidstrap-base(--> Nil)
         wpa_actiond
         wpa_supplicant
         xbps
-        xtools
         xz
         zip
         zlib
