@@ -38,7 +38,7 @@
   - Storage
     - Click the CD circle with the (+) sign
       - Choose disk
-        - Navigate to Void Linux ISO
+        - Navigate to Void ISO
           - Open
   - Audio
     - Uncheck Enable Audio
@@ -328,7 +328,7 @@ chown -R tor:tor /var/lib/tor/sftp
 chmod 700 /var/lib/tor/sftp
 ```
 
-- Configure tor runit service to use `/etc/torrc`
+- Configure tor runit service to use `/etc/tor/torrc`
 
 ```
 cat >> /etc/sv/tor/run <<'EOF'
