@@ -440,32 +440,32 @@ _deps=('liblz4')
 xbps-install "${_deps[@]}"
 
 # run mklive.sh with voidvault's required pkg lineup
-./mklive.sh \
-  -p 'btrfs-progs
-      cdrtools
-      coreutils
-      cryptsetup
-      curl
-      dialog
-      dosfstools
-      dvd+rw-tools
-      e2fsprogs
-      efibootmgr
-      expect
-      glibc
-      gptfdisk
-      grub
-      kbd
-      kmod
-      libressl
-      procps-ng
-      rakudo
-      tmux
-      tzdata
-      util-linux
-      vim
-      xbps' \
-  -S 250
+_pkgs=''
+_pkgs+=' btrfs-progs'
+_pkgs+=' cdrtools'
+_pkgs+=' coreutils'
+_pkgs+=' cryptsetup'
+_pkgs+=' curl'
+_pkgs+=' dialog'
+_pkgs+=' dosfstools'
+_pkgs+=' dvd+rw-tools'
+_pkgs+=' e2fsprogs'
+_pkgs+=' efibootmgr'
+_pkgs+=' expect'
+_pkgs+=' glibc'
+_pkgs+=' gptfdisk'
+_pkgs+=' grub'
+_pkgs+=' kbd'
+_pkgs+=' kmod'
+_pkgs+=' libressl'
+_pkgs+=' procps-ng'
+_pkgs+=' rakudo'
+_pkgs+=' tmux'
+_pkgs+=' tzdata'
+_pkgs+=' util-linux'
+_pkgs+=' vim'
+_pkgs+=' xbps'
+./mklive.sh -p "$_pkgs" -S 250
 ```
 
 When using the resulting ISO with `voidvault new`, be sure to specify
