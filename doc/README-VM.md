@@ -418,3 +418,55 @@ ssh -N -T -L 12345:127.0.0.1:54321 variable@vbox-void64
 ```
 
 Open a web browser and visit http://127.0.0.1:12345.
+
+## Create Void ISO
+
+Follow the script:
+
+```sh
+# fetch void-mklive sources
+git clone https://github.com/void-linux/void-mklive
+cd void-mklive
+
+# build sources
+make
+
+# switch to root user
+sudo su
+
+# fetch dependencies for mklive.sh
+# liblz4 must be specified manually as of 2018-08-11
+_deps=('liblz4')
+xbps-install "${_deps[@]}"
+
+# run mklive.sh with voidvault's required pkg lineup
+_pkgs=('btrfs-progs'
+       'cdrtools'
+       'coreutils'
+       'cryptsetup'
+       'curl'
+       'dialog'
+       'dosfstools'
+       'dvd+rw-tools'
+       'e2fsprogs'
+       'efibootmgr'
+       'expect'
+       'glibc'
+       'gptfdisk'
+       'grub'
+       'kbd'
+       'kmod'
+       'libressl'
+       'procps-ng'
+       'rakudo'
+       'tmux'
+       'tzdata'
+       'util-linux'
+       'vim'
+       'xbps')
+./mklive.sh -p "${_pkgs[@]}" -S 250
+```
+
+When using the resulting ISO with `voidvault new`, be sure to specify the
+`void --no-setup new`, since you no longer need to install dependencies
+or free up any disk space.
