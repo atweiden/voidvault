@@ -598,13 +598,8 @@ method !voidstrap-base(--> Nil)
     # base packages
     my Str:D @pkg = qw<
         acpi
-        autoconf
-        automake
         bash
         bash-completion
-        bc
-        binutils
-        bison
         btrfs-progs
         bzip2
         ca-certificates
@@ -623,23 +618,18 @@ method !voidstrap-base(--> Nil)
         dosfstools
         dracut
         e2fsprogs
-        ed
         efibootmgr
         ethtool
         exfat-utils
         expect
         file
         findutils
-        flex
         gawk
-        gcc
-        gettext
         git
         glibc
         gnupg2
         gptfdisk
         grep
-        groff
         grub-i386-efi
         grub-x86_64-efi
         gzip
@@ -653,14 +643,11 @@ method !voidstrap-base(--> Nil)
         ldns
         less
         libressl
-        libtool
         linux
         linux-firmware
         linux-firmware-network
         logrotate
         lz4
-        m4
-        make
         man-db
         man-pages
         mlocate
@@ -668,11 +655,9 @@ method !voidstrap-base(--> Nil)
         nftables
         openresolv
         openssh
-        patch
         pciutils
         perl
         pinentry
-        pkgconf
         procps-ng
         psmisc
         rakudo
@@ -686,7 +671,6 @@ method !voidstrap-base(--> Nil)
         sudo
         sysfsutils
         tar
-        texinfo
         tmux
         tzdata
         unzip
