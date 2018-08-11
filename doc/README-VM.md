@@ -467,6 +467,6 @@ _pkgs=('btrfs-progs'
 ./mklive.sh -p "${_pkgs[@]}" -S 250
 ```
 
-When using the resulting ISO with `voidvault new`, be sure to specify the
+When using the resulting ISO with `voidvault new`, be sure to specify
 `void --no-setup new`, since you no longer need to install dependencies
 or free up any disk space.
