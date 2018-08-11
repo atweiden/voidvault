@@ -11,11 +11,9 @@ Todo
     - create separate perl6 executable for `void-chroot` and `voidstrap`
       - call out to those separate executables instead of running the
         commands in-process
+    - use a fresh livecd
   - approaches which have not been experimented with yet:
-    - retry with fresh livecd
-      - the current 2017.10.07 livecd is about a year old at the time
-        of this writing
+    - rewrite everything in Bash to isolate this as a Perl6 runtime issue
     - refrain from symlinking runit services
     - refrain from symlinking anything
     - replace dracut with mkinitcpio
-    - rewrite everything in Bash to isolate this as a Perl6 runtime issue
