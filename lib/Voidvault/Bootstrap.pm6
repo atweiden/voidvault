@@ -603,6 +603,7 @@ method !voidstrap-base(--> Nil)
         btrfs-progs
         bzip2
         ca-certificates
+        cdrtools
         chrony
         coreutils
         crda
@@ -617,6 +618,7 @@ method !voidstrap-base(--> Nil)
         dnscrypt-proxy
         dosfstools
         dracut
+        dvd+rw-tools
         e2fsprogs
         efibootmgr
         ethtool
