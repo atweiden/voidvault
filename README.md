@@ -28,7 +28,7 @@ could cause catastrophic data loss and system instability.
 ### Features
 
 - whole system Btrfs on LUKS, including encrypted `/boot`
-- [Runit][Runit] PID 1
+- [runit][runit] PID 1
 - [GPT][GPT] partitioning
 - no swap partition, uses [zram][zram] via [runit-swap][runit-swap]
 - [GRUB][GRUB] bootloader with both legacy BIOS and UEFI support
@@ -340,9 +340,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [hides process information]: https://wiki.archlinux.org/index.php/Security#hidepid
 [nftables]: https://wiki.archlinux.org/index.php/nftables
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
-[Runit]: https://wiki.voidlinux.eu/Runit
-[Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
+[runit]: https://wiki.voidlinux.eu/runit
 [runit-swap]: https://github.com/thypon/runit-swap
+[Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 
