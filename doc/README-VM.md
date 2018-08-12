@@ -87,8 +87,8 @@
 - Configure `sshd` runit service to not launch `sshd` on startup
   - `touch /etc/sv/sshd/down`
 - Start `sshd`
-  - first time: `ln -s /etc/sv/sshd /var/service`
-  - subsequent: `sv up sshd`
+  - `ln -s /etc/sv/sshd /var/service`
+  - `sv up sshd`
 
 **On host machine**:
 
