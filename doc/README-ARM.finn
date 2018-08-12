@@ -1,0 +1,118 @@
+/* vim: set filetype=finn foldmethod=marker foldlevel=0 nowrap: */
+
+Void ARM Image Creation
+=======================
+
+preamble
+--------
+
+### overview
+
+- the odroid-c2 can run linux mainline kernel 4.17+ with u-boot mainline
+- archlinuxarm ships pkgs providing this
+- this is the initial draft of a script for porting it to void
+- voidvault is assumed
+
+### details
+
+research shows odroid-c2 runs on mainline aarch64 linux kernel [1][2]. To
+run this kernel, `void-mklive/mkplatformfs.sh:115` leads me to believe
+i'll need to:
+
+1. patch void-packages/odroid-c2-base
+  > s/odroid-c2-kernel/linux
+2. patch void-packages/odroid-c2-uboot
+3. create a local repo [3] which contains:
+  > my fork of odroid-c2-base
+  > my fork of odroid-c2-uboot
+4. prepend `-r path/to/binary/repo ` to `XBPS_REPOSITORY` in
+  `void-mklive/Makefile`
+
+#### making a custom odroid-c2-uboot xpkg
+
+1. fork from archlinuxarm/uboot-odroid-c2-mainline [4]
+2. combine with void-packages/odroid-c2-uboot [5]
+3. combine with xypron/u-boot-build [6] and afaerber/meson-tools [7]
+   a. xpkg meson-tools based on archlinuxarm/meson-tools [8]
+
+build
+-----
+
+```
+# switch to root user
+sudo su
+
+# turn off cursor blink
+echo 0 > /sys/class/graphics/fbcon/cursor_blink
+
+# upgrade system
+xbps-install -Suv
+
+# install xbps pkgs for aarch64
+_xpkgs=('cross-aarch64-linux-gnu'
+        'qemu-user-static')
+xbps-install "${_xpkgs[@]}"
+
+# remount /tmp exec
+mount --options remount,exec /tmp
+
+# switch to normal user
+exit
+
+# get ARM image creation utility
+git clone https://github.com/void-linux/void-mklive
+cd void-mklive
+make
+make rootfs-all-print
+make platformfs-all-print
+make images-all-print
+
+# generate ARM image
+sudo su
+# e.g. make void-aarch64-ROOTFS-20180811.tar.xz
+make "$(make rootfs-all-print | grep --color=never aarch64-ROOTFS)"
+# e.g. make void-odroid-c2-PLATFORMFS-20180811.tar.xz
+make "$(make platformfs-all-print | grep --color=never odroid-c2-PLATFORMFS)"
+# e.g. make void-odroid-c2-20180811.img.xz
+make "$(make images-all-print | grep --color=never odroid-c2-2)"
+
+# remount /tmp noexec
+mount --options remount /tmp
+
+# re-enable journaling [X]
+tune2fs -f /dev/mmcblk0p2
+```
+
+
+******************************************************************************
+/* odroid-c2 references */
+[1]: https://forum.odroid.com/viewtopic.php?f=135&t=22717&start=800#p218452
+[2]: https://baylibre.com/linux-kernel-v4-16-released-contributions/
+[3]: https://voidlinux.org/news/2014/01/create-repos.html
+[3]: https://wiki.voidlinux.eu/XBPS#xbps-rindex
+[4]: https://archlinuxarm.org/packages/aarch64/uboot-odroid-c2-mainline/files
+[5]: https://github.com/void-linux/void-packages/blob/master/srcpkgs/odroid-c2-uboot
+[6]: https://github.com/xypron/u-boot-build/tree/odroid-c2-dev
+[7]: https://github.com/afaerber/meson-tools
+[8]: https://archlinuxarm.org/packages/aarch64/meson-tools
+
+/* odroid-c2 kernel mainlining progress */
+[N]: http://www.linux-meson.com/
+[N]: https://baylibre.com/linux-kernel-v4-16-released-contributions/
+[N]: https://forum.odroid.com/viewtopic.php?f=135&t=22717
+[N]: https://github.com/umiddelb/armhf/wiki/How-To-compile-a-custom-Linux-kernel-for-your-ARM-device#odroid-c2--khadas-vim-mainline-experimental
+[N]: https://github.com/ioft/linux
+
+/* odroid-c2 installation resources */
+[N]: https://github.com/xypron/kernel-odroid-c2
+[N]: https://github.com/xypron/u-boot-odroid-c2
+[N]: https://github.com/xypron/debian-image-odroid-c2
+[N]: https://github.com/tokland/arch-bootstrap
+[X]: http://chezphil.org/norway/
+[Y]: http://chezphil.org/norway/files/zram
+[N]: http://seafile.servator.de/sbc/odroid/next/odroid-c2-kernel-4.1x-mainline-install.txt
+[N]: https://www.youtube.com/watch?v=EZLdp1NUnPA
+[N]: https://magazine.odroid.com/odroid-c2
+
+/* odroid-c2 post-installation resources */
+[Z]: https://wiki.voidlinux.eu/Frequently_Asked_Questions#..._do_I_set_up_my_locale.3F
