@@ -419,6 +419,110 @@ ssh -N -T -L 12345:127.0.0.1:54321 variable@vbox-void64
 
 Open a web browser and visit http://127.0.0.1:12345.
 
+## Configure Wireless
+
+### Bringing up the wireless interface
+
+Find the right wireless interface:
+
+```sh
+ip link
+```
+
+Let's assume it's `wlan0`.
+
+Bring up the wireless interface:
+
+```sh
+ip link set wlan0 up
+```
+
+### Connecting with `wpa_passphrase`
+
+```sh
+wpa_supplicant -B -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase MYSSID "passphrase")
+```
+
+If the passphrase contains special characters, rather than escaping them,
+invoke `wpa_passphrase` without specifying the passphrase.
+
+### Connecting with `wpa_cli`
+
+Configure `wpa_supplicant` for use with `wpa_cli`:
+
+```sh
+cat >> /etc/wpa_supplicant/wpa_supplicant.conf <<'EOF'
+ctrl_interface=/run/wpa_supplicant
+update_config=1
+EOF
+```
+
+Run `wpa_supplicant`:
+
+```sh
+wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+```
+
+Run `wpa_cli`:
+
+```sh
+wpa_cli
+```
+
+Use the `scan` and `scan_results` commands to see the available networks:
+
+```
+> scan
+OK
+<3>CTRL-EVENT-SCAN-RESULTS
+> scan_results
+bssid / frequency / signal level / flags / ssid
+00:00:00:00:00:00 2462 -49 [WPA2-PSK-CCMP][ESS] MYSSID
+11:11:11:11:11:11 2437 -64 [WPA2-PSK-CCMP][ESS] ANOTHERSSID
+```
+
+To associate with MYSSID, add the network, set the credentials and
+enable it:
+
+```
+> add_network
+0
+> set_network 0 ssid "MYSSID"
+> set_network 0 psk "passphrase"
+> enable_network 0
+<2>CTRL-EVENT-CONNECTED - Connection to 00:00:00:00:00:00 completed (reauth) [id=0 id_str=]
+```
+
+If the SSID does not have password authentication, you must explicitly
+configure the network as keyless by replacing the command:
+
+```
+> set_network 0 psk "passphrase"
+```
+
+with:
+
+```
+> set_network 0 key_mgmt NONE
+```
+
+Save this network:
+
+```
+> save_config
+OK
+```
+
+### Obtaining an IP address
+
+Obtain an IP address using dhcpcd:
+
+```sh
+touch /etc/sv/dhcpcd/down
+ln -s /etc/sv/dhcpcd /var/service
+sv up dhcpcd
+```
+
 ## Create Void ISO
 
 Follow the script:
