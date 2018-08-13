@@ -592,3 +592,18 @@ _pkgs+=' vim'
 When using the resulting ISO with `voidvault new`, be sure to specify
 `void --no-setup new`, since you no longer need to install dependencies
 or free up any disk space.
+
+## System Maintenance
+
+Clear pkg cache:
+
+```sh
+xbps-remove --clean-cache|-O
+```
+
+Remove old kernels:
+
+```sh
+vkpurge list
+vkpurge rm 4.17.13_1
+```
