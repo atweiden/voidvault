@@ -8,7 +8,6 @@
 
 - If your computer is low on memory, close all other programs besides
   VirtualBox
-- Determine the fastest pacman mirrors for your location
 
 ### Setup
 
@@ -176,7 +175,6 @@ Host vbox-void64
 
 - If your computer is low on memory, close all other programs besides
   VMWare Fusion
-- Determine the fastest pacman mirrors for your location
 
 ### Setup
 
