@@ -273,6 +273,8 @@ xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`   | Y
 
 ¹: the [official installation medium](https://voidlinux.org/download/)
 
+²: the [unofficial installation medium](https://repo.voidlinux.de/live/)
+
 
 Optional Dependencies
 ---------------------
