@@ -67,6 +67,14 @@ make rootfs-all-print
 make platformfs-all-print
 make images-all-print
 
+# patch image build scripts to use 0 xz compression (recommended)
+# substitute:
+# xz -T${COMPRESSOR_THREADS:-0} -9"
+# with:
+# xz -T${COMPRESSOR_THREADS:-0} -0"
+# in:
+# mkrootfs.sh mkplatformfs.sh mkimage.sh
+
 # generate ARM image
 sudo su
 # e.g. make void-aarch64-ROOTFS-20180811.tar.xz
