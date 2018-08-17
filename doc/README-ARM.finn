@@ -191,7 +191,6 @@ mvp
   - git
   - glibc
   - gnupg2
-  - gptfdisk
   - grep
   - gzip
   - haveged
