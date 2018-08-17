@@ -245,6 +245,7 @@ mvp
   - zip
   - zlib
   - zstd
+- accept the ancient unmaintained hardkernel linux3.14 and u-boot for now
 - flash .img file created with void-mklive to eMMC
 - boot from eMMC
 - repartition the disk
@@ -270,7 +271,9 @@ eventually
 ----------
 
 - learn to compile mainline kernel from source with correct options [15]
+  - the default void-packages/linux-aarch64 kernel should be ok
 - learn to compile mainline u-boot from source with correct options [16]
+  - this will require adapting archlinuxarm pkgs
 - learn to turn this into void packages
 
 
