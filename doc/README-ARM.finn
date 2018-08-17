@@ -148,16 +148,122 @@ eventual system
 mvp
 ---
 
+- patch void-mklive to include pkgs in platformfs
+  - acpi
+  - bash
+  - bash-completion
+  - btrfs-progs
+  - bzip2
+  - ca-certificates
+  - cdrtools
+  - chrony
+  - coreutils
+  - crda
+  - cronie
+  - cryptsetup
+  - curl
+  - device-mapper
+  - dhclient
+  - dhcpcd
+  - dialog
+  - diffutils
+  - dnscrypt-proxy
+  - dosfstools
+  - dracut
+  - dvd+rw-tools
+  - e2fsprogs
+  - efibootmgr
+  - ethtool
+  - exfat-utils
+  - expect
+  - file
+  - findutils
+  - gawk
+  - git
+  - glibc
+  - gnupg2
+  - gptfdisk
+  - grep
+  - gzip
+  - haveged
+  - inetutils
+  - iproute2
+  - iputils
+  - iw
+  - kbd
+  - kmod
+  - ldns
+  - less
+  - libressl
+  - logrotate
+  - lz4
+  - man-db
+  - man-pages
+  - mlocate
+  - net-tools
+  - nftables
+  - openresolv
+  - openssh
+  - pciutils
+  - perl
+  - pinentry
+  - procps-ng
+  - psmisc
+  - rakudo
+  - rsync
+  - runit-swap
+  - runit-void
+  - sed
+  - shadow
+  - socat
+  - socklog-void
+  - sudo
+  - sysfsutils
+  - tar
+  - tmux
+  - tzdata
+  - unzip
+  - usb-modeswitch
+  - usbutils
+  - util-linux
+  - vim
+  - wget
+  - which
+  - wireless_tools
+  - wpa_actiond
+  - wpa_supplicant
+  - xbps
+  - xz
+  - zip
+  - zlib
+  - zstd
 - flash .img file created with void-mklive to eMMC
 - boot from eMMC
 - repartition the disk
-  - create a boot partition
+  - create a small partition for `mkfs.ext4` /boot
     - make it bootable
-  - create a small partition for `mkfs.btrfs`
+    - after it's created, copy over contents from existing /boot
+  - create a small partition for `mkfs.btrfs` /
     - this partition can grow later
-    - since we're running ancient linux kernel, pretend it's btrfs
-      - `mkfs.ext4`
+    - after it's created
+      - run cryptsetup on it
+      - copy over contents from existing /
+        - without
+          - /boot
+          - pseudofs
+          - search [14] for `sudo rsync -av`
+            - `--exclude`
+  - modify `/boot/boot.ini`
+    - `rd.luks.uuid=$(blkid /dev/mapper/vault) root=UUID=$(blkid /dev/sda3)`
+      - confirm with normal void system that uuid is identical
 - configure u-boot properly for the new partitioning scheme
+
+eventually
+----------
+
+- learn to compile mainline kernel from source with correct options [15]
+- learn to compile mainline u-boot from source with correct options [16]
+- learn to turn this into void packages
 
 
 ******************************************************************************
@@ -211,8 +317,9 @@ mvp
 [13]: https://serverfault.com/questions/394902/resizing-a-luks-encrypted-volume/394903#394903
 [13]: https://wiki.archlinux.org/index.php/Resizing_LVM-on-LUKS#Enlarge_LVM_on_LUKS
 [13]: https://www.youtube.com/watch?v=MELYA68qQyo
-[N]: https://yesday.github.io/blog/2017/how-to-install-archlinux-with-full-disk-encryption-on-odroid-c2.html
+[14]: https://yesday.github.io/blog/2017/how-to-install-archlinux-with-full-disk-encryption-on-odroid-c2.html
+[15]: https://github.com/armbian/build/blob/master/config/kernel/linux-meson64-next.config
+[16]: https://github.com/armbian/build/blob/master/config/bootscripts/boot-odroid-c2-next.cmd
 [N]: https://archlinuxarm.org/platforms/armv8/amlogic/odroid-c2
 [N]: https://wiki.linaro.org/LEG/ServerArchitecture/GRUB
 [N]: https://github.com/armbian/build/blob/master/config/sources/odroidc2.conf
-[N]: https://github.com/armbian/build/blob/master/config/kernel/linux-meson64-next.config
