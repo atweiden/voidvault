@@ -2,8 +2,6 @@ Host *
     # authentication
     AddressFamily any
     CheckHostIP yes
-    GSSAPIAuthentication no
-    GSSAPIDelegateCredentials no
     HashKnownHosts yes
     HostbasedAuthentication no
     IdentityFile ~/.ssh/id_ed25519
