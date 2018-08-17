@@ -105,6 +105,9 @@ approach 1: flash eMMC using pre-flashed SD card
   - use the system on the SD card to bootstrap the eMMC
     - change UUID of eMMC so it isn't duplicated from SD card
       - `tune2fs /dev/mmcblk0p2 -U $(uuidgen)`
+- advantage
+  - only the SD card moves on and off the board
+    - prevents wear and tear on eMMC module
 
 approach 2: flash eMMC directly with prebuilt image
 - theory
