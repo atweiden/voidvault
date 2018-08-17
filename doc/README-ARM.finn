@@ -135,6 +135,12 @@ voidvault-arm
   - it could be as easy as running a script after booting from eMMC
     flashed with void-mklive's .img
 
+disk layout
+- odroid-c2 can't handle GPT partitioning [17]
+
+archlinuxarm/u-boot-odroid-c2-mainline
+- modify boot.txt with root UUID
+
 eventual system
 - /dev/p1: ext4 /boot
 - /dev/p2: btrfs on luks /
@@ -307,6 +313,14 @@ eventually
 /* odroid-c2 post-installation resources */
 [Z]: https://wiki.voidlinux.eu/Frequently_Asked_Questions#..._do_I_set_up_my_locale.3F
 
+/* odroid-c2 kernel config notes */
+[N]: https://github.com/umiddelb/armhf/wiki/How-To-compile-a-custom-Linux-kernel-for-your-ARM-device
+[N]: https://blog.hypriot.com/post/getting-docker-running-on-a-high-density-armv8-server-from-hisilicon/
+[N]: https://github.com/gg7/gentoo-kernel-guide
+[N]: https://github.com/jollheef/jollheef-overlay/tree/43a84b4226728e976efeed28406e1e555a439889/sys-kernel/linux
+[N]: https://github.com/0xdc/kconfig
+[N]: https://archlinuxarm.org/forum/viewtopic.php?f=65&t=11092
+
 /* odroid-c2 notes */
 [9]: https://github.com/u-boot/u-boot/blob/92e738f5556a63f14360a9a628e36eeb66c9a7bf/fs/btrfs/Kconfig
 [10]: https://yesday.github.io/os-image-for-odroid-c2-featuring-archlinux-luks-full-disk-encryption-and-remote-unlocking.html
@@ -320,6 +334,7 @@ eventually
 [14]: https://yesday.github.io/blog/2017/how-to-install-archlinux-with-full-disk-encryption-on-odroid-c2.html
 [15]: https://github.com/armbian/build/blob/master/config/kernel/linux-meson64-next.config
 [16]: https://github.com/armbian/build/blob/master/config/bootscripts/boot-odroid-c2-next.cmd
+[17]: https://en.opensuse.org/HCL:OdroidC2
 [N]: https://archlinuxarm.org/platforms/armv8/amlogic/odroid-c2
 [N]: https://wiki.linaro.org/LEG/ServerArchitecture/GRUB
 [N]: https://github.com/armbian/build/blob/master/config/sources/odroidc2.conf
