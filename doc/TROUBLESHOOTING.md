@@ -44,27 +44,43 @@ mean anything.
 In some cases, the problem is your system's factory wireless card. The
 easiest way to find out if this is true is to buy a high gain USB adapter
 from [SimpleWiFi][SimpleWiFi], and see if it works. If it does, you know
-the factory wireless card is at fault.
+the built-in wireless card is at fault.
 
-If the USB adapter fails, however, it often means something lower level
-has gone awry.
+Before doing anything else, check to make sure your wireless card is
+not soft or hard blocked:
 
-The first thing you should try is disabling the [GPE.L6F][GPE.L6F]
-function:
-
+```sh
+rfkill list
 ```
+
+If the card is hard-blocked, use the hardware switch to unblock it. If the
+card is not hard-blocked but is soft-blocked, use the following command:
+
+```sh
+rfkill unblock wifi
+```
+
+Once you've confirmed your wireless card isn't blocked, if it still
+fails to connect, it may be a sign that you need to install the proper
+wireless drivers or firmware for it.
+
+If the high-gain USB wireless adapter fails to connect to wifi, however,
+it often means something lower level has gone awry. First, try disabling
+the [GPE.L6F][GPE.L6F] function:
+
+```sh
 echo "disable" > /sys/firmware/acpi/interrupts/gpe6F
 ```
 
 This seems to help with certain Intel Skylake and Kaby Lake processors,
 and does not require a reboot.
 
-If disabling the `GPE.L6F` function fails, reboot with
-[acpi=off][acpi=off] or [similar][similar] appended to your kernel
-command line:
+If disabling the `GPE.L6F` function fails to restore wireless
+connectivity, reboot with [acpi=off][acpi=off] or [similar][similar]
+appended to your kernel command line:
 
-```
-# in vim, append acpi=off to GRUB_CMDLINE_LINUX
+```sh
+# in vim, append acpi=off to GRUB_CMDLINE_LINUX_DEFAULT
 vim /etc/default/grub
 # regenerate grub config
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -163,7 +179,7 @@ example:
 The package that provides `libjson-c.so.4` is out of date or missing. To
 fix this, update or install pkg `json-c`:
 
-```
+```sh
 xbps-install json-c
 ```
 
@@ -179,7 +195,7 @@ One way to work around monitor resolution issues is to use Vim.
 
 Open vim:
 
-```
+```sh
 vim
 ```
 
