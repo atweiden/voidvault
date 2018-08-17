@@ -91,6 +91,74 @@ mount --options remount /tmp
 tune2fs -f /dev/mmcblk0p2
 ```
 
+approaches
+----------
+
+approach 1: flash eMMC using pre-flashed SD card
+- theory
+  - it's not a good idea to enter luks passphrase on host computer
+  - it's not a good idea to rewrite void-mklive from scratch
+- process
+  - install an image onto an SD card
+  - add a blank eMMC module to the system
+  - boot from the SD card
+  - use the system on the SD card to bootstrap the eMMC
+    - change UUID of eMMC so it isn't duplicated from SD card
+      - `tune2fs /dev/mmcblk0p2 -U $(uuidgen)`
+
+approach 2: flash eMMC directly with prebuilt image
+- theory
+  - it's fine to enter insecure luks passphrase on host computer
+    - you can change it later
+  - adapt this [10] to void
+    - rewrite void-mklive in perl6
+    - install necessary pkgs for post-boot script run
+- process
+  - boot
+  - expand filesystem [11][12][13]
+    - `sgdisk`
+    - `cryptsetup status vault`
+    - `cryptsetup resize vault`
+    - `btrfs filesystem resize max /dev/mapper/vault`
+    - `partprobe || reboot`
+    - `resize2fs -p /dev/mmcblk0p2`
+  - change fde password [10]
+    - `cryptsetup luksChangeKey /dev/mmcblk0p2 --key-slot 0`
+
+notes
+-----
+
+voidvault-arm
+- *voidvault-arm* feels more directly adapted to _approach 1_
+- *voidvault-arm* could also work by repartitioning and installing after
+  void-mklive generation
+  - it could be as easy as running a script after booting from eMMC
+    flashed with void-mklive's .img
+
+eventual system
+- /dev/p1: ext4 /boot
+- /dev/p2: btrfs on luks /
+- mainline kernel
+  - with mainline kernel, it is possible to use btrfs with sure footing
+- mainline u-boot
+  - with mainline u-boot, it is possible to use btrfs for /boot
+    - caveat: implementation is read-only, unpolished as of 2018-08-16 [9]
+      - read-only doesn't bother me so much as high potential for bugs
+
+mvp
+---
+
+- flash .img file created with void-mklive to eMMC
+- boot from eMMC
+- repartition the disk
+  - create a boot partition
+    - make it bootable
+  - create a small partition for `mkfs.btrfs`
+    - this partition can grow later
+    - since we're running ancient linux kernel, pretend it's btrfs
+      - `mkfs.ext4`
+- configure u-boot properly for the new partitioning scheme
+
 
 ******************************************************************************
 /* odroid-c2 references */
@@ -121,6 +189,30 @@ tune2fs -f /dev/mmcblk0p2
 [N]: http://seafile.servator.de/sbc/odroid/next/odroid-c2-kernel-4.1x-mainline-install.txt
 [N]: https://www.youtube.com/watch?v=EZLdp1NUnPA
 [N]: https://magazine.odroid.com/odroid-c2
+[N]: https://forum.odroid.com/viewtopic.php?f=138&t=19452
+[N]: https://wiki.parabola.nu/ARM_Installation_Guide
+
+/* odroid-c2 fde resources */
+[N]: https://magazine.odroid.com/article/install-archlinux-full-disk-encryption-odroid-c2/
+[N]: https://github.com/armbian/build/issues/947
+[N]: https://github.com/armbian/build/pull/948
+[N]: https://github.com/armbian/build/pull/1069
 
 /* odroid-c2 post-installation resources */
 [Z]: https://wiki.voidlinux.eu/Frequently_Asked_Questions#..._do_I_set_up_my_locale.3F
+
+/* odroid-c2 notes */
+[9]: https://github.com/u-boot/u-boot/blob/92e738f5556a63f14360a9a628e36eeb66c9a7bf/fs/btrfs/Kconfig
+[10]: https://yesday.github.io/os-image-for-odroid-c2-featuring-archlinux-luks-full-disk-encryption-and-remote-unlocking.html
+[11]: https://github.com/yesday/odroid-c2-archlinux-luks/blob/master/usr/local/bin/expand-filesystem-luks
+[12]: https://falstaff.agner.ch/2013/12/22/online-resize-root-filesystem-on-a-gpt-partition/
+[12]: https://www.novell.com/support/kb/doc.php?id=7018329
+[12]: https://superuser.com/questions/660309/live-resize-of-a-gpt-partition-on-linux/1160251#1160251
+[13]: https://serverfault.com/questions/394902/resizing-a-luks-encrypted-volume/394903#394903
+[13]: https://wiki.archlinux.org/index.php/Resizing_LVM-on-LUKS#Enlarge_LVM_on_LUKS
+[13]: https://www.youtube.com/watch?v=MELYA68qQyo
+[N]: https://yesday.github.io/blog/2017/how-to-install-archlinux-with-full-disk-encryption-on-odroid-c2.html
+[N]: https://archlinuxarm.org/platforms/armv8/amlogic/odroid-c2
+[N]: https://wiki.linaro.org/LEG/ServerArchitecture/GRUB
+[N]: https://github.com/armbian/build/blob/master/config/sources/odroidc2.conf
+[N]: https://github.com/armbian/build/blob/master/config/kernel/linux-meson64-next.config
