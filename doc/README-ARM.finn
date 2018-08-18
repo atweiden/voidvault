@@ -141,6 +141,11 @@ voidvault-arm
 disk layout
 - odroid-c2 can't handle GPT partitioning [17]
 
+dracut
+- dracut's *btrfs* module should specify crc32c-arm64 on aarch64
+  processors
+  - `instmods crc32c-arm64`
+
 archlinuxarm/u-boot-odroid-c2-mainline
 - modify boot.txt with root UUID
 
