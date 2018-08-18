@@ -1853,6 +1853,7 @@ multi sub replace(
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
     my Str:D @module = qw<
+        plymouth
         usrmount
     >;
     my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
