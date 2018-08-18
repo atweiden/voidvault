@@ -569,8 +569,9 @@ make
 sudo su
 
 # fetch dependencies for mklive.sh
-# liblz4 must be specified manually as of 2018-08-11
-_deps=('liblz4')
+# must be specified manually as of 2018-08-17
+_deps=('liblz4'
+       'squashfs-tools')
 xbps-install "${_deps[@]}"
 
 # run mklive.sh with additional pkgs
