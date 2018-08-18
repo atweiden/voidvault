@@ -1,6 +1,13 @@
 Todo
 ====
 
+- implement dracut-sshd-nonet
+  - new profile: `headless-nonet`
+    - disable grub boot encryption
+    - pkg https://github.com/atweiden/dracut-sshd-nonet
+    - add `ip link set dev eth0 up` to `/etc/rc.local`
+    - modify `sshd_config` to `AllowUsers admin`
+    - have runit launch sshd on startup
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
     - sleep 7 seconds before attempting to unmount
