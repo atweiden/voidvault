@@ -600,6 +600,7 @@ method !voidstrap-base(--> Nil)
         acpi
         bash
         bash-completion
+        binutils
         btrfs-progs
         bzip2
         ca-certificates
