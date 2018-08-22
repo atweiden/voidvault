@@ -470,7 +470,7 @@ ip link set wlan0 up
 ### Connecting with `wpa_passphrase`
 
 ```sh
-wpa_supplicant -B -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase MYSSID "passphrase")
+wpa_supplicant -B -s -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase MYSSID "passphrase")
 ```
 
 If the passphrase contains special characters, rather than escaping them,
@@ -482,15 +482,26 @@ Configure `wpa_supplicant` for use with `wpa_cli`:
 
 ```sh
 cat >> /etc/wpa_supplicant/wpa_supplicant.conf <<'EOF'
+# give configuration update rights to wpa_cli
 ctrl_interface=/run/wpa_supplicant
+ctrl_interface_group=wheel
 update_config=1
+
+# enable AP scanning
+ap_scan=1
+
+# EAPOL v2 provides better security, but use v1 for wider compatibility
+eapol_version=1
+
+# enable fast re-authentication (EAP-TLS session resumption) if supported
+fast_reauth=1
 EOF
 ```
 
 Run `wpa_supplicant`:
 
 ```sh
-wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+wpa_supplicant -B -s -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 ```
 
 Run `wpa_cli`:
@@ -511,7 +522,7 @@ bssid / frequency / signal level / flags / ssid
 11:11:11:11:11:11 2437 -64 [WPA2-PSK-CCMP][ESS] ANOTHERSSID
 ```
 
-To associate with MYSSID, add the network, set the credentials and
+To associate with `MYSSID`, add the network, set the credentials and
 enable it:
 
 ```
@@ -545,12 +556,28 @@ OK
 
 ### Obtaining an IP address
 
-Obtain an IP address using dhcpcd:
+#### using `dhclient`:
 
 ```sh
-touch /etc/sv/dhcpcd/down
-ln -s /etc/sv/dhcpcd /var/service
-sv up dhcpcd
+cat >> /etc/sv/dhclient-wlan0/conf <<'EOF'
+# run in foreground
+OPTS+=' -d'
+# only try obtaining IP address lease once
+OPTS+=' -1'
+EOF
+touch /etc/sv/dhclient-wlan0/down
+ln -s /etc/sv/dhclient-wlan0 /var/service
+sv up dhclient-wlan0
+```
+
+#### using `dhcpcd`:
+
+```sh
+cp -R /etc/sv/dhcpcd-eth0 /etc/sv/dhcpcd-wlan0
+sed -i 's/eth0/wlan0/' /etc/sv/dhcpcd-wlan0/run
+touch /etc/sv/dhcpcd-wlan0/down
+ln -s /etc/sv/dhcpcd-wlan0 /var/service
+sv up dhcpcd-wlan0
 ```
 
 ## Create Void ISO
