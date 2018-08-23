@@ -18,6 +18,11 @@ ip link set wlan0 up
 
 ## Connecting with `wpa_passphrase`
 
+If the passphrase contains special characters, rather than escaping them,
+invoke `wpa_passphrase` without specifying the passphrase.
+
+### via runit service
+
 ```sh
 wpa_passphrase "myssid" "passphrase" > /etc/wpa_supplicant/myssid-wlan0.conf
 cp -R /etc/sv/wpa_supplicant /etc/sv/wpa_supplicant-myssid-wlan0
@@ -31,18 +36,15 @@ ln -s /etc/sv/wpa_supplicant-myssid-wlan0 /var/service
 sv up wpa_supplicant-myssid-wlan0
 ```
 
-or:
+### via cmdline
 
 ```sh
-wpa_supplicant -B -s -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase "myssid" "passphrase")
+wpa_supplicant -B -s -i wlan0 [-D nl80211,wext] -c <(wpa_passphrase "myssid" "passphrase")
 ```
-
-If the passphrase contains special characters, rather than escaping them,
-invoke `wpa_passphrase` without specifying the passphrase.
 
 ## Connecting with `wpa_cli`
 
-Configure `wpa_supplicant` for use with `wpa_cli`:
+### Configuring `wpa_supplicant` for use with `wpa_cli`
 
 ```sh
 cat >> /etc/wpa_supplicant/wpa_supplicant.conf <<'EOF'
@@ -62,7 +64,9 @@ fast_reauth=1
 EOF
 ```
 
-Run `wpa_supplicant`:
+### Running `wpa_supplicant`
+
+#### via runit service
 
 ```sh
 cp -R /etc/sv/wpa_supplicant /etc/sv/wpa_supplicant-wlan0
@@ -74,13 +78,13 @@ ln -s /etc/sv/wpa_supplicant-wlan0 /var/service
 sv up wpa_supplicant-wlan0
 ```
 
-or:
+#### via cmdline
 
 ```sh
 wpa_supplicant -B -s -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 ```
 
-Run `wpa_cli`:
+### Running `wpa_cli`
 
 ```sh
 wpa_cli
@@ -134,20 +138,31 @@ OK
 
 ### using `dhclient`:
 
+#### via runit service
+
 ```sh
 cat >> /etc/sv/dhclient-wlan0/conf <<'EOF'
 # run in foreground
 OPTS+=' -d'
 # only try obtaining IP address lease once
 OPTS+=' -1'
+# use wlan0 interface
+OPTS+=' wlan0'
 EOF
-
 touch /etc/sv/dhclient-wlan0/down
 ln -s /etc/sv/dhclient-wlan0 /var/service
 sv up dhclient-wlan0
 ```
 
+#### via cmdline
+
+```sh
+dhclient -1 wlan0
+```
+
 ### using `dhcpcd`:
+
+#### via runit service
 
 ```sh
 cp -R /etc/sv/dhcpcd-eth0 /etc/sv/dhcpcd-wlan0
@@ -155,4 +170,10 @@ sed -i 's/eth0/wlan0/' /etc/sv/dhcpcd-wlan0/run
 touch /etc/sv/dhcpcd-wlan0/down
 ln -s /etc/sv/dhcpcd-wlan0 /var/service
 sv up dhcpcd-wlan0
+```
+
+#### via cmdline
+
+```sh
+dhcpcd wlan0
 ```
