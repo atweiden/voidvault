@@ -1,7 +1,5 @@
 # Create Void ISO
 
-Follow the script:
-
 ```sh
 # fetch void-mklive sources
 git clone https://github.com/void-linux/void-mklive
