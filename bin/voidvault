@@ -234,7 +234,7 @@ multi sub USAGE('gen-pass-hash' --> Nil)
 
     Options:
       -g, --grub
-        Generate PBKDF2 password hash for Grub
+        Generate PBKDF2 password hash for GRUB
       -p, --pass=<password>
         Plaintext password to generate hash from
     EOF
@@ -291,11 +291,11 @@ multi sub USAGE('new' --> Nil)
       --graphics=<graphics>
         Graphics card type
       --grub-name=<username>
-        User name for Grub
+        User name for GRUB
       --grub-pass=<password>
-        Password for Grub
+        Password for GRUB
       --grub-pass-hash=<passhash>
-        Password hash for Grub
+        Password hash for GRUB
       --guest-name=<username>
         User name for guest account
       --guest-pass=<password>

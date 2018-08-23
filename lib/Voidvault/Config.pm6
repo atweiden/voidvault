@@ -649,7 +649,7 @@ multi sub prompt-name(
         my UserName:D $response-default = 'grub';
         my Str:D $prompt-text = "Enter username [$response-default]: ";
         my Str:D $help-text = q:to/EOF/.trim;
-        Determining name for Grub user...
+        Determining name for GRUB user...
 
         Leave blank if you don't know what this is
         EOF

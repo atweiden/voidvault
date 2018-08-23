@@ -114,11 +114,11 @@ scour the web for resources like these:
 
 Maybe try looking for BIOS updates.
 
-## Booting Voidvault From Grub Rescue Shell
+## Booting Voidvault From GRUB Rescue Shell
 
 If upon booting the Voidvault system, you initially enter the wrong
-vault password, Grub will drop you into a rescue shell. [Here][here]
-is how to recover the system from the Grub rescue shell without rebooting:
+vault password, GRUB will drop you into a rescue shell. [Here][here]
+is how to recover the system from the GRUB rescue shell without rebooting:
 
 **Most systems**
 
@@ -148,7 +148,7 @@ grub rescue> normal
 
 ## Booting Voidvault Takes a Really Long Time
 
-It takes a really long time for [Grub][Grub] to decrypt the `/boot`
+It takes a really long time for [GRUB][GRUB] to decrypt the `/boot`
 partition.
 
 ## Error While Booting: Kernel Panic
@@ -254,7 +254,7 @@ split borders to your liking.
 [acpi=off]: https://askubuntu.com/questions/139157/booting-ubuntu-with-acpi-off-grub-parameter
 [dhcpcd]: https://wiki.archlinux.org/index.php/Dhcpcd
 [GPE.L6F]: http://jhshi.me/2015/11/14/acpi-error-method-parseexecution-failed-_gpe_l6f/index.html#.W19wDdhKjdQ
-[Grub]: https://www.reddit.com/r/archlinux/comments/6ahvnk/grub_decryption_really_slow/dhew32m/
+[GRUB]: https://www.reddit.com/r/archlinux/comments/6ahvnk/grub_decryption_really_slow/dhew32m/
 [here]: https://unix.stackexchange.com/questions/318745/grub2-encryption-reprompt/321825#321825
 [lib/Voidvault/Types.pm6]: ../lib/Voidvault/Types.pm6
 [Respecting the regulatory domain]: https://wiki.archlinux.org/index.php/Wireless_network_configuration#Respecting_the_regulatory_domain
