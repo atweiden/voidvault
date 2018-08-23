@@ -470,7 +470,22 @@ ip link set wlan0 up
 ### Connecting with `wpa_passphrase`
 
 ```sh
-wpa_supplicant -B -s -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase MYSSID "passphrase")
+wpa_passphrase "myssid" "passphrase" > /etc/wpa_supplicant/myssid-wlan0.conf
+cp -R /etc/sv/wpa_supplicant /etc/sv/wpa_supplicant-myssid-wlan0
+cat >> /etc/sv/wpa_supplicant-myssid-wlan0/conf <<'EOF'
+SSID=myssid
+WPA_INTERFACE=wlan0
+CONF_FILE="/etc/wpa_supplicant/$SSID-$WPA_INTERFACE.conf"
+EOF
+touch /etc/sv/wpa_supplicant-myssid-wlan0/down
+ln -s /etc/sv/wpa_supplicant-myssid-wlan0 /var/service
+sv up wpa_supplicant-myssid-wlan0
+```
+
+or:
+
+```sh
+wpa_supplicant -B -s -i wlan0 [-Dnl80211,wext] -c <(wpa_passphrase "myssid" "passphrase")
 ```
 
 If the passphrase contains special characters, rather than escaping them,
@@ -501,6 +516,18 @@ EOF
 Run `wpa_supplicant`:
 
 ```sh
+cp -R /etc/sv/wpa_supplicant /etc/sv/wpa_supplicant-wlan0
+cat >> /etc/sv/wpa_supplicant-wlan0/conf <<'EOF'
+WPA_INTERFACE=wlan0
+EOF
+touch /etc/sv/wpa_supplicant-wlan0/down
+ln -s /etc/sv/wpa_supplicant-wlan0 /var/service
+sv up wpa_supplicant-wlan0
+```
+
+or:
+
+```sh
 wpa_supplicant -B -s -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 ```
 
@@ -518,17 +545,17 @@ OK
 <3>CTRL-EVENT-SCAN-RESULTS
 > scan_results
 bssid / frequency / signal level / flags / ssid
-00:00:00:00:00:00 2462 -49 [WPA2-PSK-CCMP][ESS] MYSSID
+00:00:00:00:00:00 2462 -49 [WPA2-PSK-CCMP][ESS] myssid
 11:11:11:11:11:11 2437 -64 [WPA2-PSK-CCMP][ESS] ANOTHERSSID
 ```
 
-To associate with `MYSSID`, add the network, set the credentials and
+To associate with `myssid`, add the network, set the credentials and
 enable it:
 
 ```
 > add_network
 0
-> set_network 0 ssid "MYSSID"
+> set_network 0 ssid "myssid"
 > set_network 0 psk "passphrase"
 > enable_network 0
 <2>CTRL-EVENT-CONNECTED - Connection to 00:00:00:00:00:00 completed (reauth) [id=0 id_str=]
@@ -565,6 +592,7 @@ OPTS+=' -d'
 # only try obtaining IP address lease once
 OPTS+=' -1'
 EOF
+
 touch /etc/sv/dhclient-wlan0/down
 ln -s /etc/sv/dhclient-wlan0 /var/service
 sv up dhclient-wlan0
