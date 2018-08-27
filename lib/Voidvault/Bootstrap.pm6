@@ -683,6 +683,7 @@ method !voidstrap-base(--> Nil)
         vim
         wget
         which
+        wifish
         wireless_tools
         wpa_actiond
         wpa_supplicant
