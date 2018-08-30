@@ -930,7 +930,7 @@ method !configure-hosts(--> Nil)
     my Str:D $path = 'etc/hosts';
     copy(%?RESOURCES{$path}, "/mnt/$path");
     my Str:D $hosts = qq:to/EOF/;
-    127.0.1.1        $host-name.localdomain        $host-name
+    127.0.1.1       $host-name.localdomain       $host-name
     EOF
     spurt("/mnt/$path", $hosts, :append);
 }

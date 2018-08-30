@@ -1,5 +1,6 @@
 # Static table lookup for hostnames.
 # See hosts(5) for details.
 
-127.0.0.1        localhost
-::1              localhost
+#<ip-address>   <hostname.domain.org>       <hostname>
+127.0.0.1       localhost.localdomain       localhost
+::1             localhost.localdomain       localhost       ip6-localhost
