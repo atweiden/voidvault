@@ -654,6 +654,7 @@ method !voidstrap-base(--> Nil)
         man-db
         man-pages
         mlocate
+        ncurses-term
         net-tools
         nftables
         openresolv
