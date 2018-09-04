@@ -954,7 +954,7 @@ method !configure-dnscrypt-proxy(--> Nil)
 
 method !set-nameservers(--> Nil)
 {
-    my Str:D $path = 'etc/resolv.conf';
+    my Str:D $path = 'etc/resolv.conf.head';
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 

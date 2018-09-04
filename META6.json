@@ -29,7 +29,7 @@
         "etc/modprobe.d/modprobe.conf",
         "etc/nftables.conf",
         "etc/profile.d/shell-timeout.sh",
-        "etc/resolv.conf",
+        "etc/resolv.conf.head",
         "etc/securetty",
         "etc/ssh/ssh_config",
         "etc/ssh/sshd_config",
