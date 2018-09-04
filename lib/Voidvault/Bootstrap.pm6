@@ -941,8 +941,8 @@ method !configure-dhcpcd(--> Nil)
     # Set vendor-class-id to empty string
     vendorclassid
 
-    # Prevent dhcpcd from overwriting /etc/resolv.conf
-    nohook resolv.conf
+    # Use the same DNS servers every time
+    static domain_name_servers=127.0.0.1
     EOF
     spurt('/mnt/etc/dhcpcd.conf', "\n" ~ $dhcpcd, :append);
 }
