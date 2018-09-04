@@ -52,8 +52,8 @@ could cause catastrophic data loss and system instability.
   - create new, unique key for each DNS query
   - disable TLS session tickets
   - disable DNS cache
-  - modify `/etc/resolv.conf` (see:
-    [resources/etc/resolv.conf](resources/etc/resolv.conf))
+  - modify `/etc/resolv.conf.head` (see:
+    [resources/etc/resolv.conf.head](resources/etc/resolv.conf.head))
 - forces password entry with every `sudo`
   - passwordless `sudo reboot` and `sudo shutdown`
 - ten minute shell timeout, your current shell or user
