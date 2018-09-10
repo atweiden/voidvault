@@ -662,6 +662,7 @@ method !voidstrap-base(--> Nil)
         pciutils
         perl
         pinentry
+        pkg-config
         procps-ng
         psmisc
         rakudo
