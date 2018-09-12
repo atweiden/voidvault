@@ -36,6 +36,39 @@ The solution is to edit the `@timezones` constant in
 
 ## Voidvault Wireless Errors
 
+### Failure to Connect to Internet
+
+See: [Failure to Connect to Wireless Access Point](#failure-to-connect-to-wireless-access-point)
+
+If Voidvault fails to connect to the Internet, after having connected to
+a wireless access point, check `/etc/resolv.conf`. Its contents should
+match [resources/etc/resolv.conf.head][resources/etc/resolv.conf.head],
+but *dhcpcd* and *dhclient* are known to overwrite `/etc/resolv.conf`
+with garbage.
+
+If `/etc/resolv.conf` doesn't match
+[resources/etc/resolv.conf.head][resources/etc/resolv.conf.head], see
+to it that it does.
+
+Once the issue is corrected, to stop *dhcpcd* and *dhclient* from
+overwriting `/etc/resolv.conf`, make `/etc/resolv.conf` immutable with:
+
+```sh
+chattr +i /etc/resolv.conf
+```
+
+Check the status of *dnscrypt-proxy* with:
+
+```sh
+sv status dnscrypt-proxy
+```
+
+You may need to restart *dnscrypt-proxy*:
+
+```sh
+sv restart dnscrypt-proxy
+```
+
 ### Failure to Connect to Wireless Access Point
 
 If Voidvault fails to connect to a wireless access point, it could
@@ -251,12 +284,13 @@ Use <kbd>Ctrl-w</kbd> <kbd><</kbd>, <kbd>Ctrl-w</kbd> <kbd>></kbd>,
 split borders to your liking.
 
 
-[acpi=off]: https://askubuntu.com/questions/139157/booting-ubuntu-with-acpi-off-grub-parameter
-[dhcpcd]: https://wiki.archlinux.org/index.php/Dhcpcd
 [GPE.L6F]: http://jhshi.me/2015/11/14/acpi-error-method-parseexecution-failed-_gpe_l6f/index.html#.W19wDdhKjdQ
 [GRUB]: https://www.reddit.com/r/archlinux/comments/6ahvnk/grub_decryption_really_slow/dhew32m/
+[Respecting the regulatory domain]: https://wiki.archlinux.org/index.php/Wireless_network_configuration#Respecting_the_regulatory_domain
+[SimpleWiFi]: https://www.simplewifi.com/collections/usb-adapters/products/usb-adapter
+[acpi=off]: https://askubuntu.com/questions/139157/booting-ubuntu-with-acpi-off-grub-parameter
+[dhcpcd]: https://wiki.archlinux.org/index.php/Dhcpcd
 [here]: https://unix.stackexchange.com/questions/318745/grub2-encryption-reprompt/321825#321825
 [lib/Voidvault/Types.pm6]: ../lib/Voidvault/Types.pm6
-[Respecting the regulatory domain]: https://wiki.archlinux.org/index.php/Wireless_network_configuration#Respecting_the_regulatory_domain
+[resources/etc/resolv.conf.head]: ../resources/etc/resolv.conf.head
 [similar]: https://askubuntu.com/questions/127989/no-acpi-support-for-my-pc-what-can-i-do
-[SimpleWiFi]: https://www.simplewifi.com/collections/usb-adapters/products/usb-adapter
