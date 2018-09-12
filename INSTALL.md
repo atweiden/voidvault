@@ -36,10 +36,6 @@ Fetch Voidvault sources with Git:
 
 ```sh
 git clone https://github.com/atweiden/voidvault
-curl \
-  -L \
-  -o '#1-#2.#3' \
-  https://github.com/atweiden/{voidvault}/archive/{master}.{tar.gz}
 cd voidvault
 ```
 
