@@ -135,6 +135,11 @@ strengthen your wireless signal with a wireless repeater or high gain
 adapter. See also: "[Respecting the regulatory domain][Respecting the
 regulatory domain]".
 
+If after ensuring your wireless signal is of sufficient quality, your
+machine still fails to find a wireless access point using `wpa_cli`, run
+`interface wlan0` within the *wpa_cli cmd prompt* where `wlan0` is your
+wireless interface. Sometimes *wpa_cli* incorrectly sets the interface to
+`p2p-wlan0` despite `wpa_supplicant` being passed `-i wlan0`.
 
 ## Assorted Errors
 
