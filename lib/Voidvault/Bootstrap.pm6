@@ -772,6 +772,7 @@ multi sub useradd(
     my Str:D $user-group-admin = qw<
         audio
         cdrom
+        dialout
         floppy
         input
         kvm
