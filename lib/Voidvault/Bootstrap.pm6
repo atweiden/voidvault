@@ -1613,6 +1613,10 @@ multi sub replace(
         ==> replace('dnscrypt-proxy.toml', 'dnscrypt_ephemeral_keys')
         # disable TLS session tickets
         ==> replace('dnscrypt-proxy.toml', 'tls_disable_session_tickets')
+        # unconditionally use fallback resolver
+        ==> replace('dnscrypt-proxy.toml', 'ignore_system_dns')
+        # wait for network connectivity before initializing
+        ==> replace('dnscrypt-proxy.toml', 'netprobe_timeout')
         # disable DNS cache
         ==> replace('dnscrypt-proxy.toml', 'cache');
     my Str:D $replace = @replace.join("\n");
@@ -1667,6 +1671,32 @@ multi sub replace(
 {
     my UInt:D $index = @line.first(/^'#'\h*$subject/, :k);
     my Str:D $replace = sprintf(Q{%s = true}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'dnscrypt-proxy.toml',
+    Str:D $subject where 'ignore_system_dns',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = true}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'dnscrypt-proxy.toml',
+    Str:D $subject where 'netprobe_timeout',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = 420}, $subject);
     @line[$index] = $replace;
     @line;
 }

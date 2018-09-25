@@ -51,6 +51,8 @@ could cause catastrophic data loss and system instability.
   - always use TCP to connect to upstream servers
   - create new, unique key for each DNS query
   - disable TLS session tickets
+  - unconditionally use fallback resolver
+  - wait up to 7 minutes for network connectivity at startup
   - disable DNS cache
   - modify `/etc/resolv.conf.head` (see:
     [resources/etc/resolv.conf.head](resources/etc/resolv.conf.head))
