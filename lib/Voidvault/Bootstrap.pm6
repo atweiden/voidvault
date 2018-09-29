@@ -650,6 +650,7 @@ method !voidstrap-base(--> Nil)
         linux-firmware
         linux-firmware-network
         logrotate
+        lynx
         lz4
         man-db
         man-pages
