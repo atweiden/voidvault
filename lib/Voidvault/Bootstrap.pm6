@@ -1543,6 +1543,10 @@ multi sub replace(
     # only allow sudo when the user is logged in to a real tty
     Defaults requiretty
 
+    # prevent arbitrary code execution as your user when sudoing to another
+    # user due to TTY hijacking via TIOCSTI ioctl
+    Defaults use_pty
+
     # wrap logfile lines at 72 characters
     Defaults loglinelen=72
     EOF
