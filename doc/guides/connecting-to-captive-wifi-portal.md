@@ -147,7 +147,7 @@ credit: [/r/raspberry_pi][/r/raspberry_pi]
 
 ## Notes
 
-Linux `ip` commands require pkg *iproute2*.
+Linux `ip` commands require pkg [iproute2][iproute2].
 
 ## See Also
 
@@ -158,6 +158,7 @@ Linux `ip` commands require pkg *iproute2*.
 
 [configure-wireless.md]: configure-wireless.md
 [edbrowse]: https://github.com/CMB/edbrowse
+[iproute2]: https://wiki.linuxfoundation.org/networking/iproute2
 [lynx]: https://invisible-island.net/lynx/
 [macfiles]: https://github.com/atweiden/macfiles
 [pacfiles]: https://github.com/atweiden/pacfiles
