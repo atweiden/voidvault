@@ -185,31 +185,28 @@ vim linksys.js
 Contents of `linksys.js`:
 
 ```js
-const Nightmare = require('nightmare');
+const Nightmare = require('nightmare')
 // do not render visible window
-const nightmare = Nightmare({ show: false });
+const nightmare = Nightmare({ show: false })
 // login info
-const portal = 'http://192.168.3.1:10080/ui/dynamic/guest-login.html';
-const mac_addr = '68%3Aec%3Ac5%3Ac1%3Aa3%3A63';
-const url = 'https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html';
-const ip_addr = '192.168.3.144';
-const guest_pass = 'ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere';
+const portal = 'http://192.168.3.1:10080/ui/dynamic/guest-login.html'
+const mac_addr = '68%3Aec%3Ac5%3Ac1%3Aa3%3A63'
+const url = 'https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html'
+const ip_addr = '192.168.3.144'
+const guest_pass = 'ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere'
 // login
 nightmare
   .goto(`${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}`)
   .type('#guest-pass', `${guest_pass}`)
   .click('#submit-login')
-  .wait(7000)
-  .evaluate(() => {
-    return document.title;
-  })
+  .evaluate(() => document.title)
   .end()
-  .then((title) => {
-    console.log(title);
+  .then(title => {
+    console.log(title)
   })
   .catch(error => {
     console.error('Error:', error)
-  });
+  })
 ```
 
 ```sh
