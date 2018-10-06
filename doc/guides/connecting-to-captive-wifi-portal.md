@@ -108,7 +108,7 @@ Alternatively, attempt overpowering the GUI machine's wifi.
 ## Approach B: Submit captive wifi portal login form interactively
 
 The wifi captive portal login page will likely need to work with
-javascript disabled for this approach to succeed.
+JavaScript disabled for this approach to succeed.
 
 ### Example: [lynx][lynx]
 
@@ -127,7 +127,7 @@ lynx "${guest_login_page}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 
 ### Example: [edbrowse][edbrowse]
 
-*edbrowse* is a console-only web browser with javascript support. Launch
+*edbrowse* is a console-only web browser with JavaScript support. Launch
 *edbrowse* in render mode like so:
 
 ```sh
