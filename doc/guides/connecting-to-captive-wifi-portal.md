@@ -61,35 +61,54 @@ Linux            | `ip -0 addr show dev $INTERFACE \| awk '/link/ && /ether/ {pr
 ### Step 2. Hijack GUI machine's active connection
 
 ```sh
-# -----------------------------------------------------------------------------
-# us
-# -----------------------------------------------------------------------------
-# e.g. wlan0
-interface="$(ip -o -4 route show to default | awk '/dev/ {print $5}')"
-# e.g. 192.168.10.1
-gateway="$(ip -o -4 route show to default | awk '/via/ {print $3}')"
-# e.g. 192.168.10.255
-broadcast="$(ip -o -4 addr show dev "$interface" | awk '/brd/ {print $6}')"
-# e.g. 192.168.10.151/24
-ipmask="$(ip -o -4 addr show dev "$interface" | awk '/inet/ {print $4}')"
-# e.g. 24
-netmask="$(printf "%s\n" "$ipmask" | cut -d "/" -f 2)"
-# e.g. 89:cd:a8:f3:b7:92
-macaddress="$(ip -0 addr show dev "$interface" | awk '/link/ && /ether/ {print $2}' | tr '[:upper:]' '[:lower:]')"
+touch hijack.sh
+chmod +x hijack.sh
+vim hijack.sh
+```
 
-# -----------------------------------------------------------------------------
-# our spoof
-# -----------------------------------------------------------------------------
-# from GUI machine
-ip_addr_spoof="192.168.10.115"
-# from GUI machine
-mac_addr_spoof="f3:c2:39:10:9e:b2"
-ip link set "$interface" down
-ip link set dev "$interface" address "$mac_addr_spoof"
-ip link set "$interface" up
-ip addr flush dev "$interface"
-ip addr add "$ip_addr_spoof/$netmask" broadcast "$broadcast" dev "$interface"
-ip route add default via "$gateway"
+```sh
+#!/bin/bash
+
+# e.g. wlan0
+readonly interface="$(ip -o -4 route show to default | awk '/dev/ {print $5}')"
+# e.g. 192.168.10.1
+readonly gateway="$(ip -o -4 route show to default | awk '/via/ {print $3}')"
+# e.g. 192.168.10.255
+readonly broadcast="$(ip -o -4 addr show dev "$interface" | awk '/brd/ {print $6}')"
+# e.g. 192.168.10.151/24
+readonly ipmask="$(ip -o -4 addr show dev "$interface" | awk '/inet/ {print $4}')"
+# e.g. 24
+readonly netmask="$(printf "%s\n" "$ipmask" | cut -d "/" -f 2)"
+# e.g. 89:cd:a8:f3:b7:92
+readonly mac_addr="$(ip -0 addr show dev "$interface" | awk '/link/ && /ether/ {print $2}' | tr '[:upper:]' '[:lower:]')"
+# localip from GUI machine
+readonly ip_addr_spoof="192.168.10.115"
+# macaddr from GUI machine
+readonly mac_addr_spoof="f3:c2:39:10:9e:b2"
+
+restore() {
+  ip link set "$interface" down
+  ip link set dev "$interface" address "$mac_addr"
+  ip link set "$interface" up
+  ip addr flush dev "$interface"
+  ip addr add "$ipmask" broadcast "$broadcast" dev "$interface"
+  ip route add default via "$gateway"
+}
+
+spoof() {
+  ip link set "$interface" down
+  ip link set dev "$interface" address "$mac_addr_spoof"
+  ip link set "$interface" up
+  ip addr flush dev "$interface"
+  ip addr add "$ip_addr_spoof/$netmask" broadcast "$broadcast" dev "$interface"
+  ip route add default via "$gateway"
+}
+
+spoof
+```
+
+```sh
+sudo ./hijack.sh
 ```
 
 Credit: [@systematicat][@systematicat]
