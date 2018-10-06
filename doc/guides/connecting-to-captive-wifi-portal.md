@@ -40,10 +40,10 @@ Requires two internet-capable machines. One of them must have GUI support.
 Later, you will set `ip_addr_spoof` to this value:
 
 Operating System | How to obtain local IP address
----------------- | -----------------------------------------------
-iOS              | Settings->General->About->Wi-fi Address
+---------------- | ----------------------------------------------------
+iOS              | Settings->Wi-Fi->ConnectedNetworkName(i)->IP Address
 macOS            | `ipconfig getifaddr en0`
-Linux            | `ip -o -4 route get 1 | awk '/src/ {print $7}'`
+Linux            | `ip -o -4 route get 1 \| awk '/src/ {print $7}'`
 
 - {[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files
   - `localip`
@@ -54,9 +54,9 @@ Later, you will set `mac_addr_spoof` to this value:
 
 Operating System | How to obtain MAC address
 ---------------- | -----------------------------------------------
-iOS              | Settings->General->About->Wi-fi Address
-macOS            | `ifconfig en0 ether | tail -n 1 | awk '{print $2}'`
-Linux            | `ip -0 addr show dev $INTERFACE | awk '/link/ && /ether/ {print \$2}' | tr '[:upper:]' '[:lower:]'`
+iOS              | Settings->General->About->Wi-Fi Address
+macOS            | `ifconfig en0 ether \| tail -n 1 \| awk '{print $2}'`
+Linux            | `ip -0 addr show dev $INTERFACE \| awk '/link/ && /ether/ {print \$2}' \| tr '[:upper:]' '[:lower:]'`
 
 - {[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files
   - `macaddr`
