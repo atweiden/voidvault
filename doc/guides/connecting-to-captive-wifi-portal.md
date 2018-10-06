@@ -103,16 +103,14 @@ Needed to prevent the router from undoing your hijacked connection.
 
 Alternatively, attempt overpowering the GUI machine's wifi.
 
-## Approach B: Submit captive wifi portal login form with [lynx][lynx]
+## Approach B: Submit captive wifi portal login form interactively
 
-The wifi captive portal login page must work with javascript disabled
-for this approach to work.
+The wifi captive portal login page will likely need to work with
+javascript disabled for this approach to succeed.
 
-[edbrowse][edbrowse] is a console-only web browser with javascript
-support, but its javascript support wasn't detected by the Linksys Smart
-Wi-Fi login page.
+### Example: [lynx][lynx]
 
-### Linksys Smart Wifi
+**For Linksys Smart Wi-Fi**
 
 ```sh
 guest_login_page="192.168.3.1:10080/ui/dynamic/guest-login.html"
@@ -124,6 +122,22 @@ mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#
 ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
 lynx "${guest_login_page}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 ```
+
+### Example: [edbrowse][edbrowse]
+
+*edbrowse* is a console-only web browser with javascript support. Launch
+*edbrowse* in render mode like so:
+
+```sh
+edbrowse
+```
+
+```
+:b 192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144
+```
+
+Note: *edbrowse*'s JavaScript support wasn't detected by the Linksys
+Smart Wi-Fi login page.
 
 ## Approach C: Submit captive wifi portal login form programmatically
 
