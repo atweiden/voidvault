@@ -110,14 +110,14 @@ for this approach to work.
 
 [edbrowse][edbrowse] is a console-only web browser with javascript
 support, but its javascript support wasn't detected by the Linksys Smart
-Wifi login page.
+Wi-Fi login page.
 
 ### Linksys Smart Wifi
 
 ```sh
 guest_login_page="192.168.3.1:10080/ui/dynamic/guest-login.html"
-# e.g. https%3A%2F%2Fgithub.com
-url="$(echo "https://github.com" | sed 's#:#%3A#g' | sed 's#/#%2F#g')"
+# e.g. https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html
+url="$(echo "https://www.apple.com/library/test/success.html" | sed 's#:#%3A#g' | sed 's#/#%2F#g')"
 # e.g. 68%3Aec%3Ac5%3Ac1%3Aa3%3A63
 mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#%3A#g')"
 # e.g. 192.168.3.144
@@ -129,6 +129,44 @@ lynx "${guest_login_page}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 
 Use a headless browser or programming language to submit captive wifi
 portal login form.
+
+### Example: [Nightmare][Nightmare]
+
+**For Linksys Smart Wi-Fi**
+
+```sh
+mkdir linksys && cd linksys
+npm install --save nightmare
+vim linksys.js
+```
+
+Contents of `linksys.js`:
+
+```js
+const Nightmare = require('nightmare')
+// do not render visible window
+const nightmare = Nightmare({ show: false })
+
+nightmare
+  .goto('http://192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144')
+  .type('#guest-pass', 'ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere')
+  .click('#submit-login')
+  .wait(7000)
+  .evaluate(() => {
+    return document.title;
+  })
+  .end()
+  .then((title) => {
+    console.log(title);
+  })
+  .catch(error => {
+    console.error('Error:', error)
+  });
+```
+
+```sh
+node linksys.js
+```
 
 ### Example: Python
 
@@ -161,6 +199,7 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 [iproute2]: https://wiki.linuxfoundation.org/networking/iproute2
 [lynx]: https://invisible-island.net/lynx/
 [macfiles]: https://github.com/atweiden/macfiles
+[Nightmare]: https://www.nightmarejs.org/
 [pacfiles]: https://github.com/atweiden/pacfiles
 [/r/raspberry_pi]: https://www.reddit.com/r/raspberry_pi/comments/4li7za/connecting_to_an_open_hotel_wifi/d3nlfq2/
 [ttyfiles]: https://github.com/atweiden/ttyfiles
