@@ -23,7 +23,9 @@ wpa_cli
 dhcpcd "$INTERFACE"
 ```
 
-Note the importance of `key_mgmt NONE`.
+Note: `key_mgmt NONE` is only necessary if the captive wifi portal can
+be connected to without supplying a password. If a password is required,
+supply it via `set_network 0 psk "PASSWORD"` as per usual.
 
 ## Approach A: Hijack your own GUI machine's active connection
 
