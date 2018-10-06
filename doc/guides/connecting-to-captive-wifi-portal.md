@@ -29,10 +29,10 @@ supply it via `set_network 0 psk "PASSWORD"` as per usual.
 
 ## Approach A: Hijack your own GUI machine's active connection
 
-The most universal approach.
+The hackiest approach.
 
 Caveats: Requires two internet-capable machines. One of them must have
-GUI support. Can be finnicky.
+GUI support. Connection can be finnicky.
 
 ### Step 1. Fully connect to captive wifi portal via GUI machine
 
@@ -119,7 +119,7 @@ Quickly disable GUI machine's wifi shortly after hijacking its connection.
 
 Needed to prevent the router from undoing your hijacked connection.
 
-Alternatively, attempt overpowering the GUI machine's wifi.
+Alternatively, attempt overpowering the GUI machine's wifi signal.
 
 ## Approach B: Submit captive wifi portal login form interactively
 
@@ -155,57 +155,75 @@ edbrowse
 ```
 
 ```
+:b <url>
+```
+
+**For Linksys Smart Wi-Fi**
+
+```
 :b 192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144
 ```
 
 Note: *edbrowse*'s JavaScript support wasn't detected by the Linksys
 Smart Wi-Fi login page.
 
-## Approach C: Submit captive wifi portal login form interactively via proxy on GUI machine
+## Approach C: Submit captive wifi portal login form interactively via reverse proxy
 
-The most advanced approach.
+The most universal approach.
 
 Caveats: Requires two internet-capable machines. One of them must have
-GUI support. Since console-only machine can't authenticate to captive
-wifi portal on its own, SSH access between the two machines must be
-configured over 1-to-1 ethernet cable. Requires extensive setup.
+GUI support.
 
-### Step 1. Directly connect console-only machine to GUI machine via ethernet cable
+**On console-only machine**
 
-### Step 2. Configure GUI machine's web browser to use proxy
+Configure machine for localhost SSH access:
 
-#### via [OpenSSH][OpenSSH] reverse proxy
+```sh
+mkdir -p "$HOME/.ssh/localhost"
+ssh-keygen -t ed25519 -b 521 -f "$HOME/.ssh/localhost/id_ed25519"
+cat "$HOME/.ssh/localhost/id_ed25519.pub" >> /etc/ssh/authorized_keys/sftponly-user
+```
 
-- https://serverfault.com/questions/361794/with-ssh-only-reverse-tunnel-web-access-via-ssh-socks-proxy
-- https://superuser.com/questions/370930/ssh-reverse-socks-tunnel
-- https://stackoverflow.com/questions/842021/ssh-d-port-usernameserver-com-but-in-reverse
-- https://superuser.com/questions/1302737/reverse-proxy-with-ssh
-- https://mikeash.com/ssh_socks.html
+Setup localhost port forwarding:
 
-#### via [WireGuard][WireGuard]
+```sh
+ssh -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 54321 127.0.0.1
+```
 
-- https://git.zx2c4.com/WireGuard/about/src/tools/man/wg-quick.8
-- https://www.reddit.com/r/linux/comments/9bnowo/wireguard_benchmark_between_two_servers_with_10/
-- https://nbsoftsolutions.com/blog/wireguard-vpn-walkthrough
-- https://www.ericlight.com/wireguard-part-two-vpn-routing.html
+Setup reverse port forwarding to GUI machine:
 
-#### via [Internet sharing][Internet sharing]
+```sh
+# GUI machine user account
+readonly gui_username="sftponly-user"
 
-- https://xyne.archlinux.ca/notes/network/dhcp_with_dns.html
-- https://superuser.com/questions/818978/how-to-share-openvpn-connection-over-ethernet
-- https://wiki.archlinux.org/index.php/VPN_over_SSH
+# GUI machine local IP address
+readonly gui_localip="192.168.10.150"
 
-#### via [sshuttle][sshuttle]
+# bind GUI machine port 6666 to console-only machine port 54321
+# makes your local socks proxy available to GUI machine on port 6666
+ssh -N -T -R 6666:127.0.01:54321 "$gui_username@$gui_localip"
+```
 
-Note *sshuttle* will not work with *sftponly* user on console-only
-machine, nor will it work over a [reverse proxy][sshuttle-reverse-proxy].
+**On GUI machine**
 
-- https://blog.cavebeat.org/2015/10/restricted-user-for-ssh-reverse-port-forward/
+Configure proxychains:
 
-### Step 3. Submit captive wifi portal login form interactively using the proxy
+```sh
+cat >> /etc/proxychains.conf <<'EOF'
+[ProxyList]
+# SSH reverse proxy
+socks5 127.0.0.1 6666
+EOF
+```
 
 Configure GUI machine web browser to use proxy. Submit captive wifi
-portal login form with proxified web browser.
+portal login form with proxified web browser:
+
+```sh
+proxychains "$BROWSER"
+```
+
+Credit: [Kaii][Kaii]
 
 ## Approach D: Submit captive wifi portal login form programmatically
 
@@ -264,6 +282,14 @@ node linksys.js
 
 ### Example: Python
 
+**For Nomadix**
+
+```sh
+vim nomadix.py
+```
+
+Contents of `nomadix.py`:
+
 ```python
 #!/usr/bin/python
 import urllib
@@ -273,6 +299,10 @@ password = "{whatever}"
 login_data = urllib.urlencode({'username': username, 'password' : password, 'submit': 'loginform2'})
 op = urllib.urlopen(url, login_data).read()
 print op
+```
+
+```sh
+python nomadix.py
 ```
 
 credit: [/r/raspberry_pi][/r/raspberry_pi]
@@ -292,6 +322,7 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 [edbrowse]: https://github.com/CMB/edbrowse
 [Internet sharing]: https://wiki.archlinux.org/index.php/Internet_sharing
 [iproute2]: https://wiki.linuxfoundation.org/networking/iproute2
+[Kaii]: https://serverfault.com/questions/361794/with-ssh-only-reverse-tunnel-web-access-via-ssh-socks-proxy/361806#361806
 [lynx]: https://invisible-island.net/lynx/
 [macfiles]: https://github.com/atweiden/macfiles
 [Nightmare]: https://www.nightmarejs.org/
@@ -304,3 +335,5 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 [sshuttle-reverse-proxy]: https://groups.google.com/forum/#!topic/sshuttle/tWegyCLIBg8
 [@systematicat]: https://github.com/systematicat/hack-captive-portals
 [WireGuard]: https://www.wireguard.com/
+
+<!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap: -->
