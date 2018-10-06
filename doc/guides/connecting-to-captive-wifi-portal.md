@@ -31,7 +31,8 @@ supply it via `set_network 0 psk "PASSWORD"` as per usual.
 
 The most universal approach.
 
-Requires two internet-capable machines. One of them must have GUI support.
+Caveats: Requires two internet-capable machines. One of them must have
+GUI support. Can be finnicky.
 
 ### Step 1. Fully connect to captive wifi portal via GUI machine
 
@@ -103,8 +104,12 @@ Alternatively, attempt overpowering the GUI machine's wifi.
 
 ## Approach B: Submit captive wifi portal login form interactively
 
-The wifi captive portal login page will likely need to work with
-JavaScript disabled for this approach to succeed.
+The most straightforward approach.
+
+Caveats: The wifi captive portal login page will likely need to work with
+JavaScript disabled for this approach to succeed. Quality of website
+rendering with console-only browsers is very poor compared to their
+GUI counterparts.
 
 ### Example: [lynx][lynx]
 
@@ -139,8 +144,14 @@ Smart Wi-Fi login page.
 
 ## Approach C: Submit captive wifi portal login form programmatically
 
+The most powerful approach.
+
 Use a headless browser or programming language to submit captive wifi
 portal login form.
+
+Caveats: Requires up front time investment to understand guest login
+page and devise a strategy to login programmatically. This could require
+a GUI machine.
 
 ### Example: [Nightmare][Nightmare]
 
