@@ -161,7 +161,53 @@ edbrowse
 Note: *edbrowse*'s JavaScript support wasn't detected by the Linksys
 Smart Wi-Fi login page.
 
-## Approach C: Submit captive wifi portal login form programmatically
+## Approach C: Submit captive wifi portal login form interactively via proxy on GUI machine
+
+The most advanced approach.
+
+Caveats: Requires two internet-capable machines. One of them must have
+GUI support. Since console-only machine can't authenticate to captive
+wifi portal on its own, SSH access between the two machines must be
+configured over 1-to-1 ethernet cable. Requires extensive setup.
+
+### Step 1. Directly connect console-only machine to GUI machine via ethernet cable
+
+### Step 2. Configure GUI machine's web browser to use proxy
+
+#### via [OpenSSH][OpenSSH] reverse proxy
+
+- https://serverfault.com/questions/361794/with-ssh-only-reverse-tunnel-web-access-via-ssh-socks-proxy
+- https://superuser.com/questions/370930/ssh-reverse-socks-tunnel
+- https://stackoverflow.com/questions/842021/ssh-d-port-usernameserver-com-but-in-reverse
+- https://superuser.com/questions/1302737/reverse-proxy-with-ssh
+- https://mikeash.com/ssh_socks.html
+
+#### via [WireGuard][WireGuard]
+
+- https://git.zx2c4.com/WireGuard/about/src/tools/man/wg-quick.8
+- https://www.reddit.com/r/linux/comments/9bnowo/wireguard_benchmark_between_two_servers_with_10/
+- https://nbsoftsolutions.com/blog/wireguard-vpn-walkthrough
+- https://www.ericlight.com/wireguard-part-two-vpn-routing.html
+
+#### via [Internet sharing][Internet sharing]
+
+- https://xyne.archlinux.ca/notes/network/dhcp_with_dns.html
+- https://superuser.com/questions/818978/how-to-share-openvpn-connection-over-ethernet
+- https://wiki.archlinux.org/index.php/VPN_over_SSH
+
+#### via [sshuttle][sshuttle]
+
+Note *sshuttle* will not work with *sftponly* user on console-only
+machine, nor will it work over a [reverse proxy][sshuttle-reverse-proxy].
+
+- https://blog.cavebeat.org/2015/10/restricted-user-for-ssh-reverse-port-forward/
+
+### Step 3. Submit captive wifi portal login form interactively using the proxy
+
+Configure GUI machine web browser to use proxy. Submit captive wifi
+portal login form with proxified web browser.
+
+## Approach D: Submit captive wifi portal login form programmatically
 
 The most powerful approach.
 
@@ -170,7 +216,8 @@ portal login form.
 
 Caveats: Requires up front time investment to understand guest login
 page and devise a strategy to login programmatically. This could require
-a GUI machine.
+a GUI machine. Headless browser software is often x86 only. Headless
+browser software considered harmful.
 
 ### Example: [Nightmare][Nightmare]
 
@@ -243,12 +290,17 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 
 [configure-wireless.md]: configure-wireless.md
 [edbrowse]: https://github.com/CMB/edbrowse
+[Internet sharing]: https://wiki.archlinux.org/index.php/Internet_sharing
 [iproute2]: https://wiki.linuxfoundation.org/networking/iproute2
 [lynx]: https://invisible-island.net/lynx/
 [macfiles]: https://github.com/atweiden/macfiles
 [Nightmare]: https://www.nightmarejs.org/
+[OpenSSH]: https://www.openssh.com/
 [pacfiles]: https://github.com/atweiden/pacfiles
 [/r/raspberry_pi]: https://www.reddit.com/r/raspberry_pi/comments/4li7za/connecting_to_an_open_hotel_wifi/d3nlfq2/
 [ttyfiles]: https://github.com/atweiden/ttyfiles
 [voidfiles]: https://github.com/atweiden/voidfiles
+[sshuttle]: https://github.com/sshuttle/sshuttle
+[sshuttle-reverse-proxy]: https://groups.google.com/forum/#!topic/sshuttle/tWegyCLIBg8
 [@systematicat]: https://github.com/systematicat/hack-captive-portals
+[WireGuard]: https://www.wireguard.com/
