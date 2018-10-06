@@ -44,9 +44,7 @@ Operating System | How to obtain local IP address
 iOS              | Settings->Wi-Fi->ConnectedNetworkName(i)->IP Address
 macOS            | `ipconfig getifaddr en0`
 Linux            | `ip -o -4 route get 1 \| awk '/src/ {print $7}'`
-
-- {[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files
-  - `localip`
+{[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files | `localip`
 
 **Note the GUI machine's MAC address**
 
@@ -57,9 +55,7 @@ Operating System | How to obtain MAC address
 iOS              | Settings->General->About->Wi-Fi Address
 macOS            | `ifconfig en0 ether \| tail -n 1 \| awk '{print $2}'`
 Linux            | `ip -0 addr show dev $INTERFACE \| awk '/link/ && /ether/ {print \$2}' \| tr '[:upper:]' '[:lower:]'`
-
-- {[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files
-  - `macaddr`
+{[mac][macfiles],[pac][pacfiles],[tty][ttyfiles],[void][voidfiles]}files | `macaddr`
 
 ### Step 2. Hijack GUI machine's active connection
 
