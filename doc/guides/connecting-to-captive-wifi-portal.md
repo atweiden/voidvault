@@ -111,14 +111,14 @@ JavaScript disabled for this approach to succeed.
 **For Linksys Smart Wi-Fi**
 
 ```sh
-guest_login_page="192.168.3.1:10080/ui/dynamic/guest-login.html"
+portal="192.168.3.1:10080/ui/dynamic/guest-login.html"
 # e.g. https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html
 url="$(echo "https://www.apple.com/library/test/success.html" | sed 's#:#%3A#g' | sed 's#/#%2F#g')"
 # e.g. 68%3Aec%3Ac5%3Ac1%3Aa3%3A63
 mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#%3A#g')"
 # e.g. 192.168.3.144
 ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
-lynx "${guest_login_page}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
+lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 ```
 
 ### Example: [edbrowse][edbrowse]
@@ -155,13 +155,19 @@ vim linksys.js
 Contents of `linksys.js`:
 
 ```js
-const Nightmare = require('nightmare')
+const Nightmare = require('nightmare');
 // do not render visible window
-const nightmare = Nightmare({ show: false })
-
+const nightmare = Nightmare({ show: false });
+// login info
+const portal = 'http://192.168.3.1:10080/ui/dynamic/guest-login.html';
+const mac_addr = '68%3Aec%3Ac5%3Ac1%3Aa3%3A63';
+const url = 'https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html';
+const ip_addr = '192.168.3.144';
+const guest_pass = 'ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere';
+// login
 nightmare
-  .goto('http://192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144')
-  .type('#guest-pass', 'ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere')
+  .goto(`${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}`)
+  .type('#guest-pass', `${guest_pass}`)
   .click('#submit-login')
   .wait(7000)
   .evaluate(() => {
@@ -188,7 +194,7 @@ import urllib
 url = "http://login.nomadix.com:1111/usg/process?OS=http://bellevue.house.hyatt.com/en/hotel.home.html"
 username = "{whatever}"
 password = "{whatever}"
-login_data = urllib.urlencode({'username': username, 'password' : password, 'submit':'loginform2'})
+login_data = urllib.urlencode({'username': username, 'password' : password, 'submit': 'loginform2'})
 op = urllib.urlopen(url, login_data).read()
 print op
 ```
