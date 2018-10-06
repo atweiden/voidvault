@@ -18,9 +18,9 @@ _deps=('liblz4'
 xbps-install "${_deps[@]}"
 
 # prepare include directory
-git clone https://github.com/atweiden/voidfiles "$HOME/.src/include/voidfiles"
-git clone https://github.com/atweiden/voidpkgs "$HOME/.src/include/voidpkgs"
-git clone https://github.com/atweiden/voidvault "$HOME/.src/include/voidvault"
+git clone https://github.com/atweiden/voidfiles /tmp/include/voidfiles
+git clone https://github.com/atweiden/voidpkgs /tmp/include/voidpkgs
+git clone https://github.com/atweiden/voidvault /tmp/include/voidvault
 
 # run mklive.sh with additional pkgs
 _pkgs+=' acpi'
@@ -83,7 +83,7 @@ _pkgs+=' wpa_supplicant'
 _pkgs+=' xz'
 _pkgs+=' zip'
 _pkgs+=' zstd'
-./mklive.sh -p "$_pkgs" -I "$HOME/.src/include" -S 1600
+./mklive.sh -p "$_pkgs" -I /tmp/include -S 1600
 ```
 
 When using the resulting ISO with `voidvault new`, be sure to specify
