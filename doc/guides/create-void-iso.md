@@ -23,7 +23,6 @@ git clone https://github.com/atweiden/voidpkgs "$HOME/.src/include/voidpkgs"
 git clone https://github.com/atweiden/voidvault "$HOME/.src/include/voidvault"
 
 # run mklive.sh with additional pkgs
-_pkgs=''
 _pkgs+=' acpi'
 _pkgs+=' aria2'
 _pkgs+=' bash-completion'
