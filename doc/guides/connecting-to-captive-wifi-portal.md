@@ -199,10 +199,12 @@ nightmare
   .goto(`${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}`)
   .type('#guest-pass', `${guest_pass}`)
   .click('#submit-login')
-  .evaluate(() => document.title)
+  .evaluate(() => {
+    return document.querySelector('body').innerText
+  })
   .end()
-  .then(title => {
-    console.log(title)
+  .then(body => {
+    console.log(body)
   })
   .catch(error => {
     console.error('Error:', error)
