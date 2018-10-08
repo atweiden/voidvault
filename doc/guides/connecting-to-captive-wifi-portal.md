@@ -125,7 +125,7 @@ Alternatively, attempt overpowering the GUI machine's wifi signal.
 
 The most straightforward approach.
 
-Caveats: The wifi captive portal login page will likely need to work with
+Caveats: The wifi captive portal login page may need to work with
 JavaScript disabled for this approach to succeed. Quality of website
 rendering with console-only browsers is very poor compared to their
 GUI counterparts.
@@ -147,25 +147,51 @@ lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 
 ### Example: [edbrowse][edbrowse]
 
-*edbrowse* is a console-only web browser with JavaScript support. Launch
-*edbrowse* in render mode like so:
+**For Linksys Smart Wi-Fi**
 
 ```sh
+cat >> "$HOME/.ebrc" <<'EOF'
+# disguise edbrowse as IE 9 on Windows 7
+agent = Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
+function+init {
+  # turn debug off, don't show status messages from this script
+  db0
+  # use readline for input
+  rl+
+  # switch to IE 9 user agent
+  ua1
+}
+function+login {
+  b 192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144
+}
+EOF
 edbrowse
 ```
 
 ```
-:b <url>
+# run login function from config
+<login
+# print page
+1,$p
+# print page
+,p
+# print first 10 lines
+0z10
+# print next 10 lines
+z
+<CR>
+# inspect input form on line 8
+8i?
+# enter password on line 8
+8i=ThePasswordForLinksysSmartWiFiCaptivePortalGoesHere
+# press the submit button on line 9
+9i*
+# refresh browser
+rf
 ```
 
-**For Linksys Smart Wi-Fi**
-
-```
-:b 192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144
-```
-
-Note: *edbrowse*'s JavaScript support wasn't detected by the Linksys
-Smart Wi-Fi login page.
+See the [edbrowse user guide][edbrowse user guide] for form submission
+tips.
 
 ## Approach C: Submit captive wifi portal login form interactively via reverse proxy
 
@@ -320,6 +346,7 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 
 [configure-wireless.md]: configure-wireless.md
 [edbrowse]: https://github.com/CMB/edbrowse
+[edbrowse user guide]: http://www.edbrowse.org/usersguide.html#input
 [Internet sharing]: https://wiki.archlinux.org/index.php/Internet_sharing
 [iproute2]: https://wiki.linuxfoundation.org/networking/iproute2
 [Kaii]: https://serverfault.com/questions/361794/with-ssh-only-reverse-tunnel-web-access-via-ssh-socks-proxy/361806#361806
