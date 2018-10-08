@@ -7,7 +7,7 @@ See also: [configure-wireless.md][configure-wireless.md]
 This is needed no matter which approach you decide to take later on:
 
 ```sh
-INTERFACE="wlan0"
+readonly INTERFACE="wlan0"
 
 # connect to captive wifi portal
 wpa_supplicant -B -s -i "$INTERFACE" -c /etc/wpa_supplicant/wpa_supplicant.conf
@@ -135,13 +135,13 @@ GUI counterparts.
 **For Linksys Smart Wi-Fi**
 
 ```sh
-portal="192.168.3.1:10080/ui/dynamic/guest-login.html"
+readonly portal="192.168.3.1:10080/ui/dynamic/guest-login.html"
 # e.g. https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html
-url="$(echo "https://www.apple.com/library/test/success.html" | sed 's#:#%3A#g' | sed 's#/#%2F#g')"
+readonly url="$(echo "https://www.apple.com/library/test/success.html" | sed 's#:#%3A#g' | sed 's#/#%2F#g')"
 # e.g. 68%3Aec%3Ac5%3Ac1%3Aa3%3A63
-mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#%3A#g')"
+readonly mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#%3A#g')"
 # e.g. 192.168.3.144
-ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
+readonly ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
 lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 ```
 
