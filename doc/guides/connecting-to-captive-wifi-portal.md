@@ -130,9 +130,7 @@ JavaScript disabled for this approach to succeed. Quality of website
 rendering with console-only browsers is very poor compared to their
 GUI counterparts.
 
-### Example: [lynx][lynx]
-
-**For Linksys Smart Wi-Fi**
+### Environment Setup
 
 ```sh
 readonly portal="192.168.3.1:10080/ui/dynamic/guest-login.html"
@@ -142,6 +140,13 @@ readonly url="$(echo "https://www.apple.com/library/test/success.html" | sed 's#
 readonly mac_addr="$(ip link show "$INTERFACE" | tail -n 1 | awk '{print $2}' | sed 's#:#%3A#g')"
 # e.g. 192.168.3.144
 readonly ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
+```
+
+### Example: [lynx][lynx]
+
+**For Linksys Smart Wi-Fi**
+
+```sh
 lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 ```
 
@@ -150,7 +155,7 @@ lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 **For Linksys Smart Wi-Fi**
 
 ```sh
-cat >> "$HOME/.ebrc" <<'EOF'
+cat >> "$HOME/.ebrc" <<"EOF"
 # disguise edbrowse as IE 9 on Windows 7
 agent = Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
 function+init {
@@ -162,7 +167,7 @@ function+init {
   ua1
 }
 function+login {
-  b 192.168.3.1:10080/ui/dynamic/guest-login.html?mac_addr=68%3Aec%3Ac5%3Ac1%3Aa3%3A63&url=https%3A%2F%2Fwww.apple.com%2Flibrary%2Ftest%2Fsuccess.html&ip_addr=192.168.3.144
+  b ${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}
 }
 EOF
 edbrowse
