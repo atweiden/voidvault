@@ -158,6 +158,8 @@ lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 cat >> "$HOME/.ebrc" <<"EOF"
 # disguise edbrowse as IE 9 on Windows 7
 agent = Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
+# disable JavaScript on captive wifi portal login page
+nojs = ${portal/\/*/}
 function+init {
   # turn debug off, don't show status messages from this script
   db0
