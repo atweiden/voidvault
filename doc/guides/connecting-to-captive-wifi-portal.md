@@ -220,21 +220,22 @@ cat "$HOME/.ssh/localhost/id_ed25519.pub" >> /etc/ssh/authorized_keys/sftponly-u
 Setup localhost port forwarding:
 
 ```sh
-ssh -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 9999 127.0.0.1
+readonly nox_sftponly="sftponly-user"
+ssh -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 9999 "$nox_sftponly@127.0.0.1"
 ```
 
 Setup reverse port forwarding to GUI machine:
 
 ```sh
 # GUI machine user account
-readonly gui_username="sftponly-user"
+readonly gui_sftponly="sftponly-user"
 
 # GUI machine local IP address
 readonly gui_localip="192.168.10.150"
 
 # bind GUI machine port 6666 to console-only machine port 9999
 # makes your local socks proxy available to GUI machine on port 6666
-ssh -N -T -R 6666:127.0.01:9999 "$gui_username@$gui_localip"
+ssh -N -T -R 6666:127.0.01:9999 "$gui_sftponly@$gui_localip"
 ```
 
 **On GUI machine**
