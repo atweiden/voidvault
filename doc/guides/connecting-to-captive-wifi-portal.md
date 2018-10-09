@@ -212,22 +212,23 @@ GUI support.
 Configure machine for localhost SSH access:
 
 ```sh
+# console-only machine sftponly user name
+readonly nox_sftponly="sftponly-user"
 mkdir -p "$HOME/.ssh/localhost"
 ssh-keygen -t ed25519 -b 521 -f "$HOME/.ssh/localhost/id_ed25519"
-cat "$HOME/.ssh/localhost/id_ed25519.pub" >> /etc/ssh/authorized_keys/sftponly-user
+cat "$HOME/.ssh/localhost/id_ed25519.pub" >> "/etc/ssh/authorized_keys/$nox_sftponly"
 ```
 
 Setup localhost port forwarding:
 
 ```sh
-readonly nox_sftponly="sftponly-user"
 ssh -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 9999 "$nox_sftponly@127.0.0.1"
 ```
 
 Setup reverse port forwarding to GUI machine:
 
 ```sh
-# GUI machine user account
+# GUI machine sftponly user name
 readonly gui_sftponly="sftponly-user"
 
 # GUI machine local IP address
@@ -243,6 +244,7 @@ ssh -N -T -R 6666:127.0.01:9999 "$gui_sftponly@$gui_localip"
 Configure proxychains:
 
 ```sh
+# macos: `$(brew --prefix)/etc/proxychains.conf`
 cat >> /etc/proxychains.conf <<'EOF'
 [ProxyList]
 # SSH reverse proxy
