@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PATH="bin:$PATH"
-export PERL6LIB="lib"
+export PATH="$(realpath bin):$PATH"
+export PERL6LIB="$(realpath lib)"
 voidvault --admin-name="live"                                  \
           --admin-pass="your admin user's password"            \
           --guest-name="guest"                                 \

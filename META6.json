@@ -1,7 +1,7 @@
 {
     "perl"        : "6.*",
     "name"        : "Voidvault",
-    "version"     : "0.0.4",
+    "version"     : "1.0.0",
     "author"      : "atweiden",
     "description" : "Bootstrap Void with FDE",
     "license"     : "Unlicense",
@@ -13,6 +13,7 @@
     },
     "provides" : {
         "Crypt::Libcrypt"      : "lib/Crypt/Libcrypt.pm6",
+        "Void::Utils"          : "lib/Void/Utils.pm6",
         "Voidvault"            : "lib/Voidvault.pm6",
         "Voidvault::Bootstrap" : "lib/Voidvault/Bootstrap.pm6",
         "Voidvault::Config"    : "lib/Voidvault/Config.pm6",

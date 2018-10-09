@@ -1,0 +1,58 @@
+#!/usr/bin/env perl6
+
+
+
+
+use v6;
+use Void::Utils;
+
+
+
+
+# -----------------------------------------------------------------------------
+# version
+# -----------------------------------------------------------------------------
+
+multi sub MAIN(Bool:D :version($)! where .so --> Nil)
+{
+    printf("v%s\n", $Void::Utils::VERSION);
+    exit(0);
+}
+
+
+
+
+# -----------------------------------------------------------------------------
+# void-chroot
+# -----------------------------------------------------------------------------
+
+multi sub MAIN(Str:D $chroot-dir where .so, *@cmdline ($, *@) --> Nil)
+{
+    Void::Utils.void-chroot($chroot-dir, |@cmdline);
+}
+
+
+
+
+# -----------------------------------------------------------------------------
+# usage
+# -----------------------------------------------------------------------------
+
+sub USAGE(--> Nil)
+{
+    constant $HELP = q:to/EOF/.trim;
+    Usage:
+      void-chroot <chroot-dir> <cmdline>
+      void-chroot /mnt groupadd void
+      void-chroot /mnt useradd -m -g void -G users void
+
+    Options:
+      -h, --help
+        Print this help message
+      --version
+        Print version and exit
+    EOF
+    say($HELP);
+}
+
+# vim: set filetype=perl6 foldmethod=marker foldlevel=0:

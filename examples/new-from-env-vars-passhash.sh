@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # admin, grub, guest, root and sftp password: xyzzy
-export PATH="bin:$PATH"
-export PERL6LIB='lib'
+export PATH="$(realpath bin):$PATH"
+export PERL6LIB="$(realpath lib)"
 export VOIDVAULT_ADMIN_NAME='live'
 export VOIDVAULT_ADMIN_PASS_HASH='$6$rounds=700000$sleJxKNAgRnG7E8s$Fjg0/vuRz.GgF0FwDE04gP2i6oMq/Y4kodb1RLTbR3SpABVDKGdhCVfLpC5LwCOXDMEU.ylyV40..jrGmI.4N0'
 export VOIDVAULT_GUEST_NAME='guest'

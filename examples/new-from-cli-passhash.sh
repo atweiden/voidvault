@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # admin, grub, guest, root and sftp password: xyzzy
-export PATH="bin:$PATH"
-export PERL6LIB='lib'
+export PATH="$(realpath bin):$PATH"
+export PERL6LIB="$(realpath lib)"
 voidvault --admin-name='live'                                                                                                                                                                                                                                                                                                                                                                                                                                           \
           --admin-pass-hash='$6$rounds=700000$sleJxKNAgRnG7E8s$Fjg0/vuRz.GgF0FwDE04gP2i6oMq/Y4kodb1RLTbR3SpABVDKGdhCVfLpC5LwCOXDMEU.ylyV40..jrGmI.4N0'                                                                                                                                                                                                                                                                                                                  \
           --guest-name='guest'                                                                                                                                                                                                                                                                                                                                                                                                                                          \

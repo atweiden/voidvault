@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export PATH="bin:$PATH"
-export PERL6LIB="lib"
+export PATH="$(realpath bin):$PATH"
+export PERL6LIB="$(realpath lib)"
 export VOIDVAULT_ADMIN_NAME="live"
 export VOIDVAULT_ADMIN_PASS="your admin user's password"
 export VOIDVAULT_GUEST_NAME="guest"
