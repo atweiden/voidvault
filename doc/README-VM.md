@@ -263,9 +263,10 @@ The rest of the instructions are the same as with VirtualBox.
   - `tar xvzf voidvault-master.tar.gz`
   - `cd voidvault-master`
 - Run Voidvault
-  - `export PERL6LIB=lib`
-  - `bin/voidvault --help`
-  - `bin/voidvault new`
+  - `export PATH="$(realpath bin):$PATH"`
+  - `export PERL6LIB="$(realpath lib)"`
+  - `voidvault --help`
+  - `voidvault new`
 - Follow the prompts as needed, let Voidvault finish to completion
   - Void ISO 2017.10.07 throws an error at the end
     - `/mnt is busy`...

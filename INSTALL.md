@@ -43,8 +43,9 @@ cd voidvault
 Run Voidvault:
 
 ```sh
-export PERL6LIB=lib
-bin/voidvault --help
+export PATH="$(realpath bin):$PATH"
+export PERL6LIB="$(realpath lib)"
+voidvault --help
 ```
 
 
