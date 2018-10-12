@@ -691,6 +691,7 @@ method !voidstrap-base(--> Nil)
         wget
         which
         wifish
+        wireguard
         wireless_tools
         wpa_actiond
         wpa_supplicant
