@@ -222,7 +222,7 @@ cat "$HOME/.ssh/localhost/id_ed25519.pub" >> "/etc/ssh/authorized_keys/$nox_sftp
 Setup localhost port forwarding:
 
 ```sh
-ssh -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 9999 "$nox_sftponly@127.0.0.1"
+ssh -vvv -N -T -i "$HOME/.ssh/localhost/id_ed25519" -D 9999 "$nox_sftponly@127.0.0.1"
 ```
 
 Setup reverse port forwarding to GUI machine:
@@ -236,7 +236,16 @@ readonly gui_localip="192.168.10.150"
 
 # bind GUI machine port 6666 to console-only machine port 9999
 # makes your local socks proxy available to GUI machine on port 6666
-ssh -N -T -R 6666:127.0.01:9999 "$gui_sftponly@$gui_localip"
+ssh -vvv -N -T -R 6666:127.0.01:9999 "$gui_sftponly@$gui_localip"
+```
+
+Read the `ssh -R` command's verbose log closely. The log should mention
+"successfully set up port forwarding" somewhere near the bottom when you
+first authenticate with the other machine. If the log instead warns that
+the port forwarding has failed, try again with a different port, e.g.
+
+```sh
+ssh -vvv -N -T -R 42345:127.0.01:9999 "$gui_sftponly@$gui_localip"
 ```
 
 **On GUI machine**
@@ -258,6 +267,15 @@ portal login form with proxified web browser:
 ```sh
 proxychains "$BROWSER"
 ```
+
+If the above fails:
+
+- Close any open SSH tunnels and stop `sshd` on both machines
+- Disconnect both machines from the internet
+- Generate and set a new MAC address on both machines
+- Go back to initial step *Setup localhost port forwarding*
+  - Keep in mind the local IP address of both machines is likely to
+    have changed
 
 Credit: [Kaii][Kaii]
 
