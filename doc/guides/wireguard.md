@@ -65,6 +65,9 @@ SaveConfig = true
 ListenPort = 51820
 PrivateKey = $SERVER_PRIVATE_KEY
 # load kernel modules
+PostUp = modprobe nft_masq
+PostUp = modprobe nft_masq_ipv4
+PostUp = modprobe nft_masq_ipv6
 PostUp = modprobe nft_nat
 PostUp = modprobe nft_chain_nat_ipv4
 PostUp = modprobe nft_chain_nat_ipv6
@@ -119,11 +122,17 @@ PostUp = nft add rule ip6 nox-wg-nat6 prerouting iifname wg0 udp dport 53 counte
 PostUp = nft add chain inet nox-wg-inet forward
 PostUp = nft add rule inet nox-wg-inet forward iifname wg0 counter accept
 # alter outgoing packets to have server IP address
-PostUp = nft add rule ip nox-wg-nat postrouting oifname "$INTERFACE" counter masquerade
-PostUp = nft add rule ip6 nox-wg-nat6 postrouting oifname "$INTERFACE" counter masquerade
+PostUp = nft add rule ip nox-wg-nat postrouting oifname "$INTERFACE" counter masquerade random,persistent
+PostUp = nft add rule ip6 nox-wg-nat6 postrouting oifname "$INTERFACE" counter masquerade random,persistent
+PostDown = nft flush table inet nox-wg-inet
 PostDown = nft delete table inet nox-wg-inet
+PostDown = nft flush table ip nox-wg-nat
 PostDown = nft delete table ip nox-wg-nat
+PostDown = nft flush table ip6 nox-wg-nat6
 PostDown = nft delete table ip6 nox-wg-nat6
+PostDown = rmmod nft_masq
+PostDown = rmmod nft_masq_ipv4
+PostDown = rmmod nft_masq_ipv6
 PostDown = rmmod nft_nat
 PostDown = rmmod nft_chain_nat_ipv4
 PostDown = rmmod nft_chain_nat_ipv6
@@ -178,6 +187,7 @@ wg-quick up wg0
 - https://github.com/newfivefour/BlogPosts/blob/master/nftables-basic-rules-save-established.md
 - https://wiki.archlinux.org/index.php/nftables
 - https://paulgorman.org/technical/linux-nftables.txt.html
+- https://stosb.com/blog/explaining-my-configs-nftables/
 - https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management
 - http://wiki.nftables.org/wiki-nftables/index.php/Performing_Network_Address_Translation_%28NAT%29
 - https://marc.info/?l=netfilter&m=152532769025083&w=2
