@@ -27,11 +27,14 @@ cat > /etc/wireguard/wg0.conf <<"EOF"
 Address = 10.192.122.2/32
 PrivateKey = $CLIENT_PRIVATE_KEY
 DNS = 10.192.122.1
+# true makes commenting, formatting impossible
+SaveConfig = false
 
 [Peer]
 PublicKey = $SERVER_PUBLIC_KEY
-AllowedIPs = 0.0.0.0/0, ::/0
 Endpoint = $SERVER_IP:51820
+# gateway rule - send all traffic out over the VPN
+AllowedIPs = 0.0.0.0/0, ::/0
 # uncomment PersistentKeepalive if client is behind NAT
 #PersistentKeepalive = 25
 EOF
@@ -60,10 +63,12 @@ readonly SERVER_PRIVATE_KEY="$(cat privatekey)"
 # make config file
 cat > /etc/wireguard/wg0.conf <<"EOF"
 [Interface]
+# the virtual IP address, with the subnet mask we will use for the VPN
 Address = 10.192.122.1/24
-SaveConfig = true
 ListenPort = 51820
 PrivateKey = $SERVER_PRIVATE_KEY
+# true makes commenting, formatting impossible
+SaveConfig = false
 # load kernel modules
 PostUp = modprobe nft_masq
 PostUp = modprobe nft_masq_ipv4
@@ -149,6 +154,8 @@ PostDown = sysctl -w net.ipv4.ip_dynaddr=0
 
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
+# the client's IP with a /32; each client only has one IP
+# identical to client's interface address, using same subnet mask
 AllowedIPs = 10.192.122.2/32
 EOF
 ```
@@ -172,6 +179,10 @@ wg-quick up wg0
 ### WireGuard
 
 - `man wg-quick`
+- https://wiki.archlinux.org/index.php/WireGuard
+- http://jrs-s.net/2018/08/05/some-notes-on-wireguard/
+- http://jrs-s.net/2018/08/05/working-vpn-gateway-configs-for-wireguard/
+- http://jrs-s.net/2018/08/05/routing-between-wg-interfaces-with-wireguard/
 - https://nbsoftsolutions.com/blog/wireguard-vpn-walkthrough
 - https://github.com/mrash/Wireguard-macOS-LinuxVM
 - https://www.stavros.io/posts/how-to-configure-wireguard/
@@ -181,11 +192,11 @@ wg-quick up wg0
 
 ### nftables
 
+- https://wiki.archlinux.org/index.php/nftables
 - https://www.funtoo.org/Package:Nftables
 - https://home.regit.org/netfilter-en/nftables-quick-howto/
 - https://linux-audit.com/nftables-beginners-guide-to-traffic-filtering/
 - https://github.com/newfivefour/BlogPosts/blob/master/nftables-basic-rules-save-established.md
-- https://wiki.archlinux.org/index.php/nftables
 - https://paulgorman.org/technical/linux-nftables.txt.html
 - https://stosb.com/blog/explaining-my-configs-nftables/
 - https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management
