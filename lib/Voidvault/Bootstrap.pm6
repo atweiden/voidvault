@@ -1129,8 +1129,8 @@ method !configure-runit-swap(--> Nil)
 method !configure-sysctl(--> Nil)
 {
     my DiskType:D $disk-type = $.config.disk-type;
-    my Str:D $base-path = 'etc/sysctl.d';
-    my Str:D $path = "$base-path/99-sysctl.conf";
+    my Str:D $path = 'etc/sysctl.d/99-sysctl.conf';
+    my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
     replace('99-sysctl.conf', $disk-type);
@@ -1189,8 +1189,8 @@ multi sub configure-openssh('moduli' --> Nil)
 
 method !configure-udev(--> Nil)
 {
-    my Str:D $base-path = 'etc/udev/rules.d';
-    my Str:D $path = "$base-path/60-io-schedulers.rules";
+    my Str:D $path = 'etc/udev/rules.d/60-io-schedulers.rules';
+    my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
@@ -1231,24 +1231,24 @@ method !configure-xorg(--> Nil)
 
 multi sub configure-xorg('Xwrapper.config' --> Nil)
 {
-    my Str:D $base-path = 'etc/X11';
-    my Str:D $path = "$base-path/Xwrapper.config";
+    my Str:D $path = 'etc/X11/Xwrapper.config';
+    my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
 multi sub configure-xorg('10-synaptics.conf' --> Nil)
 {
-    my Str:D $base-path = 'etc/X11/xorg.conf.d';
-    my Str:D $path = "$base-path/10-synaptics.conf";
+    my Str:D $path = 'etc/X11/xorg.conf.d/10-synaptics.conf';
+    my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
 multi sub configure-xorg('99-security.conf' --> Nil)
 {
-    my Str:D $base-path = 'etc/X11/xorg.conf.d';
-    my Str:D $path = "$base-path/99-security.conf";
+    my Str:D $path = 'etc/X11/xorg.conf.d/99-security.conf';
+    my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
