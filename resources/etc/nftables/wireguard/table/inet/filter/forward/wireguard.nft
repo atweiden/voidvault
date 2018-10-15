@@ -1,0 +1,4 @@
+# forward WireGuard traffic
+iifname $WIREGUARD_INTERFACE counter accept
+
+# vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:

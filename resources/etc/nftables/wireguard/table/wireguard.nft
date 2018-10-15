@@ -1,0 +1,65 @@
+table ip nat {
+  chain prerouting {
+    type nat hook prerouting priority 0; policy accept;
+    # redirect incoming DNS queries from WireGuard peer to dnscrypt-proxy
+    iifname $WIREGUARD_INTERFACE tcp dport 53 counter dnat to 127.0.0.1:53
+    iifname $WIREGUARD_INTERFACE udp dport 53 counter dnat to 127.0.0.1:53
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip#nat#prerouting: "
+  }
+
+  chain input {
+    type nat hook input priority 100; policy accept;
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip#nat#input: "
+  }
+
+  chain output {
+    type nat hook output priority 0; policy accept;
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip#nat#output: "
+  }
+
+  chain postrouting {
+    type nat hook postrouting priority 100; policy accept;
+    # accept packets from WireGuard VPN interface for packets being
+    # routed through box, alter outgoing packets to have server IP address
+    oifname $INET_INTERFACE counter masquerade random,persistent comment "count masqueraded packets"
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip#nat#postrouting: "
+  }
+}
+
+table ip6 nat6 {
+  chain prerouting {
+    type nat hook prerouting priority 0; policy accept;
+    # redirect incoming DNS queries from WireGuard peer to dnscrypt-proxy
+    iifname $WIREGUARD_INTERFACE tcp dport 53 counter dnat to [::1]:53
+    iifname $WIREGUARD_INTERFACE udp dport 53 counter dnat to [::1]:53
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip6#nat6#prerouting: "
+  }
+
+  chain input {
+    type nat hook input priority 100; policy accept;
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip6#nat6#input: "
+  }
+
+  chain output {
+    type nat hook output priority 0; policy accept;
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip6#nat6#output: "
+  }
+
+  chain postrouting {
+    type nat hook postrouting priority 100; policy accept;
+    # accept packets from WireGuard VPN interface for packets being
+    # routed through box, alter outgoing packets to have server IP address
+    oifname $INET_INTERFACE counter masquerade random,persistent comment "count masqueraded packets"
+    counter comment "count accepted packets"
+    counter log prefix "nft#ip6#nat6#postrouting: "
+  }
+}
+
+# vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:
