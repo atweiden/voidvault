@@ -1776,6 +1776,7 @@ multi sub replace(
         );
     $grub-cmdline-linux ~= ' rd.auto=1';
     $grub-cmdline-linux ~= ' rd.luks=1';
+    $grub-cmdline-linux ~= " rd.luks.name=$vault-name";
     $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
     $grub-cmdline-linux ~= ' loglevel=6';
     $grub-cmdline-linux ~= ' slub_debug=P';

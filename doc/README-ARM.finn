@@ -268,7 +268,7 @@ mvp
           - search [14] for `sudo rsync -av`
             - `--exclude`
   - modify `/boot/boot.ini`
-    - `rd.luks.uuid=$(blkid /dev/mapper/vault) root=UUID=$(blkid /dev/sda3)`
+    - `rd.luks.name=vault rd.luks.uuid=$(blkid /dev/mapper/vault) root=UUID=$(blkid /dev/sda3)`
       - confirm with normal void system that uuid is identical
 - configure u-boot properly for the new partitioning scheme
 
