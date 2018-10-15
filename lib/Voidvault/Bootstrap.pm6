@@ -1768,15 +1768,10 @@ multi sub replace(
     my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
     my Str:D $vault-uuid =
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
-    my Str:D $grub-cmdline-linux =
-        sprintf(
-            Q{cryptdevice=/dev/disk/by-uuid/%s:%s rootflags=subvol=@},
-            $vault-uuid,
-            $vault-name
-        );
+    my Str:D $grub-cmdline-linux = 'rootflags=subvol=@';
     $grub-cmdline-linux ~= ' rd.auto=1';
     $grub-cmdline-linux ~= ' rd.luks=1';
-    $grub-cmdline-linux ~= " rd.luks.name=$vault-name";
+    $grub-cmdline-linux ~= " rd.luks.name=$vault-uuid=$vault-name";
     $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
     $grub-cmdline-linux ~= ' loglevel=6';
     $grub-cmdline-linux ~= ' slub_debug=P';
