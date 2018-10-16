@@ -1,4 +1,4 @@
 # allow incoming WireGuard connections
-input udp dport $WIREGUARD_PORTS counter accept comment "accept wireguard"
+udp dport $WIREGUARD_PORTS counter accept comment "accept wireguard"
 
 # vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:

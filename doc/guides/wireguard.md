@@ -22,7 +22,7 @@ readonly SERVER_PUBLIC_KEY="..."
 readonly SERVER_IP="..."
 
 # make config file
-cat > /etc/wireguard/wg0.conf <<"EOF"
+cat > /etc/wireguard/wg0.conf <<EOF
 [Interface]
 Address = 10.192.122.2/32
 PrivateKey = $CLIENT_PRIVATE_KEY
@@ -38,6 +38,8 @@ AllowedIPs = 0.0.0.0/0, ::/0
 # keep stateful firewall or NAT mapping valid every N seconds
 #PersistentKeepalive = 25
 EOF
+
+chmod 600 /etc/wireguard/wg0.conf
 ```
 
 **On the server**:
@@ -59,7 +61,7 @@ readonly CLIENT_PUBLIC_KEY="..."
 readonly SERVER_PRIVATE_KEY="$(cat privatekey)"
 
 # make config file
-cat > /etc/wireguard/wg0.conf <<"EOF"
+cat > /etc/wireguard/wg0.conf <<EOF
 [Interface]
 # virtual ip address, with subnet mask for vpn
 Address = 10.192.122.1/24
@@ -94,20 +96,20 @@ PostUp = ln --symbolic --force /etc/nftables/wireguard/table/inet/filter/input/w
 # reload nftables with includes for wireguard
 PostUp = nft --file /etc/nftables.conf
 # deactivate nftables includes for wireguard
-PostUp = rm --force /etc/nftables/includes/table/wireguard.nft
-PostUp = rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
-PostUp = rm --force /etc/nftables/includes/table/inet/filter/input/wireguard.nft
-PostUp = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/forward
-PostUp = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/input
+PostDown = rm --force /etc/nftables/includes/table/wireguard.nft
+PostDown = rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
+PostDown = rm --force /etc/nftables/includes/table/inet/filter/input/wireguard.nft
+PostDown = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/forward
+PostDown = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/input
 # reload nftables without includes for wireguard
 PostDown = nft --file /etc/nftables.conf
 # unload kernel modules
-PostDown = rmmod nft_masq
 PostDown = rmmod nft_masq_ipv4
 PostDown = rmmod nft_masq_ipv6
-PostDown = rmmod nft_nat
+PostDown = rmmod nft_masq
 PostDown = rmmod nft_chain_nat_ipv4
 PostDown = rmmod nft_chain_nat_ipv6
+PostDown = rmmod nft_nat
 # reconfigure kernel parameters
 PostDown = sysctl --write net.ipv4.ip_forward=0
 PostDown = sysctl --write net.ipv4.conf.all.forwarding=0
@@ -125,6 +127,8 @@ PublicKey = $CLIENT_PUBLIC_KEY
 # identical to client's interface address, using same subnet mask
 AllowedIPs = 10.192.122.2/32
 EOF
+
+chmod 600 /etc/wireguard/wg0.conf
 ```
 
 ## Execute
