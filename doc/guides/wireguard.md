@@ -182,3 +182,5 @@ wg-quick up wg0
 - https://unix.stackexchange.com/questions/144482/iptables-to-redirect-dns-lookup-ip-and-port
 - https://wiki.archlinux.org/index.php/Dnscrypt-proxy#Local_DNS_cache_configuration
 - https://gist.github.com/ahmozkya/8456503#file-dnsmasq-conf
+- https://jeanbruenn.info/2017/05/09/connection-tracking-and-udp-dns-with-nftables/
+- https://jeanbruenn.info/2017/04/30/conntrack-and-udp-dns-with-iptables/
