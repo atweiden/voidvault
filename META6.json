@@ -33,7 +33,6 @@
         "etc/nftables/wireguard/table/inet/filter/input/wireguard.nft",
         "etc/nftables/wireguard/table/wireguard.nft",
         "etc/profile.d/shell-timeout.sh",
-        "etc/resolv.conf.head",
         "etc/resolvconf.conf",
         "etc/securetty",
         "etc/ssh/ssh_config",
