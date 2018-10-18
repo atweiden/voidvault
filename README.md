@@ -40,7 +40,8 @@ could cause catastrophic data loss and system instability.
     [resources/etc/ssh/sshd_config](resources/etc/ssh/sshd_config))
   - limits incoming `sshd` connections to SFTP-only user on LAN (see:
     [resources/etc/hosts.allow](resources/etc/hosts.allow))
-- uses [nftables][nftables] instead of iptables
+- uses [nftables][nftables] instead of iptables (see:
+  [resources/etc/nftables.conf](resources/etc/nftables.conf))
 - configures kernel parameters with [Sysctl][Sysctl] (see:
   [resources/etc/sysctl.d/99-sysctl.conf](resources/etc/sysctl.d/99-sysctl.conf))
 - blacklists kernel modules for floppy drives, beeping speakers, Intel
