@@ -24,6 +24,7 @@ readonly SERVER_IP="..."
 # make config file
 cat > /etc/wireguard/wg0.conf <<EOF
 [Interface]
+# virtual ip address, with subnet mask for vpn
 Address = 10.192.122.2/32
 PrivateKey = $CLIENT_PRIVATE_KEY
 DNS = 10.192.122.1
@@ -33,9 +34,9 @@ SaveConfig = false
 [Peer]
 PublicKey = $SERVER_PUBLIC_KEY
 Endpoint = $SERVER_IP:51820
-# gateway rule - send all traffic out over the VPN
+# gateway rule - send all traffic out over the vpn
 AllowedIPs = 0.0.0.0/0, ::/0
-# keep stateful firewall or NAT mapping valid every N seconds
+# keep stateful firewall or nat mapping valid every n seconds
 #PersistentKeepalive = 25
 EOF
 
