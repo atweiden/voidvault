@@ -945,7 +945,7 @@ method !configure-dhcpcd(--> Nil)
     vendorclassid
 
     # Use the same DNS servers every time
-    static domain_name_servers=127.0.0.1
+    static domain_name_servers=127.0.0.1 ::1
     EOF
     spurt('/mnt/etc/dhcpcd.conf', "\n" ~ $dhcpcd, :append);
 }
@@ -956,6 +956,18 @@ method !configure-dnscrypt-proxy(--> Nil)
 }
 
 method !set-nameservers(--> Nil)
+{
+    set-nameservers('resolvconf.conf');
+    set-nameservers('resolv.conf.head');
+}
+
+multi sub set-nameservers('resolvconf.conf' --> Nil)
+{
+    my Str:D $path = 'etc/resolvconf.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub set-nameservers('resolv.conf.head' --> Nil)
 {
     my Str:D $path = 'etc/resolv.conf.head';
     copy(%?RESOURCES{$path}, "/mnt/$path");
