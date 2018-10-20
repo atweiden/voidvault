@@ -132,12 +132,30 @@ EOF
 chmod 600 /etc/wireguard/wg0.conf
 ```
 
+Configure dnscrypt-proxy:
+
+```sh
+# listen on wireguard VPN server interface
+listen_addresses = ['127.0.0.1:53', '[::1]:53', '10.192.122.1:53']
+```
+
 ## Execute
 
 **On the server**:
 
+Bring up WireGuard:
+
 ```sh
 wg-quick up wg0
+```
+
+Bring up dnscrypt-proxy:
+
+```sh
+# reload dnscrypt-proxy with rules for listening on wireguard interface
+sv restart dnscrypt-proxy
+# check to make sure it's listening on the wireguard interface
+netstat -tulpn
 ```
 
 **On the client**:
