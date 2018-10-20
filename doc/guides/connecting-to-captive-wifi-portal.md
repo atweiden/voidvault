@@ -250,7 +250,7 @@ ssh -vvv -N -T -R 42345:127.0.01:9999 "$gui_sftponly@$gui_localip"
 
 **On GUI machine**
 
-Configure proxychains:
+Configure [proxychains][proxychains]:
 
 ```sh
 # macos: `$(brew --prefix)/etc/proxychains.conf`
@@ -383,6 +383,7 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 [Nightmare]: https://www.nightmarejs.org/
 [OpenSSH]: https://www.openssh.com/
 [pacfiles]: https://github.com/atweiden/pacfiles
+[proxychains]: https://github.com/rofl0r/proxychains-ng
 [/r/raspberry_pi]: https://www.reddit.com/r/raspberry_pi/comments/4li7za/connecting_to_an_open_hotel_wifi/d3nlfq2/
 [ttyfiles]: https://github.com/atweiden/ttyfiles
 [voidfiles]: https://github.com/atweiden/voidfiles
