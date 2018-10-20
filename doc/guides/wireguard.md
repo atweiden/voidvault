@@ -166,6 +166,7 @@ wg-quick up wg0
 
 - https://wiki.archlinux.org/index.php/nftables
 - https://www.funtoo.org/Package:Nftables
+- https://www.osdefsec.com/new-iptables-nftables/
 - https://home.regit.org/netfilter-en/nftables-quick-howto/
 - https://linux-audit.com/nftables-beginners-guide-to-traffic-filtering/
 - https://github.com/newfivefour/BlogPosts/blob/master/nftables-basic-rules-save-established.md
