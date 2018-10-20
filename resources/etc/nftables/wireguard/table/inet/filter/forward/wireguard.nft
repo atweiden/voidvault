@@ -1,4 +1,4 @@
 # forward WireGuard traffic
-iifname $WIREGUARD_INTERFACE counter accept
+iifname $WIREGUARD_INTERFACE counter log prefix "nft#inet#filter#forward (forward wireguard): " accept
 
 # vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:
