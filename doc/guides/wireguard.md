@@ -160,44 +160,4 @@ netstat -tulpn
 wg-quick up wg0
 ```
 
-## Resources
-
-### WireGuard
-
-- `man wg-quick`
-- https://wiki.archlinux.org/index.php/WireGuard
-- http://jrs-s.net/2018/08/05/some-notes-on-wireguard/
-- http://jrs-s.net/2018/08/05/working-vpn-gateway-configs-for-wireguard/
-- http://jrs-s.net/2018/08/05/routing-between-wg-interfaces-with-wireguard/
-- https://nbsoftsolutions.com/blog/wireguard-vpn-walkthrough
-- https://github.com/mrash/Wireguard-macOS-LinuxVM
-- https://www.stavros.io/posts/how-to-configure-wireguard/
-- https://www.reddit.com/r/linux/comments/9bnowo/wireguard_benchmark_between_two_servers_with_10/
-- https://www.ericlight.com/wireguard-part-one-installation.html
-- https://www.ericlight.com/wireguard-part-two-vpn-routing.html
-
-### nftables
-
-- https://wiki.archlinux.org/index.php/nftables
-- https://www.funtoo.org/Package:Nftables
-- https://www.osdefsec.com/new-iptables-nftables/
-- https://home.regit.org/netfilter-en/nftables-quick-howto/
-- https://linux-audit.com/nftables-beginners-guide-to-traffic-filtering/
-- https://github.com/newfivefour/BlogPosts/blob/master/nftables-basic-rules-save-established.md
-- https://paulgorman.org/technical/linux-nftables.txt.html
-- https://stosb.com/blog/explaining-my-configs-nftables/
-- https://wiki.nftables.org/wiki-nftables/index.php/Simple_rule_management
-- http://wiki.nftables.org/wiki-nftables/index.php/Performing_Network_Address_Translation_%28NAT%29
-- https://marc.info/?l=netfilter&m=152532769025083&w=2
-- https://gist.github.com/mortn/0624297e966a0a2be9a992ee8f77d68b
-
-### DNS
-
-- https://askubuntu.com/questions/592042/iptables-redirect-dns-queries#592398
-- https://unix.stackexchange.com/questions/144482/iptables-to-redirect-dns-lookup-ip-and-port
-- https://wiki.archlinux.org/index.php/Dnscrypt-proxy#Local_DNS_cache_configuration
-- https://gist.github.com/ahmozkya/8456503#file-dnsmasq-conf
-- https://jeanbruenn.info/2017/05/09/connection-tracking-and-udp-dns-with-nftables/
-- https://jeanbruenn.info/2017/04/30/conntrack-and-udp-dns-with-iptables/
-
 <!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap -->
