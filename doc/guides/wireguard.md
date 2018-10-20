@@ -96,6 +96,9 @@ PostUp = ln --symbolic --force /etc/nftables/wireguard/table/inet/filter/forward
 PostUp = ln --symbolic --force /etc/nftables/wireguard/table/inet/filter/input/wireguard.nft /etc/nftables/includes/table/inet/filter/input
 # reload nftables with includes for wireguard
 PostUp = nft --file /etc/nftables.conf
+# make dnscrypt-proxy listen on wireguard interface
+PostUp = sed -i -e "/^listen_addresses/s/\(.*\)/#\1/" -e "/^#listen_addresses/p" -e "s/^#\(listen_addresses = \[.*\)\]/\1, '10.192.122.1:53']/" /etc/dnscrypt-proxy.toml
+PostUp = sv restart dnscrypt-proxy
 # deactivate nftables includes for wireguard
 PostDown = rm --force /etc/nftables/includes/table/wireguard.nft
 PostDown = rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
@@ -122,6 +125,9 @@ PostDown = sysctl --write net.ipv4.conf.default.proxy_arp=0
 PostDown = sysctl --write net.ipv6.conf.all.proxy_ndp=0
 PostDown = sysctl --write net.ipv6.conf.default.proxy_ndp=0
 PostDown = sysctl --write net.ipv4.ip_dynaddr=0
+# make dnscrypt-proxy not listen on wireguard interface
+PostDown = sed -i -e "/^listen_addresses/d" -e "/^#listen_addresses/s/^#\(.*\)/\1/" /etc/dnscrypt-proxy.toml
+PostDown = sv restart dnscrypt-proxy
 
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
@@ -130,13 +136,6 @@ AllowedIPs = 10.192.122.2/32
 EOF
 
 chmod 600 /etc/wireguard/wg0.conf
-```
-
-Configure dnscrypt-proxy:
-
-```sh
-# listen on wireguard VPN server interface
-listen_addresses = ['127.0.0.1:53', '[::1]:53', '10.192.122.1:53']
 ```
 
 ## Execute
@@ -149,12 +148,9 @@ Bring up WireGuard:
 wg-quick up wg0
 ```
 
-Bring up dnscrypt-proxy:
+Check to make sure dnscrypt-proxy is listening on WireGuard interface:
 
 ```sh
-# reload dnscrypt-proxy with rules for listening on wireguard interface
-sv restart dnscrypt-proxy
-# check to make sure it's listening on the wireguard interface
 netstat -tulpn
 ```
 
@@ -203,3 +199,5 @@ wg-quick up wg0
 - https://gist.github.com/ahmozkya/8456503#file-dnsmasq-conf
 - https://jeanbruenn.info/2017/05/09/connection-tracking-and-udp-dns-with-nftables/
 - https://jeanbruenn.info/2017/04/30/conntrack-and-udp-dns-with-iptables/
+
+<!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap -->
