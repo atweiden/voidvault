@@ -55,8 +55,8 @@ could cause catastrophic data loss and system instability.
   - unconditionally use fallback resolver
   - wait up to 7 minutes for network connectivity at startup
   - disable DNS cache
-  - modify `/etc/resolv.conf.head` (see:
-    [resources/etc/resolv.conf.head](resources/etc/resolv.conf.head))
+  - modify `/etc/resolv.conf` (see:
+    [resources/etc/resolvconf.conf](resources/etc/resolvconf.conf))
 - forces password entry with every `sudo`
   - passwordless `sudo reboot` and `sudo shutdown`
 - ten minute shell timeout, your current shell or user
