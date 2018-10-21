@@ -279,7 +279,27 @@ If the above fails:
 
 Credit: [Kaii][Kaii]
 
-## Approach D: Submit captive wifi portal login form programmatically
+## Approach D: Submit captive wifi portal login form interactively via [WireGuard][WireGuard]
+
+The most satisfying approach.
+
+Caveats: Requires two internet-capable machines. One of them must have
+GUI support.
+
+Setup WireGuard on client and server per [wireguard.md][wireguard.md].
+
+Ensure both client and server are partially connected to the captive
+wifi portal, or in other words, ensure both have a local IP address
+leased from the captive wifi's router.
+
+Forward the WireGuard client's traffic to the WireGuard server.
+
+Submit captive wifi portal login form for the server using the client
+*or* server machine. Afterwards both machines will be connected to the
+internet, although only one will be fully authenticated with the captive
+wifi portal.
+
+## Approach E: Submit captive wifi portal login form programmatically
 
 The most powerful approach.
 
@@ -391,5 +411,6 @@ Linux `ip` commands require pkg [iproute2][iproute2].
 [sshuttle-reverse-proxy]: https://groups.google.com/forum/#!topic/sshuttle/tWegyCLIBg8
 [@systematicat]: https://github.com/systematicat/hack-captive-portals
 [WireGuard]: https://www.wireguard.com/
+[wireguard.md]: wireguard.md
 
 <!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap: -->
