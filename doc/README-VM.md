@@ -167,6 +167,30 @@ Host vbox-void64
     - `VBoxManage setextradata void64 "CustomVideoMode1" "1360x768x24"`
     - `VBoxManage setextradata void64 "CustomVideoMode1" "1440x900x24"`
 
+### Configure VirtualBox for Bridged Networking
+
+**On host machine**:
+
+- With *void64* selected in VirtualBox Manager, click *Settings*
+  - Network->Adapter 1->Bridged Adapter
+- With *void64* selected in VirtualBox Manager, click *Start*
+
+**On guest machine**:
+
+Get connected:
+
+```sh
+ip link set <interface> up
+dhcpcd <interface>
+localip
+```
+
+You can now connect to the VirtualBox guest's `localip`, e.g.
+
+```sh
+ssh -vvv -N -T -i "$HOME/.ssh/vbox-void64/id_ed25519" -D 9999 variable@192.168.3.121
+```
+
 ## VMWare Fusion 10.1.1
 
 ### Pre-Setup
