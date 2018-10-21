@@ -61,7 +61,7 @@ Configure WireGuard:
 readonly CLIENT_PUBLIC_KEY="..."
 readonly SERVER_PRIVATE_KEY="$(cat privatekey)"
 
-# make config file
+# make wg-quick config file
 cat > /etc/wireguard/wg0.conf <<EOF
 [Interface]
 # virtual ip address, with subnet mask for vpn
@@ -70,64 +70,8 @@ ListenPort = 51820
 PrivateKey = $SERVER_PRIVATE_KEY
 # true makes commenting, formatting impossible
 SaveConfig = false
-# load kernel modules
-PostUp = modprobe nft_masq
-PostUp = modprobe nft_masq_ipv4
-PostUp = modprobe nft_masq_ipv6
-PostUp = modprobe nft_nat
-PostUp = modprobe nft_chain_nat_ipv4
-PostUp = modprobe nft_chain_nat_ipv6
-# configure kernel parameters
-PostUp = sysctl --write net.ipv4.ip_forward=1
-PostUp = sysctl --write net.ipv4.conf.all.forwarding=1
-PostUp = sysctl --write net.ipv4.conf.default.forwarding=1
-PostUp = sysctl --write net.ipv6.conf.all.forwarding=1
-PostUp = sysctl --write net.ipv6.conf.default.forwarding=1
-PostUp = sysctl --write net.ipv4.conf.all.proxy_arp=1
-PostUp = sysctl --write net.ipv4.conf.default.proxy_arp=1
-PostUp = sysctl --write net.ipv6.conf.all.proxy_ndp=1
-PostUp = sysctl --write net.ipv6.conf.default.proxy_ndp=1
-PostUp = sysctl --write net.ipv4.ip_dynaddr=7
-# activate nftables includes for wireguard
-PostUp = mkdir --parents /etc/nftables/includes/table/inet/filter/forward
-PostUp = mkdir --parents /etc/nftables/includes/table/inet/filter/input
-PostUp = ln --symbolic --force /etc/nftables/wireguard/table/wireguard.nft /etc/nftables/includes/table
-PostUp = ln --symbolic --force /etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft /etc/nftables/includes/table/inet/filter/forward
-PostUp = ln --symbolic --force /etc/nftables/wireguard/table/inet/filter/input/wireguard.nft /etc/nftables/includes/table/inet/filter/input
-# reload nftables with includes for wireguard
-PostUp = nft --file /etc/nftables.conf
-# make dnscrypt-proxy listen on wireguard interface
-PostUp = sed -i -e "/^listen_addresses/s/\(.*\)/#\1/" -e "/^#listen_addresses/p" -e "s/^#\(listen_addresses = \[.*\)\]/\1, '10.192.122.1:53']/" /etc/dnscrypt-proxy.toml
-PostUp = sv restart dnscrypt-proxy
-# deactivate nftables includes for wireguard
-PostDown = rm --force /etc/nftables/includes/table/wireguard.nft
-PostDown = rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
-PostDown = rm --force /etc/nftables/includes/table/inet/filter/input/wireguard.nft
-PostDown = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/forward
-PostDown = rmdir --ignore-fail-on-non-empty --parents /etc/nftables/includes/table/inet/filter/input
-# reload nftables without includes for wireguard
-PostDown = nft --file /etc/nftables.conf
-# unload kernel modules
-PostDown = rmmod nft_masq_ipv4
-PostDown = rmmod nft_masq_ipv6
-PostDown = rmmod nft_masq
-PostDown = rmmod nft_chain_nat_ipv4
-PostDown = rmmod nft_chain_nat_ipv6
-PostDown = rmmod nft_nat
-# reconfigure kernel parameters
-PostDown = sysctl --write net.ipv4.ip_forward=0
-PostDown = sysctl --write net.ipv4.conf.all.forwarding=0
-PostDown = sysctl --write net.ipv4.conf.default.forwarding=0
-PostDown = sysctl --write net.ipv6.conf.all.forwarding=0
-PostDown = sysctl --write net.ipv6.conf.default.forwarding=0
-PostDown = sysctl --write net.ipv4.conf.all.proxy_arp=0
-PostDown = sysctl --write net.ipv4.conf.default.proxy_arp=0
-PostDown = sysctl --write net.ipv6.conf.all.proxy_ndp=0
-PostDown = sysctl --write net.ipv6.conf.default.proxy_ndp=0
-PostDown = sysctl --write net.ipv4.ip_dynaddr=0
-# make dnscrypt-proxy not listen on wireguard interface
-PostDown = sed -i -e "/^listen_addresses/d" -e "/^#listen_addresses/s/^#\(.*\)/\1/" /etc/dnscrypt-proxy.toml
-PostDown = sv restart dnscrypt-proxy
+PostUp = /etc/wireguard/wg0.conf.post-up.sh
+PostDown = /etc/wireguard/wg0.conf.post-down.sh
 
 [Peer]
 PublicKey = $CLIENT_PUBLIC_KEY
@@ -136,6 +80,105 @@ AllowedIPs = 10.192.122.2/32
 EOF
 
 chmod 600 /etc/wireguard/wg0.conf
+
+# make wg-quick PostUp script
+cat > /etc/wireguard/wg0.conf.post-up.sh <<EOF
+#!/bin/bash
+# load kernel modules
+modprobe nft_masq
+modprobe nft_masq_ipv4
+modprobe nft_masq_ipv6
+modprobe nft_nat
+modprobe nft_chain_nat_ipv4
+modprobe nft_chain_nat_ipv6
+# configure kernel parameters
+sysctl --write net.ipv4.ip_forward=1
+sysctl --write net.ipv4.conf.all.forwarding=1
+sysctl --write net.ipv4.conf.default.forwarding=1
+sysctl --write net.ipv6.conf.all.forwarding=1
+sysctl --write net.ipv6.conf.default.forwarding=1
+sysctl --write net.ipv4.conf.all.proxy_arp=1
+sysctl --write net.ipv4.conf.default.proxy_arp=1
+sysctl --write net.ipv6.conf.all.proxy_ndp=1
+sysctl --write net.ipv6.conf.default.proxy_ndp=1
+sysctl --write net.ipv4.ip_dynaddr=7
+# activate nftables includes for wireguard
+mkdir --parents /etc/nftables/includes/table/inet/filter/forward
+mkdir --parents /etc/nftables/includes/table/inet/filter/input
+ln \
+  --symbolic \
+  --force \
+  /etc/nftables/wireguard/table/wireguard.nft \
+  /etc/nftables/includes/table
+ln \
+  --symbolic \
+  --force \
+  /etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft \
+  /etc/nftables/includes/table/inet/filter/forward
+ln \
+  --symbolic \
+  --force \
+  /etc/nftables/wireguard/table/inet/filter/input/wireguard.nft \
+  /etc/nftables/includes/table/inet/filter/input
+# reload nftables with includes for wireguard
+nft --file /etc/nftables.conf
+# make dnscrypt-proxy listen on wireguard interface
+sed \
+  -i \
+  -e "/^listen_addresses/s/\(.*\)/#\1/" \
+  -e "/^#listen_addresses/p" \
+  -e "s/^#\(listen_addresses = \[.*\)\]/\1, '10.192.122.1:53']/" \
+  /etc/dnscrypt-proxy.toml
+sv restart dnscrypt-proxy
+EOF
+
+chmod +x /etc/wireguard/wg0.conf.post-up.sh
+
+# make wg-quick PostDown script
+cat > /etc/wireguard/wg0.conf.post-down.sh <<EOF
+#!/bin/bash
+# deactivate nftables includes for wireguard
+rm --force /etc/nftables/includes/table/wireguard.nft
+rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
+rm --force /etc/nftables/includes/table/inet/filter/input/wireguard.nft
+rmdir \
+  --ignore-fail-on-non-empty \
+  --parents \
+  /etc/nftables/includes/table/inet/filter/forward
+rmdir \
+  --ignore-fail-on-non-empty \
+  --parents \
+  /etc/nftables/includes/table/inet/filter/input
+# reload nftables without includes for wireguard
+nft --file /etc/nftables.conf
+# unload kernel modules
+rmmod nft_masq_ipv4
+rmmod nft_masq_ipv6
+rmmod nft_masq
+rmmod nft_chain_nat_ipv4
+rmmod nft_chain_nat_ipv6
+rmmod nft_nat
+# reconfigure kernel parameters
+sysctl --write net.ipv4.ip_forward=0
+sysctl --write net.ipv4.conf.all.forwarding=0
+sysctl --write net.ipv4.conf.default.forwarding=0
+sysctl --write net.ipv6.conf.all.forwarding=0
+sysctl --write net.ipv6.conf.default.forwarding=0
+sysctl --write net.ipv4.conf.all.proxy_arp=0
+sysctl --write net.ipv4.conf.default.proxy_arp=0
+sysctl --write net.ipv6.conf.all.proxy_ndp=0
+sysctl --write net.ipv6.conf.default.proxy_ndp=0
+sysctl --write net.ipv4.ip_dynaddr=0
+# make dnscrypt-proxy not listen on wireguard interface
+sed \
+  -i \
+  -e "/^listen_addresses/d" \
+  -e "/^#listen_addresses/s/^#\(.*\)/\1/" \
+  /etc/dnscrypt-proxy.toml
+sv restart dnscrypt-proxy
+EOF
+
+chmod +x /etc/wireguard/wg0.conf.post-down.sh
 ```
 
 ## Execute
