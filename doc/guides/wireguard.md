@@ -132,7 +132,7 @@ sed \
 sv restart dnscrypt-proxy
 EOF
 
-chmod +x /etc/wireguard/wg0.conf.post-up.sh
+chmod 700 /etc/wireguard/wg0.conf.post-up.sh
 
 # make wg-quick PostDown script
 cat > /etc/wireguard/wg0.conf.post-down.sh <<EOF
@@ -178,7 +178,7 @@ sed \
 sv restart dnscrypt-proxy
 EOF
 
-chmod +x /etc/wireguard/wg0.conf.post-down.sh
+chmod 700 /etc/wireguard/wg0.conf.post-down.sh
 ```
 
 ## Execute
