@@ -946,6 +946,10 @@ method !configure-dhcpcd(--> Nil)
 
     # Use the same DNS servers every time
     static domain_name_servers=127.0.0.1 ::1
+
+    # Disable IPv6 router solicitation
+    #noipv6rs
+    #noipv6
     EOF
     spurt('/mnt/etc/dhcpcd.conf', "\n" ~ $dhcpcd, :append);
 }
