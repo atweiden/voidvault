@@ -51,6 +51,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-hidepid;
     self!configure-securetty;
     self!configure-xorg;
+    self!configure-rc-local;
     self!enable-runit-services;
     self!augment if $augment.so;
     self!unmount;
@@ -1255,6 +1256,15 @@ multi sub configure-xorg('99-security.conf' --> Nil)
     my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method !configure-rc-local(--> Nil)
+{
+    my Str:D $tty-no-cursor-blink = q:to/EOF/;
+    # disable blinking cursor in Linux tty
+    echo 0 > /sys/class/graphics/fbcon/cursor_blink
+    EOF
+    spurt('/mnt/etc/rc.local', "\n" ~ $tty-no-cursor-blink, :append);
 }
 
 method !enable-runit-services(--> Nil)
