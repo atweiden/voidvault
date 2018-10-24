@@ -240,9 +240,10 @@ ssh -vvv -N -T -R 6666:127.0.01:9999 "$gui_sftponly@$gui_localip"
 ```
 
 Read the `ssh -R` command's verbose log closely. The log should mention
-"successfully set up port forwarding" somewhere near the bottom when you
-first authenticate with the other machine. If the log instead warns that
-the port forwarding has failed, try again with a different port, e.g.
+`remote forward success for: listen: 6666, connect: 127.0.0.1:9999`
+somewhere near the bottom when you first authenticate with the other
+machine. If the log instead warns that the port forwarding has failed,
+try again with a different port, e.g.
 
 ```sh
 ssh -vvv -N -T -R 42345:127.0.01:9999 "$gui_sftponly@$gui_localip"
