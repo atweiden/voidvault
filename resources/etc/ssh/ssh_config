@@ -12,7 +12,7 @@ Host *
 
     # connection
     ConnectTimeout 0
-    EscapeChar ~
+    EscapeChar none
     RekeyLimit default none
     ServerAliveCountMax 3
     ServerAliveInterval 60
