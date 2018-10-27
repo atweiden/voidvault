@@ -243,7 +243,6 @@ mvp
   - wget
   - which
   - wireless_tools
-  - wpa_actiond
   - wpa_supplicant
   - xbps
   - xz

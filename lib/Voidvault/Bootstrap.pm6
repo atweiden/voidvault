@@ -694,7 +694,6 @@ method !voidstrap-base(--> Nil)
         wifish
         wireguard
         wireless_tools
-        wpa_actiond
         wpa_supplicant
         xbps
         xz
