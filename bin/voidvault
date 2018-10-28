@@ -96,7 +96,6 @@ multi sub MAIN(
         Str :admin-name($),
         Str :admin-pass($),
         Str :admin-pass-hash($),
-        Bool :ample-space($),
         Bool :augment($),
         Str :disk-type($),
         Str :graphics($),
@@ -109,8 +108,6 @@ multi sub MAIN(
         Str :hostname($),
         Str :keymap($),
         Str :locale($),
-        Bool :no-mkdisk($),
-        Bool :no-setup($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),
@@ -270,9 +267,7 @@ multi sub USAGE('new' --> Nil)
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
-                [--ample-space]
                 [--augment]
-                [--no-mkdisk] [--no-setup]
                 new
 
     Options:
@@ -282,8 +277,6 @@ multi sub USAGE('new' --> Nil)
         Password for admin account
       --admin-pass-hash=<passhash>
         Encrypted password hash for admin account
-      --ample-space
-        Do not remove pkgs to make free space
       --augment
         Drop to Bash console mid-execution
       --disk-type=<disktype>
@@ -308,10 +301,6 @@ multi sub USAGE('new' --> Nil)
         Keymap
       --locale=<locale>
         Locale
-      --no-mkdisk
-        Do not execute mkdisk action
-      --no-setup
-        Do not execute setup action
       --partition=<device>
         Partition target for install
       --processor=<processor>

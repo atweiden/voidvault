@@ -152,9 +152,6 @@ VOIDVAULT_LOCALE="en_US"
 VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
 VOIDVAULT_AUGMENT=1
-VOIDVAULT_AMPLE_SPACE=1
-VOIDVAULT_NO_SETUP=1
-VOIDVAULT_NO_MKDISK=1
 ```
 
 **Supply options via cmdline flags**:
@@ -295,7 +292,6 @@ variable values for all configuration options aside from:
 - `--admin-name`
 - `--admin-pass-hash`
 - `--admin-pass`
-- `--ample-space`
 - `--augment`
 - `--grub-name`
 - `--grub-pass-hash`
@@ -304,8 +300,6 @@ variable values for all configuration options aside from:
 - `--guest-pass-hash`
 - `--guest-pass`
 - `--hostname`
-- `--no-mkdisk`
-- `--no-setup`
 - `--root-pass-hash`
 - `--root-pass`
 - `--sftp-name`
@@ -320,12 +314,9 @@ the built-in Perl6 subroutine `prompt()`.
 No console input is read for configuration options:
 
 - `--admin-pass-hash`
-- `--ample-space`
 - `--augment`
 - `--grub-pass-hash`
 - `--guest-pass-hash`
-- `--no-mkdisk`
-- `--no-setup`
 - `--root-pass-hash`
 - `--sftp-pass-hash`
 

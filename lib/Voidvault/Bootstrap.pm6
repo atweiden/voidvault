@@ -19,14 +19,12 @@ has Voidvault::Config:D $.config is required;
 method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
-    my Bool:D $no-mkdisk = $.config.no-mkdisk;
-    my Bool:D $no-setup = $.config.no-setup;
     # verify root permissions
     $*USER == 0 or die('root privileges required');
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
-    self!setup if $no-setup.not;
-    self!mkdisk if $no-mkdisk.not;
+    self!setup;
+    self!mkdisk;
     self!voidstrap-base;
     self!configure-users;
     self!configure-sudoers;
@@ -64,12 +62,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    my Bool:D $ample-space = $.config.ample-space;
-
-    # free up 100MB of disk space
-    run(qw<xbps-remove --force-revdeps --yes linux-firmware-network>)
-        if $ample-space.not;
-
     # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<
         btrfs-progs

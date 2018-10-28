@@ -133,21 +133,9 @@ has Timezone:D $.timezone =
         ?? Voidvault::Config.gen-timezone(%*ENV<VOIDVAULT_TIMEZONE>)
         !! prompt-timezone();
 
-# do not remove pkgs to free up space
-has Bool:D $.ample-space =
-    ?%*ENV<VOIDVAULT_AMPLE_SPACE>;
-
 # augment
 has Bool:D $.augment =
     ?%*ENV<VOIDVAULT_AUGMENT>;
-
-# do not execute mkdisk action
-has Bool:D $.no-mkdisk =
-    ?%*ENV<VOIDVAULT_NO_MKDISK>;
-
-# do not execute setup action
-has Bool:D $.no-setup =
-    ?%*ENV<VOIDVAULT_NO_SETUP>;
 
 
 # -----------------------------------------------------------------------------
@@ -158,7 +146,6 @@ submethod BUILD(
     Str :$admin-name,
     Str :$admin-pass,
     Str :$admin-pass-hash,
-    Bool :$ample-space,
     Bool :$augment,
     Str :$disk-type,
     Str :$graphics,
@@ -171,8 +158,6 @@ submethod BUILD(
     Str :$hostname,
     Str :$keymap,
     Str :$locale,
-    Bool :$no-mkdisk,
-    Bool :$no-setup,
     Str :$partition,
     Str :$processor,
     Str :$root-pass,
@@ -186,8 +171,6 @@ submethod BUILD(
     --> Nil
 )
 {
-    $!ample-space = $ample-space
-        if $ample-space;
     $!augment = $augment
         if $augment;
     $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
@@ -200,10 +183,6 @@ submethod BUILD(
         if $keymap;
     $!locale = Voidvault::Config.gen-locale($locale)
         if $locale;
-    $!no-mkdisk = $no-mkdisk
-        if $no-mkdisk;
-    $!no-setup = $no-setup
-        if $no-setup;
     $!partition = $partition
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
@@ -249,7 +228,6 @@ method new(
         Str :admin-name($),
         Str :admin-pass($),
         Str :admin-pass-hash($),
-        Bool :ample-space($),
         Bool :augment($),
         Str :disk-type($),
         Str :graphics($),
@@ -262,8 +240,6 @@ method new(
         Str :hostname($),
         Str :keymap($),
         Str :locale($),
-        Bool :no-mkdisk($),
-        Bool :no-setup($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),

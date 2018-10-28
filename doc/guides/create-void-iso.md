@@ -118,7 +118,3 @@ _pkgs=('acpi'
        'zstd')
 ./mklive.sh -p "'${_pkgs[@]}'" -I /tmp/include -S 1600
 ```
-
-When using the resulting ISO with `voidvault new`, be sure to specify
-`voidvault --no-setup new`, since you no longer need to install
-dependencies or free up any disk space.
