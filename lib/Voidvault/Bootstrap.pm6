@@ -1897,12 +1897,27 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/runit/swap.conf';
     my Str:D @replace =
         $file.IO.lines
+        # don't check for non-zram swap devices to swapon
+        ==> replace('swap.conf', 'swapd_auto_swapon')
         # disable zswap
         ==> replace('swap.conf', 'zswap_enabled')
         # enable zram
         ==> replace('swap.conf', 'zram_enabled');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'swap.conf',
+    Str:D $subject where 'swapd_auto_swapon',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s=0}, $subject);
+    @line[$index] = $replace;
+    @line;
 }
 
 multi sub replace(
