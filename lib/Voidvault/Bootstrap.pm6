@@ -921,40 +921,31 @@ method !set-hostname(--> Nil)
 
 method !configure-hosts(--> Nil)
 {
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my HostName:D $host-name = $.config.host-name;
     my Str:D $path = 'etc/hosts';
     copy(%?RESOURCES{$path}, "/mnt/$path");
-    my Str:D $hosts = qq:to/EOF/;
-    127.0.1.1       $host-name.localdomain       $host-name
-    EOF
-    spurt("/mnt/$path", $hosts, :append);
+    replace('hosts', $disable-ipv6, $host-name);
 }
 
 method !configure-dhcpcd(--> Nil)
 {
-    my Str:D $dhcpcd = q:to/EOF/;
-    # Set vendor-class-id to empty string
-    vendorclassid
-
-    # Use the same DNS servers every time
-    static domain_name_servers=127.0.0.1 ::1
-
-    # Disable IPv6 router solicitation
-    #noipv6rs
-    #noipv6
-    EOF
-    spurt('/mnt/etc/dhcpcd.conf', "\n" ~ $dhcpcd, :append);
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    replace('dhcpcd.conf', $disable-ipv6);
 }
 
 method !configure-dnscrypt-proxy(--> Nil)
 {
-    replace('dnscrypt-proxy.toml');
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    replace('dnscrypt-proxy.toml', $disable-ipv6);
 }
 
 method !set-nameservers(--> Nil)
 {
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Str:D $path = 'etc/resolvconf.conf';
     copy(%?RESOURCES{$path}, "/mnt/$path");
+    replace('resolvconf.conf', $disable-ipv6);
 }
 
 method !set-locale(--> Nil)
@@ -1033,12 +1024,13 @@ method !generate-initramfs(--> Nil)
 
 method !install-bootloader(--> Nil)
 {
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition = $.config.partition;
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
-    replace('grub', $graphics, $partition, $vault-name);
+    replace('grub', $disable-ipv6, $graphics, $partition, $vault-name);
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
     install-bootloader($partition);
@@ -1124,12 +1116,13 @@ method !configure-runit-swap(--> Nil)
 
 method !configure-sysctl(--> Nil)
 {
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my DiskType:D $disk-type = $.config.disk-type;
     my Str:D $path = 'etc/sysctl.d/99-sysctl.conf';
     my Str:D $base-path = $path.IO.dirname;
     mkdir("/mnt/$base-path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
-    replace('99-sysctl.conf', $disk-type);
+    replace('99-sysctl.conf', $disable-ipv6, $disk-type);
     run(qqw<void-chroot /mnt sysctl --system>);
 }
 
@@ -1149,35 +1142,49 @@ method !configure-nftables(--> Nil)
 
 method !configure-openssh(--> Nil)
 {
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my UserName:D $user-name-sftp = $.config.user-name-sftp;
     configure-openssh('ssh_config');
-    configure-openssh('sshd_config', $user-name-sftp);
+    configure-openssh('sshd_config', $disable-ipv6, $user-name-sftp);
     configure-openssh('hosts.allow');
     configure-openssh('moduli');
 }
 
-multi sub configure-openssh('ssh_config' --> Nil)
+multi sub configure-openssh(
+    'ssh_config'
+    --> Nil
+)
 {
     my Str:D $path = 'etc/ssh/ssh_config';
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
-multi sub configure-openssh('sshd_config', UserName:D $user-name-sftp --> Nil)
+multi sub configure-openssh(
+    'sshd_config',
+    Bool:D $disable-ipv6,
+    UserName:D $user-name-sftp
+    --> Nil
+)
 {
     my Str:D $path = 'etc/ssh/sshd_config';
     copy(%?RESOURCES{$path}, "/mnt/$path");
-    # restrict allowed connections to $user-name-sftp
-    replace('sshd_config', $user-name-sftp);
+    replace('sshd_config', $disable-ipv6, $user-name-sftp);
 }
 
-multi sub configure-openssh('hosts.allow' --> Nil)
+multi sub configure-openssh(
+    'hosts.allow'
+    --> Nil
+)
 {
     # restrict allowed connections to LAN
     my Str:D $path = 'etc/hosts.allow';
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
-multi sub configure-openssh('moduli' --> Nil)
+multi sub configure-openssh(
+    'moduli'
+    --> Nil
+)
 {
     # filter weak ssh moduli
     replace('moduli');
@@ -1409,10 +1416,147 @@ multi sub replace(
 }
 
 # --- end fstab }}}
+# --- hosts {{{
+
+multi sub replace(
+    'hosts',
+    Bool:D $disable-ipv6 where .so,
+    HostName:D $host-name
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/hosts';
+    my Str:D @replace =
+        $file.IO.lines
+        # remove IPv6 hosts
+        ==> replace('hosts', '::1')
+        ==> replace('hosts', '127.0.1.1', $host-name);
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'hosts',
+    Bool:D $disable-ipv6,
+    HostName:D $host-name
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/hosts';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('hosts', '127.0.1.1', $host-name);
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'hosts',
+    '::1',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'::1'/, :k);
+    @line.splice($index, 1);
+    @line;
+}
+
+multi sub replace(
+    'hosts',
+    '127.0.1.1',
+    HostName:D $host-name,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.elems;
+    my Str:D $replace =
+        "127.0.1.1       $host-name.localdomain       $host-name";
+    @line[$index] = $replace;
+    @line;
+}
+
+# --- end hosts }}}
+# --- dhcpcd.conf {{{
+
+multi sub replace(
+    'dhcpcd.conf',
+    Bool:D $disable-ipv6 where .so
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/dhcpcd.conf';
+    my Str:D $dhcpcd = q:to/EOF/;
+    # Set vendor-class-id to empty string
+    vendorclassid
+
+    # Use the same DNS servers every time
+    static domain_name_servers=127.0.0.1
+
+    # Disable IPv6 router solicitation
+    noipv6rs
+    noipv6
+    EOF
+    spurt($file, "\n" ~ $dhcpcd, :append);
+}
+
+multi sub replace(
+    'dhcpcd.conf',
+    Bool:D $disable-ipv6
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/dhcpcd.conf';
+    my Str:D $dhcpcd = q:to/EOF/;
+    # Set vendor-class-id to empty string
+    vendorclassid
+
+    # Use the same DNS servers every time
+    static domain_name_servers=127.0.0.1 ::1
+
+    # Disable IPv6 router solicitation
+    #noipv6rs
+    #noipv6
+    EOF
+    spurt($file, "\n" ~ $dhcpcd, :append);
+}
+
+# --- end dhcpcd.conf }}}
 # --- dnscrypt-proxy.toml {{{
 
 multi sub replace(
-    'dnscrypt-proxy.toml'
+    'dnscrypt-proxy.toml',
+    Bool:D $disable-ipv6 where .so
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/dnscrypt-proxy.toml';
+    my Str:D @replace =
+        $file.IO.lines
+        # do not listen on IPv6 address
+        ==> replace('dnscrypt-proxy.toml', 'listen_addresses')
+        # server must support DNS security extensions (DNSSEC)
+        ==> replace('dnscrypt-proxy.toml', 'require_dnssec')
+        # always use TCP to connect to upstream servers
+        ==> replace('dnscrypt-proxy.toml', 'force_tcp')
+        # create new, unique key for each DNS query
+        ==> replace('dnscrypt-proxy.toml', 'dnscrypt_ephemeral_keys')
+        # disable TLS session tickets
+        ==> replace('dnscrypt-proxy.toml', 'tls_disable_session_tickets')
+        # unconditionally use fallback resolver
+        ==> replace('dnscrypt-proxy.toml', 'ignore_system_dns')
+        # wait for network connectivity before initializing
+        ==> replace('dnscrypt-proxy.toml', 'netprobe_timeout')
+        # disable DNS cache
+        ==> replace('dnscrypt-proxy.toml', 'cache');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'dnscrypt-proxy.toml',
+    Bool:D $disable-ipv6
     --> Nil
 )
 {
@@ -1435,6 +1579,19 @@ multi sub replace(
         ==> replace('dnscrypt-proxy.toml', 'cache');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'dnscrypt-proxy.toml',
+    Str:D $subject where 'listen_addresses',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = ['127.0.0.1:53']}, $subject);
+    @line[$index] = $replace;
+    @line;
 }
 
 multi sub replace(
@@ -1529,6 +1686,43 @@ multi sub replace(
 }
 
 # --- end dnscrypt-proxy.toml }}}
+# --- resolvconf.conf {{{
+
+multi sub replace(
+    'resolvconf.conf',
+    Bool:D $disable-ipv6 where .so
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/resolvconf.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('resolvconf.conf', 'name_servers');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'resolvconf.conf',
+    Bool:D $disable-ipv6
+    --> Nil
+)
+{*}
+
+multi sub replace(
+    'resolvconf.conf',
+    Str:D $subject where 'name_servers',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s="127.0.0.1"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+# --- end resolvconf.conf }}}
 # --- libc-locales {{{
 
 multi sub replace(
@@ -1740,6 +1934,7 @@ multi sub replace(
 multi sub replace(
     'grub',
     *@opts (
+        Bool:D $disable-ipv6,
         Graphics:D $graphics,
         Str:D $partition,
         VaultName:D $vault-name
@@ -1763,6 +1958,7 @@ multi sub replace(
 multi sub replace(
     'grub',
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
+    Bool:D $disable-ipv6,
     Graphics:D $graphics,
     Str:D $partition,
     VaultName:D $vault-name,
@@ -1790,6 +1986,7 @@ multi sub replace(
     $grub-cmdline-linux ~= ' pti=on';
     $grub-cmdline-linux ~= ' printk.time=1';
     $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
+    $grub-cmdline-linux ~= ' ipv6.disable=1' if $disable-ipv6.so;
     # replace GRUB_CMDLINE_LINUX_DEFAULT
     my UInt:D $index = @line.first(/^$subject'='/, :k);
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
@@ -1951,6 +2148,43 @@ multi sub replace(
 
 multi sub replace(
     '99-sysctl.conf',
+    Bool:D $disable-ipv6 where .so,
+    DiskType:D $disk-type where /SSD|USB/
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.all.disable_ipv6')
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.default.disable_ipv6')
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.lo.disable_ipv6')
+        ==> replace('99-sysctl.conf', 'vm.vfs_cache_pressure')
+        ==> replace('99-sysctl.conf', 'vm.swappiness');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Bool:D $disable-ipv6 where .so,
+    DiskType:D $disk-type
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.all.disable_ipv6')
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.default.disable_ipv6')
+        ==> replace('99-sysctl.conf', 'net.ipv6.conf.lo.disable_ipv6');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Bool:D $disable-ipv6,
     DiskType:D $disk-type where /SSD|USB/
     --> Nil
 )
@@ -1966,10 +2200,50 @@ multi sub replace(
 
 multi sub replace(
     '99-sysctl.conf',
+    Bool:D $disable-ipv6,
     DiskType:D $disk-type
     --> Nil
 )
 {*}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'net.ipv6.conf.all.disable_ipv6',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = 1}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'net.ipv6.conf.default.disable_ipv6',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = 1}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'net.ipv6.conf.lo.disable_ipv6',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = 1}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
 
 multi sub replace(
     '99-sysctl.conf',
@@ -2002,18 +2276,76 @@ multi sub replace(
 
 multi sub replace(
     'sshd_config',
+    Bool:D $disable-ipv6 where .so,
     UserName:D $user-name-sftp
     --> Nil
 )
 {
     my Str:D $file = '/mnt/etc/ssh/sshd_config';
-    my Str:D @line = $file.IO.lines;
-    my UInt:D $index = @line.first(/^AddressFamily/, :k);
-    # put AllowUsers on the line below AddressFamily
-    my Str:D $allow-users = sprintf(Q{AllowUsers %s}, $user-name-sftp);
-    @line.splice($index + 1, 0, $allow-users);
-    my Str:D $replace = @line.join("\n");
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('sshd_config', 'AddressFamily')
+        ==> replace('sshd_config', 'AllowUsers', $user-name-sftp)
+        ==> replace('sshd_config', 'ListenAddress');
+    my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'sshd_config',
+    Bool:D $disable-ipv6,
+    UserName:D $user-name-sftp
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/ssh/sshd_config';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('sshd_config', 'AllowUsers', $user-name-sftp);
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'sshd_config',
+    Str:D $subject where 'AddressFamily',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # listen on IPv4 only
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s inet}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'sshd_config',
+    Str:D $subject where 'AllowUsers',
+    UserName:D $user-name-sftp,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # put AllowUsers on the line below AddressFamily
+    my UInt:D $index = @line.first(/^AddressFamily/, :k);
+    my Str:D $replace = sprintf(Q{%s %s}, $subject, $user-name-sftp);
+    @line.splice($index + 1, 0, $replace);
+    @line;
+}
+
+multi sub replace(
+    'sshd_config',
+    Str:D $subject where 'ListenAddress',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # listen on IPv4 only
+    my UInt:D $index = @line.first(/^"$subject ::"/, :k);
+    @line.splice($index, 1);
+    @line;
 }
 
 # --- end sshd_config }}}

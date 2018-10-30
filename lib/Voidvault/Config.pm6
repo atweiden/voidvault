@@ -137,6 +137,10 @@ has Timezone:D $.timezone =
 has Bool:D $.augment =
     ?%*ENV<VOIDVAULT_AUGMENT>;
 
+# disable ipv6
+has Bool:D $.disable-ipv6 =
+    ?%*ENV<VOIDVAULT_DISABLE_IPV6>;
+
 
 # -----------------------------------------------------------------------------
 # class instantation
@@ -147,6 +151,7 @@ submethod BUILD(
     Str :$admin-pass,
     Str :$admin-pass-hash,
     Bool :$augment,
+    Bool :$disable-ipv6,
     Str :$disk-type,
     Str :$graphics,
     Str :$grub-name,
@@ -173,6 +178,8 @@ submethod BUILD(
 {
     $!augment = $augment
         if $augment;
+    $!disable-ipv6 = $disable-ipv6
+        if $disable-ipv6;
     $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
         if $disk-type;
     $!graphics = Voidvault::Config.gen-graphics($graphics)
@@ -229,6 +236,7 @@ method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Bool :disable-ipv6($),
         Str :disk-type($),
         Str :graphics($),
         Str :grub-name($),

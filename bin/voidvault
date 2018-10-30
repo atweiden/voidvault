@@ -97,6 +97,7 @@ multi sub MAIN(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Bool :disable-ipv6($),
         Str :disk-type($),
         Str :graphics($),
         Str :grub-name($),
@@ -268,6 +269,7 @@ multi sub USAGE('new' --> Nil)
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
                 [--augment]
+                [--disable-ipv6]
                 new
 
     Options:
@@ -279,6 +281,8 @@ multi sub USAGE('new' --> Nil)
         Encrypted password hash for admin account
       --augment
         Drop to Bash console mid-execution
+      --disable-ipv6
+        Disable IPv6
       --disk-type=<disktype>
         Hard drive type
       --graphics=<graphics>

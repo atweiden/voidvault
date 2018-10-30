@@ -72,6 +72,8 @@ could cause catastrophic data loss and system instability.
   socklog
 - configures [Xorg][Xorg], but does not install any Xorg packages (see:
   [resources/etc/X11](resources/etc/X11))
+- optionally disables IPv6, and makes IPv4-only adjustments to dhcpcd,
+  dnscrypt-proxy, openresolv, OpenSSH
 
 ### Filesystem
 
@@ -152,6 +154,7 @@ VOIDVAULT_LOCALE="en_US"
 VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
 VOIDVAULT_AUGMENT=1
+VOIDVAULT_DISABLE_IPV6=1
 ```
 
 **Supply options via cmdline flags**:
@@ -293,6 +296,7 @@ variable values for all configuration options aside from:
 - `--admin-pass-hash`
 - `--admin-pass`
 - `--augment`
+- `--disable-ipv6`
 - `--grub-name`
 - `--grub-pass-hash`
 - `--grub-pass`
@@ -315,6 +319,7 @@ No console input is read for configuration options:
 
 - `--admin-pass-hash`
 - `--augment`
+- `--disable-ipv6`
 - `--grub-pass-hash`
 - `--guest-pass-hash`
 - `--root-pass-hash`

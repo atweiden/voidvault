@@ -11,6 +11,7 @@ method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Bool :disable-ipv6($),
         Str :disk-type($),
         Str :graphics($),
         Str :grub-name($),
