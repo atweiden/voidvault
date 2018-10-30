@@ -103,7 +103,6 @@ _pkgs=('acpi'
        'tor'
        'torsocks'
        'tree'
-       'units'
        'vim'
        'wget'
        'wireguard'
@@ -113,5 +112,5 @@ _pkgs=('acpi'
        'xtools'
        'zip'
        'zstd')
-./mklive.sh -p "'${_pkgs[@]}'" -I /tmp/include -S 1600
+./mklive.sh -p "'${_pkgs[@]}'" -I /tmp/include -S 7000
 ```
