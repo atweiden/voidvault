@@ -695,7 +695,7 @@ method !voidstrap-base(--> Nil)
     >;
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
-    push(@pkg, 'intel-ucode') if $processor eq 'intel';
+    push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
 
     # install pkgs
     run(qqw<void-chroot /mnt xbps-install --force --sync --yes>, @pkg);
