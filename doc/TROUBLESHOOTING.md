@@ -244,6 +244,15 @@ If you're using an outdated Void installation medium, retry with the
 newest version. It's best practice to always use the newest version of
 the official Void installation medium.
 
+## `ERROR: unshare: No space left on device`
+
+You will receive this error by default when building XBPS source packages
+due to a defensive kernel parameter setting. Fix with:
+
+```sh
+sysctl --write user.max_user_namespaces=16000
+```
+
 ## Monitor Resolution Issues
 
 One way to work around monitor resolution issues is to use Vim.

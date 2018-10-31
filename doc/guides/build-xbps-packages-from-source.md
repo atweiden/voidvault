@@ -1,5 +1,11 @@
 # Build XBPS Packages From Source
 
+Increase kernel parameter setting for user namespaces above 0:
+
+```sh
+sysctl --write user.max_user_namespaces=16000
+```
+
 Bootstrap `xbps-src`:
 
 ```sh
