@@ -47,6 +47,7 @@ done
 See Also
 --------
 
+- https://github.com/atweiden/toggle-ht
 - https://github.com/damentz/ht-manager
 - https://github.com/jhoblitt/hyperctl
 
