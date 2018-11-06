@@ -152,7 +152,7 @@ multi sub chroot-add-host-keys(
 
 sub voidstrap-install(Str:D $chroot-dir, *@pkg ($, *@) --> Nil)
 {
-    my Str:D $repository = 'https://repo.voidlinux.eu/current';
+    my Str:D $repository = 'https://alpha.de.repo.voidlinux.org/current';
     run(qqw<
         xbps-install
         --force
