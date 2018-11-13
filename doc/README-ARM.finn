@@ -292,6 +292,7 @@ eventually
 [6]: https://github.com/xypron/u-boot-build/tree/odroid-c2-dev
 [7]: https://github.com/afaerber/meson-tools
 [8]: https://archlinuxarm.org/packages/aarch64/meson-tools
+[N]: https://github.com/repk/gxlimg
 
 /* odroid-c2 kernel mainlining progress */
 [N]: http://www.linux-meson.com/
