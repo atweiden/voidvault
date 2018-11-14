@@ -25,6 +25,16 @@ Running Voidvault
 Fetch Voidvault sources with Curl:
 
 ```sh
+# official release tarball
+version=1.2.0
+curl \
+  -L \
+  -O \
+  https://github.com/atweiden/voidvault/releases/download/$version/voidvault-$version.tar.gz
+tar xvzf voidvault-$version.tar.gz
+cd voidvault-$version
+
+# latest snapshot
 curl \
   -L \
   -o '#1-#2.#3' \
