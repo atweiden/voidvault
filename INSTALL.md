@@ -2,13 +2,15 @@ Install
 =======
 
 If you intend to run Voidvault on the current stock LiveCD, *you must
-free up disk space by removing pkgs* to avoid running out of room on
-the LiveCD's rootfs. As of 2018-08-11, Voidvault accomplishes this by
-automatically removing `linux-firmware-network`. This frees up over
-100MB of disk space.
+free up disk space by removing pkgs* to avoid running out of room on the
+LiveCD's rootfs. Removing `linux-firmware-network` frees up over 100MB
+of disk space.
 
 In order to use Voidvault, install [Rakudo Perl 6][rakudo]. Voidvault
 will automatically resolve all other dependencies.
+
+Alternatively, you can use my custom [Void ISO][voidiso]. This ISO ships
+with Rakudo Perl 6 pre-installed, and has ample space in its rootfs.
 
 
 Installing Rakudo Perl 6
@@ -60,3 +62,4 @@ voidvault --help
 
 
 [rakudo]: https://github.com/rakudo/rakudo
+[voidiso]: https://github.com/atweiden/voidiso/releases
