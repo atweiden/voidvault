@@ -4,7 +4,7 @@ Voidvault
 <table>
   <tr>
     <td>Last tested</td>
-    <td>2018-08-09 with <a href="https://voidlinux.org/download/">void-live-x86_64-20171007.iso</a></td>
+    <td>2018-11-17 with <a href="https://voidlinux.org/download/">void-live-x86_64-20181111.iso</a></td>
   </tr>
 </table>
 
