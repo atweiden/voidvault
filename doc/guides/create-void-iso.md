@@ -25,7 +25,7 @@ git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/
 
 # copy in etcfiles from voidvault
 find /tmp/include/opt/voidvault/resources -mindepth 1 -maxdepth 1 -exec \
-  cp -R '{}' /tmp/include
+  cp -R '{}' /tmp/include \;
 
 # allow root logins on tty1
 sed -i 's/^#\(tty1\)/\1/' /tmp/include/etc/securetty
