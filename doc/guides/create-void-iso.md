@@ -23,6 +23,21 @@ git clone https://github.com/atweiden/voidpkgs /tmp/include/opt/voidpkgs
 git clone https://github.com/atweiden/voidvault /tmp/include/opt/voidvault
 git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/hack-captive-portals
 
+# prevent services from automatically starting on livecd
+for _sv in acpid \
+           adb \
+           darkhttpd \
+           dhcpcd \
+           dnscrypt-proxy \
+           haveged \
+           rsyncd \
+           sshd \
+           tor \
+           uuidd; do
+  mkdir -p "/mnt/include/etc/sv/$_sv"
+  touch "/mnt/include/etc/sv/$_sv/down"
+done
+
 # run mklive.sh with additional pkgs
 _pkgs=('acpi'
        'android-tools'
