@@ -11,7 +11,7 @@ chmod 700 /opt/{snapshots,subvolumes}
 btrfs subvolume create /opt/subvolumes/example-alpha
 
 # mount example-alpha subvolume
-_mount_opts+="compress=lzo"
+_mount_opts+="compress=lzo,"
 _mount_opts+="noatime,"
 _mount_opts+="nodiratime,"
 _mount_opts+="rw,"
