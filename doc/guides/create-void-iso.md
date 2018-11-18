@@ -45,8 +45,8 @@ _svs=('acpid'
       'tor'
       'uuidd')
 for _sv in ${_svs[@]}; do
-  mkdir -p "/mnt/include/etc/sv/$_sv"
-  touch "/mnt/include/etc/sv/$_sv/down"
+  mkdir -p "/tmp/include/etc/sv/$_sv"
+  touch "/tmp/include/etc/sv/$_sv/down"
 done
 
 # run mklive.sh with additional pkgs
