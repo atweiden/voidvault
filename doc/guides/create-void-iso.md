@@ -27,12 +27,11 @@ git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/
 find /tmp/include/opt/voidvault/resources -mindepth 1 -maxdepth 1 -exec \
   cp -R '{}' /tmp/include \;
 
+# rm shell timeout script on livecd
+rm -rf /tmp/include/etc/profile.d
+
 # allow root logins on tty1
 sed -i 's/^#\(tty1\)/\1/' /tmp/include/etc/securetty
-
-# disable blinking cursor
-echo 'echo 0 > /sys/class/graphics/fbcon/cursor_blink' > \
-  /tmp/include/etc/rc.local
 
 # prevent services from automatically starting on livecd
 _svs=('acpid'
