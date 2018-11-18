@@ -23,12 +23,18 @@ git clone https://github.com/atweiden/voidpkgs /tmp/include/opt/voidpkgs
 git clone https://github.com/atweiden/voidvault /tmp/include/opt/voidvault
 git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/hack-captive-portals
 
+# copy in etcfiles from voidvault
+find /tmp/include/opt/voidvault/resources -mindepth 1 -maxdepth 1 -exec \
+  cp -R '{}' /tmp/include
+
+# allow root logins on tty1
+sed -i 's/^#\(tty1\)/\1/' /tmp/include/etc/securetty
+
 # prevent services from automatically starting on livecd
 _svs=('acpid'
       'adb'
       'darkhttpd'
       'dhcpcd'
-      'dnscrypt-proxy'
       'haveged'
       'rsyncd'
       'sshd'
