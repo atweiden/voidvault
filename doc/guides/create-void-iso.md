@@ -24,16 +24,17 @@ git clone https://github.com/atweiden/voidvault /tmp/include/opt/voidvault
 git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/hack-captive-portals
 
 # prevent services from automatically starting on livecd
-for _sv in acpid \
-           adb \
-           darkhttpd \
-           dhcpcd \
-           dnscrypt-proxy \
-           haveged \
-           rsyncd \
-           sshd \
-           tor \
-           uuidd; do
+_svs=('acpid'
+      'adb'
+      'darkhttpd'
+      'dhcpcd'
+      'dnscrypt-proxy'
+      'haveged'
+      'rsyncd'
+      'sshd'
+      'tor'
+      'uuidd')
+for _sv in ${_svs[@]}; do
   mkdir -p "/mnt/include/etc/sv/$_sv"
   touch "/mnt/include/etc/sv/$_sv/down"
 done
