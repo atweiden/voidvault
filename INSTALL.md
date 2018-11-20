@@ -28,13 +28,13 @@ Fetch Voidvault sources with Curl:
 
 ```sh
 # official release tarball
-version=1.2.0
+VERSION=1.3.0
 curl \
   -L \
   -O \
-  https://github.com/atweiden/voidvault/releases/download/$version/voidvault-$version.tar.gz
-tar xvzf voidvault-$version.tar.gz
-cd voidvault-$version
+  https://github.com/atweiden/voidvault/releases/download/$VERSION/voidvault-$VERSION.tar.gz
+tar xvzf voidvault-$VERSION.tar.gz
+cd voidvault-$VERSION
 
 # latest snapshot
 curl \
