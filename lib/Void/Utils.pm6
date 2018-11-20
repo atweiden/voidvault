@@ -1,7 +1,7 @@
 use v6;
 unit class Void::Utils;
 
-constant $VERSION = v1.3.0;
+constant $VERSION = v1.3.1;
 
 # method voidstrap {{{
 
