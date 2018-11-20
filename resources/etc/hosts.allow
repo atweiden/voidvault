@@ -1,1 +1,9 @@
-sshd: 192.168.0.
+# deny all services to all hosts not whitelisted below
+ALL  : ALL        : DENY
+# allow from localhost
+ALL  : 127.0.0.1  : ALLOW
+ALL  : [::1]      : ALLOW
+# allow sshd from lan
+sshd : 192.168.0. : ALLOW
+sshd : 172.16.0.  : ALLOW
+sshd : 10.0.0.    : ALLOW
