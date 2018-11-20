@@ -26,7 +26,6 @@
         "etc/X11/xorg.conf.d/10-synaptics.conf",
         "etc/X11/xorg.conf.d/99-security.conf",
         "etc/hosts",
-        "etc/hosts.allow",
         "etc/modprobe.d/modprobe.conf",
         "etc/nftables.conf",
         "etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft",

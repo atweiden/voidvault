@@ -1146,7 +1146,6 @@ method !configure-openssh(--> Nil)
     my UserName:D $user-name-sftp = $.config.user-name-sftp;
     configure-openssh('ssh_config');
     configure-openssh('sshd_config', $disable-ipv6, $user-name-sftp);
-    configure-openssh('hosts.allow');
     configure-openssh('moduli');
 }
 
@@ -1169,16 +1168,6 @@ multi sub configure-openssh(
     my Str:D $path = 'etc/ssh/sshd_config';
     copy(%?RESOURCES{$path}, "/mnt/$path");
     replace('sshd_config', $disable-ipv6, $user-name-sftp);
-}
-
-multi sub configure-openssh(
-    'hosts.allow'
-    --> Nil
-)
-{
-    # restrict allowed connections to LAN
-    my Str:D $path = 'etc/hosts.allow';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
 multi sub configure-openssh(

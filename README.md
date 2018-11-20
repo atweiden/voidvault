@@ -38,8 +38,6 @@ could cause catastrophic data loss and system instability.
   - SFTP-only user enforced with OpenSSH
     `ChrootDirectory` and `ForceCommand internal-sftp` (see:
     [resources/etc/ssh/sshd_config](resources/etc/ssh/sshd_config))
-  - limits incoming `sshd` connections to SFTP-only user on LAN (see:
-    [resources/etc/hosts.allow](resources/etc/hosts.allow))
 - uses [nftables][nftables] instead of iptables (see:
   [resources/etc/nftables.conf](resources/etc/nftables.conf))
 - configures kernel parameters with [Sysctl][Sysctl] (see:
