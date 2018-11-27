@@ -190,10 +190,11 @@ multi sub gen-pass-hash-closure(Bool:D :grub($)! where .so --> Sub:D)
 
 multi sub gen-pass-hash-closure(Bool :grub($) --> Sub:D)
 {
+    my LibcFlavor:D $libc-flavor = Voidvault::Utils.gen-libc-flavor();
     my &gen-pass-hash = sub (Str:D $user-pass --> Str:D)
     {
         my Str:D $salt = gen-pass-salt();
-        my Str:D $user-pass-hash = crypt($user-pass, $salt);
+        my Str:D $user-pass-hash = crypt($libc-flavor, $user-pass, $salt);
     };
 }
 
@@ -311,6 +312,22 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # system information
 # -----------------------------------------------------------------------------
 
+method gen-libc-flavor(--> LibcFlavor:D)
+{
+    my Str:D $xbps-uhelper-arch = qx<xbps-uhelper arch>.trim;
+    my LibcFlavor:D $libc-flavor = gen-libc-flavor($xbps-uhelper-arch);
+}
+
+multi sub gen-libc-flavor('x86_64-musl' --> LibcFlavor:D)
+{
+    my LibcFlavor:D $libc-flavor = 'MUSL';
+}
+
+multi sub gen-libc-flavor('x86_64' --> LibcFlavor:D)
+{
+    my LibcFlavor:D $libc-flavor = 'GLIBC';
+}
+
 # list keymaps
 method ls-keymaps(--> Array[Keymap:D])
 {
@@ -365,8 +382,24 @@ multi sub ls-keymap-tarballs(Str:D $path where .IO.f.so --> Array[Str:D])
 method ls-locales(--> Array[Locale:D])
 {
     my Str:D $locale-dir = '/usr/share/i18n/locales';
+    my Locale:D @locale = ls-locales($locale-dir);
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir where .IO.e.so && .IO.d.so
+    --> Array[Locale:D]
+)
+{
     my Locale:D @locale =
         dir($locale-dir).race.map({ .Str }).map({ .split('/').tail }).sort;
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir
+    --> Array[Locale:D]
+)
+{
+    my Locale:D @locale;
 }
 
 # list block devices (partitions)

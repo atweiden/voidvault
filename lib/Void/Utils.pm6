@@ -152,15 +152,20 @@ multi sub chroot-add-host-keys(
 
 sub voidstrap-install(Str:D $chroot-dir, *@pkg ($, *@) --> Nil)
 {
+    my Str:D $xbps-uhelper-arch = qx<xbps-uhelper arch>.trim;
     my Str:D $repository = 'https://alpha.de.repo.voidlinux.org/current';
-    run(qqw<
-        xbps-install
-        --force
-        --repository $repository
-        --rootdir $chroot-dir
-        --sync
-        --yes
-    >, @pkg);
+    # append /musl to repository if machine has musl libc
+    $repository ~= '/musl' if $xbps-uhelper-arch ~~ /musl/;
+    shell(
+        "XBPS_ARCH=$xbps-uhelper-arch \\
+         xbps-install \\
+         --force \\
+         --repository $repository \\
+         --rootdir $chroot-dir \\
+         --sync \\
+         --yes \\
+         @pkg[]"
+    );
 }
 
 # --- end sub voidstrap-install }}}

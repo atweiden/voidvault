@@ -1,12 +1,11 @@
 Voidvault
 =========
 
-<table>
-  <tr>
-    <td>Last tested</td>
-    <td>2018-11-17 with <a href="https://voidlinux.org/download/">void-live-x86_64-20181111.iso</a></td>
-  </tr>
-</table>
+Last tested | ISO
+----------- | ----------------------------------
+2018-11-17  | [void-live-x86_64-20181111.iso][void-live-iso-glibc]
+2018-11-17  | [void-live-x86_64-musl-20181111.iso][void-live-iso-musl]
+
 
 Bootstrap Void with FDE
 
@@ -254,7 +253,7 @@ See: [INSTALL.md](INSTALL.md).
 Dependencies
 ------------
 
-Name                 | Provides                                           | Included in Void ISO¹?
+Name                 | Provides                                           | Included in Void ISO¹²?
 ---                  | ---                                                | ---
 btrfs-progs          | Btrfs support                                      | Y
 coreutils            | `chmod`, `chown`, `cp`, `rm`                       | Y
@@ -263,12 +262,13 @@ dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`   | Y
 e2fsprogs            | `chattr`                                           | Y
 efibootmgr           | UEFI support                                       | Y
 expect               | interactive command prompt automation              | N
-glibc                | libcrypt, locale data in `/usr/share/i18n/locales` | Y
+glibc³               | libcrypt, locale data in `/usr/share/i18n/locales` | Y
 gptfdisk             | GPT disk partitioning with `sgdisk`                | N
 grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`             | Y
 kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont` | Y
 kmod                 | `modprobe`                                         | Y
 libressl             | user password salts                                | Y
+musl³                | libcrypt                                           | Y
 procps-ng            | `pkill`                                            | Y
 rakudo               | `voidvault` Perl6 runtime                          | N
 tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`    | Y
@@ -278,6 +278,8 @@ xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`   | Y
 ¹: the [official installation medium](https://voidlinux.org/download/)
 
 ²: the [unofficial installation medium](https://repo.voidlinux.de/live/)
+
+³: glibc or musl
 
 
 Optional Dependencies
@@ -345,6 +347,8 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [runit]: https://wiki.voidlinux.eu/runit
 [runit-swap]: https://github.com/thypon/runit-swap
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
+[void-live-iso-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20181111.iso
+[void-live-iso-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 

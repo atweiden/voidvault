@@ -255,6 +255,14 @@ constant %keymaps = Map.new(
 );
 
 # end keymaps }}}
+# libc {{{
+
+constant @libc = qw<
+    GLIBC
+    MUSL
+>;
+
+# end libc }}}
 # locales {{{
 
 constant %locales = Map.new(
@@ -1078,6 +1086,9 @@ subset HostName of Str is export where
 
 # keymap
 subset Keymap of Str is export where { %keymaps.keys.grep($_) };
+
+# libc
+subset LibcFlavor of Str is export where { @libc.grep($_) };
 
 # locale
 subset Locale of Str is export where { %locales.keys.grep($_) };

@@ -72,7 +72,6 @@ method !setup(--> Nil)
         e2fsprogs
         efibootmgr
         expect
-        glibc
         gptfdisk
         grub
         kbd
@@ -83,6 +82,8 @@ method !setup(--> Nil)
         util-linux
         xbps
     >;
+    push(@dep, 'glibc') if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC';
+    push(@dep, 'musl') if $Voidvault::Config::LIBC-FLAVOR eq 'MUSL';
 
     my Str:D $xbps-install-dep-cmdline =
         sprintf('xbps-install --force --sync --yes %s', @dep.join(' '));
@@ -626,7 +627,6 @@ method !voidstrap-base(--> Nil)
         findutils
         gawk
         git
-        glibc
         gnupg2
         gptfdisk
         grep
@@ -693,6 +693,9 @@ method !voidstrap-base(--> Nil)
         zlib
         zstd
     >;
+
+    push(@pkg, 'glibc') if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC';
+    push(@pkg, 'musl') if $Voidvault::Config::LIBC-FLAVOR eq 'MUSL';
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
@@ -961,11 +964,14 @@ method !set-locale(--> Nil)
     EOF
     spurt('/mnt/etc/locale.conf', $locale-conf);
 
-    # customize /etc/default/libc-locales
-    replace('libc-locales', $locale);
-
-    # regenerate locales
-    run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
+    # musl doesn't support locales
+    if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC'
+    {
+        # customize /etc/default/libc-locales
+        replace('libc-locales', $locale);
+        # regenerate locales
+        run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
+    }
 }
 
 method !set-keymap(--> Nil)
