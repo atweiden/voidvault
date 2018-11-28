@@ -3,8 +3,8 @@ Voidvault
 
 Last tested | ISO
 ----------- | ----------------------------------
-2018-11-17  | [void-live-x86_64-20181111.iso][void-live-iso-glibc]
-2018-11-17  | [void-live-x86_64-musl-20181111.iso][void-live-iso-musl]
+2018-11-27  | [void-live-x86_64-20181111.iso][void-live-iso-glibc]
+2018-11-27  | [void-live-x86_64-musl-20181111.iso][void-live-iso-musl]
 
 
 Bootstrap Void with FDE
