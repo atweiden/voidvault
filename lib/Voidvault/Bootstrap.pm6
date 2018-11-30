@@ -630,8 +630,6 @@ method !voidstrap-base(--> Nil)
         gnupg2
         gptfdisk
         grep
-        grub-i386-efi
-        grub-x86_64-efi
         gzip
         haveged
         inetutils
@@ -696,6 +694,9 @@ method !voidstrap-base(--> Nil)
 
     push(@pkg, 'glibc') if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC';
     push(@pkg, 'musl') if $Voidvault::Config::LIBC-FLAVOR eq 'MUSL';
+
+    push(@pkg, 'grub-i386-efi') if $*KERNEL.bits == 32;
+    push(@pkg, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
@@ -1062,7 +1063,8 @@ multi sub install-bootloader(
 )
 {
     install-bootloader(:legacy, $partition);
-    install-bootloader(:uefi, $partition);
+    install-bootloader(:uefi, 32, $partition) if $*KERNEL.bits == 32;
+    install-bootloader(:uefi, 64, $partition) if $*KERNEL.bits == 64;
     copy(
         '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
         '/mnt/boot/grub/locale/en.mo'
@@ -1092,12 +1094,38 @@ multi sub install-bootloader(
 }
 
 multi sub install-bootloader(
+    32,
     Str:D $partition,
     Bool:D :uefi($)! where .so
     --> Nil
 )
 {
-    # uefi
+    # uefi - i686
+    run(qqw<
+        void-chroot
+        /mnt
+        grub-install
+        --target=i386-efi
+        --efi-directory=/boot/efi
+        --removable
+    >, $partition);
+
+    # fix virtualbox uefi
+    my Str:D $nsh = q:to/EOF/;
+    fs0:
+    \EFI\BOOT\BOOTIA32.EFI
+    EOF
+    spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+}
+
+multi sub install-bootloader(
+    64,
+    Str:D $partition,
+    Bool:D :uefi($)! where .so
+    --> Nil
+)
+{
+    # uefi - x86_64
     run(qqw<
         void-chroot
         /mnt

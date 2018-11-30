@@ -3,8 +3,9 @@ Voidvault
 
 Last tested | ISO
 ----------- | ----------------------------------
-2018-11-27  | [void-live-x86_64-20181111.iso][void-live-iso-glibc]
-2018-11-27  | [void-live-x86_64-musl-20181111.iso][void-live-iso-musl]
+2018-12-01  | [void-live-x86_64-20181111.iso][void-live-iso-x86_64-glibc]
+2018-12-01  | [void-live-x86_64-musl-20181111.iso][void-live-iso-x86_64-musl]
+2018-12-01  | [void-live-i686-20181111.iso][void-live-iso-i686-glibc]
 
 
 Bootstrap Void with FDE
@@ -17,9 +18,9 @@ Description
 
 Voidvault bootstraps Void with whole system Btrfs on LUKS.
 
-Voidvault works on Void with Intel or AMD x86-64 CPU. It assumes you
-are comfortable working on the cmdline, and that you have no need for
-booting any other operating systems on the target partition.
+Voidvault works on Void with Intel or AMD x86 CPU. It assumes you are
+comfortable working on the cmdline, and that you have no need for booting
+any other operating systems on the target partition.
 
 **WARNING**: failure to give appropriate values during Voidvault setup
 could cause catastrophic data loss and system instability.
@@ -347,8 +348,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [runit]: https://wiki.voidlinux.eu/runit
 [runit-swap]: https://github.com/thypon/runit-swap
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20181111.iso
-[void-live-iso-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
+[void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20181111.iso
+[void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20181111.iso
+[void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 
