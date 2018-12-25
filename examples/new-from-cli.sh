@@ -14,6 +14,7 @@ voidvault --admin-name="live"                                  \
           --root-pass="your root password"                     \
           --vault-name="vault"                                 \
           --vault-pass="your LUKS encrypted volume's password" \
+          --pool-name="vg0"                                    \
           --hostname="vault"                                   \
           --partition="/dev/sdb"                               \
           --processor="other"                                  \

@@ -1,9 +1,19 @@
 #!/bin/bash
 
 # ----------------------------------------------------------------------------
-# umount-system: unmount voidvault btrfs subvolumes and efi partition
+# umount-system: unmount voidvault nilfs+lvm on luks and efi partition
 # ----------------------------------------------------------------------------
 # instructions
-# - run `cryptsetup luksClose vault` after running this script
+# - modify vault name (`_vault_name='vault'`) as needed
 
+# setup
+_vault_name='vault'
+
+# unmount filesystems
 umount --recursive /mnt
+
+# deactivate lvm lvs
+vgchange --activate n
+
+# close vault
+cryptsetup luksClose "$_vault_name"

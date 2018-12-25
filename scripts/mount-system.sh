@@ -1,38 +1,49 @@
 #!/bin/bash
 
 # ----------------------------------------------------------------------------
-# mount-system: mount voidvault btrfs subvolumes and efi partition
+# mount-system: mount voidvault nilfs+lvm on luks and efi partition
 # ----------------------------------------------------------------------------
 # instructions
 # - modify target partition (`_partition=/dev/sda`) as needed
 # - run `cryptsetup luksOpen /dev/sda3 vault` before running this script
 
 # setup
-_btrfs_subvolumes=(''
-                   'home'
-                   'opt'
-                   'srv'
-                   'var'
-                   'var-cache-xbps'
-                   'var-lib-ex'
-                   'var-log'
-                   'var-opt'
-                   'var-spool'
-                   'var-tmp')
-_compression='zstd'
-_mount_options="rw,noatime,compress=$_compression,space_cache=v2"
+_lvs=('opt'
+      'srv'
+      'var'
+      'var-cache-xbps'
+      'var-lib-ex'
+      'var-log'
+      'var-opt'
+      'var-spool'
+      'var-tmp'
+      'home')
+_mount_options='rw,noatime'
 _partition='/dev/sda'
+_pool_name='vg0'
 _vault_name='vault'
 
-# mount btrfs subvolumes starting with root ('')
-for _btrfs_subvolume in "${_btrfs_subvolumes[@]}"; do
-  _btrfs_dir="${_btrfs_subvolume//-//}"
-  mkdir --parents "/mnt/$_btrfs_dir"
+# activate lvm lvs
+vgchange --activate y
+
+# mount root lv
+mkdir --parents /mnt
+mount \
+  --types nilfs2 \
+  --options "$_mount_options" \
+  "/dev/$_pool_name/root" \
+  /mnt
+
+# mount remaining lvs
+for _lv in "${_lvs[@]}"; do
+  # replace hyphen in volume name with forward slash
+  _dir="${_lv//-//}"
+  mkdir --parents "/mnt/$_dir"
   mount \
-    --types btrfs \
-    --options "$_mount_options,subvol=@$_btrfs_subvolume" \
-    "/dev/mapper/$_vault_name" \
-    "/mnt/$_btrfs_dir"
+    --types nilfs2 \
+    --options "$_mount_options" \
+    "/dev/$_pool_name/$_lv" \
+    "/mnt/$_dir"
 done
 
 # mount uefi boot partition

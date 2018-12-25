@@ -25,6 +25,7 @@ method new(
         Str :keymap($),
         Str :locale($),
         Str :partition($),
+        Str :pool-name($),
         Str :processor($),
         Str :repository($),
         Str :root-pass($),

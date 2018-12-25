@@ -11,33 +11,6 @@ use Voidvault::Utils;
 
 
 # -----------------------------------------------------------------------------
-# disable-cow
-# -----------------------------------------------------------------------------
-
-multi sub MAIN(
-    'disable-cow',
-    Bool :c(:$clean),
-    Str :g(:$group),
-    Str :p(:$permissions),
-    Bool :r(:$recursive),
-    Str :u(:$user),
-    *@directory
-    --> Nil
-)
-{
-    my %opts;
-    %opts<clean> = $clean if $clean;
-    %opts<group> = $group if $group;
-    %opts<permissions> = $permissions if $permissions;
-    %opts<recursive> = $recursive if $recursive;
-    %opts<user> = $user if $user;
-    Voidvault::Utils.disable-cow(@directory, |%opts);
-}
-
-
-
-
-# -----------------------------------------------------------------------------
 # gen-pass-hash
 # -----------------------------------------------------------------------------
 
@@ -57,11 +30,6 @@ multi sub MAIN('gen-pass-hash', Bool :g(:$grub) --> Nil)
 # -----------------------------------------------------------------------------
 # help
 # -----------------------------------------------------------------------------
-
-multi sub MAIN('help', 'disable-cow' --> Nil)
-{
-    USAGE('disable-cow');
-}
 
 multi sub MAIN('help', 'gen-pass-hash' --> Nil)
 {
@@ -111,6 +79,7 @@ multi sub MAIN(
         Str :keymap($),
         Str :locale($),
         Str :partition($),
+        Str :pool-name($),
         Str :processor($),
         Str :repository($),
         Str :root-pass($),
@@ -182,7 +151,6 @@ multi sub USAGE(--> Nil)
       voidvault <command>
 
     Commands:
-      disable-cow          Disable copy-on-write on directories
       gen-pass-hash        Generate password hash
       help                 Show help for subcommands
       ls                   List keymaps, locales, partitions, timezones
@@ -193,35 +161,6 @@ multi sub USAGE(--> Nil)
         Print this help message
       --version
         Print version and exit
-    EOF
-    say($HELP);
-}
-
-multi sub USAGE('disable-cow' --> Nil)
-{
-    constant $HELP = qq:to/EOF/.trim;
-    Usage:
-      voidvault [--clean]
-                [--permissions=<octal>]
-                [--user=<username>]
-                [--group=<groupname>]
-                disable-cow <directory> [<directory> <directory>..]
-      voidvault [-r] disable-cow <directory> [<directory> <directory>..]
-
-    Options:
-      -c, --clean
-        Remake directories with CoW disabled
-      -r, --recursive
-        Recursively disable CoW on directories
-      -p, --permissions=<octal>
-        Octal file mode bits (defaults to "755")
-      -u, --user=<username>
-        Named user to own file (defaults to "$*USER")
-      -g, --group=<groupname>
-        Named group to own file (defaults to "$*GROUP")
-
-    Positionals:
-      <directory>        Path to directory
     EOF
     say($HELP);
 }
@@ -266,6 +205,7 @@ multi sub USAGE('new' --> Nil)
                 [--grub-name=<username>] [--grub-pass=<password>]
                 [--root-pass=<password>]
                 [--vault-name=<vaultname>] [--vault-pass=<password>]
+                [--pool-name=<poolname>]
                 [--hostname=<hostname>] [--partition=<device>]
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
@@ -312,6 +252,8 @@ multi sub USAGE('new' --> Nil)
         Locale
       --partition=<device>
         Partition target for install
+      --pool-name=<poolname>
+        Name for LVM volume group
       --processor=<processor>
         Processor type
       --repository=<repository>
