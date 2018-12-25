@@ -109,6 +109,12 @@ has VaultPass $.vault-pass =
         ?? Voidvault::Config.gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
         !! Nil;
 
+# name for LVM volume group (default: vg0)
+has PoolName:D $.pool-name =
+    %*ENV<VOIDVAULT_POOL_NAME>
+        ?? Voidvault::Config.gen-pool-name(%*ENV<VOIDVAULT_POOL_NAME>)
+        !! prompt-name(:pool);
+
 # name for host (default: vault)
 has HostName:D $.host-name =
     %*ENV<VOIDVAULT_HOSTNAME>
@@ -225,6 +231,7 @@ submethod BUILD(
     Str :$locale,
     Str :$packages,
     Str :$partition,
+    Str :$pool-name,
     Str :$processor,
     :@repository,
     Str :$root-pass,
@@ -260,6 +267,8 @@ submethod BUILD(
         if $packages;
     $!partition = $partition
         if $partition;
+    $!pool-name = Voidvault::Config.gen-pool-name($pool-name)
+        if $pool-name;
     $!processor = Voidvault::Config.gen-processor($processor)
         if $processor;
     @!repository = @repository
@@ -322,6 +331,7 @@ method new(
         Str :locale($),
         Str :packages($),
         Str :partition($),
+        Str :pool-name($),
         Str :processor($),
         :repository(@),
         Str :root-pass($),
@@ -372,6 +382,12 @@ method gen-keymap(Str:D $k --> Keymap:D)
 method gen-locale(Str:D $l --> Locale:D)
 {
     my Locale:D $locale = $l or die("Sorry, invalid locale 「$l」");
+}
+
+# confirm pool name $p is valid PoolName and return PoolName
+method gen-pool-name(Str:D $p --> PoolName:D)
+{
+    my PoolName:D $pool-name = $p or die("Sorry, invalid pool name 「$p」");
 }
 
 # confirm processor $p is valid Processor and return Processor
@@ -671,6 +687,30 @@ multi sub prompt-name(
         EOF
         tprompt(
             HostName,
+            $response-default,
+            :$prompt-text,
+            :$help-text
+        );
+    }
+}
+
+multi sub prompt-name(
+    Bool:D :pool($)! where .so
+    --> PoolName:D
+)
+{
+    my PoolName:D $pool-name = do {
+        my PoolName:D $response-default = 'vg0';
+        my Str:D $prompt-text = "Enter pool name [$response-default]: ";
+        my Str:D $help-text = q:to/EOF/.trim;
+        Determining name of LVM volume group...
+
+        Cannot be named the same as vault. Name should be unique in /dev/.
+
+        Leave blank if you don't know what this is
+        EOF
+        tprompt(
+            PoolName,
             $response-default,
             :$prompt-text,
             :$help-text

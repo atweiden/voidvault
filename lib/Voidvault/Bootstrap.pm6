@@ -47,6 +47,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!install-bootloader;
     self!configure-sysctl;
     self!configure-nftables;
+    self!configure-nilfs;
     self!configure-openssh;
     self!configure-udev;
     self!configure-hidepid;
@@ -73,7 +74,6 @@ method !setup(--> Nil)
 
     # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<
-        btrfs-progs
         coreutils
         cryptsetup
         dialog
@@ -85,6 +85,9 @@ method !setup(--> Nil)
         grub
         kbd
         kmod
+        libnilfs
+        lvm2
+        nilfs-utils
         openssl
         procps-ng
         tzdata
@@ -168,8 +171,8 @@ multi sub build-xbps-install-dep-cmdline(
 # secure disk configuration
 method !mkdisk(--> Nil)
 {
-    my DiskType:D $disk-type = $.config.disk-type;
     my Str:D $partition = $.config.partition;
+    my PoolName:D $pool-name = $.config.pool-name;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
 
@@ -186,14 +189,11 @@ method !mkdisk(--> Nil)
         Voidvault::Utils.gen-partition('vault', $partition);
     mkvault($partition-vault, $vault-name, :$vault-pass);
 
-    # create and mount btrfs volumes
-    mkbtrfs($disk-type, $vault-name);
+    # create and mount nilfs+lvm
+    mknilfslvm($pool-name, $vault-name);
 
     # mount efi boot
     mount-efi($partition-efi);
-
-    # disable Btrfs CoW
-    disable-cow();
 }
 
 # partition disk with gdisk
@@ -449,37 +449,18 @@ multi sub build-cryptsetup-luks-open-cmdline(
         EOF
 }
 
-# create and mount btrfs volumes on open vault
-sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
+# create and mount nilfs+lvm structure on open vault
+sub mknilfslvm(PoolName:D $pool-name, VaultName:D $vault-name --> Nil)
 {
-    # create btrfs filesystem on opened vault
-    run(qw<modprobe btrfs xxhash_generic>);
-    run(qqw<mkfs.btrfs --csum xxhash /dev/mapper/$vault-name>);
+    # create lvm physical volume (pv) on open vault
+    run(qqw<pvcreate /dev/mapper/$vault-name>);
 
-    # set mount options
-    my Str:D @mount-options = qw<
-        rw
-        noatime
-        compress-force=zstd
-        space_cache=v2
-    >;
-    push(@mount-options, 'ssd') if $disk-type eq 'SSD';
-    my Str:D $mount-options = @mount-options.join(',');
+    # create lvm volume group (vg) hosting physical volume
+    run(qqw<vgcreate $pool-name /dev/mapper/$vault-name>);
 
-    # mount main btrfs filesystem on open vault
-    mkdir('/mnt2');
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options
-        /dev/mapper/$vault-name
-        /mnt2
-    >);
-
-    # btrfs subvolumes, starting with root / ('')
-    my Str:D @btrfs-dir =
-        '',
-        'home',
+    # logical volume (lv), deliberately custom ordered
+    my Str:D @lv =
+        'root',
         'opt',
         'srv',
         'var',
@@ -488,167 +469,357 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
         'var-log',
         'var-opt',
         'var-spool',
-        'var-tmp';
+        'var-tmp',
+        'home';
 
-    # create btrfs subvolumes
-    chdir('/mnt2');
-    @btrfs-dir.map(-> Str:D $btrfs-dir {
-        run(qqw<btrfs subvolume create @$btrfs-dir>);
+    # create lvm lvs
+    lvcreate(@lv, $pool-name);
+
+    # activate lvm lvs
+    run(qw<vgchange --activate y>);
+
+    # make nilfs on each lvm lv
+    mknilfs(@lv, $pool-name);
+
+    # mount nilfs lvm structure
+    mount-nilfslvm(@lv, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D @lv,
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    @lv.map(-> Str:D $lv {
+        lvcreate($lv, $pool-name);
     });
-    chdir('/');
+}
 
-    # mount btrfs subvolumes
-    @btrfs-dir.map(-> Str:D $btrfs-dir {
-        mount-btrfs-subvolume($btrfs-dir, $mount-options, $vault-name);
+multi sub lvcreate(
+    Str:D $lv where 'root',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # root (C</>) sized at 8G
+    my Str:D $size = '8G';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'opt',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # opt (C</opt>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'srv',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # srv (C</srv>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var (C</var>) sized at 1G
+    my Str:D $size = '1G';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-cache-xbps',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-cache-xbps (C</var/cache/xbps>) sized at 2G
+    my Str:D $size = '2G';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-lib-ex',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-lib-ex (C</var/lib/ex>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-log',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-log (C</var/log>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-opt',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-opt (C</var/opt>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-spool',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-spool (C</var/spool>) sized at 200M
+    my Str:D $size = '200M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'var-tmp',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # var-tmp (C</var/tmp>) sized at 800M
+    my Str:D $size = '800M';
+    lvcreate($lv, :$size, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $lv where 'home',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # home (C</home>) sized at 100% of remaining free space in vg
+    my Str:D $extents = '100%FREE';
+    lvcreate($lv, :$extents, $pool-name);
+}
+
+multi sub lvcreate(
+    Str:D $name,
+    PoolName:D $pool-name,
+    Str:D :$extents! where .so
+    --> Nil
+)
+{
+    run(qqw<lvcreate --name $name --extents $extents $pool-name>);
+}
+
+multi sub lvcreate(
+    Str:D $name,
+    PoolName:D $pool-name,
+    Str:D :$size! where .so
+    --> Nil
+)
+{
+    run(qqw<lvcreate --name $name --size $size $pool-name>);
+}
+
+multi sub mknilfs(Str:D @lv, PoolName:D $pool-name --> Nil)
+{
+    run(qw<modprobe nilfs2>);
+    @lv.map(-> Str:D $lv {
+        mknilfs($lv, $pool-name);
     });
-
-    # unmount /mnt2 and remove
-    run(qw<umount /mnt2>);
-    rmdir('/mnt2');
 }
 
-multi sub mount-btrfs-subvolume(
-    'srv',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mknilfs(Str:D $lv, PoolName:D $pool-name --> Nil)
+{
+    run(qqw<mkfs.nilfs2 -L $lv /dev/$pool-name/$lv>);
+}
+
+multi sub mount-nilfslvm(
+    Str:D @lv,
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'srv';
-    mkdir("/mnt/$btrfs-dir");
+    @lv.map(-> Str:D $lv {
+        mount-nilfslvm($lv, $pool-name);
+    });
+}
+
+multi sub mount-nilfslvm(
+    Str:D $lv where 'root',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    # set mount options
+    my Str:D $mount-options = 'rw,noatime';
+
+    # mount nilfs+lvm root on open vault
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt
     >);
 }
 
-multi sub mount-btrfs-subvolume(
-    'var-cache-xbps',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'srv',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/cache/xbps';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("/mnt/$lv");
+    my Str:D $mount-options = 'rw,noatime,nodev,noexec,nosuid';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,subvol=@var-cache-xbps
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$lv
     >);
 }
 
-multi sub mount-btrfs-subvolume(
-    'var-lib-ex',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-cache-xbps',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/lib/ex';
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
-    >);
-    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
-}
-
-multi sub mount-btrfs-subvolume(
-    'var-log',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my Str:D $btrfs-dir = 'var/log';
-    mkdir("/mnt/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-log
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
-    'var-opt',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-lib-ex',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/opt';
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime,nodev,noexec,nosuid';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,subvol=@var-opt
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
-    'var-spool',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-log',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/spool';
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime,nodev,noexec,nosuid';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-spool
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
-    'var-tmp',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-opt',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    my Str:D $btrfs-dir = 'var/tmp';
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
     >);
-    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
 }
 
-multi sub mount-btrfs-subvolume(
-    Str:D $btrfs-dir,
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-spool',
+    PoolName:D $pool-name
     --> Nil
 )
 {
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime,nodev,noexec,nosuid';
     run(qqw<
         mount
-        --types btrfs
-        --options $mount-options,subvol=@$btrfs-dir
-        /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
+    >);
+}
+
+multi sub mount-nilfslvm(
+    Str:D $lv where 'var-tmp',
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    my Str:D $dir = $lv.subst('-', '/', :g);
+    mkdir("/mnt/$dir");
+    my Str:D $mount-options = 'rw,noatime,nodev,noexec,nosuid';
+    run(qqw<
+        mount
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$dir
+    >);
+    run(qqw<chmod 1777 /mnt/$dir>);
+}
+
+multi sub mount-nilfslvm(
+    Str:D $lv,
+    PoolName:D $pool-name
+    --> Nil
+)
+{
+    my Str:D $mount-options = 'rw,noatime';
+    mkdir("/mnt/$lv");
+    run(qqw<
+        mount
+        --types nilfs2
+        --options $mount-options
+        /dev/$pool-name/$lv
+        /mnt/$lv
     >);
 }
 
@@ -662,18 +833,6 @@ sub mount-efi(Str:D $partition-efi --> Nil)
         nosuid
     >.join(',');
     run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
-}
-
-sub disable-cow(--> Nil)
-{
-    my Str:D @directory = qw<
-        srv
-        var/lib/ex
-        var/log
-        var/spool
-        var/tmp
-    >.map(-> Str:D $directory { sprintf(Q{/mnt/%s}, $directory) });
-    Voidvault::Utils.disable-cow(|@directory, :recursive);
 }
 
 # bootstrap initial chroot with voidstrap
@@ -702,7 +861,7 @@ method !voidstrap-base(--> Nil)
         base-files
         bash
         bash-completion
-        btrfs-progs
+        binutils
         busybox-huge
         bzip2
         ca-certificates
@@ -739,6 +898,7 @@ method !voidstrap-base(--> Nil)
         linux
         linux-firmware
         linux-firmware-network
+        lvm2
         lynx
         lz4
         man-db
@@ -746,6 +906,7 @@ method !voidstrap-base(--> Nil)
         ncurses
         ncurses-term
         nftables
+        nilfs-utils
         nvi
         openresolv
         openssh
@@ -1342,6 +1503,7 @@ method !install-bootloader(--> Nil)
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition);
+    my PoolName:D $pool-name = $.config.pool-name;
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
@@ -1351,6 +1513,7 @@ method !install-bootloader(--> Nil)
         $enable-serial-console,
         $graphics,
         $partition-vault,
+        $pool-name,
         $vault-name
     );
     replace('10_linux');
@@ -1483,6 +1646,11 @@ method !configure-nftables(--> Nil)
         mkdir("/mnt/$base-path");
         copy(%?RESOURCES{$path}, "/mnt/$path");
     });
+}
+
+method !configure-nilfs(--> Nil)
+{
+    replace('nilfs_cleanerd.conf');
 }
 
 method !configure-openssh(--> Nil)
@@ -1666,6 +1834,7 @@ method !unmount(--> Nil)
     # resume after error with C<umount -R>, obsolete but harmless
     CATCH { default { .resume } };
     run(qw<umount --recursive --verbose /mnt>);
+    run(qw<vgchange --activate n>);
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
@@ -2236,10 +2405,10 @@ multi sub replace(
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
     # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
-        btrfs
         crypt
         dm
         kernel-modules
+        lvm
     >;
     my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
@@ -2257,11 +2426,12 @@ multi sub replace(
     # drivers are C<*.ko*> files in C</lib/modules>
     my Str:D @driver = qw<
         ahci
-        btrfs
+        libcrc32c
         lz4
         lz4hc
-        xxhash_generic
+        nilfs2
     >;
+    push(@driver, 'crc32c-intel') if $processor eq 'INTEL';
     push(@driver, 'i915') if $graphics eq 'INTEL';
     push(@driver, 'nouveau') if $graphics eq 'NVIDIA';
     push(@driver, 'radeon') if $graphics eq 'RADEON';
@@ -2356,6 +2526,7 @@ multi sub replace(
         Bool:D $enable-serial-console,
         Graphics:D $graphics,
         Str:D $partition-vault,
+        PoolName:D $pool-name,
         VaultName:D $vault-name
     )
     --> Nil
@@ -2370,6 +2541,7 @@ multi sub replace(
         ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK')
         ==> replace('grub', 'GRUB_TERMINAL_INPUT', $enable-serial-console)
         ==> replace('grub', 'GRUB_TERMINAL_OUTPUT', $enable-serial-console)
+        ==> replace('grub', 'GRUB_PRELOAD_MODULES');
         ==> replace('grub', 'GRUB_SERIAL_COMMAND', $enable-serial-console);
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
@@ -2382,6 +2554,7 @@ multi sub replace(
     Bool:D $enable-serial-console,
     Graphics:D $graphics,
     Str:D $partition-vault,
+    PoolName:D $pool-name,
     VaultName:D $vault-name,
     Str:D @line
     --> Array[Str:D]
@@ -2394,6 +2567,8 @@ multi sub replace(
         rd.luks=1
         rd.luks.uuid=$vault-uuid
         rd.luks.name=$vault-uuid=$vault-name
+        rd.lvm.vg=$pool-name
+        root=/dev/$pool-name/root
         loglevel=6
     >;
     if $enable-serial-console.so
@@ -2535,6 +2710,21 @@ multi sub replace(
     # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
     my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
     my Str:D $replace = sprintf(Q{%s="console"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_PRELOAD_MODULES',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_PRELOAD_MODULES> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    # preload lvm module
+    my Str:D $replace = sprintf(Q{%s="lvm"}, $subject);
     @line[$index] = $replace;
     @line;
 }
@@ -2814,6 +3004,98 @@ multi sub replace(
 }
 
 # --- end 99-sysctl.conf }}}
+# --- nilfs_cleanerd.conf {{{
+
+multi sub replace(
+    'nilfs_cleanerd.conf'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/nilfs_cleanerd.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        # do continuous cleaning
+        ==> replace('nilfs_cleanerd.conf', 'min_clean_segments')
+        # increase maximum number of clean segments
+        ==> replace('nilfs_cleanerd.conf', 'max_clean_segments')
+        # decrease clean segment check interval
+        ==> replace('nilfs_cleanerd.conf', 'clean_check_interval')
+        # decrease cleaning interval
+        ==> replace('nilfs_cleanerd.conf', 'cleaning_interval')
+        # increase minimum number of reclaimable blocks in a segment
+        # before it can be cleaned
+        ==> replace('nilfs_cleanerd.conf', 'min_reclaimable_blocks');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'nilfs_cleanerd.conf',
+    Str:D $subject where 'min_clean_segments',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s 0}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'nilfs_cleanerd.conf',
+    Str:D $subject where 'max_clean_segments',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    # double C<%> symbol is quirk of sprintf syntax for C<90%>
+    my Str:D $replace = sprintf(Q{%s 90%%}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'nilfs_cleanerd.conf',
+    Str:D $subject where 'clean_check_interval',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s 2}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'nilfs_cleanerd.conf',
+    Str:D $subject where 'cleaning_interval',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s 2}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'nilfs_cleanerd.conf',
+    Str:D $subject where 'min_reclaimable_blocks',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s 60%%}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+# --- end nilfs_cleanerd.conf }}}
 # --- sshd_config {{{
 
 multi sub replace(

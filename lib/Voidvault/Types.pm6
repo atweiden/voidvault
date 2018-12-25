@@ -1116,6 +1116,12 @@ subset LibcFlavor of Str is export where { @libc.grep($_) };
 # locale
 subset Locale of Str is export where { %locales.keys.grep($_) };
 
+# LVM volume group name
+subset PoolName of Str is export where
+{
+    Voidvault::Grammar.parse($_, :rule<pool-name>);
+}
+
 # processor
 subset Processor of Str is export where { %processors.keys.grep($_) };
 

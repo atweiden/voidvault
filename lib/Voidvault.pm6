@@ -27,6 +27,7 @@ method new(
         Str :locale($),
         Str :packages($),
         Str :partition($),
+        Str :pool-name($),
         Str :processor($),
         :repository(@),
         Str :root-pass($),

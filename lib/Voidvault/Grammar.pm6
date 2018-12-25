@@ -38,6 +38,21 @@ regex host-name
     $
 }
 
+# LVM volume group name validation
+token pool-name
+{
+    # from `man 8 lvm` line 136:
+    # - VG name can only contain valid chars: A-Z a-z 0-9 + _ . -
+    # - VG name cannot begin with a hyphen
+    # - VG name cannot be anything that exists in /dev/ at the time of creation
+    # - VG name cannot be `.` or `..`
+    (
+        <+alnum +[+] +[_] +[\.]>
+        <+alnum +[+] +[_] +[\.] +[-]>*
+    )
+    { $0 !~~ /^^ '.' ** 1..2 $$/ or fail }
+}
+
 # linux username validation
 regex user-name
 {
