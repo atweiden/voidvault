@@ -905,6 +905,7 @@ constant @timezones = qw<
     Asia/Pontianak
     Asia/Pyongyang
     Asia/Qatar
+    Asia/Qostanay
     Asia/Qyzylorda
     Asia/Rangoon
     Asia/Riyadh
