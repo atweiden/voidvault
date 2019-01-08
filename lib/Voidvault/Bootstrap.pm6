@@ -1320,6 +1320,8 @@ method !augment(--> Nil)
 method !unmount(--> Nil)
 {
     my VaultName:D $vault-name = $.config.vault-name;
+    # C<umount -R> fails initially on void, resume after error
+    CATCH { default { .resume } };
     run(qw<umount --recursive --verbose /mnt>);
     run(qqw<cryptsetup luksClose $vault-name>);
 }

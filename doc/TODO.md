@@ -20,6 +20,7 @@ Todo
         commands in-process
     - use a fresh livecd
     - `try {umount}`
+    - `CATCH { default { .resume } }; umount`
   - approaches which have not been experimented with yet:
     - simplify subroutine `chroot-setup` to not use custom mount opts
     - rewrite everything in Bash to isolate this as a Perl6 runtime issue
