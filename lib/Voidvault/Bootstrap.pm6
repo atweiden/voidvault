@@ -1324,6 +1324,20 @@ method !unmount(--> Nil)
     CATCH { default { .resume } };
     run(qw<umount --recursive --verbose /mnt>);
     run(qqw<cryptsetup luksClose $vault-name>);
+    # print instructions for manual cleanup
+    my Str:D $msg = qq:to/EOF/.trim;
+    ♪♪♪ Success ♪♪♪
+
+    Manual cleanup after `voidvault new` is recommended [1]:
+
+        # umount -R /mnt
+        # cryptsetup luksClose $vault-name
+
+    [1]: https://github.com/atweiden/voidvault/blob/master/doc/TODO.md
+    EOF
+    say('-' x 78);
+    say($msg);
+    say('-' x 78);
 }
 
 
