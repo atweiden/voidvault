@@ -1326,8 +1326,6 @@ method !unmount(--> Nil)
     run(qqw<cryptsetup luksClose $vault-name>);
     # print instructions for manual cleanup
     my Str:D $msg = qq:to/EOF/.trim;
-    ♪♪♪ Success ♪♪♪
-
     Manual cleanup after `voidvault new` is recommended [1]:
 
         # umount -R /mnt
