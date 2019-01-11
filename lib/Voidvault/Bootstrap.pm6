@@ -1227,7 +1227,7 @@ method !configure-hidepid(--> Nil)
     # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
     proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
     EOF
-    spurt('/mnt/etc/fstab', $fstab-hidepid, :append);
+    spurt('/mnt/etc/fstab', "\n" ~ $fstab-hidepid, :append);
 }
 
 method !configure-securetty(--> Nil)
