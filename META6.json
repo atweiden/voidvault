@@ -1,7 +1,7 @@
 {
     "perl"        : "6.*",
     "name"        : "Voidvault",
-    "version"     : "1.4.2",
+    "version"     : "1.4.3",
     "author"      : "atweiden",
     "description" : "Bootstrap Void with FDE",
     "license"     : "Unlicense",
