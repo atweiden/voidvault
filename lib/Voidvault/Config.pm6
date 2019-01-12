@@ -589,7 +589,10 @@ sub prompt-locale(--> Locale:D)
     }
 }
 
-multi sub prompt-name(Bool:D :host($)! where .so --> HostName:D)
+multi sub prompt-name(
+    Bool:D :host($)! where .so
+    --> HostName:D
+)
 {
     my HostName:D $host-name = do {
         my HostName:D $response-default = 'vault';
@@ -700,7 +703,10 @@ multi sub prompt-name(
     }
 }
 
-multi sub prompt-name(Bool:D :vault($)! where .so --> VaultName:D)
+multi sub prompt-name(
+    Bool:D :vault($)! where .so
+    --> VaultName:D
+)
 {
     my VaultName:D $vault-name = do {
         my VaultName:D $response-default = 'vault';
