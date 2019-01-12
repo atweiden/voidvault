@@ -271,7 +271,7 @@ kmod                 | `modprobe`                                         | Y
 libressl             | user password salts                                | Y
 musl³                | libcrypt                                           | Y
 procps-ng            | `pkill`                                            | Y
-rakudo               | `voidvault` Perl6 runtime                          | N
+rakudo               | `voidvault` Perl 6 runtime                         | N
 tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`    | Y
 util-linux           | `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`      | Y
 xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`   | Y
@@ -314,7 +314,7 @@ variable values for all configuration options aside from:
 - `--vault-pass`
 
 For these options, console input is read with either `cryptsetup` or
-the built-in Perl6 subroutine `prompt()`.
+the built-in Perl 6 subroutine `prompt()`.
 
 No console input is read for configuration options:
 
