@@ -107,10 +107,12 @@ multi sub MAIN(
         Str :guest-pass($),
         Str :guest-pass-hash($),
         Str :hostname($),
+        Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
         Str :partition($),
         Str :processor($),
+        Str :repository($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
@@ -268,6 +270,7 @@ multi sub USAGE('new' --> Nil)
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
+                [--repository=<repository>] [--ignore-conf-repos]
                 [--augment]
                 [--disable-ipv6]
                 new
@@ -301,6 +304,8 @@ multi sub USAGE('new' --> Nil)
         Encrypted password hash for guest account
       --hostname=<hostname>
         Hostname
+      --ignore-conf-repos
+        Only honor repositories specified on cmdline
       --keymap=<keymap>
         Keymap
       --locale=<locale>
@@ -309,6 +314,8 @@ multi sub USAGE('new' --> Nil)
         Partition target for install
       --processor=<processor>
         Processor type
+      --repository=<repository>
+        Location of Void package repository (prioritized)
       --root-pass=<password>
         Password for root account
       --root-pass-hash=<passhash>

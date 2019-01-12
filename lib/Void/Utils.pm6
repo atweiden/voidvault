@@ -1,4 +1,6 @@
 use v6;
+use Void::XBPS;
+use X::Void::XBPS;
 unit class Void::Utils;
 
 constant $VERSION = v1.4.3;
@@ -6,18 +8,30 @@ constant $VERSION = v1.4.3;
 # method voidstrap {{{
 
 # based on arch-install-scripts v18
-method voidstrap(Str:D $chroot-dir, *@pkg ($, *@) --> Nil)
+method voidstrap(
+    Str:D $chroot-dir,
+    Str :$repository,
+    Bool :$ignore-conf-repos,
+    *@pkg ($, *@)
+    --> Nil
+)
 {
-    voidstrap($chroot-dir, @pkg);
+    voidstrap($chroot-dir, :$repository, :$ignore-conf-repos, @pkg);
 }
 
-sub voidstrap(Str:D $chroot-dir, *@pkg ($, *@) --> Nil)
+sub voidstrap(
+    Str:D $chroot-dir,
+    Str :$repository,
+    Bool :$ignore-conf-repos,
+    *@pkg ($, *@)
+    --> Nil
+)
 {
     my Str:D @*chroot-active-mount;
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
-    voidstrap-install($chroot-dir, @pkg);
+    voidstrap-install($chroot-dir, :$repository, :$ignore-conf-repos, @pkg);
     LEAVE chroot-teardown();
 }
 
@@ -150,17 +164,78 @@ multi sub chroot-add-host-keys(
 # --- end sub chroot-add-host-keys }}}
 # --- sub voidstrap-install {{{
 
-sub voidstrap-install(Str:D $chroot-dir, *@pkg ($, *@) --> Nil)
+multi sub voidstrap-install(
+    Str:D $chroot-dir,
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg ($, *@)
+    --> Nil
+)
 {
-    my Str:D $xbps-uhelper-arch = qx<xbps-uhelper arch>.trim;
-    my Str:D $repository = 'https://alpha.de.repo.voidlinux.org/current';
-    # append /musl to repository if machine has musl libc
-    $repository ~= '/musl' if $xbps-uhelper-arch ~~ /musl/;
+    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    # rm official repo in the presence of C<--repository --ignore-conf-repos>
+    shell(
+        "XBPS_ARCH=$xbps-uhelper-arch \\
+         xbps-install \\
+         --force \\
+         --ignore-conf-repos \\
+         --repository $repository \\
+         --rootdir $chroot-dir \\
+         --sync \\
+         --yes \\
+         @pkg[]"
+    );
+}
+
+multi sub voidstrap-install(
+    Str:D $chroot-dir,
+    Str:D :$repository! where .so,
+    Bool :ignore-conf-repos($),
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
          xbps-install \\
          --force \\
          --repository $repository \\
+         --repository $repository-official \\
+         --rootdir $chroot-dir \\
+         --sync \\
+         --yes \\
+         @pkg[]"
+    );
+}
+
+multi sub voidstrap-install(
+    Str:D $chroot-dir,
+    Str :repository($),
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub voidstrap-install(
+    Str:D $chroot-dir,
+    Str :repository($),
+    Bool :ignore-conf-repos($),
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    shell(
+        "XBPS_ARCH=$xbps-uhelper-arch \\
+         xbps-install \\
+         --force \\
+         --repository $repository-official \\
          --rootdir $chroot-dir \\
          --sync \\
          --yes \\

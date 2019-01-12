@@ -1,6 +1,8 @@
 use v6;
-use Voidvault::Types;
 use Crypt::Libcrypt:auth<atweiden>;
+use Void::XBPS;
+use Voidvault::Types;
+use X::Void::XBPS;
 unit class Voidvault::Utils;
 
 # -----------------------------------------------------------------------------
@@ -131,18 +133,30 @@ multi sub gen-pass-hash(Str:D $user-pass, Bool :grub($) --> Str:D)
     my Str:D $user-pass-hash = &gen-pass-hash($user-pass);
 }
 
-method prompt-pass-hash(Str $user-name?, Bool :$grub --> Str:D)
+method prompt-pass-hash(
+    Str $user-name?,
+    Bool :$grub,
+    Str :$repository,
+    Bool :$ignore-conf-repos
+    --> Str:D
+)
 {
-    my Str:D $pass-hash = prompt-pass-hash($user-name, :$grub);
+    my Str:D $pass-hash =
+        prompt-pass-hash($user-name, :$grub, :$repository, :$ignore-conf-repos);
 }
 
 # generate pbkdf2 password hash from interactive user input
 multi sub prompt-pass-hash(
     Str $user-name?,
-    Bool:D :grub($)! where .so
+    Bool:D :grub($)! where .so,
+    Str :$repository,
+    Bool :$ignore-conf-repos
     --> Str:D
 )
 {
+    # we require expect for scripting C<grub-mkpasswd-pbkdf2>
+    '/usr/bin/expect'.IO.x.so
+        or install-expect(:$repository, :$ignore-conf-repos);
     my &gen-pass-hash = gen-pass-hash-closure(:grub);
     my Str:D $enter = 'Enter password: ';
     my Str:D $confirm = 'Reenter password: ';
@@ -158,7 +172,9 @@ multi sub prompt-pass-hash(
 # generate sha512 salted password hash from interactive user input
 multi sub prompt-pass-hash(
     Str $user-name?,
-    Bool :grub($)
+    Bool :grub($),
+    Str :repository($),
+    Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
@@ -176,9 +192,6 @@ multi sub prompt-pass-hash(
 
 multi sub gen-pass-hash-closure(Bool:D :grub($)! where .so --> Sub:D)
 {
-    # we require expect for scripting C<grub-mkpasswd-pbkdf2>
-    '/usr/bin/expect'.IO.x.so
-        or install-expect();
     my &gen-pass-hash = sub (Str:D $grub-pass --> Str:D)
     {
         my Str:D $grub-mkpasswd-pbkdf2-cmdline =
@@ -190,7 +203,7 @@ multi sub gen-pass-hash-closure(Bool:D :grub($)! where .so --> Sub:D)
 
 multi sub gen-pass-hash-closure(Bool :grub($) --> Sub:D)
 {
-    my LibcFlavor:D $libc-flavor = Voidvault::Utils.gen-libc-flavor();
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
     my &gen-pass-hash = sub (Str:D $user-pass --> Str:D)
     {
         my Str:D $salt = gen-pass-salt();
@@ -312,22 +325,6 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # system information
 # -----------------------------------------------------------------------------
 
-method gen-libc-flavor(--> LibcFlavor:D)
-{
-    my Str:D $xbps-uhelper-arch = qx<xbps-uhelper arch>.trim;
-    my LibcFlavor:D $libc-flavor = gen-libc-flavor($xbps-uhelper-arch);
-}
-
-multi sub gen-libc-flavor(Str:D $arch where /musl/ --> LibcFlavor:D)
-{
-    my LibcFlavor:D $libc-flavor = 'MUSL';
-}
-
-multi sub gen-libc-flavor(Str:D $arch --> LibcFlavor:D)
-{
-    my LibcFlavor:D $libc-flavor = 'GLIBC';
-}
-
 # list keymaps
 method ls-keymaps(--> Array[Keymap:D])
 {
@@ -445,17 +442,69 @@ method loop-cmdline-proc(
     }
 }
 
-sub install-expect(--> Nil)
+sub install-expect(Str :$repository, Bool :$ignore-conf-repos --> Nil)
 {
     # Cxbps-install> requires root privileges
     my Str:D $message =
         'Sorry, missing pkg expect. Please install: xbps-install expect';
     $*USER == 0 or die($message);
-    my Str:D $xbps-install-expect-cmdline = 'xbps-install --sync --yes expect';
+    my Str:D $xbps-install-expect-cmdline =
+        build-xbps-install-expect-cmdline(:$repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Installing expect...',
         $xbps-install-expect-cmdline
     );
+}
+
+multi sub build-xbps-install-expect-cmdline(
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Nil
+)
+{
+    my Str:D $xbps-install-expect-cmdline =
+        "xbps-install \\
+         --ignore-conf-repos \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         expect";
+}
+
+multi sub build-xbps-install-expect-cmdline(
+    Str:D :$repository! where .so,
+    Bool :ignore-conf-repos($)
+    --> Nil
+)
+{
+    my Str:D $xbps-install-expect-cmdline =
+        "xbps-install \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         expect";
+}
+
+multi sub build-xbps-install-expect-cmdline(
+    Str :repository($),
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub build-xbps-install-expect-cmdline(
+    Str :repository($),
+    Bool :ignore-conf-repos($)
+    --> Nil
+)
+{
+    my Str:D $xbps-install-expect-cmdline =
+        "xbps-install \\
+         --sync \\
+         --yes \\
+         expect";
 }
 
 # vim: set filetype=perl6 foldmethod=marker foldlevel=0:

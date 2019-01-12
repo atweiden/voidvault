@@ -1,7 +1,9 @@
 use v6;
+use Void::XBPS;
 use Voidvault::Config;
 use Voidvault::Types;
 use Voidvault::Utils;
+use X::Void::XBPS;
 unit class Voidvault::Bootstrap;
 
 
@@ -62,6 +64,10 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
+    my Str $repository = $.config.repository;
+    my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+
     # fetch dependencies needed prior to voidstrap
     my Str:D @dep = qw<
         btrfs-progs
@@ -82,11 +88,11 @@ method !setup(--> Nil)
         util-linux
         xbps
     >;
-    push(@dep, 'glibc') if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC';
-    push(@dep, 'musl') if $Voidvault::Config::LIBC-FLAVOR eq 'MUSL';
+    push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
+    push(@dep, 'musl') if $libc-flavor eq 'MUSL';
 
     my Str:D $xbps-install-dep-cmdline =
-        sprintf('xbps-install --force --sync --yes %s', @dep.join(' '));
+        build-xbps-install-dep-cmdline(@dep, :$repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
         $xbps-install-dep-cmdline
@@ -94,6 +100,64 @@ method !setup(--> Nil)
 
     # use readable font
     run(qw<setfont Lat2-Terminus16>);
+}
+
+multi sub build-xbps-install-dep-cmdline(
+    Str:D @dep,
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-dep-cmdline =
+        "xbps-install \\
+         --force \\
+         --ignore-conf-repos \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @dep[]";
+}
+
+multi sub build-xbps-install-dep-cmdline(
+    Str:D @dep,
+    Str:D :$repository! where .so,
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-dep-cmdline =
+        "xbps-install \\
+         --force \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @dep[]";
+}
+
+multi sub build-xbps-install-dep-cmdline(
+    Str:D @dep,
+    Str :repository($),
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub build-xbps-install-dep-cmdline(
+    Str:D @dep,
+    Str :repository($),
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-dep-cmdline =
+        "xbps-install \\
+         --force \\
+         --sync \\
+         --yes \\
+         @dep[]";
 }
 
 # secure disk configuration
@@ -580,6 +644,9 @@ sub disable-cow(--> Nil)
 method !voidstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
+    my Str $repository = $.config.repository;
+    my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
     my Str:D @core = qw<
         base-system
@@ -587,7 +654,8 @@ method !voidstrap-base(--> Nil)
     >;
 
     # download and install core packages with voidstrap in chroot
-    my Str:D $voidstrap-cmdline = "voidstrap /mnt @core[]";
+    my Str:D $voidstrap-cmdline =
+        build-voidstrap-cmdline(@core, :$repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
         $voidstrap-cmdline
@@ -692,8 +760,8 @@ method !voidstrap-base(--> Nil)
         zstd
     >;
 
-    push(@pkg, 'glibc') if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC';
-    push(@pkg, 'musl') if $Voidvault::Config::LIBC-FLAVOR eq 'MUSL';
+    push(@pkg, 'glibc') if $libc-flavor eq 'GLIBC';
+    push(@pkg, 'musl') if $libc-flavor eq 'MUSL';
 
     push(@pkg, 'grub-i386-efi') if $*KERNEL.bits == 32;
     push(@pkg, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
@@ -702,7 +770,128 @@ method !voidstrap-base(--> Nil)
     push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
 
     # install pkgs
-    run(qqw<void-chroot /mnt xbps-install --force --sync --yes>, @pkg);
+    my Str:D $xbps-install-pkg-cmdline =
+        build-xbps-install-pkg-cmdline(@pkg, :$repository, :$ignore-conf-repos);
+    Voidvault::Utils.loop-cmdline-proc(
+        'Running xbps-install...',
+        $xbps-install-pkg-cmdline
+    );
+}
+
+multi sub build-voidstrap-cmdline(
+    Str:D @core,
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)!
+    --> Str:D
+)
+{
+    my Str:D $voidstrap-cmdline =
+        "voidstrap \\
+         --ignore-conf-repos \\
+         --repository=$repository \\
+         /mnt \\
+         @core[]";
+}
+
+multi sub build-voidstrap-cmdline(
+    Str:D @core,
+    Str:D :$repository! where .so,
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $voidstrap-cmdline =
+        "voidstrap \\
+         --repository=$repository \\
+         /mnt \\
+         @core[]";
+}
+
+multi sub build-voidstrap-cmdline(
+    Str:D @core,
+    Str :repository($),
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub build-voidstrap-cmdline(
+    Str:D @core,
+    Str :repository($),
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $voidstrap-cmdline =
+        "voidstrap \\
+         /mnt \\
+         @core[]";
+}
+
+multi sub build-xbps-install-pkg-cmdline(
+    Str:D @pkg,
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-pkg-cmdline =
+        "void-chroot \\
+         /mnt \\
+         xbps-install \\
+         --force \\
+         --ignore-conf-repos \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @pkg[]";
+}
+
+multi sub build-xbps-install-pkg-cmdline(
+    Str:D @pkg,
+    Str:D :$repository! where .so,
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-pkg-cmdline =
+        "void-chroot \\
+         /mnt \\
+         xbps-install \\
+         --force \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @pkg[]";
+}
+
+multi sub build-xbps-install-pkg-cmdline(
+    Str:D @pkg,
+    Str :repository($),
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub build-xbps-install-pkg-cmdline(
+    Str:D @pkg,
+    Str :repository($),
+    Bool :ignore-conf-repos($)
+    --> Str:D
+)
+{
+    my Str:D $xbps-install-pkg-cmdline =
+        "void-chroot \\
+         /mnt \\
+         xbps-install \\
+         --force \\
+         --sync \\
+         --yes \\
+         @pkg[]";
 }
 
 # secure user configuration
@@ -956,6 +1145,7 @@ method !set-locale(--> Nil)
 {
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;
@@ -966,7 +1156,7 @@ method !set-locale(--> Nil)
     spurt('/mnt/etc/locale.conf', $locale-conf);
 
     # musl doesn't support locales
-    if $Voidvault::Config::LIBC-FLAVOR eq 'GLIBC'
+    if $libc-flavor eq 'GLIBC'
     {
         # customize /etc/default/libc-locales
         replace('libc-locales', $locale);

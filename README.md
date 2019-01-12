@@ -34,6 +34,7 @@ could cause catastrophic data loss and system instability.
 - [GRUB][GRUB] bootloader with both legacy BIOS and UEFI support
 - custom GRUB command line username and password
 - custom root, admin, guest, and SFTP user account passwords
+- custom repository selection for `xbps-install` (optional)
 - configures [OpenSSH][OpenSSH]
   - SFTP-only user enforced with OpenSSH
     `ChrootDirectory` and `ForceCommand internal-sftp` (see:
@@ -151,6 +152,8 @@ VOIDVAULT_DISK_TYPE="usb"
 VOIDVAULT_LOCALE="en_US"
 VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
+VOIDVAULT_REPOSITORY="/path/to/void/repository"
+VOIDVAULT_IGNORE_CONF_REPOS=1
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_DISABLE_IPV6=1
 ```
@@ -177,6 +180,8 @@ voidvault --admin-name="live"                                  \
           --locale="en_US"                                     \
           --keymap="us"                                        \
           --timezone="America/Los_Angeles"                     \
+          --repository="/path/to/void/repository"              \
+          --ignore-conf-repos                                  \
           --augment                                            \
           new
 ```
@@ -305,6 +310,8 @@ variable values for all configuration options aside from:
 - `--guest-pass-hash`
 - `--guest-pass`
 - `--hostname`
+- `--ignore-conf-repos`
+- `--repository`
 - `--root-pass-hash`
 - `--root-pass`
 - `--sftp-name`
@@ -323,6 +330,8 @@ No console input is read for configuration options:
 - `--disable-ipv6`
 - `--grub-pass-hash`
 - `--guest-pass-hash`
+- `--ignore-conf-repos`
+- `--repository`
 - `--root-pass-hash`
 - `--sftp-pass-hash`
 

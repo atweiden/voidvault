@@ -1,14 +1,8 @@
 use v6;
+use Void::XBPS;
 use Voidvault::Types;
 use Voidvault::Utils;
 unit class Voidvault::Config;
-
-# -----------------------------------------------------------------------------
-# constants
-# -----------------------------------------------------------------------------
-
-# glibc or musl
-constant $LIBC-FLAVOR = Voidvault::Utils.gen-libc-flavor();
 
 
 # -----------------------------------------------------------------------------
@@ -17,6 +11,16 @@ constant $LIBC-FLAVOR = Voidvault::Utils.gen-libc-flavor();
 
 # - attributes appear in specific order for prompting user
 # - defaults are geared towards live media installation
+
+# location of void package repository (prioritized)
+has Str $.repository =
+    ?%*ENV<VOIDVAULT_REPOSITORY>
+        ?? %*ENV<VOIDVAULT_REPOSITORY>
+        !! Nil;
+
+# only honor repository specified in C<$.repository>
+has Bool:D $.ignore-conf-repos =
+    ?%*ENV<VOIDVAULT_IGNORE_CONF_REPOS>;
 
 # name for admin user (default: live)
 has UserName:D $.user-name-admin =
@@ -80,7 +84,12 @@ has Str:D $.user-pass-hash-grub =
         ?? %*ENV<VOIDVAULT_GRUB_PASS_HASH>
         !! %*ENV<VOIDVAULT_GRUB_PASS>
             ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_GRUB_PASS>, :grub)
-            !! Voidvault::Utils.prompt-pass-hash($!user-name-grub, :grub);
+            !! Voidvault::Utils.prompt-pass-hash(
+                   $!user-name-grub,
+                   :grub,
+                   :$!repository,
+                   :$!ignore-conf-repos
+               );
 
 # name for LUKS encrypted volume (default: vault)
 has VaultName:D $.vault-name =
@@ -169,10 +178,12 @@ submethod BUILD(
     Str :$guest-pass,
     Str :$guest-pass-hash,
     Str :$hostname,
+    Bool :$ignore-conf-repos,
     Str :$keymap,
     Str :$locale,
     Str :$partition,
     Str :$processor,
+    Str :$repository,
     Str :$root-pass,
     Str :$root-pass-hash,
     Str :$sftp-name,
@@ -194,6 +205,8 @@ submethod BUILD(
         if $graphics;
     $!host-name = Voidvault::Config.gen-host-name($hostname)
         if $hostname;
+    $!ignore-conf-repos = $ignore-conf-repos
+        if $ignore-conf-repos;
     $!keymap = Voidvault::Config.gen-keymap($keymap)
         if $keymap;
     $!locale = Voidvault::Config.gen-locale($locale)
@@ -202,6 +215,8 @@ submethod BUILD(
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
         if $processor;
+    $!repository = $repository
+        if $repository;
     $!timezone = Voidvault::Config.gen-timezone($timezone)
         if $timezone;
     $!user-name-admin = Voidvault::Config.gen-user-name($admin-name)
@@ -254,10 +269,12 @@ method new(
         Str :guest-pass($),
         Str :guest-pass-hash($),
         Str :hostname($),
+        Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
         Str :partition($),
         Str :processor($),
+        Str :repository($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
