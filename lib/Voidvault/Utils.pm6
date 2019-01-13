@@ -459,7 +459,7 @@ sub install-expect(Str :$repository, Bool :$ignore-conf-repos --> Nil)
 multi sub build-xbps-install-expect-cmdline(
     Str:D :$repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
-    --> Nil
+    --> Str:D
 )
 {
     my Str:D $xbps-install-expect-cmdline =
@@ -474,7 +474,7 @@ multi sub build-xbps-install-expect-cmdline(
 multi sub build-xbps-install-expect-cmdline(
     Str:D :$repository! where .so,
     Bool :ignore-conf-repos($)
-    --> Nil
+    --> Str:D
 )
 {
     my Str:D $xbps-install-expect-cmdline =
@@ -497,7 +497,7 @@ multi sub build-xbps-install-expect-cmdline(
 multi sub build-xbps-install-expect-cmdline(
     Str :repository($),
     Bool :ignore-conf-repos($)
-    --> Nil
+    --> Str:D
 )
 {
     my Str:D $xbps-install-expect-cmdline =
