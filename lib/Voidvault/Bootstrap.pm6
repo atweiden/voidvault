@@ -781,7 +781,7 @@ method !voidstrap-base(--> Nil)
 multi sub build-voidstrap-cmdline(
     Str:D @core,
     Str:D :$repository! where .so,
-    Bool:D :ignore-conf-repos($)!
+    Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
 )
 {
