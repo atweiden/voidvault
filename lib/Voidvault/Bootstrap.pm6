@@ -654,11 +654,11 @@ method !voidstrap-base(--> Nil)
     >;
 
     # download and install core packages with voidstrap in chroot
-    my Str:D $voidstrap-cmdline =
+    my Str:D $voidstrap-core-cmdline =
         build-voidstrap-cmdline(@core, :$repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
-        $voidstrap-cmdline
+        $voidstrap-core-cmdline
     );
 
     # base packages
@@ -769,17 +769,17 @@ method !voidstrap-base(--> Nil)
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
 
-    # install pkgs
-    my Str:D $xbps-install-pkg-cmdline =
-        build-xbps-install-pkg-cmdline(@pkg, :$repository, :$ignore-conf-repos);
+    # download and install base packages with voidstrap in chroot
+    my Str:D $voidstrap-base-cmdline =
+        build-voidstrap-cmdline(@pkg, :$repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
-        'Running xbps-install...',
-        $xbps-install-pkg-cmdline
+        'Running voidstrap...',
+        $voidstrap-base-cmdline
     );
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @core,
+    Str:D @pkg,
     Str:D :$repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
@@ -790,11 +790,11 @@ multi sub build-voidstrap-cmdline(
          --ignore-conf-repos \\
          --repository=$repository \\
          /mnt \\
-         @core[]";
+         @pkg[]";
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @core,
+    Str:D @pkg,
     Str:D :$repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
@@ -804,11 +804,11 @@ multi sub build-voidstrap-cmdline(
         "voidstrap \\
          --repository=$repository \\
          /mnt \\
-         @core[]";
+         @pkg[]";
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @core,
+    Str:D @pkg,
     Str :repository($),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
@@ -818,7 +818,7 @@ multi sub build-voidstrap-cmdline(
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @core,
+    Str:D @pkg,
     Str :repository($),
     Bool :ignore-conf-repos($)
     --> Str:D
@@ -827,70 +827,6 @@ multi sub build-voidstrap-cmdline(
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
          /mnt \\
-         @core[]";
-}
-
-multi sub build-xbps-install-pkg-cmdline(
-    Str:D @pkg,
-    Str:D :$repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $xbps-install-pkg-cmdline =
-        "void-chroot \\
-         /mnt \\
-         xbps-install \\
-         --force \\
-         --ignore-conf-repos \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         @pkg[]";
-}
-
-multi sub build-xbps-install-pkg-cmdline(
-    Str:D @pkg,
-    Str:D :$repository! where .so,
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $xbps-install-pkg-cmdline =
-        "void-chroot \\
-         /mnt \\
-         xbps-install \\
-         --force \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         @pkg[]";
-}
-
-multi sub build-xbps-install-pkg-cmdline(
-    Str:D @pkg,
-    Str :repository($),
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Nil
-)
-{
-    die(X::Void::XBPS::IgnoreConfRepos.new);
-}
-
-multi sub build-xbps-install-pkg-cmdline(
-    Str:D @pkg,
-    Str :repository($),
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $xbps-install-pkg-cmdline =
-        "void-chroot \\
-         /mnt \\
-         xbps-install \\
-         --force \\
-         --sync \\
-         --yes \\
          @pkg[]";
 }
 
