@@ -3,7 +3,7 @@ use Voidvault::Bootstrap;
 use Voidvault::Config;
 unit class Voidvault;
 
-constant $VERSION = v1.5.0;
+constant $VERSION = v1.5.1;
 
 method new(
     *%opts (
