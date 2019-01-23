@@ -30,7 +30,7 @@ could cause catastrophic data loss and system instability.
 - whole system Btrfs on LUKS, including encrypted `/boot`
 - [runit][runit] PID 1
 - [GPT][GPT] partitioning
-- no swap partition, uses [zram][zram] via [runit-swap][runit-swap]
+- no swap partition, uses [zram][zram] via [zramen][zramen]
 - [GRUB][GRUB] bootloader with both legacy BIOS and UEFI support
 - custom GRUB command line username and password
 - custom root, admin, guest, and SFTP user account passwords
@@ -67,8 +67,7 @@ could cause catastrophic data loss and system instability.
 - disables GRUB recovery mode
 - uses mq-deadline I/O scheduler for SSDs, BFQ for HDDs (see:
   [resources/etc/udev/rules.d/60-io-schedulers.rules](resources/etc/udev/rules.d/60-io-schedulers.rules))
-- enables runit service for dnscrypt-proxy, nftables, runit-swap and
-  socklog
+- enables runit service for dnscrypt-proxy, nftables and socklog
 - configures [Xorg][Xorg], but does not install any Xorg packages (see:
   [resources/etc/X11](resources/etc/X11))
 - optionally disables IPv6, and makes IPv4-only adjustments to dhcpcd,
@@ -355,12 +354,12 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [nftables]: https://wiki.archlinux.org/index.php/nftables
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
 [runit]: https://wiki.voidlinux.org/runit
-[runit-swap]: https://github.com/thypon/runit-swap
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
 [void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20181111.iso
 [void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20181111.iso
 [void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
+[zramen]: https://github.com/atweiden/zramen
 
 <!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap: -->

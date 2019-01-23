@@ -43,7 +43,6 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-modprobe;
     self!generate-initramfs;
     self!install-bootloader;
-    self!configure-runit-swap;
     self!configure-sysctl;
     self!configure-nftables;
     self!configure-openssh;
@@ -52,6 +51,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-securetty;
     self!configure-xorg;
     self!configure-rc-local;
+    self!configure-rc-shutdown;
     self!enable-runit-services;
     self!augment if $augment.so;
     self!unmount;
@@ -731,7 +731,6 @@ method !voidstrap-base(--> Nil)
         psmisc
         rakudo
         rsync
-        runit-swap
         runit-void
         sed
         shadow
@@ -757,6 +756,7 @@ method !voidstrap-base(--> Nil)
         xz
         zip
         zlib
+        zramen
         zstd
     >;
 
@@ -1269,11 +1269,6 @@ multi sub install-bootloader(
     spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
 }
 
-method !configure-runit-swap(--> Nil)
-{
-    replace('swap.conf');
-}
-
 method !configure-sysctl(--> Nil)
 {
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
@@ -1407,11 +1402,23 @@ multi sub configure-xorg('99-security.conf' --> Nil)
 
 method !configure-rc-local(--> Nil)
 {
-    my Str:D $tty-no-cursor-blink = q:to/EOF/;
+    my Str:D $rc-local = q:to/EOF/;
+    # create zram swap device
+    zramen make
+
     # disable blinking cursor in Linux tty
     echo 0 > /sys/class/graphics/fbcon/cursor_blink
     EOF
-    spurt('/mnt/etc/rc.local', "\n" ~ $tty-no-cursor-blink, :append);
+    spurt('/mnt/etc/rc.local', "\n" ~ $rc-local, :append);
+}
+
+method !configure-rc-shutdown(--> Nil)
+{
+    my Str:D $rc-shutdown = q:to/EOF/;
+    # teardown zram swap device
+    zramen toss
+    EOF
+    spurt('/mnt/etc/rc.shutdown', "\n" ~ $rc-shutdown, :append);
 }
 
 method !enable-runit-services(--> Nil)
@@ -1420,7 +1427,6 @@ method !enable-runit-services(--> Nil)
         dnscrypt-proxy
         nanoklogd
         nftables
-        runit-swap
         socklog-unix
     >;
     @service.map(-> Str:D $service {
@@ -2247,66 +2253,6 @@ multi sub replace(
 }
 
 # --- end 10_linux }}}
-# --- swap.conf {{{
-
-multi sub replace(
-    'swap.conf'
-    --> Nil
-)
-{
-    my Str:D $file = '/mnt/etc/runit/swap.conf';
-    my Str:D @replace =
-        $file.IO.lines
-        # don't check for non-zram swap devices to swapon
-        ==> replace('swap.conf', 'swapd_auto_swapon')
-        # disable zswap
-        ==> replace('swap.conf', 'zswap_enabled')
-        # enable zram
-        ==> replace('swap.conf', 'zram_enabled');
-    my Str:D $replace = @replace.join("\n");
-    spurt($file, $replace ~ "\n");
-}
-
-multi sub replace(
-    'swap.conf',
-    Str:D $subject where 'swapd_auto_swapon',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=0}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    'swap.conf',
-    Str:D $subject where 'zswap_enabled',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=0}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    'swap.conf',
-    Str:D $subject where 'zram_enabled',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    my UInt:D $index = @line.first(/^$subject/, :k);
-    my Str:D $replace = sprintf(Q{%s=1}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-# --- end swap.conf }}}
 # --- 99-sysctl.conf {{{
 
 multi sub replace(
