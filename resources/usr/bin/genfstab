@@ -8,6 +8,7 @@ shopt -s extglob
 declare -A pseudofs_types=([anon_inodefs]=1
                            [autofs]=1
                            [bdev]=1
+                           [bpf]=1
                            [binfmt_misc]=1
                            [cgroup]=1
                            [cgroup2]=1
@@ -18,6 +19,7 @@ declare -A pseudofs_types=([anon_inodefs]=1
                            [devpts]=1
                            [devtmpfs]=1
                            [dlmfs]=1
+                           [efivarfs]=1
                            [fuse.gvfs-fuse-daemon]=1
                            [fusectl]=1
                            [hugetlbfs]=1
@@ -52,6 +54,7 @@ declare -A fsck_types=([cramfs]=1
 
 out() { printf "$1 $2\n" "${@:3}"; }
 error() { out "==> ERROR:" "$@"; } >&2
+warning() { out "==> WARNING:" "$@"; } >&2
 msg() { out "==>" "$@"; }
 msg2() { out "  ->" "$@";}
 die() { error "$@"; exit 1; }
@@ -92,12 +95,14 @@ chroot_setup() {
   chroot_add_mount udev "$1/dev" -t devtmpfs -o mode=0755,nosuid &&
   chroot_add_mount devpts "$1/dev/pts" -t devpts -o mode=0620,gid=5,nosuid,noexec &&
   chroot_add_mount shm "$1/dev/shm" -t tmpfs -o mode=1777,nosuid,nodev &&
-  chroot_add_mount run "$1/run" -t tmpfs -o nosuid,nodev,mode=0755 &&
+  chroot_add_mount /run "$1/run" --bind &&
   chroot_add_mount tmp "$1/tmp" -t tmpfs -o mode=1777,strictatime,nodev,nosuid
 }
 
 chroot_teardown() {
-  umount "${CHROOT_ACTIVE_MOUNTS[@]}"
+  if (( ${#CHROOT_ACTIVE_MOUNTS[@]} )); then
+    umount "${CHROOT_ACTIVE_MOUNTS[@]}"
+  fi
   unset CHROOT_ACTIVE_MOUNTS
 }
 
@@ -337,7 +342,8 @@ usage: ${0##*/} [options] root
     -L             Use labels for source identifiers (shortcut for -t LABEL)
     -p             Exclude pseudofs mounts (default behavior)
     -P             Include pseudofs mounts
-    -t TAG         Use TAG for source identifiers
+    -t TAG         Use TAG for source identifiers (TAG should be one of: LABEL,
+                      UUID, PARTLABEL, PARTUUID)
     -U             Use UUIDs for source identifiers (shortcut for -t UUID)
 
     -h             Print this help message
@@ -465,7 +471,7 @@ done
 
   while read -r device type _ _ prio; do
     options=defaults
-    if [[ $prio != -1 ]]; then
+    if (( prio >= 0 )); then
       options+=,pri=$prio
     fi
 

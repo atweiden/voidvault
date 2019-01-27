@@ -7,7 +7,7 @@ constant $VERSION = v1.5.1;
 
 # method voidstrap {{{
 
-# based on arch-install-scripts v18
+# based on arch-install-scripts v21
 method voidstrap(
     Str:D $chroot-dir,
     Str :$repository,
@@ -97,10 +97,9 @@ sub chroot-setup(Str:D $chroot-dir --> Nil)
         --options mode=1777,nodev,nosuid
     >);
     chroot-add-mount(|qqw<
-        run
+        /run
         $chroot-dir/run
-        --types tmpfs
-        --options mode=0755,nodev,nosuid
+        --bind
     >);
     chroot-add-mount(|qqw<
         tmp
