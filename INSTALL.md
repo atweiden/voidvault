@@ -16,8 +16,8 @@ with Rakudo Perl 6 pre-installed, and has ample space in its rootfs.
 Installing Rakudo Perl 6
 ------------------------
 
-```sh
-xbps-install -Syv rakudo
+```
+# xbps-install -Syv rakudo
 ```
 
 
@@ -54,10 +54,10 @@ cd voidvault
 
 Run Voidvault:
 
-```sh
-export PATH="$(realpath bin):$PATH"
-export PERL6LIB="$(realpath lib)"
-voidvault --help
+```
+# export PATH="$(realpath bin):$PATH"
+# export PERL6LIB="$(realpath lib)"
+# voidvault --help
 ```
 
 
