@@ -5,6 +5,11 @@ If you intend to run Voidvault on the current stock LiveCD, *you must
 free up disk space by removing pkgs* to avoid running out of room on the
 LiveCD's rootfs. Removing `linux-firmware-network` frees up over 100MB
 of disk space.
+
+```sh
+xbps-remove -F linux-firmware-network
+```
+
 If `linux-firmware-network` is needed for network access, you can gain space by adding
 `rd.live.overlay.overlayfs=1` to the kernel command line in grub.
 
