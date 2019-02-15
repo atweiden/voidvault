@@ -53,7 +53,7 @@ git clone https://github.com/atweiden/voidvault
 cd voidvault
 ```
 
-Run Voidvault:
+Run Voidvault (as root):
 
 ```sh
 export PATH="$(realpath bin):$PATH"
