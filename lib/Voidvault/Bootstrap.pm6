@@ -375,7 +375,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
         $expect-enter-send-vault-pass,
         $sleep,
         $expect-verify-send-vault-pass,
-        $sleep,
+        'sleep 7',
         $expect-eof;
 
     my Str:D $cryptsetup-luks-format-cmdline =
