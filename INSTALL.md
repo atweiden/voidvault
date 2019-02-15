@@ -2,9 +2,10 @@ Install
 =======
 
 If you intend to run Voidvault on the current stock LiveCD, *you must
-free up disk space by removing pkgs* to avoid running out of room on the
-LiveCD's rootfs. Removing `linux-firmware-network` frees up over 100MB
-of disk space.
+increase the size of the root partition* to avoid running out of disk
+space. Using the official Void Linux ISO, when you see the boot loader
+screen, press <kbd>Tab</kbd> and [append the following][overlayfs] to the
+kernel line: `rd.live.overlay.overlayfs=1`. Then, press <kbd>Enter</kbd>.
 
 In order to use Voidvault, install [Rakudo Perl 6][rakudo]. Voidvault
 will automatically resolve all other dependencies.
@@ -61,5 +62,6 @@ voidvault --help
 ```
 
 
+[overlayfs]: https://github.com/atweiden/voidvault/pull/3
 [rakudo]: https://github.com/rakudo/rakudo
 [voidiso]: https://github.com/atweiden/voidiso/releases
