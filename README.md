@@ -108,7 +108,7 @@ Synopsis
 
 ### `voidvault new`
 
-Bootstrap Voidvault.
+Bootstrap Voidvault. Must be run as root.
 
 **Supply options interactively (recommended)**:
 
