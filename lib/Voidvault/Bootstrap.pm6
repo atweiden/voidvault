@@ -172,16 +172,20 @@ method !mkdisk(--> Nil)
     sgdisk($partition);
 
     # create uefi partition
-    mkefi($partition);
+    my Str:D $partition-efi =
+        Voidvault::Utils.gen-partition('efi', $partition);
+    mkefi($partition-efi);
 
     # create vault
-    mkvault($partition, $vault-name, :$vault-pass);
+    my Str:D $partition-vault =
+        Voidvault::Utils.gen-partition('vault', $partition);
+    mkvault($partition-vault, $vault-name, :$vault-pass);
 
     # create and mount btrfs volumes
     mkbtrfs($disk-type, $vault-name);
 
     # mount efi boot
-    mount-efi($partition);
+    mount-efi($partition-efi);
 
     # disable Btrfs CoW
     disable-cow();
@@ -208,28 +212,22 @@ sub sgdisk(Str:D $partition --> Nil)
     >, $partition);
 }
 
-sub mkefi(Str:D $partition --> Nil)
+sub mkefi(Str:D $partition-efi --> Nil)
 {
-    # target partition for uefi
-    my Str:D $partition-efi = sprintf(Q{%s2}, $partition);
     run(qw<modprobe vfat>);
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
 # create vault with cryptsetup
 sub mkvault(
-    Str:D $partition,
+    Str:D $partition-vault,
     VaultName:D $vault-name,
     VaultPass :$vault-pass
     --> Nil
 )
 {
-    # target partition for vault
-    my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
-
     # load kernel modules for cryptsetup
     run(qw<modprobe dm_mod dm-crypt>);
-
     mkvault-cryptsetup(:$partition-vault, :$vault-name, :$vault-pass);
 }
 
@@ -621,10 +619,8 @@ multi sub mount-btrfs-subvolume(
     >);
 }
 
-sub mount-efi(Str:D $partition --> Nil)
+sub mount-efi(Str:D $partition-efi --> Nil)
 {
-    # target partition for uefi
-    my Str:D $partition-efi = sprintf(Q{%s2}, $partition);
     my Str:D $efi-dir = '/mnt/boot/efi';
     mkdir($efi-dir);
     run(qqw<mount $partition-efi $efi-dir>);
@@ -1162,10 +1158,12 @@ method !install-bootloader(--> Nil)
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition = $.config.partition;
+    my Str:D $partition-vault =
+        Voidvault::Utils.gen-partition('vault', $partition);
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
-    replace('grub', $disable-ipv6, $graphics, $partition, $vault-name);
+    replace('grub', $disable-ipv6, $graphics, $partition-vault, $vault-name);
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
     install-bootloader($partition);
@@ -2107,7 +2105,7 @@ multi sub replace(
     *@opts (
         Bool:D $disable-ipv6,
         Graphics:D $graphics,
-        Str:D $partition,
+        Str:D $partition-vault,
         VaultName:D $vault-name
     )
     --> Nil
@@ -2131,14 +2129,13 @@ multi sub replace(
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
     Bool:D $disable-ipv6,
     Graphics:D $graphics,
-    Str:D $partition,
+    Str:D $partition-vault,
     VaultName:D $vault-name,
     Str:D @line
     --> Array[Str:D]
 )
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
-    my Str:D $partition-vault = sprintf(Q{%s3}, $partition);
     my Str:D $vault-uuid =
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D $grub-cmdline-linux = 'rootflags=subvol=@';
