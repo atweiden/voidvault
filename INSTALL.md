@@ -29,7 +29,7 @@ Fetch Voidvault sources with Curl:
 
 ```sh
 # official release tarball
-VERSION=1.6.0
+VERSION=1.7.0
 curl \
   -L \
   -O \
