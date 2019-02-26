@@ -266,6 +266,7 @@ constant @libc = qw<
 # locales {{{
 
 constant %locales = Map.new(
+    'C'                     => '"C locale in UTF-8"',
     'POSIX'                 => '"POSIX Standard Locale"',
     'aa_DJ'                 => '"Afar language locale for Djibouti (Cadu/Laaqo Dialects)"',
     'aa_ER'                 => '"Afar language locale for Eritrea (Cadu/Laaqo Dialects)"',
