@@ -99,7 +99,7 @@ approach 1: flash eMMC using pre-flashed SD card
   - it's not a good idea to enter luks passphrase on host computer
   - it's not a good idea to rewrite void-mklive from scratch
 - process
-  - install an image onto an SD card [18]
+  - install an image onto an SD card [18][19]
   - add a blank eMMC module to the system
   - boot from the SD card
   - use the system on the SD card to bootstrap the eMMC
@@ -347,6 +347,7 @@ eventually
 [16]: https://github.com/armbian/build/blob/master/config/bootscripts/boot-odroid-c2-next.cmd
 [17]: https://en.opensuse.org/HCL:OdroidC2
 [18]: http://odroid.com/dokuwiki/doku.php?id=en:odroid_flashing_tools
+[19]: https://github.com/nachoparker/ddsd
 [N]: https://archlinuxarm.org/platforms/armv8/amlogic/odroid-c2
 [N]: https://wiki.linaro.org/LEG/ServerArchitecture/GRUB
 [N]: https://github.com/armbian/build/blob/master/config/sources/odroidc2.conf
