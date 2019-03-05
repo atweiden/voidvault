@@ -76,7 +76,7 @@ could cause catastrophic data loss and system instability.
 ### Filesystem
 
 - `/dev/sdX1` is the BIOS boot sector (size: 2MB)
-- `/dev/sdX2` is the EFI system partition (size: 100MB)
+- `/dev/sdX2` is the EFI system partition (size: [550MB][550MB])
 - `/dev/sdX3` is the root Btrfs filesystem on LUKS (size: remainder)
 
 Voidvault creates the following Btrfs subvolumes with a [flat layout][flat
@@ -343,7 +343,7 @@ Licensing
 This is free and unencumbered public domain software. For more
 information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 
-
+[550MB]: https://wiki.archlinux.org/index.php/EFI_system_partition#Create_the_partition
 [denies console login as root]: https://wiki.archlinux.org/index.php/Security#Denying_console_login_as_root
 [disables Btrfs CoW]: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
 [dnscrypt-proxy]: https://wiki.archlinux.org/index.php/DNSCrypt
