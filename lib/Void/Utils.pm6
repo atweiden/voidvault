@@ -3,7 +3,7 @@ use Void::XBPS;
 use X::Void::XBPS;
 unit class Void::Utils;
 
-constant $VERSION = v1.7.1;
+constant $VERSION = v1.7.2;
 
 # method voidstrap {{{
 
