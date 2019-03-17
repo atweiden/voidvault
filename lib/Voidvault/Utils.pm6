@@ -59,7 +59,7 @@ multi sub disable-cow(
     my Str:D $orig-dir = ~$directory.IO.resolve;
     $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
         or die('directory failed exists readable directory test');
-    my Str:D $backup-dir = $orig-dir ~ '-old';
+    my Str:D $backup-dir = sprintf(Q{%s-old}, $orig-dir);
     rename($orig-dir, $backup-dir);
     mkdir($orig-dir);
     run(qqw<chmod $permissions $orig-dir>);

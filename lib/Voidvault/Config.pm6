@@ -352,9 +352,10 @@ method gen-vault-name(Str:D $v --> VaultName:D)
 # confirm vault pass $v is valid VaultPass and return VaultPass
 method gen-vault-pass(Str:D $v --> VaultPass:D)
 {
-    my VaultPass:D $vault-pass = $v
-        or die('Sorry, invalid vault pass. Length needed: 1-512. '
-                ~ 'Length given: ' ~ $v.chars);
+    my Str:D $message = qq:to/EOF/.trim;
+    Sorry, invalid vault pass. Length needed: 1-512. Length given: {$v.chars}
+    EOF
+    my VaultPass:D $vault-pass = $v or die($message);
 }
 
 

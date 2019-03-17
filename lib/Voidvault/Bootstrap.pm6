@@ -449,8 +449,14 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
     run(qqw<mkfs.btrfs /dev/mapper/$vault-name>);
 
     # set mount options
-    my Str:D $mount-options = 'rw,lazytime,compress=lzo,space_cache';
-    $mount-options ~= ',ssd' if $disk-type eq 'SSD';
+    my Str:D @mount-options = qw<
+        rw
+        lazytime
+        compress=lzo
+        space_cache
+    >;
+    push(@mount-options, 'ssd') if $disk-type eq 'SSD';
+    my Str:D $mount-options = @mount-options.join(',');
 
     # mount main btrfs filesystem on open vault
     mkdir('/mnt2');
@@ -2138,23 +2144,26 @@ multi sub replace(
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D $vault-uuid =
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
-    my Str:D $grub-cmdline-linux = 'rootflags=subvol=@';
-    $grub-cmdline-linux ~= ' rd.auto=1';
-    $grub-cmdline-linux ~= ' rd.luks=1';
-    $grub-cmdline-linux ~= " rd.luks.name=$vault-uuid=$vault-name";
-    $grub-cmdline-linux ~= " rd.luks.uuid=$vault-uuid";
-    $grub-cmdline-linux ~= ' loglevel=6';
-    # enable slub/slab allocator free poisoning needs CONFIG_SLUB_DEBUG=y)
-    $grub-cmdline-linux ~= ' slub_debug=P';
+    my Str:D @grub-cmdline-linux = qqw<
+        rootflags=subvol=@
+        rd.auto=1
+        rd.luks=1
+        rd.luks.name=$vault-uuid=$vault-name
+        rd.luks.uuid=$vault-uuid
+        loglevel=6
+    >;
+    # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
+    push(@grub-cmdline-linux, 'slub_debug=P');
     # enable buddy allocator free poisoning (needs CONFIG_PAGE_POISONING=y)
-    $grub-cmdline-linux ~= ' page_poison=1';
+    push(@grub-cmdline-linux, 'page_poison=1');
     # disable slab merging (makes many heap overflow attacks more difficult)
-    $grub-cmdline-linux ~= ' slab_nomerge=1';
+    push(@grub-cmdline-linux, 'slab_nomerge=1');
     # always enable Kernel Page Table Isolation (to be safe from Meltdown)
-    $grub-cmdline-linux ~= ' pti=on';
-    $grub-cmdline-linux ~= ' printk.time=1';
-    $grub-cmdline-linux ~= ' radeon.dpm=1' if $graphics eq 'RADEON';
-    $grub-cmdline-linux ~= ' ipv6.disable=1' if $disable-ipv6.so;
+    push(@grub-cmdline-linux, 'pti=on');
+    push(@grub-cmdline-linux, 'printk.time=1');
+    push(@grub-cmdline-linux, 'radeon.dpm=1') if $graphics eq 'RADEON';
+    push(@grub-cmdline-linux, 'ipv6.disable=1') if $disable-ipv6.so;
+    my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
     # replace GRUB_CMDLINE_LINUX_DEFAULT
     my UInt:D $index = @line.first(/^$subject'='/, :k);
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
