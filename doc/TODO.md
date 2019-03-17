@@ -1,6 +1,8 @@
 Todo
 ====
 
+- switch from `lzo` to `zstd` compression once [GRUB zstd support][GRUB
+  zstd support] ships in a stable release
 - implement dracut-sshd-nonet
   - new profile: `headless-nonet`
     - disable grub boot encryption
@@ -27,3 +29,5 @@ Todo
     - refrain from symlinking runit services
     - refrain from symlinking anything
     - replace dracut with mkinitcpio
+
+[GRUB zstd support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=386128648606a3aa6ae7108d1c9af52258202279
