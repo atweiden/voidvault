@@ -2164,6 +2164,8 @@ multi sub replace(
     push(@grub-cmdline-linux, 'slab_nomerge=1');
     # always enable Kernel Page Table Isolation (to be safe from Meltdown)
     push(@grub-cmdline-linux, 'pti=on');
+    # always panic on uncorrected errors, log corrected errors
+    push(@grub-cmdline-linux, 'mce=0');
     push(@grub-cmdline-linux, 'printk.time=1');
     push(@grub-cmdline-linux, 'radeon.dpm=1') if $graphics eq 'RADEON';
     push(@grub-cmdline-linux, 'ipv6.disable=1') if $disable-ipv6.so;
