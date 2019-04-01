@@ -2153,7 +2153,11 @@ multi sub replace(
         loglevel=6
     >;
     # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
-    push(@grub-cmdline-linux, 'slub_debug=P');
+    push(@grub-cmdline-linux, 'slub_debug=FZP');
+    #                                     |||
+    #                                     ||+-- poisoning (P)
+    #                                     |+--- redzoning (Z)
+    #                                     +---- sanity checks (F)
     # enable buddy allocator free poisoning (needs CONFIG_PAGE_POISONING=y)
     push(@grub-cmdline-linux, 'page_poison=1');
     # disable slab merging (makes many heap overflow attacks more difficult)
