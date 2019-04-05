@@ -1,6 +1,8 @@
 Todo
 ====
 
+- switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
+  support][GRUB luks2 support] ships in a stable release
 - switch from `lzo` to `zstd` compression once [GRUB zstd support][GRUB
   zstd support] ships in a stable release
 - implement dracut-sshd-nonet
@@ -30,4 +32,5 @@ Todo
     - refrain from symlinking anything
     - replace dracut with mkinitcpio
 
+[GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [GRUB zstd support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=386128648606a3aa6ae7108d1c9af52258202279
