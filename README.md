@@ -258,27 +258,27 @@ See: [INSTALL.md](INSTALL.md).
 Dependencies
 ------------
 
-Name                 | Provides                                           | Included in Void ISO¹²?
----                  | ---                                                | ---
-btrfs-progs          | Btrfs support                                      | Y
-coreutils            | `chmod`, `chown`, `cp`, `rm`                       | Y
-cryptsetup           | FDE with LUKS                                      | Y
-dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`   | Y
-e2fsprogs            | `chattr`                                           | Y
-efibootmgr           | UEFI support                                       | Y
-expect               | interactive command prompt automation              | N
-glibc³               | libcrypt, locale data in `/usr/share/i18n/locales` | Y
-gptfdisk             | GPT disk partitioning with `sgdisk`                | N
-grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`             | Y
-kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont` | Y
-kmod                 | `modprobe`                                         | Y
-libressl             | user password salts                                | Y
-musl³                | libcrypt                                           | Y
-procps-ng            | `pkill`                                            | Y
-rakudo               | `voidvault` Perl 6 runtime                         | N
-tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`    | Y
-util-linux           | `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`      | Y
-xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`   | Y
+Name                 | Provides                                                 | Included in Void ISO¹²?
+---                  | ---                                                      | ---
+btrfs-progs          | Btrfs support                                            | Y
+coreutils            | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
+cryptsetup           | FDE with LUKS                                            | Y
+dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`         | Y
+e2fsprogs            | `chattr`                                                 | Y
+efibootmgr           | UEFI support                                             | Y
+expect               | interactive command prompt automation                    | N
+glibc³               | libcrypt, locale data in `/usr/share/i18n/locales`       | Y
+gptfdisk             | GPT disk partitioning with `sgdisk`                      | N
+grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                   | Y
+kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont`       | Y
+kmod                 | `modprobe`                                               | Y
+libressl             | user password salts                                      | Y
+musl³                | libcrypt                                                 | Y
+procps-ng            | `pkill`                                                  | Y
+rakudo               | `voidvault` Perl 6 runtime                               | N
+tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`          | Y
+util-linux           | `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`, `unshare` | Y
+xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`         | Y
 
 ¹: the [official installation medium](https://voidlinux.org/download/)
 
