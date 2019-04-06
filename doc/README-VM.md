@@ -157,6 +157,7 @@ Host vbox-void64
     - Either
       - `GRUB_GFXMODE="1360x768x24"`
       - `GRUB_GFXMODE="1440x900x24"`
+- Comment out the line `GRUB_TERMINAL_OUTPUT=console`
 - `grub-mkconfig -o /boot/grub/grub.cfg`
 - `shutdown -h now`
 
