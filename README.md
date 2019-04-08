@@ -355,9 +355,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
 [runit]: https://wiki.voidlinux.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20181111.iso
-[void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20181111.iso
-[void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
+[void-live-iso-i686-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-i686-20181111.iso
+[void-live-iso-x86_64-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-20181111.iso
+[void-live-iso-x86_64-musl]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen

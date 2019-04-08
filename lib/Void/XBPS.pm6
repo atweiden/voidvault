@@ -23,12 +23,12 @@ constant $LIBC-FLAVOR = gen-libc-flavor($XBPS-UHELPER-ARCH);
 multi sub gen-repository-official('MUSL' --> Str:D)
 {
     # append /musl to official repository if machine has musl libc
-    my Str:D $repository = 'https://alpha.de.repo.voidlinux.org/current/musl';
+    my Str:D $repository = 'https://a-hel-fi.m.voidlinux.org/current/musl';
 }
 
 multi sub gen-repository-official(LibcFlavor:D $ --> Str:D)
 {
-    my Str:D $repository = 'https://alpha.de.repo.voidlinux.org/current';
+    my Str:D $repository = 'https://a-hel-fi.m.voidlinux.org/current';
 }
 
 constant $REPOSITORY-OFFICIAL = gen-repository-official($LIBC-FLAVOR);
