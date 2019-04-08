@@ -13,7 +13,7 @@ multi sub gen-libc-flavor(Str:D $arch where /musl/ --> LibcFlavor:D)
     my LibcFlavor:D $libc-flavor = 'MUSL';
 }
 
-multi sub gen-libc-flavor(Str:D $arch --> LibcFlavor:D)
+multi sub gen-libc-flavor(Str:D $ --> LibcFlavor:D)
 {
     my LibcFlavor:D $libc-flavor = 'GLIBC';
 }
