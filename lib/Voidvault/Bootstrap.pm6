@@ -28,6 +28,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!setup;
     self!mkdisk;
     self!voidstrap-base;
+    self!mkvault-key;
     self!configure-users;
     self!configure-sudoers;
     self!genfstab;
@@ -228,14 +229,15 @@ sub mkvault(
 {
     # load kernel modules for cryptsetup
     run(qw<modprobe dm_mod dm-crypt>);
+    # create vault
     mkvault-cryptsetup(:$partition-vault, :$vault-name, :$vault-pass);
 }
 
 # LUKS encrypted volume password was given
 multi sub mkvault-cryptsetup(
-    Str:D :$partition-vault where .so,
-    VaultName:D :$vault-name where .so,
-    VaultPass:D :$vault-pass where .so
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass:D :$vault-pass! where .so
     --> Nil
 )
 {
@@ -263,8 +265,8 @@ multi sub mkvault-cryptsetup(
 
 # LUKS encrypted volume password not given
 multi sub mkvault-cryptsetup(
-    Str:D :$partition-vault where .so,
-    VaultName:D :$vault-name where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
     VaultPass :vault-pass($)
     --> Nil
 )
@@ -297,7 +299,7 @@ multi sub mkvault-cryptsetup(
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
-    Bool:D :interactive($) where .so
+    Bool:D :interactive($)! where .so
     --> Str:D
 )
 {
@@ -341,7 +343,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
     VaultPass:D $vault-pass where .so,
-    Bool:D :non-interactive($) where .so
+    Bool:D :non-interactive($)! where .so
     --> Str:D
 )
 {
@@ -397,7 +399,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
     VaultName:D $vault-name where .so,
-    Bool:D :interactive($) where .so
+    Bool:D :interactive($)! where .so
     --> Str:D
 )
 {
@@ -409,7 +411,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
     VaultName:D $vault-name where .so,
     VaultPass:D $vault-pass where .so,
-    Bool:D :non-interactive($) where .so
+    Bool:D :non-interactive($)! where .so
     --> Str:D
 )
 {
@@ -832,6 +834,149 @@ multi sub build-voidstrap-cmdline(
         "voidstrap \\
          /mnt \\
          @pkg[]";
+}
+
+# avoid having to enter password twice on boot
+method !mkvault-key(--> Nil)
+{
+    my Str:D $partition = $.config.partition;
+    my Str:D $partition-vault =
+        Voidvault::Utils.gen-partition('vault', $partition);
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    mkvault-key-gen();
+    mkvault-key-add(:$partition-vault, :$vault-pass);
+    mkvault-key-sec();
+    mkvault-key-cfg($partition-vault, $vault-name);
+}
+
+# generate LUKS key
+sub mkvault-key-gen(--> Nil)
+{
+    my UInt:D $bs = 512;
+    my UInt:D $count = 16;
+    my Str:D $if = '/dev/urandom';
+    my Str:D $of = '/mnt/boot/volume.key';
+    my Str:D $iflag = 'fullblock';
+    run(qqw<dd bs=$bs count=$count if=$if of=$of iflag=$iflag>);
+}
+
+# LUKS encrypted volume password was given
+multi sub mkvault-key-add(
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        build-cryptsetup-luks-add-key-cmdline(
+            :non-interactive,
+            $partition-vault,
+            $vault-pass
+        );
+
+    # make LUKS key without prompt for vault password
+    shell($cryptsetup-luks-add-key-cmdline);
+}
+
+multi sub mkvault-key-add(
+    Str:D :$partition-vault! where .so,
+    VaultPass :vault-pass($)
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        build-cryptsetup-luks-add-key-cmdline(
+            :interactive,
+            $partition-vault
+        );
+
+    # add LUKS key, prompt user for vault password
+    Voidvault::Utils.loop-cmdline-proc(
+        'Adding LUKS key...',
+        $cryptsetup-luks-add-key-cmdline
+    );
+}
+
+multi sub build-cryptsetup-luks-add-key-cmdline(
+    Str:D $partition-vault where .so,
+    Bool:D :interactive($)! where .so
+    --> Str:D
+)
+{
+    my Str:D $key = '/mnt/boot/volume.key';
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        "spawn cryptsetup luksAddKey $partition-vault $key";
+    my Str:D $interact =
+        'interact';
+    my Str:D $catch-wait-result =
+        'catch wait result';
+    my Str:D $exit-lindex-result =
+        'exit [lindex $result 3]';
+
+    my Str:D @cryptsetup-luks-add-key-cmdline =
+        $spawn-cryptsetup-luks-add-key,
+        $interact,
+        $catch-wait-result,
+        $exit-lindex-result;
+
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-add-key-cmdline);
+        expect -c '%s;
+                   %s;
+                   %s;
+                   %s'
+        EOF
+}
+
+multi sub build-cryptsetup-luks-add-key-cmdline(
+    Str:D $partition-vault where .so,
+    VaultPass:D $vault-pass where .so,
+    Bool:D :non-interactive($)! where .so
+    --> Str:D
+)
+{
+    my Str:D $key = '/mnt/boot/volume.key';
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        sprintf('spawn cryptsetup luksAddKey %s %s', $partition-vault, $key);
+    my Str:D $sleep =
+                'sleep 0.33';
+    my Str:D $expect-enter-send-vault-pass =
+        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-eof =
+                'expect eof';
+
+    my Str:D @cryptsetup-luks-add-key-cmdline =
+        $spawn-cryptsetup-luks-add-key,
+        $sleep,
+        $expect-enter-send-vault-pass,
+        $expect-eof;
+
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-add-key-cmdline);
+        expect <<EOS
+          %s
+          %s
+          %s
+          %s
+        EOS
+        EOF
+}
+
+sub mkvault-key-sec(--> Nil)
+{
+    run(qw<void-chroot /mnt chmod 000 /boot/volume.key>);
+    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
+}
+
+# configure /etc/crypttab for vault key
+sub mkvault-key-cfg(
+    Str:D $partition-vault where .so,
+    VaultName:D $vault-name where .so
+    --> Nil
+)
+{
+    replace('crypttab', $partition-vault, $vault-name);
 }
 
 # secure user configuration
@@ -1546,6 +1691,23 @@ multi sub replace(
 }
 
 # --- end sudoers }}}
+# --- crypttab {{{
+
+multi sub replace(
+    'crypttab',
+    Str:D $partition-vault,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/crypttab';
+    my Str:D $key = qq:to/EOF/;
+    $vault-name   $partition-vault   /boot/volume.key   luks
+    EOF
+    spurt($file, "\n" ~ $key, :append);
+}
+
+# --- end crypttab }}}
 # --- fstab {{{
 
 multi sub replace(
@@ -2008,6 +2170,7 @@ multi sub replace(
     replace('dracut.conf', 'compress');
     replace('dracut.conf', 'add_drivers', $graphics, $processor);
     replace('dracut.conf', 'add_dracutmodules');
+    replace('dracut.conf', 'install_items');
     replace('dracut.conf', 'omit_dracutmodules');
     replace('dracut.conf', 'persistent_policy');
     replace('dracut.conf', 'tmpdir');
@@ -2063,6 +2226,21 @@ multi sub replace(
         kernel-modules
     >;
     my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'dracut.conf',
+    Str:D $subject where 'install_items'
+    --> Nil
+)
+{
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D @item = qw<
+        /boot/volume.key
+        /etc/crypttab
+    >;
+    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @item.join(' '));
     spurt($file, $replace ~ "\n");
 }
 

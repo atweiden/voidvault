@@ -35,6 +35,8 @@ could cause catastrophic data loss and system instability.
 - custom GRUB command line username and password
 - custom root, admin, guest, and SFTP user account passwords
 - custom repository selection for `xbps-install` (optional)
+- adds randomized key for LUKS volume to avoid [double password
+  entry][double password entry] on boot
 - configures [OpenSSH][OpenSSH]
   - SFTP-only user enforced with OpenSSH
     `ChrootDirectory` and `ForceCommand internal-sftp` (see:
@@ -261,7 +263,7 @@ Dependencies
 Name                 | Provides                                                 | Included in Void ISO¹²?
 ---                  | ---                                                      | ---
 btrfs-progs          | Btrfs support                                            | Y
-coreutils            | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
+coreutils            | `chmod`, `chown`, `chroot`, `cp`, `dd`, `rm`             | Y
 cryptsetup           | FDE with LUKS                                            | Y
 dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`         | Y
 e2fsprogs            | `chattr`                                                 | Y
@@ -347,6 +349,7 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [denies console login as root]: https://wiki.archlinux.org/index.php/Security#Denying_console_login_as_root
 [disables Btrfs CoW]: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
 [dnscrypt-proxy]: https://wiki.archlinux.org/index.php/DNSCrypt
+[double password entry]: https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Avoiding_having_to_enter_the_passphrase_twice
 [flat layout]: https://btrfs.wiki.kernel.org/index.php/SysadminGuide#Layout
 [GPT]: https://wiki.archlinux.org/index.php/Partitioning#GUID_Partition_Table
 [GRUB]: https://wiki.archlinux.org/index.php/GRUB
