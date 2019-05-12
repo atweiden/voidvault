@@ -196,12 +196,15 @@ multi sub voidstrap-install(
 {
     my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
     my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    my Str:D $repository-official-nonfree =
+        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
          xbps-install \\
          --force \\
          --repository $repository \\
          --repository $repository-official \\
+         --repository $repository-official-nonfree \\
          --rootdir $chroot-dir \\
          --sync \\
          --yes \\
@@ -230,11 +233,14 @@ multi sub voidstrap-install(
 {
     my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
     my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    my Str:D $repository-official-nonfree =
+        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
          xbps-install \\
          --force \\
          --repository $repository-official \\
+         --repository $repository-official-nonfree \\
          --rootdir $chroot-dir \\
          --sync \\
          --yes \\

@@ -41,5 +41,7 @@ multi sub gen-repository-official(LibcFlavor:D $ --> Str:D)
 constant $XBPS-UHELPER-ARCH = qx<xbps-uhelper arch>.trim;
 constant $LIBC-FLAVOR = gen-libc-flavor($XBPS-UHELPER-ARCH);
 constant $REPOSITORY-OFFICIAL = gen-repository-official($LIBC-FLAVOR);
+constant $REPOSITORY-OFFICIAL-NONFREE =
+    sprintf(Q{%s/nonfree}, $REPOSITORY-OFFICIAL);
 
 # vim: set filetype=perl6 foldmethod=marker foldlevel=0 nowrap:
