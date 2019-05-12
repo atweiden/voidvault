@@ -2167,9 +2167,9 @@ multi sub replace(
     --> Nil
 )
 {
-    replace('dracut.conf', 'compress');
-    replace('dracut.conf', 'add_drivers', $graphics, $processor);
     replace('dracut.conf', 'add_dracutmodules');
+    replace('dracut.conf', 'add_drivers', $graphics, $processor);
+    replace('dracut.conf', 'compress');
     replace('dracut.conf', 'install_items');
     replace('dracut.conf', 'omit_dracutmodules');
     replace('dracut.conf', 'persistent_policy');
@@ -2178,12 +2178,18 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf',
-    Str:D $subject where 'compress'
+    Str:D $subject where 'add_dracutmodules'
     --> Nil
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
-    my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
+    # modules are found in C</usr/lib/dracut/modules.d>
+    my Str:D @module = qw<
+        btrfs
+        crypt
+        kernel-modules
+    >;
+    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -2214,18 +2220,12 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf',
-    Str:D $subject where 'add_dracutmodules'
+    Str:D $subject where 'compress'
     --> Nil
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
-    # modules are found in C</usr/lib/dracut/modules.d>
-    my Str:D @module = qw<
-        btrfs
-        crypt
-        kernel-modules
-    >;
-    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
+    my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
