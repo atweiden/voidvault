@@ -958,7 +958,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
         $spawn-cryptsetup-luks-add-key,
         $sleep,
         $expect-enter-send-vault-pass,
-        $sleep,
+        'sleep 7',
         $expect-eof;
 
     my Str:D $cryptsetup-luks-add-key-cmdline =
