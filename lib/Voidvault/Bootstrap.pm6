@@ -958,11 +958,13 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
         $spawn-cryptsetup-luks-add-key,
         $sleep,
         $expect-enter-send-vault-pass,
+        $sleep,
         $expect-eof;
 
     my Str:D $cryptsetup-luks-add-key-cmdline =
         sprintf(q:to/EOF/.trim, |@cryptsetup-luks-add-key-cmdline);
         expect <<EOS
+          %s
           %s
           %s
           %s
