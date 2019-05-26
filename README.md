@@ -263,7 +263,7 @@ Dependencies
 Name                 | Provides                                                 | Included in Void ISO¹²?
 ---                  | ---                                                      | ---
 btrfs-progs          | Btrfs support                                            | Y
-coreutils            | `chmod`, `chown`, `chroot`, `cp`, `dd`, `rm`             | Y
+coreutils            | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
 cryptsetup           | FDE with LUKS                                            | Y
 dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`         | Y
 e2fsprogs            | `chattr`                                                 | Y

@@ -307,6 +307,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
          spawn cryptsetup
          --type luks1
          --cipher aes-xts-plain64
+         --key-slot 1
          --key-size 512
          --hash sha512
          --iter-time 5000
@@ -351,6 +352,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
                  spawn cryptsetup
                  --type luks1
                  --cipher aes-xts-plain64
+                 --key-slot 1
                  --key-size 512
                  --hash sha512
                  --iter-time 5000
@@ -853,12 +855,16 @@ method !mkvault-key(--> Nil)
 # generate LUKS key
 sub mkvault-key-gen(--> Nil)
 {
-    my UInt:D $bs = 512;
-    my UInt:D $count = 16;
-    my Str:D $if = '/dev/urandom';
-    my Str:D $of = '/mnt/boot/volume.key';
-    my Str:D $iflag = 'fullblock';
-    run(qqw<dd bs=$bs count=$count if=$if of=$of iflag=$iflag>);
+    # source of entropy
+    my Str:D $src = '/dev/random';
+    my Str:D $dst = '/mnt/boot/volume.key';
+    # bytes to read from C<$src>
+    my UInt:D $bytes = 64;
+    # exec idiomatic version of C<head -c 64 /dev/random > /mnt/boot/volume.key>
+    my IO::Handle:D $fh = $src.IO.open(:bin);
+    my Buf:D $buf = $fh.read($bytes);
+    $fh.close;
+    spurt($dst, $buf);
 }
 
 # LUKS encrypted volume password was given
@@ -904,9 +910,10 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     --> Str:D
 )
 {
+    my Str:D $iter-time = '--iter-time 1';
     my Str:D $key = '/mnt/boot/volume.key';
     my Str:D $spawn-cryptsetup-luks-add-key =
-        "spawn cryptsetup luksAddKey $partition-vault $key";
+        "spawn cryptsetup luksAddKey $iter-time $partition-vault $key";
     my Str:D $interact =
         'interact';
     my Str:D $catch-wait-result =
@@ -936,9 +943,10 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     --> Str:D
 )
 {
+    my Str:D $iter-time = '--iter-time 1';
     my Str:D $key = '/mnt/boot/volume.key';
     my Str:D $spawn-cryptsetup-luks-add-key =
-        sprintf('spawn cryptsetup luksAddKey %s %s', $partition-vault, $key);
+                "spawn cryptsetup luksAddKey $iter-time $partition-vault $key";
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-enter-send-vault-pass =
