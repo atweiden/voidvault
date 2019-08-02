@@ -1352,6 +1352,7 @@ multi sub install-bootloader(
     install-bootloader(:legacy, $partition);
     install-bootloader(:uefi, 32, $partition) if $*KERNEL.bits == 32;
     install-bootloader(:uefi, 64, $partition) if $*KERNEL.bits == 64;
+    mkdir('/mnt/boot/grub/locale');
     copy(
         '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
         '/mnt/boot/grub/locale/en.mo'
