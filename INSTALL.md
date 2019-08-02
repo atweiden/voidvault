@@ -61,6 +61,13 @@ export PERL6LIB="$(realpath lib)"
 voidvault --help
 ```
 
+Fix for `rakudo-2019.07.1` (`Unhandled exception: While looking for
+'/usr/share/perl6/runtime/perl6.moarvm': no such file or directory`):
+
+```sh
+ln -rs /usr/lib/perl6 /usr/share/perl6
+```
+
 
 [overlayfs]: https://github.com/atweiden/voidvault/pull/3
 [rakudo]: https://github.com/rakudo/rakudo
