@@ -2468,6 +2468,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
     my Str:D @replace =
         $file.IO.lines
+        ==> replace('99-sysctl.conf', 'kernel.pid_max')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.all.disable_ipv6')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.default.disable_ipv6')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.lo.disable_ipv6')
@@ -2487,6 +2488,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
     my Str:D @replace =
         $file.IO.lines
+        ==> replace('99-sysctl.conf', 'kernel.pid_max')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.all.disable_ipv6')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.default.disable_ipv6')
         ==> replace('99-sysctl.conf', 'net.ipv6.conf.lo.disable_ipv6');
@@ -2504,6 +2506,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
     my Str:D @replace =
         $file.IO.lines
+        ==> replace('99-sysctl.conf', 'kernel.pid_max')
         ==> replace('99-sysctl.conf', 'vm.vfs_cache_pressure')
         ==> replace('99-sysctl.conf', 'vm.swappiness');
     my Str:D $replace = @replace.join("\n");
@@ -2516,7 +2519,52 @@ multi sub replace(
     DiskType:D $disk-type
     --> Nil
 )
-{*}
+{
+    my Str:D $file = '/mnt/etc/sysctl.d/99-sysctl.conf';
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('99-sysctl.conf', 'kernel.pid_max');
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'kernel.pid_max',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $kernel-bits = $*KERNEL.bits;
+    replace('99-sysctl.conf', $subject, @line, :$kernel-bits);
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'kernel.pid_max',
+    Str:D @line,
+    UInt:D :kernel-bits($)! where 64
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^'#'$subject/, :k);
+    # extract C<kernel.pid_max> value from file 99-sysctl.conf
+    my Str:D $pid-max = @line[$index].split('=').map({ .trim }).tail;
+    my Str:D $replace = sprintf(Q{%s = %s}, $subject, $pid-max);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    '99-sysctl.conf',
+    Str:D $subject where 'kernel.pid_max',
+    Str:D @line,
+    UInt:D :kernel-bits($)!
+    --> Array[Str:D]
+)
+{
+    @line;
+}
 
 multi sub replace(
     '99-sysctl.conf',
