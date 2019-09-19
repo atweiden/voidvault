@@ -726,6 +726,7 @@ method !voidstrap-base(--> Nil)
         man-db
         man-pages
         mlocate
+        mkpasswd
         ncurses-term
         net-tools
         nftables
