@@ -203,4 +203,29 @@ netstat -tulpn
 wg-quick up wg0
 ```
 
+## Troubleshooting
+
+### Slow internet speeds
+
+The solution is to [configure the WireGuard client's
+MTU](https://www.reddit.com/r/WireGuard/comments/aru07q/wireguard_slow/).
+
+On the client, set `MTU = $MTU` in the `[Interface]` section of
+`/etc/wireguard/wg0.conf`. Alternatively, configure WireGuard's MTU with:
+
+```sh
+ip link set mtu $MTU dev wg0
+```
+
+To determine `$MTU`:
+
+- run `ping google.com -f -l $MTU` on the client
+  - where `$MTU` is `2500` or other large value
+- when `$MTU` is too high, `ping`'s output will indicate the response
+  needed to be fragmented
+  - drop `$MTU` by large numbers until the response stops fragmenting
+  - increase `$MTU` until the response fragments
+- take the highest non-fragmented value of `$MTU`
+  - add `28` to it to account for ICMP headers
+
 <!-- vim: set filetype=markdown foldmethod=marker foldlevel=0 nowrap -->
