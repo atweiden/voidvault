@@ -2,6 +2,7 @@
 
 export PATH="$(realpath bin):$PATH"
 export PERL6LIB="$(realpath lib)"
+export PERL6_HOME='/usr/lib/perl6'
 voidvault --admin-name="live"                                  \
           --admin-pass="your admin user's password"            \
           --guest-name="guest"                                 \

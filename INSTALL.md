@@ -58,6 +58,8 @@ Run Voidvault (as root):
 ```sh
 export PATH="$(realpath bin):$PATH"
 export PERL6LIB="$(realpath lib)"
+# for rakudo-2019.11
+export PERL6_HOME=/usr/lib/perl6
 voidvault --help
 ```
 
