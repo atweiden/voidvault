@@ -93,16 +93,17 @@ Subvolume name       | Mounting point
 `@srv`               | `/srv`
 `@var`               | `/var`
 `@var-cache-xbps`    | `/var/cache/xbps`
+`@var-lib-ex`        | `/var/lib/ex`
 `@var-log`           | `/var/log`
 `@var-opt`           | `/var/opt`
 `@var-spool`         | `/var/spool`
 `@var-tmp`           | `/var/tmp`
 
 Voidvault [disables Btrfs CoW][disables Btrfs CoW] on `/home`, `/srv`,
-`/var/log`, `/var/spool` and `/var/tmp`.
+`/var/lib/ex`, `/var/log`, `/var/spool` and `/var/tmp`.
 
-Voidvault mounts directories `/srv`, `/tmp`, `/var/log`, `/var/spool`
-and `/var/tmp` with options `nodev,noexec,nosuid`.
+Voidvault mounts directories `/srv`, `/tmp`, `/var/lib/ex`, `/var/log`,
+`/var/spool` and `/var/tmp` with options `nodev,noexec,nosuid`.
 
 
 Synopsis

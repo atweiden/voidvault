@@ -481,6 +481,7 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
         'srv',
         'var',
         'var-cache-xbps',
+        'var-lib-ex',
         'var-log',
         'var-opt',
         'var-spool',
@@ -537,6 +538,25 @@ multi sub mount-btrfs-subvolume(
         /dev/mapper/$vault-name
         /mnt/$btrfs-dir
     >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-lib-ex',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/lib/ex';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
 }
 
 multi sub mount-btrfs-subvolume(
@@ -641,6 +661,7 @@ sub disable-cow(--> Nil)
     my Str:D @directory = qw<
         home
         srv
+        var/lib/ex
         var/log
         var/spool
         var/tmp
