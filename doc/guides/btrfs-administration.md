@@ -11,7 +11,7 @@ chmod 700 /opt/{snapshots,subvolumes}
 btrfs subvolume create /opt/subvolumes/example-alpha
 
 # mount example-alpha subvolume
-_mount_opts+="compress=lzo,"
+_mount_opts+="compress=zstd,"
 _mount_opts+="noatime,"
 _mount_opts+="nodiratime,"
 _mount_opts+="rw,"
@@ -174,7 +174,7 @@ _HOME="$HOME"
 
 # mount this new snapshot as example-alpha at ~/.example-alpha
 # /dev/mapper/vault is root
-mount -t btrfs -o rw,nodatacow,noatime,nodiratime,compress=lzo,ssd,space_cache,subvolid=$_NEW_ID,subvol=/@opt/subvolumes/example-alpha /dev/mapper/vault "$_HOME/.example-alpha"
+mount -t btrfs -o rw,nodatacow,noatime,nodiratime,compress=zstd,ssd,space_cache,subvolid=$_NEW_ID,subvol=/@opt/subvolumes/example-alpha /dev/mapper/vault "$_HOME/.example-alpha"
 
 # update fstab (with `subvolid=$_NEW_ID`)
 genfstab -U /

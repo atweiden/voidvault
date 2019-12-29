@@ -20,8 +20,7 @@ _btrfs_subvolumes=(''
                    'var-opt'
                    'var-spool'
                    'var-tmp')
-# use lzo compression because grub does not yet support zstd
-_compression='lzo'
+_compression='zstd'
 _mount_options="rw,lazytime,compress=$_compression,space_cache"
 _partition='/dev/sda'
 _vault_name='vault'
