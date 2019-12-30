@@ -3,9 +3,9 @@ Voidvault
 
 Last tested | ISO                                                             | Result
 ----------- | --------------------------------------------------------------- | ------
-2018-12-01  | [void-live-x86_64-20181111.iso][void-live-iso-x86_64-glibc]     | PASS
-2018-12-01  | [void-live-x86_64-musl-20181111.iso][void-live-iso-x86_64-musl] | PASS
-2018-12-01  | [void-live-i686-20181111.iso][void-live-iso-i686-glibc]         | PASS
+2019-12-30  | [void-live-x86_64-20181111.iso][void-live-iso-x86_64-glibc]     | PASS
+2019-12-30  | [void-live-x86_64-musl-20181111.iso][void-live-iso-x86_64-musl] | PASS
+2019-12-30  | [void-live-i686-20181111.iso][void-live-iso-i686-glibc]         | PASS
 
 
 Bootstrap Void with FDE
