@@ -779,7 +779,8 @@ method !voidstrap-base(--> Nil)
         wget
         which
         wifish
-        wireguard
+        wireguard-dkms
+        wireguard-tools
         wireless_tools
         wpa_supplicant
         xbps
