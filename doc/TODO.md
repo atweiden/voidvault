@@ -3,13 +3,6 @@ Todo
 
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release
-- implement dracut-sshd-nonet
-  - new profile: `headless-nonet`
-    - disable grub boot encryption
-    - pkg https://github.com/atweiden/dracut-sshd-nonet
-    - add `ip link set dev eth0 up` to `/etc/rc.local`
-    - modify `sshd_config` to `AllowUsers admin`
-    - have runit launch sshd on startup
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
     - sleep 7 seconds before attempting to unmount
@@ -29,5 +22,14 @@ Todo
     - refrain from symlinking runit services
     - refrain from symlinking anything
     - replace dracut with mkinitcpio
+- implement dracut-sshd-nonet
+  - new profile: `headless-nonet`
+    - disable grub boot encryption
+    - pkg https://github.com/atweiden/dracut-sshd-nonet
+    - add `ip link set dev eth0 up` to `/etc/rc.local`
+    - modify `sshd_config` to `AllowUsers admin`
+    - have runit launch sshd on startup
+- test voidvault installation to hdd in secondary drive bay
+  - see: https://github.com/atweiden/voidvault/issues/7
 
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
