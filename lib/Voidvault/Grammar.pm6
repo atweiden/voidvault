@@ -63,4 +63,4 @@ token vault-name
     <+alnum +[-]> ** 0..15
 }
 
-# vim: set filetype=perl6 foldmethod=marker foldlevel=0:
+# vim: set filetype=raku foldmethod=marker foldlevel=0:

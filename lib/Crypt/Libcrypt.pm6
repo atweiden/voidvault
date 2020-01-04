@@ -13,4 +13,4 @@ multi sub crypt('MUSL', Str:D $key, Str:D $salt --> Str:D) is export
     my Str:D $crypt = crypt($key, $salt);
 }
 
-# vim: set filetype=perl6 foldmethod=marker foldlevel=0:
+# vim: set filetype=raku foldmethod=marker foldlevel=0:

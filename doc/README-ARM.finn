@@ -114,7 +114,7 @@ approach 2: flash eMMC directly with prebuilt image
   - it's fine to enter insecure luks passphrase on host computer
     - you can change it later
   - adapt this [10] to void
-    - rewrite void-mklive in Perl 6
+    - rewrite void-mklive in Raku
     - install necessary pkgs for post-boot script run
 - process
   - boot

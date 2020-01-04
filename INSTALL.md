@@ -7,15 +7,15 @@ space. Using the official Void Linux ISO, when you see the boot loader
 screen, press <kbd>Tab</kbd> and [append the following][overlayfs] to the
 kernel line: `rd.live.overlay.overlayfs=1`. Then, press <kbd>Enter</kbd>.
 
-In order to use Voidvault, install [Rakudo Perl 6][rakudo]. Voidvault
-will automatically resolve all other dependencies.
+In order to use Voidvault, install [Raku][rakudo]. Voidvault will
+automatically resolve all other dependencies.
 
 Alternatively, you can use my custom [Void ISO][voidiso]. This ISO ships
-with Rakudo Perl 6 pre-installed, and has ample space in its rootfs.
+with Raku pre-installed, and has ample space in its rootfs.
 
 
-Installing Rakudo Perl 6
-------------------------
+Installing Raku
+---------------
 
 ```sh
 xbps-install -Syv rakudo

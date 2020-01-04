@@ -44,4 +44,4 @@ constant $REPOSITORY-OFFICIAL = gen-repository-official($LIBC-FLAVOR);
 constant $REPOSITORY-OFFICIAL-NONFREE =
     sprintf(Q{%s/nonfree}, $REPOSITORY-OFFICIAL);
 
-# vim: set filetype=perl6 foldmethod=marker foldlevel=0 nowrap:
+# vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:

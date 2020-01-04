@@ -1126,4 +1126,4 @@ subset VaultName of Str is export where
 # LUKS encrypted volume password must be 1-512 characters
 subset VaultPass of Str is export where { 0 < .chars <= 512 };
 
-# vim: set filetype=perl6 foldmethod=marker foldlevel=0 nowrap:
+# vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
