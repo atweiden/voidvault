@@ -99,7 +99,7 @@ Subvolume name       | Mounting point
 `@var-spool`         | `/var/spool`
 `@var-tmp`           | `/var/tmp`
 
-Voidvault [disables Btrfs CoW][disables Btrfs CoW] on `/home`, `/srv`,
+Voidvault [disables Btrfs CoW][disables Btrfs CoW] on `/srv`,
 `/var/lib/ex`, `/var/log`, `/var/spool` and `/var/tmp`.
 
 Voidvault mounts directories `/srv`, `/tmp`, `/var/lib/ex`, `/var/log`,
