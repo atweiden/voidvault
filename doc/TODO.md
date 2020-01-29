@@ -3,6 +3,7 @@ Todo
 
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release
+- rm `wireguard-dkms` once `linux-5.6` ships in void
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
     - sleep 7 seconds before attempting to unmount
