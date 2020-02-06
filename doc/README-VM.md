@@ -290,7 +290,7 @@ The rest of the instructions are the same as with VirtualBox.
 - Run Voidvault
   - `export PATH="$(realpath bin):$PATH"`
   - `export PERL6LIB="$(realpath lib)"`
-  - `export PERL6_HOME=/usr/lib/perl6`
+  - `export RAKUDO_HOME=/usr/lib/raku`
   - `voidvault --help`
   - `voidvault new`
 - Follow the prompts as needed, let Voidvault finish to completion

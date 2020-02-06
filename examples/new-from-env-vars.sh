@@ -2,7 +2,7 @@
 
 export PATH="$(realpath bin):$PATH"
 export PERL6LIB="$(realpath lib)"
-export PERL6_HOME='/usr/lib/perl6'
+export RAKUDO_HOME='/usr/lib/raku'
 export VOIDVAULT_ADMIN_NAME="live"
 export VOIDVAULT_ADMIN_PASS="your admin user's password"
 export VOIDVAULT_GUEST_NAME="guest"
