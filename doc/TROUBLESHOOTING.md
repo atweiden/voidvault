@@ -209,7 +209,7 @@ the config file at `/etc/grub.d/10_linux`.
 
 Run [this script][10_linux] to fix it:
 
-```perl6
+```raku
 use v6;
 my Str:D $file = '/etc/grub.d/10_linux';
 my Str:D @line = $file.IO.lines;
