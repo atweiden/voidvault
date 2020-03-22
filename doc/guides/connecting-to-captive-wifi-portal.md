@@ -11,7 +11,7 @@ readonly INTERFACE="wlan0"
 
 # connect to captive wifi portal
 wpa_supplicant -B -s -i "$INTERFACE" -c /etc/wpa_supplicant/wpa_supplicant.conf
-wpa_cli
+wpa_cli -i "$INTERFACE"
 > add_network
 > set_network 0 ssid "SSIDNAME"
 > set_network 0 key_mgmt NONE

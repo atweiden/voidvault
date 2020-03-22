@@ -87,7 +87,7 @@ wpa_supplicant -B -s -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 ### Running `wpa_cli`
 
 ```sh
-wpa_cli
+wpa_cli -i wlan0
 ```
 
 Use the `scan` and `scan_results` commands to see the available networks:
