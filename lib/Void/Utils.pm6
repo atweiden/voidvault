@@ -7,7 +7,7 @@ constant $VERSION = v1.10.0;
 
 # method voidstrap {{{
 
-# based on arch-install-scripts v21
+# based on arch-install-scripts v23
 method voidstrap(
     Str:D $chroot-dir,
     Str :$repository,
@@ -42,6 +42,7 @@ multi sub create-obligatory-dirs(Str:D $chroot-dir where .IO.d.so --> Nil)
     mkdir("$chroot-dir/dev", 0o0755);
     mkdir("$chroot-dir/etc", 0o0755);
     mkdir("$chroot-dir/run", 0o0755);
+    mkdir("$chroot-dir/var/db/xbps/keys", 0o0755);
     mkdir("$chroot-dir/var/log", 0o0755);
     run(qqw<mkdir --mode=1777 --parents $chroot-dir/tmp>);
     mkdir("$chroot-dir/proc", 0o0555);
@@ -137,18 +138,23 @@ sub chroot-add-mount(Str:D $source, Str:D $dest, *@opts --> Nil)
 
 # copy existing host keys to the target chroot
 multi sub chroot-add-host-keys(
-    Str:D $chroot-dir,
-    Str:D $host-keys-dir where .IO.d.so = '/var/db/xbps/keys'
+    Str:D $chroot-dir
     --> Nil
 )
 {
+    my Str:D $host-keys-dir =
+        '/var/db/xbps/keys';
     my Str:D $host-keys-chroot-dir =
         sprintf(Q{%s%s}, $chroot-dir, $host-keys-dir);
-    mkdir($host-keys-chroot-dir);
     dir($host-keys-dir)
-        .map(-> IO::Path:D $path { $path.basename })
+        .map(-> IO::Path:D $path {
+            $path.basename
+        })
         .map(-> Str:D $basename {
-            copy("$host-keys-dir/$basename", "$host-keys-chroot-dir/$basename");
+            copy(
+                "$host-keys-dir/$basename",
+                "$host-keys-chroot-dir/$basename"
+            );
         });
 }
 
@@ -175,6 +181,9 @@ multi sub voidstrap-install(
     # rm official repo in the presence of C<--repository --ignore-conf-repos>
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
+         unshare \\
+         --fork \\
+         --pid \\
          xbps-install \\
          --force \\
          --ignore-conf-repos \\
@@ -200,6 +209,9 @@ multi sub voidstrap-install(
         $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
+         unshare \\
+         --fork \\
+         --pid \\
          xbps-install \\
          --force \\
          --repository $repository \\
@@ -237,6 +249,9 @@ multi sub voidstrap-install(
         $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
+         unshare \\
+         --fork \\
+         --pid \\
          xbps-install \\
          --force \\
          --repository $repository-official \\
@@ -261,6 +276,7 @@ method void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
 sub void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
 {
     my Str:D @*chroot-active-mount;
+    create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-resolv-conf($chroot-dir);
     my Str:D $cmdline =

@@ -1,6 +1,7 @@
 #!/bin/bash
 # source: https://git.archlinux.org/arch-install-scripts.git
-# license: GPL2
+# release: v23
+# license: GPL-2.0-or-later
 
 shopt -s extglob
 
@@ -338,11 +339,11 @@ usage() {
 usage: ${0##*/} [options] root
 
   Options:
-    -f FILTER      Restrict output to mountpoints matching the prefix FILTER
+    -f <filter>    Restrict output to mountpoints matching the prefix FILTER
     -L             Use labels for source identifiers (shortcut for -t LABEL)
     -p             Exclude pseudofs mounts (default behavior)
     -P             Include pseudofs mounts
-    -t TAG         Use TAG for source identifiers (TAG should be one of: LABEL,
+    -t <tag>       Use TAG for source identifiers (TAG should be one of: LABEL,
                       UUID, PARTLABEL, PARTUUID)
     -U             Use UUIDs for source identifiers (shortcut for -t UUID)
 
@@ -479,7 +480,7 @@ done
     [[ $device = *'\040(deleted)' ]] && continue
 
     if [[ $type = file ]]; then
-      printf '%-20s' "$device"
+      printf '%-20s' "${device#${root%/}}"
     elif [[ $device = /dev/dm-+([0-9]) ]]; then
       # device mapper doesn't allow characters we need to worry
       # about being mangled, and it does the escaping of dashes
