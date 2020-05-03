@@ -277,10 +277,29 @@ The rest of the instructions are the same as with VirtualBox.
   - `chsh -s /bin/bash`
   - `exit`
 - Log back in as user `root`, password: `voidlinux`
-- Free up 100MB disk space if necessary
-  - `xbps-remove --force-revdeps linux-firmware-network`
-- Install pkgs
-  - `xbps-install -Sv curl rakudo tmux`
+- Install pkgs (optional: select [mirror](https://docs.voidlinux.org/xbps/repositories/mirrors/))
+
+```sh
+# optionally select Australia/Melbourne mirror
+cat > /usr/share/xbps.d/00-repository-main.conf <<'EOF'
+repository=https://ftp.swin.edu.au/voidlinux/current
+EOF
+xbps-install \
+  -Sv \
+  curl \
+  rakudo \
+  tmux
+
+# equivalent without modifying 00-repository-main.conf
+xbps-install \
+  -Sv \
+  --repository=https://ftp.swin.edu.au/voidlinux/current \
+  --ignore-conf-repos \
+  curl \
+  rakudo \
+  tmux
+```
+
 - Launch tmux
   - `tmux`
 - Fetch Voidvault sources with Curl:

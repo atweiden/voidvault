@@ -1,7 +1,7 @@
 Install
 =======
 
-If you intend to run Voidvault on the current stock LiveCD, *you must
+If you intend to run Voidvault on a legacy stock LiveCD, *you must
 increase the size of the root partition* to avoid running out of disk
 space. Using the official Void Linux ISO, when you see the boot loader
 screen, press <kbd>Tab</kbd> and [append the following][overlayfs] to the
