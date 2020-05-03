@@ -137,7 +137,7 @@ sub chroot-add-mount(Str:D $source, Str:D $dest, *@opts --> Nil)
 # --- sub chroot-add-host-keys {{{
 
 # copy existing host keys to the target chroot
-multi sub chroot-add-host-keys(
+sub chroot-add-host-keys(
     Str:D $chroot-dir
     --> Nil
 )
@@ -157,14 +157,6 @@ multi sub chroot-add-host-keys(
             );
         });
 }
-
-# no existing host keys to copy
-multi sub chroot-add-host-keys(
-    Str:D $,
-    Str:D $
-    --> Nil
-)
-{*}
 
 # --- end sub chroot-add-host-keys }}}
 # --- sub voidstrap-install {{{
