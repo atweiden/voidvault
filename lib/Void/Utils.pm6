@@ -129,7 +129,7 @@ sub chroot-add-mount(Str:D $source, Str:D $dest, *@opts --> Nil)
         sprintf(Q{mount %s %s %s}, $source, $dest, @opts.join(' '));
     my Proc:D $proc = shell($mount-cmdline);
     $proc.exitcode == 0
-        or die('Sorry, could not add mount');
+        or die(sprintf(Q{Sorry, could not add mount: %s}, $source));
     push(@*chroot-active-mount, $dest);
 }
 
