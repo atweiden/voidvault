@@ -294,6 +294,7 @@ xbps-install \
 xbps-install \
   -Sv \
   --repository=https://ftp.swin.edu.au/voidlinux/current \
+  --repository=https://ftp.swin.edu.au/voidlinux/current/nonfree \
   --ignore-conf-repos \
   curl \
   rakudo \
