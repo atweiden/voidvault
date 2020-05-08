@@ -2221,6 +2221,7 @@ multi sub replace(
     my Str:D @module = qw<
         btrfs
         crypt
+        dm
         kernel-modules
     >;
     my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
@@ -2358,7 +2359,6 @@ multi sub replace(
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D @grub-cmdline-linux = qqw<
         rootflags=subvol=@
-        rd.auto=1
         rd.luks=1
         rd.luks.name=$vault-uuid=$vault-name
         rd.luks.uuid=$vault-uuid
