@@ -57,8 +57,7 @@ Run Voidvault (as root):
 
 ```sh
 export PATH="$(realpath bin):$PATH"
-export RAKUDOLIB="$(realpath lib)"
-# for rakudo-2020.01
+export RAKULIB="$(realpath lib)"
 export RAKUDO_HOME=/usr/lib/raku
 voidvault --help
 ```

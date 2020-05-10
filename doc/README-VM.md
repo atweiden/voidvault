@@ -309,7 +309,7 @@ xbps-install \
   - `cd voidvault-master`
 - Run Voidvault
   - `export PATH="$(realpath bin):$PATH"`
-  - `export RAKUDOLIB="$(realpath lib)"`
+  - `export RAKULIB="$(realpath lib)"`
   - `export RAKUDO_HOME=/usr/lib/raku`
   - `voidvault --help`
   - `voidvault new`
