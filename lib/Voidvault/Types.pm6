@@ -502,6 +502,7 @@ constant %locales = Map.new(
     'ml_IN'                 => '"Malayalam language locale for India"',
     'mn_MN'                 => '"Mongolian locale for Mongolia"',
     'mni_IN'                => '"Manipuri language locale for India"',
+    'mnw_MM'                => '"Mon language for Myanmar"',
     'mr_IN'                 => '"Marathi language locale for India"',
     'ms_MY'                 => '"Malay language locale for Malaysia"',
     'mt_MT'                 => '"Maltese language locale for Malta"',
