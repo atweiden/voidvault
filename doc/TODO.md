@@ -8,6 +8,7 @@ Todo
   function once [libgcrypt argon2 support][libgcrypt argon2 support] ships
   in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
   luks2 argon2 support] code is shipped in a stable release of GRUB
+- replace sudo with [doas][doas]
 - rm `wireguard-dkms` once `linux-5.6` ships in void
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
@@ -38,6 +39,7 @@ Todo
 - test voidvault installation to hdd in secondary drive bay
   - see: https://github.com/atweiden/voidvault/issues/7
 
+[doas]: https://momi.ca/2020/03/20/doas.html
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html
