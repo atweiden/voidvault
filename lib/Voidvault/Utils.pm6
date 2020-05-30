@@ -335,9 +335,9 @@ method gen-partition(Str:D $subject, Str:D $p --> Str:D)
         .lines
         # make sure we're not getting the master device partition
         .grep(/part$/)
-        .sort
         # return only the device name
-        .map({ .split(' ').first });
+        .map({ .split(' ').first })
+        .sort;
     my Str:D $partition = gen-partition($subject, @partition);
 }
 
