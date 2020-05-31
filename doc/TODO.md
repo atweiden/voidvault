@@ -9,6 +9,8 @@ Todo
   in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
   luks2 argon2 support] code is shipped in a stable release of GRUB
 - replace sudo with [doas][doas]
+  - put doas behind cmdline flag
+    - `--with-sudo=doas`
 - rm `wireguard-dkms` once `linux-5.6` ships in void
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
