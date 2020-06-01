@@ -1,17 +1,8 @@
 Install
 =======
 
-If you intend to run Voidvault on a legacy stock LiveCD, *you must
-increase the size of the root partition* to avoid running out of disk
-space. Using the official Void Linux ISO, when you see the boot loader
-screen, press <kbd>Tab</kbd> and [append the following][overlayfs] to the
-kernel line: `rd.live.overlay.overlayfs=1`. Then, press <kbd>Enter</kbd>.
-
 In order to use Voidvault, install [Raku][rakudo]. Voidvault will
 automatically resolve all other dependencies.
-
-Alternatively, you can use my custom [Void ISO][voidiso]. This ISO ships
-with Raku pre-installed, and has ample space in its rootfs.
 
 
 Installing Raku
