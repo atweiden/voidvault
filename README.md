@@ -261,7 +261,7 @@ See: [INSTALL.md](INSTALL.md).
 Dependencies
 ------------
 
-Name                 | Provides                                                 | Included in Void ISO¹²?
+Name                 | Provides                                                 | Included in Void ISO¹?
 ---                  | ---                                                      | ---
 btrfs-progs          | Btrfs support                                            | Y
 coreutils            | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
@@ -270,13 +270,13 @@ dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`         
 e2fsprogs            | `chattr`                                                 | Y
 efibootmgr           | UEFI support                                             | Y
 expect               | interactive command prompt automation                    | N
-glibc³               | libcrypt, locale data in `/usr/share/i18n/locales`       | Y
+glibc²               | libcrypt, locale data in `/usr/share/i18n/locales`       | Y
 gptfdisk             | GPT disk partitioning with `sgdisk`                      | N
 grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                   | Y
 kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont`       | Y
 kmod                 | `modprobe`                                               | Y
 libressl             | user password salts                                      | Y
-musl³                | libcrypt                                                 | Y
+musl²                | libcrypt                                                 | Y
 procps-ng            | `pkill`                                                  | Y
 rakudo               | `voidvault` Raku runtime                                 | N
 tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`          | Y
@@ -285,9 +285,7 @@ xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`         
 
 ¹: the [official installation medium](https://voidlinux.org/download/)
 
-²: the [unofficial installation medium](https://repo.voidlinux.de/live/)
-
-³: glibc or musl
+²: glibc or musl
 
 
 Optional Dependencies
