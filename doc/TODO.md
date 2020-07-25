@@ -11,7 +11,6 @@ Todo
 - replace sudo with [doas][doas]
   - put doas behind cmdline flag
     - `--with-sudo=doas`
-- rm `wireguard-dkms` once `linux-5.6` ships in void
 - figure out why Voidvault won't cleanly unmount `/mnt`
   - approaches which have failed:
     - sleep 7 seconds before attempting to unmount
