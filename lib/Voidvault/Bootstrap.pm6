@@ -1636,22 +1636,10 @@ method !augment(--> Nil)
 method !unmount(--> Nil)
 {
     my VaultName:D $vault-name = $.config.vault-name;
-    # C<umount -R> fails initially on void, resume after error
+    # resume after error with C<umount -R>, obsolete but harmless
     CATCH { default { .resume } };
     run(qw<umount --recursive --verbose /mnt>);
     run(qqw<cryptsetup luksClose $vault-name>);
-    # print instructions for manual cleanup
-    my Str:D $msg = qq:to/EOF/.trim;
-    Manual cleanup after `voidvault new` is recommended [1]:
-
-        # umount -R /mnt
-        # cryptsetup luksClose $vault-name
-
-    [1]: https://github.com/atweiden/voidvault/blob/master/doc/TODO.md
-    EOF
-    say('-' x 78);
-    say($msg);
-    say('-' x 78);
 }
 
 
