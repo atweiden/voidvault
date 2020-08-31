@@ -163,6 +163,37 @@ has Bool:D $.disable-ipv6 =
 # class instantation
 # -----------------------------------------------------------------------------
 
+submethod TWEAK(--> Nil)
+{
+    # map shortnames to user names for convenience
+    my UserName:D %user-name{Str:D} =
+        :admin($!user-name-admin),
+        :guest($!user-name-guest),
+        :sftp($!user-name-sftp);
+
+    # ensure user names are unique
+    my Bool:D %matchup{Pair:D} =
+        Pair.new('admin', 'guest') =>
+            $!user-name-admin eq $!user-name-guest,
+        Pair.new('admin', 'sftp') =>
+            $!user-name-admin eq $!user-name-sftp,
+        Pair.new('guest', 'sftp') =>
+            $!user-name-guest eq $!user-name-sftp;
+
+    my Str $message =
+        %matchup
+            .kv
+            .map(-> Pair:D $k, Bool:D $v {
+                sprintf("%s user name '%s' is dupe of %s user name",
+                        $k.key,
+                        %user-name{$k.key},
+                        $k.value) if $v.so })
+            .join("\n");
+
+    die("Sorry, user names provided were not unique:\n\n$message")
+        if $message.so;
+}
+
 submethod BUILD(
     Str :$admin-name,
     Str :$admin-pass,
