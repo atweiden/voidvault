@@ -154,9 +154,19 @@ multi sub prompt-pass-hash(
     --> Str:D
 )
 {
-    # we require expect for scripting C<grub-mkpasswd-pbkdf2>
+    # install grub, expect for scripting C<grub-mkpasswd-pbkdf2>
+    '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
+        or Voidvault::Utils.xbps-install(
+               'grub',
+               :$repository,
+               :$ignore-conf-repos
+           );
     '/usr/bin/expect'.IO.x.so
-        or install-expect(:$repository, :$ignore-conf-repos);
+        or Voidvault::Utils.xbps-install(
+               'expect',
+               :$repository,
+               :$ignore-conf-repos
+           );
     my &gen-pass-hash = gen-pass-hash-closure(:grub);
     my Str:D $enter = 'Enter password: ';
     my Str:D $confirm = 'Reenter password: ';
@@ -477,50 +487,62 @@ method loop-cmdline-proc(
     }
 }
 
-sub install-expect(Str :$repository, Bool :$ignore-conf-repos --> Nil)
+method xbps-install(
+    Str:D $package where .so,
+    Str :$repository,
+    Bool :$ignore-conf-repos
+    --> Nil
+)
 {
     # Cxbps-install> requires root privileges
     my Str:D $message =
-        'Sorry, missing pkg expect. Please install: xbps-install expect';
+        "Sorry, missing pkg $package. Please install: xbps-install $package";
     $*USER == 0 or die($message);
-    my Str:D $xbps-install-expect-cmdline =
-        build-xbps-install-expect-cmdline(:$repository, :$ignore-conf-repos);
+    my Str:D $xbps-install-cmdline =
+        build-xbps-install-cmdline(
+            $package,
+            :$repository,
+            :$ignore-conf-repos
+        );
     Voidvault::Utils.loop-cmdline-proc(
-        'Installing expect...',
-        $xbps-install-expect-cmdline
+        "Installing $package...",
+        $xbps-install-cmdline
     );
 }
 
-multi sub build-xbps-install-expect-cmdline(
+multi sub build-xbps-install-cmdline(
+    Str:D $package where .so,
     Str:D :$repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
 )
 {
-    my Str:D $xbps-install-expect-cmdline =
+    my Str:D $xbps-install-cmdline =
         "xbps-install \\
          --ignore-conf-repos \\
          --repository $repository \\
          --sync \\
          --yes \\
-         expect";
+         $package";
 }
 
-multi sub build-xbps-install-expect-cmdline(
+multi sub build-xbps-install-cmdline(
+    Str:D $package where .so,
     Str:D :$repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
-    my Str:D $xbps-install-expect-cmdline =
+    my Str:D $xbps-install-cmdline =
         "xbps-install \\
          --repository $repository \\
          --sync \\
          --yes \\
-         expect";
+         $package";
 }
 
-multi sub build-xbps-install-expect-cmdline(
+multi sub build-xbps-install-cmdline(
+    $,
     Str :repository($),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
@@ -529,17 +551,18 @@ multi sub build-xbps-install-expect-cmdline(
     die(X::Void::XBPS::IgnoreConfRepos.new);
 }
 
-multi sub build-xbps-install-expect-cmdline(
+multi sub build-xbps-install-cmdline(
+    Str:D $package where .so,
     Str :repository($),
     Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
-    my Str:D $xbps-install-expect-cmdline =
+    my Str:D $xbps-install-cmdline =
         "xbps-install \\
          --sync \\
          --yes \\
-         expect";
+         $package";
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
