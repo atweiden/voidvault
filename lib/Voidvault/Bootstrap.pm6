@@ -455,7 +455,7 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
     # set mount options
     my Str:D @mount-options = qw<
         rw
-        lazytime
+        noatime
         compress=zstd
         space_cache
     >;
