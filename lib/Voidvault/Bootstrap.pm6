@@ -457,7 +457,7 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
         rw
         noatime
         compress=zstd
-        space_cache
+        space_cache=v2
     >;
     push(@mount-options, 'ssd') if $disk-type eq 'SSD';
     my Str:D $mount-options = @mount-options.join(',');
