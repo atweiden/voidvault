@@ -9,7 +9,6 @@
 
 # setup
 _btrfs_subvolumes=(''
-                   'boot'
                    'home'
                    'opt'
                    'srv'

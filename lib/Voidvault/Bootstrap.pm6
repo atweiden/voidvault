@@ -475,7 +475,6 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
     # btrfs subvolumes, starting with root / ('')
     my Str:D @btrfs-dir =
         '',
-        'boot',
         'home',
         'opt',
         'srv',
