@@ -3,9 +3,9 @@ Voidvault
 
 Last tested | ISO                                                             | Result
 ----------- | --------------------------------------------------------------- | ------
-2020-05-19  | [void-live-x86_64-20191109.iso][void-live-iso-x86_64-glibc]     | PASS
-2019-12-30  | [void-live-x86_64-musl-20181111.iso][void-live-iso-x86_64-musl] | PASS
-2019-12-30  | [void-live-i686-20181111.iso][void-live-iso-i686-glibc]         | PASS
+2020-09-07  | [void-live-x86_64-20191109.iso][void-live-iso-x86_64-glibc]     | PASS
+2020-09-07  | [void-live-x86_64-musl-20191109.iso][void-live-iso-x86_64-musl] | PASS
+2020-09-07  | [void-live-i686-20191109.iso][void-live-iso-i686-glibc]         | PASS
 
 
 Bootstrap Void with FDE
@@ -356,9 +356,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
 [runit]: https://wiki.voidlinux.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-i686-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-i686-20181111.iso
+[void-live-iso-i686-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-i686-20191109.iso
 [void-live-iso-x86_64-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-20191109.iso
-[void-live-iso-x86_64-musl]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-musl-20181111.iso
+[void-live-iso-x86_64-musl]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-musl-20191109.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen
