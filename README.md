@@ -354,7 +354,7 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [hides process information]: https://wiki.archlinux.org/index.php/Security#hidepid
 [nftables]: https://wiki.archlinux.org/index.php/nftables
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
-[runit]: https://wiki.voidlinux.org/runit
+[runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
 [void-live-iso-i686-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-i686-20191109.iso
 [void-live-iso-x86_64-glibc]: https://a-hel-fi.m.voidlinux.org/live/current/void-live-x86_64-20191109.iso
