@@ -207,7 +207,6 @@ mvp
   - kmod
   - ldns
   - less
-  - libressl
   - logrotate
   - lz4
   - man-db
@@ -217,6 +216,7 @@ mvp
   - nftables
   - openresolv
   - openssh
+  - openssl
   - pciutils
   - perl
   - pinentry

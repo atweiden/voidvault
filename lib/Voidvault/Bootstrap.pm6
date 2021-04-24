@@ -735,7 +735,6 @@ method !voidstrap-base(--> Nil)
         kmod
         ldns
         less
-        libressl
         linux
         linux-firmware
         linux-firmware-network
@@ -751,6 +750,7 @@ method !voidstrap-base(--> Nil)
         nftables
         openresolv
         openssh
+        openssl
         pciutils
         perl
         pinentry
