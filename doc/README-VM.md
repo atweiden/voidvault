@@ -314,12 +314,6 @@ xbps-install \
   - `voidvault --help`
   - `voidvault new`
 - Follow the prompts as needed, let Voidvault finish to completion
-  - Void ISO 2017.10.07 throws an error at the end
-    - `/mnt is busy`...
-    - ignore this error
-    - do what Voidvault would've done anyway:
-      - `umount -R /mnt`
-      - `cryptsetup luksClose vault`
 - Shutdown the LiveCD
   - `shutdown -h now`
 
