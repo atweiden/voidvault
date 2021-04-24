@@ -341,6 +341,7 @@ constant %locales = Map.new(
     'ca_IT'                 => '"Catalan locale for Italy (L\'Alguer)"',
     'ce_RU'                 => '"Chechen locale for Russian Federation"',
     'chr_US'                => '"Cherokee language locale for United States"',
+    'ckb_IQ'                => '"Central Kurdish language locale for Iraq"',
     'cmn_TW'                => '"Mandarin Chinese locale for the Republic of China"',
     'cns11643_stroke'       => '"Collation for Hanzi(chinese characters) by component and stroke"',
     'crh_UA'                => '"Crimean Tatar (Crimean Turkish) language locale for Ukraine"',
