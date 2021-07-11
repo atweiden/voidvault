@@ -1,13 +1,11 @@
 Todo
 ====
 
-- switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
-  support][GRUB luks2 support] ships in a stable release of GRUB
-  - likely grub-2.06
-- switch `luks2` cryptsetup format from `pbkdf2` to `argon2*` key derival
-  function once [libgcrypt argon2 support][libgcrypt argon2 support] ships
-  in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
-  luks2 argon2 support] code is shipped in a stable release of GRUB
+- switch `luks2` cryptsetup format PBKDF from `pbkdf2` to `argon2i`
+  key derival function once [libgcrypt argon2 support][libgcrypt argon2
+  support] ships in a stable release of libgcrypt, and [GRUB luks2 argon2
+  support][GRUB luks2 argon2 support] code is shipped in a stable release
+  of GRUB
 - replace sudo with [doas][doas]
   - put doas behind cmdline flag
     - `--with-sudo=doas`
@@ -22,6 +20,5 @@ Todo
   - see: https://github.com/atweiden/voidvault/issues/7
 
 [doas]: https://momi.ca/2020/03/20/doas.html
-[GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html
