@@ -2230,7 +2230,6 @@ multi sub replace(
         libcrc32c
         lz4
         lz4hc
-        lz4hc_compress
     >;
     push(@driver, 'crc32c-intel') if $processor eq 'INTEL';
     push(@driver, 'i915') if $graphics eq 'INTEL';
