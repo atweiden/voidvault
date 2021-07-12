@@ -1347,10 +1347,23 @@ method !install-bootloader(--> Nil)
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
+
+    # XXX: nilfs branch likely needs lvm, nilfs2
+    my Str:D $grub-install-modules = qw<
+        btrfs
+        cryptodisk
+        gcry_rijndael
+        gcry_sha512
+        luks2
+        part_gpt
+        pbkdf2
+        zstd
+    >.join(" ");
+
     replace('grub', $disable-ipv6, $graphics, $partition-vault, $vault-name);
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
-    install-bootloader($partition);
+    install-bootloader($partition, $grub-install-modules);
 }
 
 sub configure-bootloader(
@@ -1368,13 +1381,16 @@ sub configure-bootloader(
 }
 
 multi sub install-bootloader(
-    Str:D $partition
+    Str:D $partition,
+    Str:D $grub-install-modules
     --> Nil
 )
 {
-    install-bootloader(:legacy, $partition);
-    install-bootloader(:uefi, 32, $partition) if $*KERNEL.bits == 32;
-    install-bootloader(:uefi, 64, $partition) if $*KERNEL.bits == 64;
+    install-bootloader(:legacy, $partition, $grub-install-modules);
+    install-bootloader(:uefi, 32, $partition, $grub-install-modules)
+        if $*KERNEL.bits == 32;
+    install-bootloader(:uefi, 64, $partition, $grub-install-modules)
+        if $*KERNEL.bits == 64;
     mkdir('/mnt/boot/grub/locale');
     copy(
         '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
@@ -1390,6 +1406,7 @@ multi sub install-bootloader(
 
 multi sub install-bootloader(
     Str:D $partition,
+    Str:D $grub-install-modules,
     Bool:D :legacy($)! where .so
     --> Nil
 )
@@ -1399,6 +1416,7 @@ multi sub install-bootloader(
         void-chroot
         /mnt
         grub-install
+        --modules="$grub-install-modules"
         --target=i386-pc
         --recheck
     >, $partition);
@@ -1407,6 +1425,7 @@ multi sub install-bootloader(
 multi sub install-bootloader(
     32,
     Str:D $partition,
+    Str:D $grub-install-modules,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -1416,6 +1435,7 @@ multi sub install-bootloader(
         void-chroot
         /mnt
         grub-install
+        --modules="$grub-install-modules"
         --target=i386-efi
         --efi-directory=/boot/efi
         --removable
@@ -1432,6 +1452,7 @@ multi sub install-bootloader(
 multi sub install-bootloader(
     64,
     Str:D $partition,
+    Str:D $grub-install-modules,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -1441,6 +1462,7 @@ multi sub install-bootloader(
         void-chroot
         /mnt
         grub-install
+        --modules="$grub-install-modules"
         --target=x86_64-efi
         --efi-directory=/boot/efi
         --removable
