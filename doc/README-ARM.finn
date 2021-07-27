@@ -195,7 +195,7 @@ mvp
   - gawk
   - git
   - glibc
-  - gnupg2
+  - gnupg
   - grep
   - gzip
   - haveged

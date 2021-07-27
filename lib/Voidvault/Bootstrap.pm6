@@ -722,7 +722,7 @@ method !voidstrap-base(--> Nil)
         findutils
         gawk
         git
-        gnupg2
+        gnupg
         gptfdisk
         grep
         gzip
