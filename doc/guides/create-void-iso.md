@@ -5,6 +5,16 @@
 git clone https://github.com/void-linux/void-mklive
 cd void-mklive
 
+# manually set mirrors (optional)
+sed \
+  -i \
+  -e 's/alpha\.de\.repo\.voidlinux\.org/ftp.swin.edu.au\/voidlinux/g' \
+  Makefile \
+  dracut/autoinstaller/{autoinstall.cfg,install.sh} \
+  installer.sh.in \
+  lib.sh.in \
+  mklive.sh.in
+
 # build sources
 make
 
