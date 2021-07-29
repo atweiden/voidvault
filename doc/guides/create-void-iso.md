@@ -1,6 +1,13 @@
 # Create Void ISO
 
 ```sh
+# fetch dependencies for mklive.sh
+_deps=('git'
+       'liblz4'
+       'make'
+       'squashfs-tools')
+xbps-install "${_deps[@]}"
+
 # fetch void-mklive sources
 git clone https://github.com/void-linux/void-mklive
 cd void-mklive
@@ -20,12 +27,6 @@ make
 
 # switch to root user
 sudo su
-
-# fetch dependencies for mklive.sh
-# must be specified manually as of 2018-08-17
-_deps=('liblz4'
-       'squashfs-tools')
-xbps-install "${_deps[@]}"
 
 # prepare include directory
 git clone https://github.com/atweiden/voidfiles /tmp/include/opt/voidfiles
