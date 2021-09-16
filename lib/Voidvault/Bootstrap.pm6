@@ -754,6 +754,7 @@ method !voidstrap-base(--> Nil)
         pciutils
         perl
         pinentry
+        pinentry-tty
         pkg-config
         procps-ng
         psmisc

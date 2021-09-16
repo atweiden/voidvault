@@ -220,6 +220,7 @@ mvp
   - pciutils
   - perl
   - pinentry
+  - pinentry-tty
   - procps-ng
   - psmisc
   - rakudo
