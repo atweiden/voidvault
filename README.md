@@ -3,9 +3,9 @@ Voidvault
 
 Last tested | ISO                                                             | Result
 ----------- | --------------------------------------------------------------- | ------
-2021-04-24  | [void-live-x86_64-20210218.iso][void-live-iso-x86_64-glibc]     | PASS
-2021-04-24  | [void-live-x86_64-musl-20210218.iso][void-live-iso-x86_64-musl] | PASS
-2021-04-24  | [void-live-i686-20210218.iso][void-live-iso-i686-glibc]         | PASS
+2021-11-08  | [void-live-x86_64-20210930.iso][void-live-iso-x86_64-glibc]     | PASS
+2021-11-08  | [void-live-x86_64-musl-20210930.iso][void-live-iso-x86_64-musl] | PASS
+2021-11-08  | [void-live-i686-20210930.iso][void-live-iso-i686-glibc]         | PASS
 
 
 Bootstrap Void with FDE
@@ -356,9 +356,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20210218.iso
-[void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20210218.iso
-[void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20210218.iso
+[void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20210930.iso
+[void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20210930.iso
+[void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20210930.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen
