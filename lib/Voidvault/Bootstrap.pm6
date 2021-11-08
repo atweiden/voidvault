@@ -83,7 +83,7 @@ method !setup(--> Nil)
         grub
         kbd
         kmod
-        libressl
+        openssl
         procps-ng
         tzdata
         util-linux

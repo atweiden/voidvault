@@ -274,8 +274,8 @@ gptfdisk             | GPT disk partitioning with `sgdisk`                      
 grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                   | Y
 kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont`       | Y
 kmod                 | `modprobe`                                               | Y
-libressl             | user password salts                                      | Y
 musl²                | libcrypt                                                 | Y
+openssl              | user password salts                                      | Y
 procps-ng            | `pkill`                                                  | Y
 rakudo               | `voidvault` Raku runtime                                 | N
 tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`          | Y
