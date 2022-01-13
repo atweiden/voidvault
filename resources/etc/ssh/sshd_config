@@ -53,6 +53,6 @@ VersionAddendum none
 # sftp
 Match Group sftponly
     ChrootDirectory /srv/ssh/jail
-    ForceCommand internal-sftp -d %u
+    ForceCommand internal-sftp -d %u -P symlink,hardlink,fsync,rmdir,remove,rename,posix-rename
     PermitTTY no
     PermitUserRC no
