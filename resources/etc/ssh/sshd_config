@@ -5,6 +5,7 @@ ChallengeResponseAuthentication no
 ListenAddress 0.0.0.0
 ListenAddress ::
 LoginGraceTime 2m
+MaxSessions 1
 PasswordAuthentication no
 PermitEmptyPasswords no
 PermitRootLogin no
