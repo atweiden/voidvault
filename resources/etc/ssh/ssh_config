@@ -7,7 +7,6 @@ Host *
     IdentityFile ~/.ssh/id_ed25519
     PasswordAuthentication yes
     Port 22
-    Protocol 2
     StrictHostKeyChecking ask
 
     # connection
