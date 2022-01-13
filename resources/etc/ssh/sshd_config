@@ -1,7 +1,7 @@
 # authentication
 AddressFamily any
 AuthorizedKeysFile /etc/ssh/authorized_keys/%u .ssh/authorized_keys
-ChallengeResponseAuthentication no
+KbdInteractiveAuthentication no
 ListenAddress 0.0.0.0
 ListenAddress ::
 LoginGraceTime 2m
