@@ -2767,7 +2767,7 @@ multi sub replace(
     my Str:D $replace =
         $file.IO.lines
         .grep(/^\w/)
-        .grep({ .split(/\h+/)[4] > 2000 })
+        .grep({ .split(/\h+/)[4] > 3071 })
         .join("\n");
     spurt($file, $replace ~ "\n");
 }
