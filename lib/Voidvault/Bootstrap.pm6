@@ -1721,9 +1721,11 @@ multi sub replace(
     --> Nil
 )
 {
+    my Str:D $vault-partuuid =
+        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
     my Str:D $file = '/mnt/etc/crypttab';
     my Str:D $key = qq:to/EOF/;
-    $vault-name   $partition-vault   /boot/volume.key   luks
+    $vault-name   PARTUUID=$vault-partuuid   /boot/volume.key   luks,force
     EOF
     spurt($file, "\n" ~ $key, :append);
 }
@@ -2191,6 +2193,7 @@ multi sub replace(
     replace('dracut.conf', 'add_dracutmodules');
     replace('dracut.conf', 'add_drivers', $graphics, $processor);
     replace('dracut.conf', 'compress');
+    replace('dracut.conf', 'hostonly');
     replace('dracut.conf', 'install_items');
     replace('dracut.conf', 'omit_dracutmodules');
     replace('dracut.conf', 'persistent_policy');
@@ -2211,7 +2214,7 @@ multi sub replace(
         dm
         kernel-modules
     >;
-    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -2236,7 +2239,7 @@ multi sub replace(
     push(@driver, 'i915') if $graphics eq 'INTEL';
     push(@driver, 'nouveau') if $graphics eq 'NVIDIA';
     push(@driver, 'radeon') if $graphics eq 'RADEON';
-    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @driver.join(' '));
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @driver.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -2253,6 +2256,17 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf',
+    Str:D $subject where 'hostonly'
+    --> Nil
+)
+{
+    my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
+    my Str:D $replace = sprintf(Q{%s="yes"}, $subject);
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    'dracut.conf',
     Str:D $subject where 'install_items'
     --> Nil
 )
@@ -2262,7 +2276,7 @@ multi sub replace(
         /boot/volume.key
         /etc/crypttab
     >;
-    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @item.join(' '));
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @item.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -2274,10 +2288,13 @@ multi sub replace(
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
     my Str:D @module = qw<
+        dracut-systemd
         plymouth
+        systemd
+        systemd-initrd
         usrmount
     >;
-    my Str:D $replace = sprintf(Q{%s=" %s "}, $subject, @module.join(' '));
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @module.join(' '));
     spurt($file, $replace ~ "\n");
 }
 
@@ -2342,13 +2359,17 @@ multi sub replace(
 )
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
+    my Str:D $vault-partuuid =
+        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
     my Str:D $vault-uuid =
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
+    my Str:D $opened-vault-uuid =
+        qqx<blkid --match-tag UUID --output value /dev/mapper/$vault-name>.trim;
     my Str:D @grub-cmdline-linux = qqw<
-        rootflags=subvol=@
         rd.luks=1
-        rd.luks.name=$vault-uuid=$vault-name
-        rd.luks.uuid=$vault-uuid
+        rd.luks.partuuid=$vault-partuuid
+        rd.luks.name=$vault-partuuid=$vault-name
+        rd.luks.key=/@/boot/volume.key:UUID=$opened-vault-uuid:UUID=$vault-uuid
         loglevel=6
     >;
     # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
