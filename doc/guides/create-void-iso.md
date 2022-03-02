@@ -32,7 +32,6 @@ sudo su
 git clone https://github.com/atweiden/voidfiles /tmp/include/opt/voidfiles
 git clone https://github.com/atweiden/voidpkgs /tmp/include/opt/voidpkgs
 git clone https://github.com/atweiden/voidvault /tmp/include/opt/voidvault
-git clone https://github.com/systematicat/hack-captive-portals /tmp/include/opt/hack-captive-portals
 
 # copy in etcfiles from voidvault
 find /tmp/include/opt/voidvault/resources -mindepth 1 -maxdepth 1 -exec \
@@ -46,13 +45,18 @@ sed -i 's/^#\(tty1\)/\1/' /tmp/include/etc/securetty
 
 # prevent services from automatically starting on livecd
 _svs=('acpid'
-      'adb'
+      'chronyd'
       'darkhttpd'
       'dhcpcd'
+      'dnscrypt-proxy'
+      'dnsmasq'
       'haveged'
       'rsyncd'
+      'sftpgo'
       'sshd'
       'tor'
+      'tuntox'
+      'unbound'
       'uuidd')
 for _sv in ${_svs[@]}; do
   mkdir -p "/tmp/include/etc/sv/$_sv"
@@ -60,5 +64,5 @@ for _sv in ${_svs[@]}; do
 done
 
 # run mklive.sh with additional pkgs
-./mklive.sh -p "acpi android-tools aria2 base-devel bash-completion bootiso btrfs-progs bzip2 ccrypt cdrtools colordiff crda cryptsetup curl darkhttpd dhclient dhcpcd dialog diffr dnscrypt-proxy dosfstools dsvpn dvd+rw-tools e2fsprogs edbrowse efibootmgr elixir enchive ethtool expect fd fzf git gnupg gptfdisk grub gzip haveged icdiff inetutils iproute2 iputils iw jq just kpcli ldns libimobiledevice lvm2 lynx man-pages-posix mkpasswd mobile-broadband-provider-info mosh ncdu ncurses-term net-tools nftables nilfs-utils nmap nodejs openresolv openssh passphrase2pgp pinentry pinentry-tty ppp proxychains-ng psmisc pwgen pwget qrencode quixand rakudo rclone ripgrep rlwrap rsync rtorrent screen shellcheck sipcalc socat socklog-void sshuttle ssss the_silver_searcher tmux toggle-ht tor torsocks tree vim wget wireguard-tools wireless_tools wpa_supplicant wvdial xtools zip zstd" -I /tmp/include
+./mklive.sh -p "acpi aerc age aircrack-ng aria2 bandwhich base-devel bash-completion bc bettercap bootiso borg btrfs-progs bzip2 catgirl cdrtools chrony coWPAtty crda create_ap cryptsetup curl darkhttpd dhclient dhcpcd dialog diffr diskonaut dnscrypt-proxy dnsmasq dosfstools dvd+rw-tools e2fsprogs edbrowse efibootmgr elixir enchive ethtool expect fake-hwclock faketime fd firejail fzf git gnupg gnupg1 gptfdisk gptfdisk grub gzip hashcat hashcat-utils haveged hdparm hostapd icdiff inetutils iproute2 iputils iw jless john jq just ldns libgfshare libgfshare-tools libimobiledevice lua51 lua53 lua54 luarocks-lua51 luarocks-lua53 luarocks-lua54 lvm2 lynx man-pages-posix mobile-broadband-provider-info moreutils mosh ncurses-term neovim net-tools nftables nilfs-utils nodejs nwipe obfs4proxy ocaml opam openresolv openssh orjail outils passphrase2pgp pinentry pinentry-tty procs proxychains-ng psmisc pv pwgen pwget qrencode quixand rakudo rclone ripgrep rlwrap rsync rtorrent scapy screen sftpgo so socat socklog-void sqlite sshuttle sss-cli stegsnow tmux toggle-ht tor torsocks toxic tree tuntox unbound units unzip vim void-release-keys wget whois wifish wireguard-tools wireless_tools wpa_supplicant xfsprogs xtools zip zramen zstd" -I /tmp/include
 ```
