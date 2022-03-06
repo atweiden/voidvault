@@ -24,8 +24,8 @@ Todo
 - enable opting out of [predictable network interface names][predictable
   network interface names]
   - `--disable-predictable-inames`
-- implement {EXT4,F2FS}+LVM on LUKS alternative setup with [fscrypt
-  support][fscrypt support]
+- implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
+  [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
 - implement dracut-sshd-nonet
   - new profile: `headless-nonet`
@@ -46,4 +46,5 @@ Todo
 [resizing AEAD volumes ii]: https://gitlab.com/cryptsetup/cryptsetup/-/issues/594
 [doas]: https://momi.ca/2020/03/20/doas.html
 [predictable network interface names]: https://systemd.io/PREDICTABLE_INTERFACE_NAMES/
+[F2FS]: https://savannah.gnu.org/bugs/?59976
 [fscrypt support]: https://wiki.archlinux.org/title/Fscrypt#File_system
