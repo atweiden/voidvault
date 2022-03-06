@@ -3,6 +3,8 @@ Todo
 
 - replace default crc32c [btrfs checksum algorithm][btrfs checksum
   algorithm] with xxhash
+- increase default [login password strength][login password strength]
+  in `/etc/pam.d/passwd`
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06
@@ -22,6 +24,9 @@ Todo
 - enable opting out of [predictable network interface names][predictable
   network interface names]
   - `--disable-predictable-inames`
+- implement {EXT4,F2FS}+LVM on LUKS alternative setup with [fscrypt
+  support][fscrypt support]
+  - `mkfs.{ext4,f2fs} -O encrypt`
 - implement dracut-sshd-nonet
   - new profile: `headless-nonet`
     - disable grub boot encryption
@@ -33,6 +38,7 @@ Todo
   - see: https://github.com/atweiden/voidvault/issues/7
 
 [btrfs checksum algorithm]: https://kdave.github.io/btrfs-hilights-5.5-new-hashes/
+[login password strength]: https://github.com/google/fscrypt#securing-your-login-passphrase
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html
@@ -40,3 +46,4 @@ Todo
 [resizing AEAD volumes ii]: https://gitlab.com/cryptsetup/cryptsetup/-/issues/594
 [doas]: https://momi.ca/2020/03/20/doas.html
 [predictable network interface names]: https://systemd.io/PREDICTABLE_INTERFACE_NAMES/
+[fscrypt support]: https://wiki.archlinux.org/title/Fscrypt#File_system
