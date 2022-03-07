@@ -147,7 +147,10 @@ readonly ip_addr="$(ip -o -4 route get 1 | awk '/src/ {print $7}')"
 **For Linksys Smart Wi-Fi**
 
 ```sh
-lynx "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
+url="${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
+# optional
+useragent="Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)"
+lynx -useragent="$useragent" "${portal}?mac_addr=${mac_addr}&url=${url}&ip_addr=${ip_addr}"
 ```
 
 ### Example: [edbrowse][edbrowse]
