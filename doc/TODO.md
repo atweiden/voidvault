@@ -1,6 +1,8 @@
 Todo
 ====
 
+- allow passing multiple `--repository` flags to void{vault,strap} executables
+  - `--repository=voidpkgs/hostdir/binpkgs --repository=https://swin.edu.au/voidlinux/current`
 - allow passing additional packages to voidstrap
   - `--packages broadcom-wl-dkms`
 - replace default crc32c [btrfs checksum algorithm][btrfs checksum
