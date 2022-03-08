@@ -1,8 +1,8 @@
 # allow incoming WireGuard connections
-udp dport $WIREGUARD_PORT counter log prefix "nft#inet#filter#input (accept wireguard): " accept
+udp dport $WIREGUARD_PORT counter log level info prefix "nft#inet#filter#input (accept wireguard): " accept
 
 # allow DNS from WireGuard
-iifname $WIREGUARD_INTERFACE tcp dport 53 counter log prefix "nft#inet#filter#input (accept dns from wireguard): " accept
-iifname $WIREGUARD_INTERFACE udp dport 53 counter log prefix "nft#inet#filter#input (accept dns from wireguard): " accept
+iifname $WIREGUARD_INTERFACE tcp dport 53 counter log level info prefix "nft#inet#filter#input (accept dns from wireguard): " accept
+iifname $WIREGUARD_INTERFACE udp dport 53 counter log level info prefix "nft#inet#filter#input (accept dns from wireguard): " accept
 
 # vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:
