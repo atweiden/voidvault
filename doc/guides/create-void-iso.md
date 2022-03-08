@@ -68,6 +68,7 @@ done
 # run mklive.sh with additional pkgs - including b43-firmware
 cd /tmp/include/opt/voidpkgs
 ./xbps-src binary-bootstrap
+echo XBPS_ALLOW_RESTRICTED="yes" >> etc/conf
 ./xbps-src pkg b43-firmware
 ./mklive.sh -p "acpi aerc age aircrack-ng aria2 b43-firmware bandwhich base-devel bash-completion bc bettercap bootiso borg btrfs-progs bzip2 catgirl cdrtools chrony coWPAtty crda create_ap cryptsetup curl darkhttpd dhclient dhcpcd dialog diffr diskonaut dnscrypt-proxy dnsmasq dosfstools dvd+rw-tools e2fsprogs edbrowse efibootmgr elixir enchive ethtool expect fake-hwclock faketime fd firejail fzf git gnupg gnupg1 gptfdisk grub gzip hashcat hashcat-utils haveged hdparm hostapd icdiff inetutils intel-ucode iproute2 iputils iw jless john jq just ldns libgfshare libgfshare-tools libimobiledevice lua51 lua53 lua54 luarocks-lua51 luarocks-lua53 luarocks-lua54 lvm2 lynx man-pages-posix mobile-broadband-provider-info moreutils mosh ncurses-term neovim net-tools nftables nilfs-utils nodejs nwipe obfs4proxy openresolv openssh orjail outils passphrase2pgp pinentry pinentry-tty procs proxychains-ng psmisc pv pwgen pwget python3 qrencode quixand rakudo rclone ripgrep rlwrap rsync rtorrent scapy screen sftpgo so socat socklog-void sqlite sshuttle sss-cli stegsnow tealdeer tmux toggle-ht tor torsocks tree unbound units unzip vim void-release-keys wget whois wifish wireguard-tools wireless_tools wpa_supplicant xfsprogs xtools zip zramen zstd" -I /tmp/include -r https://alpha.de.repo.voidlinux.org/current/nonfree -r /tmp/include/opt/voidpkgs/hostdir/binpkgs/nonfree
 ```
