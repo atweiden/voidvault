@@ -1,6 +1,8 @@
 Todo
 ====
 
+- allow passing additional packages to voidstrap
+  - `--packages broadcom-wl-dkms`
 - replace default crc32c [btrfs checksum algorithm][btrfs checksum
   algorithm] with xxhash
 - increase default [login password strength][login password strength]
