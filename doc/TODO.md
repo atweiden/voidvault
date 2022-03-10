@@ -5,8 +5,6 @@ Todo
   - `--repository=voidpkgs/hostdir/binpkgs --repository=https://swin.edu.au/voidlinux/current`
 - allow passing additional packages to voidstrap
   - `--packages broadcom-wl-dkms`
-- replace default crc32c [btrfs checksum algorithm][btrfs checksum
-  algorithm] with xxhash
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06
