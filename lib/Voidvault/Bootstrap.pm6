@@ -2365,11 +2365,17 @@ multi sub replace(
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D $opened-vault-uuid =
         qqx<blkid --match-tag UUID --output value /dev/mapper/$vault-name>.trim;
+    # because raku allows variable names to contain colons
+    my Str:D $rd-luks-key = sprintf(
+        Q{/@/boot/volume.key:UUID=%s:UUID=%s},
+        $opened-vault-uuid,
+        $vault-uuid
+    );
     my Str:D @grub-cmdline-linux = qqw<
         rd.luks=1
         rd.luks.partuuid=$vault-partuuid
         rd.luks.name=$vault-partuuid=$vault-name
-        rd.luks.key=/@/boot/volume.key:UUID=$opened-vault-uuid:UUID=$vault-uuid
+        rd.luks.key=$rd-luks-key
         loglevel=6
     >;
     # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
