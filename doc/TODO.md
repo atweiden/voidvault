@@ -7,8 +7,6 @@ Todo
   - `--packages broadcom-wl-dkms`
 - replace default crc32c [btrfs checksum algorithm][btrfs checksum
   algorithm] with xxhash
-- increase default [login password strength][login password strength]
-  in `/etc/pam.d/passwd`
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06

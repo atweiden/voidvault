@@ -50,6 +50,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!configure-udev;
     self!configure-hidepid;
     self!configure-securetty;
+    self!configure-pamd;
     self!configure-xorg;
     self!configure-rc-local;
     self!configure-rc-shutdown;
@@ -1553,6 +1554,13 @@ multi sub configure-securetty('shell-timeout' --> Nil)
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
+method !configure-pamd(--> Nil)
+{
+    # raise number of passphrase hashing rounds C<passwd> employs
+    replace('passwd');
+}
+
+
 method !configure-xorg(--> Nil)
 {
     configure-xorg('Xwrapper.config');
@@ -2789,6 +2797,21 @@ multi sub replace(
 }
 
 # --- end moduli }}}
+# --- passwd {{{
+
+multi sub replace(
+    'passwd'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/pam.d/passwd';
+    my Str:D $slurp = slurp($file).trim-trailing;
+    my Str:D $replace =
+        sprintf(Q{%s rounds=%s}, $slurp, $Voidvault::Utils::CRYPT-ROUNDS);
+    spurt($file, $replace ~ "\n");
+}
+
+# --- end passwd }}}
 
 # end sub replace }}}
 
