@@ -37,8 +37,6 @@ Todo
 - test voidvault installation to hdd in secondary drive bay
   - see: https://github.com/atweiden/voidvault/issues/7
 
-[btrfs checksum algorithm]: https://kdave.github.io/btrfs-hilights-5.5-new-hashes/
-[login password strength]: https://github.com/google/fscrypt#securing-your-login-passphrase
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html
