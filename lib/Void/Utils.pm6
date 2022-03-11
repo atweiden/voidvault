@@ -7,7 +7,7 @@ constant $VERSION = v1.15.0;
 
 # method voidstrap {{{
 
-# based on arch-install-scripts v23
+# based on arch-install-scripts v24
 method voidstrap(
     Str:D $chroot-dir,
     Str :$repository,

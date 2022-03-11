@@ -1,6 +1,7 @@
 #!/bin/bash
-# source: https://git.archlinux.org/arch-install-scripts.git
-# release: v23
+
+# source: https://github.com/archlinux/arch-install-scripts
+# release: v24
 # license: GPL-2.0-or-later
 
 shopt -s extglob
@@ -250,7 +251,6 @@ dm_name_for_devnode() {
   else
     # don't leave the caller hanging, just print the original name
     # along with the failure.
-    print '%s' "$1"
     error 'Failed to resolve device mapper name for: %s' "$1"
   fi
 }
@@ -423,23 +423,19 @@ findmnt -Recvruno SOURCE,TARGET,FSTYPE,OPTIONS,FSROOT "$root" |
     pass=0
   fi
 
-  if [[ $fsroot != / ]]; then
-    if [[ $fstype = btrfs ]]; then
-      opts+=,subvol=${fsroot#/}
-    else
-      # it's a bind mount
-      src=$(findmnt -funcevo TARGET "$src")$fsroot
-      if [[ $src -ef $target ]]; then
-        # hrmm, this is weird. we're probably looking at a file or directory
-        # that was bound into a chroot from the host machine. Ignore it,
-        # because this won't actually be a valid mount. Worst case, the user
-        # just re-adds it.
-        continue
-      fi
-      fstype=none
-      opts+=,bind
-      pass=0
+  if [[ $fsroot != / && $fstype != btrfs ]]; then
+    # it's a bind mount
+    src=$(findmnt -funcevo TARGET "$src")$fsroot
+    if [[ $src -ef $target ]]; then
+      # hrmm, this is weird. we're probably looking at a file or directory
+      # that was bound into a chroot from the host machine. Ignore it,
+      # because this won't actually be a valid mount. Worst case, the user
+      # just re-adds it.
+      continue
     fi
+    fstype=none
+    opts+=,bind
+    pass=0
   fi
 
   # filesystem quirks

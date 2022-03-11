@@ -2,5 +2,5 @@
   licensed
 - `wpa*` man pages are from [FreeBSD][FreeBSD], and are BSD licensed
 
-[Arch Linux]: https://git.archlinux.org/arch-install-scripts.git
+[Arch Linux]: https://github.com/archlinux/arch-install-scripts
 [FreeBSD]: https://github.com/freebsd/freebsd/tree/master/usr.sbin/wpa
