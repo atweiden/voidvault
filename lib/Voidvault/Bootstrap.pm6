@@ -1560,7 +1560,6 @@ method !configure-pamd(--> Nil)
     replace('passwd');
 }
 
-
 method !configure-xorg(--> Nil)
 {
     configure-xorg('Xwrapper.config');
