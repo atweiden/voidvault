@@ -158,6 +158,10 @@ has Bool:D $.augment =
 has Bool:D $.disable-ipv6 =
     ?%*ENV<VOIDVAULT_DISABLE_IPV6>;
 
+# enable serial
+has Bool:D $.enable-serial-console =
+    ?%*ENV<VOIDVAULT_ENABLE_SERIAL_CONSOLE>;
+
 
 # -----------------------------------------------------------------------------
 # class instantation
@@ -201,6 +205,7 @@ submethod BUILD(
     Bool :$augment,
     Bool :$disable-ipv6,
     Str :$disk-type,
+    Bool :$enable-serial-console,
     Str :$graphics,
     Str :$grub-name,
     Str :$grub-pass,
@@ -232,6 +237,8 @@ submethod BUILD(
         if $disable-ipv6;
     $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
         if $disk-type;
+    $!enable-serial-console = $enable-serial-console
+        if $enable-serial-console;
     $!graphics = Voidvault::Config.gen-graphics($graphics)
         if $graphics;
     $!host-name = Voidvault::Config.gen-host-name($hostname)
@@ -292,6 +299,7 @@ method new(
         Bool :augment($),
         Bool :disable-ipv6($),
         Str :disk-type($),
+        Bool :enable-serial-console($),
         Str :graphics($),
         Str :grub-name($),
         Str :grub-pass($),

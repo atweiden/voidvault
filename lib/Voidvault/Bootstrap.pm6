@@ -1340,6 +1340,7 @@ method !generate-initramfs(--> Nil)
 method !install-bootloader(--> Nil)
 {
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
@@ -1347,7 +1348,14 @@ method !install-bootloader(--> Nil)
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
-    replace('grub', $disable-ipv6, $graphics, $partition-vault, $vault-name);
+    replace(
+        'grub',
+        $disable-ipv6,
+        $enable-serial-console,
+        $graphics,
+        $partition-vault,
+        $vault-name
+    );
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
     install-bootloader($partition);
@@ -1538,7 +1546,10 @@ method !configure-hidepid(--> Nil)
 
 method !configure-securetty(--> Nil)
 {
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
     configure-securetty('securetty');
+    configure-securetty('securetty', 'enable-serial-console')
+        if $enable-serial-console.so;
     configure-securetty('shell-timeout');
 }
 
@@ -1546,6 +1557,11 @@ multi sub configure-securetty('securetty' --> Nil)
 {
     my Str:D $path = 'etc/securetty';
     copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub configure-securetty('securetty', 'enable-serial-console' --> Nil)
+{
+    replace('securetty');
 }
 
 multi sub configure-securetty('shell-timeout' --> Nil)
@@ -1614,12 +1630,19 @@ method !configure-rc-shutdown(--> Nil)
 
 method !enable-runit-services(--> Nil)
 {
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
+
     my Str:D @service = qw<
         dnscrypt-proxy
         nanoklogd
         nftables
         socklog-unix
     >;
+
+    # enable serial getty when using serial console, e.g. agetty-ttyS0
+    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Utils::SERIAL-CONSOLE))
+        if $enable-serial-console.so;
+
     @service.map(-> Str:D $service {
         run(qqw<
             void-chroot
@@ -2333,6 +2356,7 @@ multi sub replace(
     'grub',
     *@opts (
         Bool:D $disable-ipv6,
+        Bool:D $enable-serial-console,
         Graphics:D $graphics,
         Str:D $partition-vault,
         VaultName:D $vault-name
@@ -2347,8 +2371,9 @@ multi sub replace(
         ==> replace('grub', 'GRUB_DISABLE_OS_PROBER')
         ==> replace('grub', 'GRUB_DISABLE_RECOVERY')
         ==> replace('grub', 'GRUB_ENABLE_CRYPTODISK')
-        ==> replace('grub', 'GRUB_TERMINAL_INPUT')
-        ==> replace('grub', 'GRUB_TERMINAL_OUTPUT');
+        ==> replace('grub', 'GRUB_TERMINAL_INPUT', $enable-serial-console)
+        ==> replace('grub', 'GRUB_TERMINAL_OUTPUT', $enable-serial-console)
+        ==> replace('grub', 'GRUB_SERIAL_COMMAND', $enable-serial-console);
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
@@ -2357,6 +2382,7 @@ multi sub replace(
     'grub',
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
     Bool:D $disable-ipv6,
+    Bool:D $enable-serial-console,
     Graphics:D $graphics,
     Str:D $partition-vault,
     VaultName:D $vault-name,
@@ -2373,6 +2399,25 @@ multi sub replace(
         rd.luks.name=$vault-partuuid=$vault-name
         loglevel=6
     >;
+    if $enable-serial-console.so
+    {
+        # e.g. console=tty0
+        my Str:D $virtual =
+            sprintf('console=%s', $Voidvault::Utils::VIRTUAL-CONSOLE);
+
+        # e.g. console=ttyS0,115200n8
+        my Str:D $serial = sprintf(
+            'console=%s,%s%s%s',
+            $Voidvault::Utils::SERIAL-CONSOLE,
+            $Voidvault::Utils::GRUB-SERIAL-PORT-BAUD-RATE,
+            %Voidvault::Utils::GRUB-SERIAL-PORT-PARITY{$Voidvault::Utils::GRUB-SERIAL-PORT-PARITY}{$subject},
+            $Voidvault::Utils::GRUB-SERIAL-PORT-WORD-LENGTH-BITS
+        );
+
+        # enable both serial and virtual console on boot
+        push(@grub-cmdline-linux, $virtual);
+        push(@grub-cmdline-linux, $serial);
+    }
     # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
     push(@grub-cmdline-linux, 'slub_debug=FZ');
     #                                     ||
@@ -2440,6 +2485,22 @@ multi sub replace(
 multi sub replace(
     'grub',
     Str:D $subject where 'GRUB_TERMINAL_INPUT',
+    Bool:D $enable-serial-console where .so,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_INPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_TERMINAL_INPUT',
+    Bool:D $enable-serial-console,
     Str:D @line
     --> Array[Str:D]
 )
@@ -2454,6 +2515,22 @@ multi sub replace(
 multi sub replace(
     'grub',
     Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
+    Bool:D $enable-serial-console where .so,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
+    Bool:D $enable-serial-console,
     Str:D @line
     --> Array[Str:D]
 )
@@ -2462,6 +2539,45 @@ multi sub replace(
     my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
     my Str:D $replace = sprintf(Q{%s="console"}, $subject);
     @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $subject where 'GRUB_SERIAL_COMMAND',
+    Bool:D $enable-serial-console where .so,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_SERIAL_COMMAND> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $speed = $Voidvault::Utils::GRUB-SERIAL-PORT-BAUD-RATE;
+    my Str:D $unit = $Voidvault::Utils::GRUB-SERIAL-PORT-UNIT;
+    my Str:D $word = $Voidvault::Utils::GRUB-SERIAL-PORT-WORD-LENGTH-BITS;
+    my Str:D $parity = %Voidvault::Utils::GRUB-SERIAL-PORT-PARITY{$Voidvault::Utils::GRUB-SERIAL-PORT-PARITY}{$subject};
+    my Str:D $stop = $Voidvault::Utils::GRUB-SERIAL-PORT-STOP-BITS;
+    my Str:D $grub-serial-command = qqw<
+        serial
+        --speed=$speed
+        --unit=$unit
+        --word=$word
+        --parity=$parity
+        --stop=$stop
+    >.join(' ');
+    my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-serial-command);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    'grub',
+    Str:D $ where 'GRUB_SERIAL_COMMAND',
+    Bool:D $,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
     @line;
 }
 
@@ -2795,6 +2911,23 @@ multi sub replace(
 }
 
 # --- end moduli }}}
+# --- securetty {{{
+
+multi sub replace(
+    'securetty'
+    --> Nil
+)
+{
+    my Str:D $file = '/mnt/etc/securetty';
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index =
+        @line.first(/^'#'$Voidvault::Utils::SERIAL-CONSOLE/, :k);
+    @line[$index] = $Voidvault::Utils::SERIAL-CONSOLE;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+# --- end securetty }}}
 # --- passwd {{{
 
 multi sub replace(

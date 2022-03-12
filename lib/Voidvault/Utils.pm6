@@ -24,6 +24,24 @@ constant $PBKDF2-LENGTH-HASH = 100;
 # grub-mkpasswd-pbkdf2 length of salt
 constant $PBKDF2-LENGTH-SALT = 100;
 
+# for C<--enable-serial-console>
+constant $VIRTUAL-CONSOLE = 'tty0';
+constant $SERIAL-CONSOLE = 'ttyS0';
+constant $GRUB-SERIAL-PORT-UNIT = '0';
+constant $GRUB-SERIAL-PORT-BAUD-RATE = '115200';
+constant $GRUB-SERIAL-PORT-PARITY = False;
+constant %GRUB-SERIAL-PORT-PARITY =
+    ::(True) => %(
+        GRUB_SERIAL_COMMAND => 'odd',
+        GRUB_CMDLINE_LINUX_DEFAULT => 'o'
+    ),
+    ::(False) => %(
+        GRUB_SERIAL_COMMAND => 'no',
+        GRUB_CMDLINE_LINUX_DEFAULT => 'n'
+    );
+constant $GRUB-SERIAL-PORT-STOP-BITS = '1';
+constant $GRUB-SERIAL-PORT-WORD-LENGTH-BITS = '8';
+
 
 # -----------------------------------------------------------------------------
 # copy-on-write

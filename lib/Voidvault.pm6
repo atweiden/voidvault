@@ -13,6 +13,7 @@ method new(
         Bool :augment($),
         Bool :disable-ipv6($),
         Str :disk-type($),
+        Bool :enable-serial-console($),
         Str :graphics($),
         Str :grub-name($),
         Str :grub-pass($),

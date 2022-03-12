@@ -99,6 +99,7 @@ multi sub MAIN(
         Bool :augment($),
         Bool :disable-ipv6($),
         Str :disk-type($),
+        Bool :enable-serial-console($),
         Str :graphics($),
         Str :grub-name($),
         Str :grub-pass($),
@@ -272,7 +273,7 @@ multi sub USAGE('new' --> Nil)
                 [--keymap=<keymap>] [--timezone=<timezone>]
                 [--repository=<repository>] [--ignore-conf-repos]
                 [--augment]
-                [--disable-ipv6]
+                [--disable-ipv6] [--enable-serial-console]
                 new
 
     Options:
@@ -288,6 +289,8 @@ multi sub USAGE('new' --> Nil)
         Disable IPv6
       --disk-type=<disktype>
         Hard drive type
+      --enable-serial-console
+        Enable serial console
       --graphics=<graphics>
         Graphics card type
       --grub-name=<username>

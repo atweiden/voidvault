@@ -157,6 +157,7 @@ VOIDVAULT_REPOSITORY="/path/to/void/repository"
 VOIDVAULT_IGNORE_CONF_REPOS=1
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_DISABLE_IPV6=1
+VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
 ```
 
 **Supply options via cmdline flags**:
@@ -302,6 +303,7 @@ variable values for all configuration options aside from:
 - `--admin-pass`
 - `--augment`
 - `--disable-ipv6`
+- `--enable-serial-console`
 - `--grub-name`
 - `--grub-pass-hash`
 - `--grub-pass`
@@ -327,6 +329,7 @@ No console input is read for configuration options:
 - `--admin-pass-hash`
 - `--augment`
 - `--disable-ipv6`
+- `--enable-serial-console`
 - `--grub-pass-hash`
 - `--guest-pass-hash`
 - `--ignore-conf-repos`
