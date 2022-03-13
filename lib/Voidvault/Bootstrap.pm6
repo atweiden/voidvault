@@ -42,6 +42,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!set-timezone;
     self!set-hwclock;
     self!configure-modprobe;
+    self!configure-modules-load;
     self!generate-initramfs;
     self!install-bootloader;
     self!configure-sysctl;
@@ -1315,6 +1316,12 @@ method !set-hwclock(--> Nil)
 method !configure-modprobe(--> Nil)
 {
     my Str:D $path = 'etc/modprobe.d/modprobe.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method !configure-modules-load(--> Nil)
+{
+    my Str:D $path = 'etc/modules-load.d/bbr.conf';
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 

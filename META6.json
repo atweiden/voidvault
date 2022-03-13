@@ -31,6 +31,7 @@
         "etc/X11/xorg.conf.d/99-security.conf",
         "etc/hosts",
         "etc/modprobe.d/modprobe.conf",
+        "etc/modules-load.d/bbr.conf",
         "etc/nftables.conf",
         "etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft",
         "etc/nftables/wireguard/table/inet/filter/input/wireguard.nft",
