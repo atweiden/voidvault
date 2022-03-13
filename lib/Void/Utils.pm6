@@ -10,18 +10,19 @@ constant $VERSION = v1.15.0;
 # based on arch-install-scripts v24
 method voidstrap(
     Str:D $chroot-dir,
-    Str :$repository,
+    :@repository,
     Bool :$ignore-conf-repos,
+    # ensure at least one package is given
     *@pkg ($, *@)
     --> Nil
 )
 {
-    voidstrap($chroot-dir, :$repository, :$ignore-conf-repos, @pkg);
+    voidstrap($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
 }
 
 sub voidstrap(
     Str:D $chroot-dir,
-    Str :$repository,
+    :@repository,
     Bool :$ignore-conf-repos,
     *@pkg ($, *@)
     --> Nil
@@ -31,7 +32,7 @@ sub voidstrap(
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
-    voidstrap-install($chroot-dir, :$repository, :$ignore-conf-repos, @pkg);
+    voidstrap-install($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
     LEAVE chroot-teardown();
 }
 
@@ -163,13 +164,14 @@ sub chroot-add-host-keys(
 
 multi sub voidstrap-install(
     Str:D $chroot-dir,
-    Str:D :$repository! where .so,
+    :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so,
     *@pkg ($, *@)
     --> Nil
 )
 {
     my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $repository = @repository.join(' --repository ');
     # rm official repo in the presence of C<--repository --ignore-conf-repos>
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
@@ -189,13 +191,14 @@ multi sub voidstrap-install(
 
 multi sub voidstrap-install(
     Str:D $chroot-dir,
-    Str:D :$repository! where .so,
+    :@repository! where .so,
     Bool :ignore-conf-repos($),
     *@pkg ($, *@)
     --> Nil
 )
 {
     my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $repository = @repository.join(' --repository ');
     my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
     my Str:D $repository-official-nonfree =
         $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
@@ -218,7 +221,7 @@ multi sub voidstrap-install(
 
 multi sub voidstrap-install(
     Str:D $chroot-dir,
-    Str :repository($),
+    :repository(@),
     Bool:D :ignore-conf-repos($)! where .so,
     *@pkg ($, *@)
     --> Nil
@@ -229,7 +232,7 @@ multi sub voidstrap-install(
 
 multi sub voidstrap-install(
     Str:D $chroot-dir,
-    Str :repository($),
+    :repository(@),
     Bool :ignore-conf-repos($),
     *@pkg ($, *@)
     --> Nil

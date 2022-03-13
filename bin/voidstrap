@@ -29,7 +29,7 @@ multi sub MAIN(Bool:D :version($)! where .so --> Nil)
 
 multi sub MAIN(
     Str:D $chroot-dir where .so,
-    Str:D :$repository! where .so,
+    :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so,
     *@pkg ($, *@)
     --> Nil
@@ -37,7 +37,39 @@ multi sub MAIN(
 {
     Void::Utils.voidstrap(
         $chroot-dir,
-        :$repository,
+        :@repository,
+        :ignore-conf-repos,
+        |@pkg
+    );
+}
+
+multi sub MAIN(
+    Str:D $chroot-dir where .so,
+    :@repository! where .so,
+    Bool :ignore-conf-repos($),
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    Void::Utils.voidstrap(
+        $chroot-dir,
+        :@repository,
+        |@pkg
+    );
+}
+
+multi sub MAIN(
+    Str:D $chroot-dir where .so,
+    Str:D :$repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    my @repository = $repository;
+    Void::Utils.voidstrap(
+        $chroot-dir,
+        :@repository,
         :ignore-conf-repos,
         |@pkg
     );
@@ -51,16 +83,17 @@ multi sub MAIN(
     --> Nil
 )
 {
+    my @repository = $repository;
     Void::Utils.voidstrap(
         $chroot-dir,
-        :$repository,
+        :@repository,
         |@pkg
     );
 }
 
 multi sub MAIN(
     Str:D $chroot-dir where .so,
-    Str :repository($),
+    :repository(@),
     Bool:D :ignore-conf-repos($)! where .so,
     *@pkg ($, *@)
     --> Nil
@@ -71,7 +104,32 @@ multi sub MAIN(
 
 multi sub MAIN(
     Str:D $chroot-dir where .so,
-    Str :repository($),
+    :repository($),
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    die(X::Void::XBPS::IgnoreConfRepos.new);
+}
+
+multi sub MAIN(
+    Str:D $chroot-dir where .so,
+    :repository(@),
+    Bool :ignore-conf-repos($),
+    *@pkg ($, *@)
+    --> Nil
+)
+{
+    Void::Utils.voidstrap(
+        $chroot-dir,
+        |@pkg
+    );
+}
+
+multi sub MAIN(
+    Str:D $chroot-dir where .so,
+    :repository($),
     Bool :ignore-conf-repos($),
     *@pkg ($, *@)
     --> Nil
