@@ -12,8 +12,15 @@ Todo
   function once [libgcrypt argon2 support][libgcrypt argon2 support] ships
   in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
   luks2 argon2 support] code is shipped in a stable release of GRUB
-- enable specifying cryptsetup cipher
+- enable specifying cryptsetup `luksFormat` options
   - `--with-cryptsetup-cipher=serpent-xts-plain64`
+  - `--with-cryptsetup-key-size=512`
+  - `--with-cryptsetup-hash=blake2b-512`
+  - `--with-cryptsetup-iter-time=5000`
+  - `CRYPTSETUP_CIPHER=serpent-xts-plain64`
+  - `CRYPTSETUP_KEY_SIZE=512`
+  - `CRYPTSETUP_HASH=blake2b-512`
+  - `CRYPTSETUP_ITER_TIME=5000`
 - enable LUKS volume data integrity protection once [resizing AEAD
   volumes][resizing AEAD volumes i] is [supported][resizing AEAD
   volumes ii]
