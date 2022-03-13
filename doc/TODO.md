@@ -1,8 +1,6 @@
 Todo
 ====
 
-- allow passing multiple `--repository` flags to voidvault executable
-  - `--repository=voidpkgs/hostdir/binpkgs --repository=https://swin.edu.au/voidlinux/current`
 - allow passing additional packages to voidstrap
   - `--packages broadcom-wl-dkms`
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2

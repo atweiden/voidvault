@@ -67,7 +67,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    my Str $repository = $.config.repository;
+    my Str @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
@@ -95,7 +95,7 @@ method !setup(--> Nil)
     push(@dep, 'musl') if $libc-flavor eq 'MUSL';
 
     my Str:D $xbps-install-dep-cmdline =
-        build-xbps-install-dep-cmdline(@dep, :$repository, :$ignore-conf-repos);
+        build-xbps-install-dep-cmdline(@dep, :@repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Installing dependencies...',
         $xbps-install-dep-cmdline
@@ -107,11 +107,12 @@ method !setup(--> Nil)
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository ');
     my Str:D $xbps-install-dep-cmdline =
         "xbps-install \\
          --force \\
@@ -124,11 +125,12 @@ multi sub build-xbps-install-dep-cmdline(
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository ');
     my Str:D $xbps-install-dep-cmdline =
         "xbps-install \\
          --force \\
@@ -140,7 +142,7 @@ multi sub build-xbps-install-dep-cmdline(
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str :repository($),
+    Str :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -150,7 +152,7 @@ multi sub build-xbps-install-dep-cmdline(
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str :repository($),
+    Str :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )
@@ -673,7 +675,7 @@ sub disable-cow(--> Nil)
 method !voidstrap-base(--> Nil)
 {
     my Processor:D $processor = $.config.processor;
-    my Str $repository = $.config.repository;
+    my Str @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
@@ -684,7 +686,7 @@ method !voidstrap-base(--> Nil)
 
     # download and install core packages with voidstrap in chroot
     my Str:D $voidstrap-core-cmdline =
-        build-voidstrap-cmdline(@core, :$repository, :$ignore-conf-repos);
+        build-voidstrap-cmdline(@core, :@repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
         $voidstrap-core-cmdline
@@ -802,7 +804,7 @@ method !voidstrap-base(--> Nil)
 
     # download and install base packages with voidstrap in chroot
     my Str:D $voidstrap-base-cmdline =
-        build-voidstrap-cmdline(@pkg, :$repository, :$ignore-conf-repos);
+        build-voidstrap-cmdline(@pkg, :@repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
         $voidstrap-base-cmdline
@@ -811,11 +813,12 @@ method !voidstrap-base(--> Nil)
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository=');
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
          --ignore-conf-repos \\
@@ -826,11 +829,12 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository=');
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
          --repository=$repository \\
@@ -840,7 +844,7 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str :repository($),
+    Str :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -850,7 +854,7 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str :repository($),
+    Str :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )

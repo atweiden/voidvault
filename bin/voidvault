@@ -92,6 +92,7 @@ multi sub MAIN('help', $? --> Nil)
 
 multi sub MAIN(
     'new',
+    :@repository,
     *%opts (
         Str :admin-name($),
         Str :admin-pass($),
@@ -113,7 +114,6 @@ multi sub MAIN(
         Str :locale($),
         Str :partition($),
         Str :processor($),
-        Str :repository($),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
@@ -126,7 +126,47 @@ multi sub MAIN(
     --> Nil
 )
 {
-    Voidvault.new(|%opts);
+    Voidvault.new(:@repository, |%opts);
+}
+
+multi sub MAIN(
+    'new',
+    :$repository,
+    *%opts (
+        Str :admin-name($),
+        Str :admin-pass($),
+        Str :admin-pass-hash($),
+        Bool :augment($),
+        Bool :disable-ipv6($),
+        Str :disk-type($),
+        Bool :enable-serial-console($),
+        Str :graphics($),
+        Str :grub-name($),
+        Str :grub-pass($),
+        Str :grub-pass-hash($),
+        Str :guest-name($),
+        Str :guest-pass($),
+        Str :guest-pass-hash($),
+        Str :hostname($),
+        Bool :ignore-conf-repos($),
+        Str :keymap($),
+        Str :locale($),
+        Str :partition($),
+        Str :processor($),
+        Str :root-pass($),
+        Str :root-pass-hash($),
+        Str :sftp-name($),
+        Str :sftp-pass($),
+        Str :sftp-pass-hash($),
+        Str :timezone($),
+        Str :vault-name($),
+        Str :vault-pass($)
+    )
+    --> Nil
+)
+{
+    my @repository = $repository;
+    Voidvault.new(:@repository, |%opts);
 }
 
 

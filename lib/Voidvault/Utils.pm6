@@ -154,20 +154,20 @@ multi sub gen-pass-hash(Str:D $user-pass, Bool :grub($) --> Str:D)
 method prompt-pass-hash(
     Str $user-name?,
     Bool :$grub,
-    Str :$repository,
+    Str :@repository,
     Bool :$ignore-conf-repos
     --> Str:D
 )
 {
     my Str:D $pass-hash =
-        prompt-pass-hash($user-name, :$grub, :$repository, :$ignore-conf-repos);
+        prompt-pass-hash($user-name, :$grub, :@repository, :$ignore-conf-repos);
 }
 
 # generate pbkdf2 password hash from interactive user input
 multi sub prompt-pass-hash(
     Str $user-name?,
     Bool:D :grub($)! where .so,
-    Str :$repository,
+    Str :@repository,
     Bool :$ignore-conf-repos
     --> Str:D
 )
@@ -176,13 +176,13 @@ multi sub prompt-pass-hash(
     '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
         or Voidvault::Utils.xbps-install(
                'grub',
-               :$repository,
+               :@repository,
                :$ignore-conf-repos
            );
     '/usr/bin/expect'.IO.x.so
         or Voidvault::Utils.xbps-install(
                'expect',
-               :$repository,
+               :@repository,
                :$ignore-conf-repos
            );
     my &gen-pass-hash = gen-pass-hash-closure(:grub);
@@ -201,7 +201,7 @@ multi sub prompt-pass-hash(
 multi sub prompt-pass-hash(
     Str $user-name?,
     Bool :grub($),
-    Str :repository($),
+    Str :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )
@@ -507,7 +507,7 @@ method loop-cmdline-proc(
 
 method xbps-install(
     Str:D $package where .so,
-    Str :$repository,
+    Str :@repository,
     Bool :$ignore-conf-repos
     --> Nil
 )
@@ -519,7 +519,7 @@ method xbps-install(
     my Str:D $xbps-install-cmdline =
         build-xbps-install-cmdline(
             $package,
-            :$repository,
+            :@repository,
             :$ignore-conf-repos
         );
     Voidvault::Utils.loop-cmdline-proc(
@@ -530,11 +530,12 @@ method xbps-install(
 
 multi sub build-xbps-install-cmdline(
     Str:D $package where .so,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository ');
     my Str:D $xbps-install-cmdline =
         "xbps-install \\
          --ignore-conf-repos \\
@@ -546,11 +547,12 @@ multi sub build-xbps-install-cmdline(
 
 multi sub build-xbps-install-cmdline(
     Str:D $package where .so,
-    Str:D :$repository! where .so,
+    Str:D :@repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
 )
 {
+    my Str:D $repository = @repository.join(' --repository ');
     my Str:D $xbps-install-cmdline =
         "xbps-install \\
          --repository $repository \\
@@ -561,7 +563,7 @@ multi sub build-xbps-install-cmdline(
 
 multi sub build-xbps-install-cmdline(
     $,
-    Str :repository($),
+    Str :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -571,7 +573,7 @@ multi sub build-xbps-install-cmdline(
 
 multi sub build-xbps-install-cmdline(
     Str:D $package where .so,
-    Str :repository($),
+    Str :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )

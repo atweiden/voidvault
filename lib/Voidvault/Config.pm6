@@ -13,9 +13,9 @@ unit class Voidvault::Config;
 # - defaults are geared towards live media installation
 
 # location of void package repository (prioritized)
-has Str $.repository =
+has Str @.repository =
     ?%*ENV<VOIDVAULT_REPOSITORY>
-        ?? %*ENV<VOIDVAULT_REPOSITORY>
+        ?? %*ENV<VOIDVAULT_REPOSITORY>.split(' ')
         !! Nil;
 
 # only honor repository specified in C<$.repository>
@@ -87,7 +87,7 @@ has Str:D $.user-pass-hash-grub =
             !! Voidvault::Utils.prompt-pass-hash(
                    $!user-name-grub,
                    :grub,
-                   :$!repository,
+                   :@!repository,
                    :$!ignore-conf-repos
                );
 
@@ -219,7 +219,7 @@ submethod BUILD(
     Str :$locale,
     Str :$partition,
     Str :$processor,
-    Str :$repository,
+    :@repository,
     Str :$root-pass,
     Str :$root-pass-hash,
     Str :$sftp-name,
@@ -253,8 +253,8 @@ submethod BUILD(
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
         if $processor;
-    $!repository = $repository
-        if $repository;
+    @!repository = @repository
+        if so(@repository.all);
     $!timezone = Voidvault::Config.gen-timezone($timezone)
         if $timezone;
     $!user-name-admin = Voidvault::Config.gen-user-name($admin-name)
@@ -313,7 +313,7 @@ method new(
         Str :locale($),
         Str :partition($),
         Str :processor($),
-        Str :repository($),
+        :repository(@),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
