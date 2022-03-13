@@ -2415,8 +2415,8 @@ multi sub replace(
         );
 
         # enable both serial and virtual console on boot
-        push(@grub-cmdline-linux, $serial);
         push(@grub-cmdline-linux, $virtual);
+        push(@grub-cmdline-linux, $serial);
     }
     # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
     push(@grub-cmdline-linux, 'slub_debug=FZ');
