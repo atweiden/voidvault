@@ -200,8 +200,8 @@ method !mkdisk(--> Nil)
 sub sgdisk(Str:D $partition --> Nil)
 {
     # erase existing partition table
-    # create 2MB EF02 BIOS boot sector
-    # create 550MB EF00 EFI system partition
+    # create 2M EF02 BIOS boot sector
+    # create 550M EF00 EFI system partition
     # create max sized partition for LUKS encrypted volume
     run(qw<
         sgdisk
