@@ -460,7 +460,7 @@ sub mkbtrfs(DiskType:D $disk-type, VaultName:D $vault-name --> Nil)
     my Str:D @mount-options = qw<
         rw
         noatime
-        compress=zstd
+        compress-force=zstd
         space_cache=v2
     >;
     push(@mount-options, 'ssd') if $disk-type eq 'SSD';

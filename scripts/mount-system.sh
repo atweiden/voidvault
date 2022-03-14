@@ -20,7 +20,7 @@ _btrfs_subvolumes=(''
                    'var-spool'
                    'var-tmp')
 _compression='zstd'
-_mount_options="rw,noatime,compress=$_compression,space_cache=v2"
+_mount_options="rw,noatime,compress-force=$_compression,space_cache=v2"
 _partition='/dev/sda'
 _vault_name='vault'
 
