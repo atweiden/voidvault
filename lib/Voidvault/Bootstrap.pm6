@@ -656,7 +656,12 @@ sub mount-efi(Str:D $partition-efi --> Nil)
 {
     my Str:D $efi-dir = '/mnt/boot/efi';
     mkdir($efi-dir);
-    run(qqw<mount $partition-efi $efi-dir>);
+    my Str:D $mount-options = qw<
+        nodev
+        noexec
+        nosuid
+    >.join(',');
+    run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
 }
 
 sub disable-cow(--> Nil)
