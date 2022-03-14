@@ -6,7 +6,7 @@ Todo
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06
-- switch `luks2` cryptsetup format from `pbkdf2` to `argon2*` key derival
+- switch `luks2` cryptsetup format from `pbkdf2` to `argon2id` key derival
   function once [libgcrypt argon2 support][libgcrypt argon2 support] ships
   in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
   luks2 argon2 support] code is shipped in a stable release of GRUB
