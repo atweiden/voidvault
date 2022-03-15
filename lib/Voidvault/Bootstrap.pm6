@@ -754,7 +754,6 @@ method !voidstrap-base(--> Nil)
         perl
         pinentry
         pinentry-tty
-        plocate
         procps-ng
         removed-packages
         rsync
