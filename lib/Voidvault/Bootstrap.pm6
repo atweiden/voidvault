@@ -684,10 +684,7 @@ method !voidstrap-base(--> Nil)
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
-    my Str:D @core = qw<
-        base-system
-        grub
-    >;
+    my Str:D @core = 'base-minimal';
 
     # download and install core packages with voidstrap in chroot
     my Str:D $voidstrap-core-cmdline =
@@ -697,46 +694,40 @@ method !voidstrap-base(--> Nil)
         $voidstrap-core-cmdline
     );
 
-    # base packages
+    # base packages - void's C<base-minimal> with light additions
+    # duplicates C<base-minimal>'s C<depends> for thoroughness
     my Str:D @pkg = qw<
         acpi
+        base-files
         bash
         bash-completion
-        binutils
         btrfs-progs
+        busybox-huge
         bzip2
         ca-certificates
-        cdrtools
-        chrony
         coreutils
         crda
-        cronie
         cryptsetup
         curl
+        dash
         device-mapper
-        dhclient
         dhcpcd
-        dialog
         diffutils
         dnscrypt-proxy
         dosfstools
         dracut
-        dvd+rw-tools
         e2fsprogs
         efibootmgr
-        ethtool
+        eudev
         exfat-utils
-        expect
         file
         findutils
         gawk
-        git
-        gnupg
         gptfdisk
         grep
+        grub
         gzip
-        haveged
-        inetutils
+        iana-etc
         iproute2
         iputils
         iw
@@ -747,16 +738,14 @@ method !voidstrap-base(--> Nil)
         linux
         linux-firmware
         linux-firmware-network
-        logrotate
         lynx
         lz4
         man-db
         man-pages
-        mlocate
-        mkpasswd
+        ncurses
         ncurses-term
-        net-tools
         nftables
+        nvi
         openresolv
         openssh
         openssl
@@ -764,35 +753,25 @@ method !voidstrap-base(--> Nil)
         perl
         pinentry
         pinentry-tty
-        pkg-config
+        plocate
         procps-ng
-        psmisc
-        rakudo
+        removed-packages
         rsync
         runit-void
         sed
         shadow
-        socat
         socklog-void
         sudo
-        sysfsutils
         tar
-        tmux
         tzdata
-        unzip
-        usb-modeswitch
-        usbutils
         util-linux
         vim
-        wget
         which
-        wifish
+        wifi-firmware
         wireguard-tools
-        wireless_tools
         wpa_supplicant
         xbps
         xz
-        zip
         zlib
         zramen
         zstd
