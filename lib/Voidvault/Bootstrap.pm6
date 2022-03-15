@@ -679,9 +679,10 @@ sub disable-cow(--> Nil)
 # bootstrap initial chroot with voidstrap
 method !voidstrap-base(--> Nil)
 {
-    my Processor:D $processor = $.config.processor;
     my Str @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
+    my Str:D @package = $.config.package;
+    my Processor:D $processor = $.config.processor;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
     my Str:D @core = 'base-minimal';
@@ -785,6 +786,8 @@ method !voidstrap-base(--> Nil)
 
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
+
+    push(@pkg, $_) for @package;
 
     # download and install base packages with voidstrap in chroot
     my Str:D $voidstrap-base-cmdline =

@@ -112,6 +112,7 @@ multi sub MAIN(
         Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
+        Str :packages($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),
@@ -151,6 +152,7 @@ multi sub MAIN(
         Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
+        Str :packages($),
         Str :partition($),
         Str :processor($),
         Str :root-pass($),
@@ -312,6 +314,7 @@ multi sub USAGE('new' --> Nil)
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
                 [--repository=<repository>] [--ignore-conf-repos]
+                [--packages=<packages>]
                 [--augment]
                 [--disable-ipv6] [--enable-serial-console]
                 new
@@ -353,6 +356,8 @@ multi sub USAGE('new' --> Nil)
         Keymap
       --locale=<locale>
         Locale
+      --packages=<packages>
+        List of additional packages to install
       --partition=<device>
         Partition target for install
       --processor=<processor>

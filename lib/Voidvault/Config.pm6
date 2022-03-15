@@ -22,6 +22,12 @@ has Str @.repository =
 has Bool:D $.ignore-conf-repos =
     ?%*ENV<VOIDVAULT_IGNORE_CONF_REPOS>;
 
+# additional packages to install
+has Str:D @.package =
+    ?%*ENV<VOIDVAULT_PACKAGES>
+        ?? %*ENV<VOIDVAULT_PACKAGES>.split(' ')
+        !! Empty;
+
 # name for admin user (default: live)
 has UserName:D $.user-name-admin =
     %*ENV<VOIDVAULT_ADMIN_NAME>
@@ -217,6 +223,7 @@ submethod BUILD(
     Bool :$ignore-conf-repos,
     Str :$keymap,
     Str :$locale,
+    Str :$packages,
     Str :$partition,
     Str :$processor,
     :@repository,
@@ -249,6 +256,8 @@ submethod BUILD(
         if $keymap;
     $!locale = Voidvault::Config.gen-locale($locale)
         if $locale;
+    @!package = $packages.split(' ')
+        if $packages;
     $!partition = $partition
         if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
@@ -311,6 +320,7 @@ method new(
         Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
+        Str :packages($),
         Str :partition($),
         Str :processor($),
         :repository(@),

@@ -155,6 +155,7 @@ VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
 VOIDVAULT_REPOSITORY="/path/to/void/repository"
 VOIDVAULT_IGNORE_CONF_REPOS=1
+VOIDVAULT_PACKAGES="space separated list of packages"
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_DISABLE_IPV6=1
 VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
@@ -312,6 +313,7 @@ variable values for all configuration options aside from:
 - `--guest-pass`
 - `--hostname`
 - `--ignore-conf-repos`
+- `--packages`
 - `--repository`
 - `--root-pass-hash`
 - `--root-pass`
@@ -333,6 +335,7 @@ No console input is read for configuration options:
 - `--grub-pass-hash`
 - `--guest-pass-hash`
 - `--ignore-conf-repos`
+- `--packages`
 - `--repository`
 - `--root-pass-hash`
 - `--sftp-pass-hash`

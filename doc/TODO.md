@@ -1,8 +1,6 @@
 Todo
 ====
 
-- allow passing additional packages to voidstrap
-  - `--packages broadcom-wl-dkms`
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06

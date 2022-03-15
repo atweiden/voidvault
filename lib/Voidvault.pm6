@@ -25,6 +25,7 @@ method new(
         Bool :ignore-conf-repos($),
         Str :keymap($),
         Str :locale($),
+        Str :packages($),
         Str :partition($),
         Str :processor($),
         :repository(@),
