@@ -154,7 +154,7 @@ multi sub gen-pass-hash(Str:D $user-pass, Bool :grub($) --> Str:D)
 method prompt-pass-hash(
     Str $user-name?,
     Bool :$grub,
-    Str :@repository,
+    Str:D :@repository,
     Bool :$ignore-conf-repos
     --> Str:D
 )
@@ -167,7 +167,7 @@ method prompt-pass-hash(
 multi sub prompt-pass-hash(
     Str $user-name?,
     Bool:D :grub($)! where .so,
-    Str :@repository,
+    Str:D :@repository,
     Bool :$ignore-conf-repos
     --> Str:D
 )
@@ -201,7 +201,7 @@ multi sub prompt-pass-hash(
 multi sub prompt-pass-hash(
     Str $user-name?,
     Bool :grub($),
-    Str :repository(@),
+    Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )
@@ -507,7 +507,7 @@ method loop-cmdline-proc(
 
 method xbps-install(
     Str:D $package where .so,
-    Str :@repository,
+    Str:D :@repository,
     Bool :$ignore-conf-repos
     --> Nil
 )
@@ -563,7 +563,7 @@ multi sub build-xbps-install-cmdline(
 
 multi sub build-xbps-install-cmdline(
     $,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -573,7 +573,7 @@ multi sub build-xbps-install-cmdline(
 
 multi sub build-xbps-install-cmdline(
     Str:D $package where .so,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )

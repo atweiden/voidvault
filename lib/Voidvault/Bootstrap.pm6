@@ -67,7 +67,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 
 method !setup(--> Nil)
 {
-    my Str @repository = $.config.repository;
+    my Str:D @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
@@ -142,7 +142,7 @@ multi sub build-xbps-install-dep-cmdline(
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -152,7 +152,7 @@ multi sub build-xbps-install-dep-cmdline(
 
 multi sub build-xbps-install-dep-cmdline(
     Str:D @dep,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )
@@ -679,7 +679,7 @@ sub disable-cow(--> Nil)
 # bootstrap initial chroot with voidstrap
 method !voidstrap-base(--> Nil)
 {
-    my Str @repository = $.config.repository;
+    my Str:D @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my Str:D @package = $.config.package;
     my Processor:D $processor = $.config.processor;
@@ -830,7 +830,7 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
@@ -840,7 +840,7 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @pkg,
-    Str :repository(@),
+    Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
 )

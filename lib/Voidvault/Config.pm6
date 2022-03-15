@@ -13,12 +13,12 @@ unit class Voidvault::Config;
 # - defaults are geared towards live media installation
 
 # location of void package repository (prioritized)
-has Str @.repository =
+has Str:D @.repository =
     ?%*ENV<VOIDVAULT_REPOSITORY>
         ?? %*ENV<VOIDVAULT_REPOSITORY>.split(' ')
-        !! Nil;
+        !! Empty;
 
-# only honor repository specified in C<$.repository>
+# only honor repository specified in C<@.repository>
 has Bool:D $.ignore-conf-repos =
     ?%*ENV<VOIDVAULT_IGNORE_CONF_REPOS>;
 
