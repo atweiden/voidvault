@@ -197,13 +197,37 @@ method !mkdisk(--> Nil)
     disable-cow();
 }
 
-# partition disk with gdisk
-sub sgdisk(Str:D $partition --> Nil)
+# partition disk with gdisk - 1fa mode
+multi sub sgdisk(Str:D $partition, Mode $ where '1FA' --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
-    # create max sized partition for LUKS encrypted volume
+    # create 1024M sized partition for LUKS1-encrypted boot
+    # create max sized partition for LUKS2-encrypted vault
+    run(qw<
+        sgdisk
+        --zap-all
+        --clear
+        --mbrtogpt
+        --new=1:0:+2M
+        --typecode=1:EF02
+        --new=2:0:+550M
+        --typecode=2:EF00
+        --new=3:0:+1024M
+        --typecode=3:8300
+        --new=4:0:0
+        --typecode=4:8300
+    >, $partition);
+}
+
+# partition disk with gdisk
+multi sub sgdisk(Str:D $partition, Mode $ --> Nil)
+{
+    # erase existing partition table
+    # create 2M EF02 BIOS boot sector
+    # create 550M EF00 EFI system partition
+    # create max sized partition for LUKS-encrypted vault
     run(qw<
         sgdisk
         --zap-all
@@ -855,9 +879,10 @@ multi sub build-voidstrap-cmdline(
 # avoid having to enter password twice on boot
 method !mkvault-key(--> Nil)
 {
+    my Mode $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition);
+        Voidvault::Utils.gen-partition('vault', $partition, $mode);
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     mkvault-key-gen();
@@ -1340,9 +1365,10 @@ method !install-bootloader(--> Nil)
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
+    my Mode $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition);
+        Voidvault::Utils.gen-partition('vault', $partition, $mode);
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
