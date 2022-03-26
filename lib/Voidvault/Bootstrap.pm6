@@ -427,6 +427,46 @@ multi sub build-cryptsetup-luks-format-cmdline(
         EOF
 }
 
+multi sub gen-spawn-cryptsetup-luks-format(
+    Str:D $partition-vault where .so,
+    Mode $ where '1FA'
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks2
+         --cipher aes-xts-plain64
+         --key-slot 1
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         --verify-passphrase
+         luksFormat $partition-vault
+    >.join(' ');
+}
+
+multi sub gen-spawn-cryptsetup-luks-format(
+    Str:D $partition-vault where .so,
+    Mode $
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks1
+         --cipher aes-xts-plain64
+         --key-slot 1
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         --verify-passphrase
+         luksFormat $partition-vault
+    >.join(' ');
+}
+
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
     VaultName:D $vault-name where .so,
