@@ -185,7 +185,7 @@ method !mkdisk(--> Nil)
     # create vault
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
-    mkvault($partition-vault, $vault-name, :$vault-pass);
+    mkvault($partition-vault, $mode, $vault-name, :$vault-pass);
 
     # create and mount btrfs volumes
     mkbtrfs($disk-type, $vault-name);
@@ -251,6 +251,7 @@ sub mkefi(Str:D $partition-efi --> Nil)
 # create vault with cryptsetup
 sub mkvault(
     Str:D $partition-vault,
+    Mode $mode,
     VaultName:D $vault-name,
     VaultPass :$vault-pass
     --> Nil
@@ -259,12 +260,13 @@ sub mkvault(
     # load kernel modules for cryptsetup
     run(qw<modprobe dm_mod dm-crypt>);
     # create vault
-    mkvault-cryptsetup(:$partition-vault, :$vault-name, :$vault-pass);
+    mkvault-cryptsetup(:$partition-vault, :$mode, :$vault-name, :$vault-pass);
 }
 
 # LUKS encrypted volume password was given
 multi sub mkvault-cryptsetup(
     Str:D :$partition-vault! where .so,
+    Mode :$mode!,
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -274,6 +276,7 @@ multi sub mkvault-cryptsetup(
         build-cryptsetup-luks-format-cmdline(
             :non-interactive,
             $partition-vault,
+            $mode,
             $vault-pass
         );
 
@@ -295,6 +298,7 @@ multi sub mkvault-cryptsetup(
 # LUKS encrypted volume password not given
 multi sub mkvault-cryptsetup(
     Str:D :$partition-vault! where .so,
+    Mode :$mode!,
     VaultName:D :$vault-name! where .so,
     VaultPass :vault-pass($)
     --> Nil
@@ -303,7 +307,8 @@ multi sub mkvault-cryptsetup(
     my Str:D $cryptsetup-luks-format-cmdline =
         build-cryptsetup-luks-format-cmdline(
             :interactive,
-            $partition-vault
+            $partition-vault,
+            $mode
         );
 
     my Str:D $cryptsetup-luks-open-cmdline =
@@ -328,22 +333,13 @@ multi sub mkvault-cryptsetup(
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
+    Mode $mode,
     Bool:D :interactive($)! where .so
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks1
-         --cipher aes-xts-plain64
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         luksFormat $partition-vault
-    >.join(' ');
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format($partition-vault, $mode);
     my Str:D $expect-are-you-sure-send-yes =
         'expect "Are you sure*" { send "YES\r" }';
     my Str:D $interact =
@@ -372,23 +368,14 @@ multi sub build-cryptsetup-luks-format-cmdline(
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
+    Mode $mode,
     VaultPass:D $vault-pass where .so,
     Bool:D :non-interactive($)! where .so
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-                 spawn cryptsetup
-                 --type luks1
-                 --cipher aes-xts-plain64
-                 --key-slot 1
-                 --key-size 512
-                 --hash sha512
-                 --iter-time 5000
-                 --use-random
-                 --verify-passphrase
-                 luksFormat $partition-vault
-    >.join(' ');
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format($partition-vault, $mode);
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-are-you-sure-send-yes =
@@ -437,6 +424,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
          spawn cryptsetup
          --type luks2
          --cipher aes-xts-plain64
+         --pbkdf argon2id
          --key-slot 1
          --key-size 512
          --hash sha512
