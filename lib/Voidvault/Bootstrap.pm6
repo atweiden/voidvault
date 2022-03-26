@@ -284,6 +284,7 @@ multi sub mkvault-cryptsetup(
         build-cryptsetup-luks-open-cmdline(
             :non-interactive,
             $partition-vault,
+            $mode,
             $vault-name,
             $vault-pass
         );
@@ -315,6 +316,7 @@ multi sub mkvault-cryptsetup(
         build-cryptsetup-luks-open-cmdline(
             :interactive,
             $partition-vault,
+            $mode,
             $vault-name
         );
 
@@ -457,25 +459,29 @@ multi sub gen-spawn-cryptsetup-luks-format(
 
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
+    Mode $mode,
     VaultName:D $vault-name where .so,
     Bool:D :interactive($)! where .so
     --> Str:D
 )
 {
     my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup luksOpen $partition-vault $vault-name";
+        gen-cryptsetup-luks-open($partition-vault, $mode, $vault-name);
 }
 
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
+    Mode $mode,
     VaultName:D $vault-name where .so,
     VaultPass:D $vault-pass where .so,
     Bool:D :non-interactive($)! where .so
     --> Str:D
 )
 {
+    my Str:D $cryptsetup-luks-open =
+        gen-cryptsetup-luks-open($partition-vault, $mode, $vault-name);
     my Str:D $spawn-cryptsetup-luks-open =
-                "spawn cryptsetup luksOpen $partition-vault $vault-name";
+        sprintf('spawn %s', $cryptsetup-luks-open);
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-enter-send-vault-pass =
@@ -500,6 +506,32 @@ multi sub build-cryptsetup-luks-open-cmdline(
           %s
         EOS
         EOF
+}
+
+multi sub gen-cryptsetup-luks-open(
+    Str:D $partition-vault where .so,
+    Mode $ where '1FA',
+    VaultName:D $vault-name where .so
+    --> Str:D
+)
+{
+    my Str:D $opts = qw<
+        --perf-no_read_workqueue
+        --persistent
+    >.join(' ');
+    my Str:D $cryptsetup-luks-open =
+        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+}
+
+multi sub gen-cryptsetup-luks-open(
+    Str:D $partition-vault where .so,
+    Mode $,
+    VaultName:D $vault-name where .so
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open =
+        "cryptsetup luksOpen $partition-vault $vault-name";
 }
 
 # create and mount btrfs volumes on open vault
