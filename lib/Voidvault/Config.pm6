@@ -12,6 +12,12 @@ unit class Voidvault::Config;
 # - attributes appear in specific order for prompting user
 # - defaults are geared towards live media installation
 
+# mode to activate
+has Mode $.mode =
+    ?%*ENV<VOIDVAULT_MODE>
+        ?? Voidvault::Config.gen-mode(%*ENV<VOIDVAULT_MODE>)
+        !! Nil;
+
 # location of void package repository (prioritized)
 has Str:D @.repository =
     ?%*ENV<VOIDVAULT_REPOSITORY>
@@ -205,6 +211,7 @@ submethod TWEAK(--> Nil)
 }
 
 submethod BUILD(
+    Str $mode?,
     Str :$admin-name,
     Str :$admin-pass,
     Str :$admin-pass-hash,
@@ -238,6 +245,8 @@ submethod BUILD(
     --> Nil
 )
 {
+    $!mode = Voidvault::Config.gen-mode($mode)
+        if $mode;
     $!augment = $augment
         if $augment;
     $!disable-ipv6 = $disable-ipv6
@@ -301,6 +310,7 @@ submethod BUILD(
 }
 
 method new(
+    Str $mode?,
     *%opts (
         Str :admin-name($),
         Str :admin-pass($),
@@ -336,13 +346,19 @@ method new(
     --> Voidvault::Config:D
 )
 {
-    self.bless(|%opts);
+    self.bless($mode, |%opts);
 }
 
 
 # -----------------------------------------------------------------------------
 # string formatting, resolution and validation
 # -----------------------------------------------------------------------------
+
+# confirm mode $m is valid Mode and return Mode
+method gen-mode($m --> Mode:D)
+{
+    my Mode:D $mode = $m.uc or die("Sorry, invalid mode 「$m」");
+}
 
 # confirm disk type $d is valid DiskType and return DiskType
 method gen-disk-type(Str:D $d --> DiskType:D)

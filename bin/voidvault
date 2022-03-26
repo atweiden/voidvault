@@ -92,7 +92,7 @@ multi sub MAIN('help', $? --> Nil)
 
 multi sub MAIN(
     'new',
-    *@mode,
+    Str $mode?,
     :@repository,
     *%opts (
         Str :admin-name($),
@@ -128,12 +128,12 @@ multi sub MAIN(
     --> Nil
 )
 {
-    Voidvault.new(|@mode, :@repository, |%opts);
+    Voidvault.new($mode, :@repository, |%opts);
 }
 
 multi sub MAIN(
     'new',
-    *@mode,
+    Str $mode?,
     :$repository,
     *%opts (
         Str :admin-name($),
@@ -170,7 +170,7 @@ multi sub MAIN(
 )
 {
     my @repository = $repository;
-    Voidvault.new(|@mode, :@repository, |%opts);
+    Voidvault.new($mode, :@repository, |%opts);
 }
 
 
