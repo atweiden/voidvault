@@ -1748,11 +1748,11 @@ multi sub replace(
     --> Nil
 )
 {
-    my Str:D $vault-partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
+    my Str:D $vault-uuid =
+        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D $file = '/mnt/etc/crypttab';
     my Str:D $key = qq:to/EOF/;
-    $vault-name   PARTUUID=$vault-partuuid   /boot/volume.key   luks,force
+    $vault-name   UUID=$vault-uuid   /boot/volume.key   luks
     EOF
     spurt($file, "\n" ~ $key, :append);
 }
@@ -2388,12 +2388,12 @@ multi sub replace(
 )
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
-    my Str:D $vault-partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
+    my Str:D $vault-uuid =
+        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D @grub-cmdline-linux = qqw<
         rd.luks=1
-        rd.luks.partuuid=$vault-partuuid
-        rd.luks.name=$vault-partuuid=$vault-name
+        rd.luks.uuid=$vault-uuid
+        rd.luks.name=$vault-uuid=$vault-name
         loglevel=6
     >;
     if $enable-serial-console.so
