@@ -169,21 +169,22 @@ multi sub build-xbps-install-dep-cmdline(
 method !mkdisk(--> Nil)
 {
     my DiskType:D $disk-type = $.config.disk-type;
+    my Mode $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
 
     # partition disk
-    sgdisk($partition);
+    sgdisk($partition, $mode);
 
     # create uefi partition
     my Str:D $partition-efi =
-        Voidvault::Utils.gen-partition('efi', $partition);
+        Voidvault::Utils.gen-partition('efi', $partition, $mode);
     mkefi($partition-efi);
 
     # create vault
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition);
+        Voidvault::Utils.gen-partition('vault', $partition, $mode);
     mkvault($partition-vault, $vault-name, :$vault-pass);
 
     # create and mount btrfs volumes

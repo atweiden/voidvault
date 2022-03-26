@@ -354,7 +354,7 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # -----------------------------------------------------------------------------
 
 # generate target partition based on subject
-method gen-partition(Str:D $subject, Str:D $p --> Str:D)
+method gen-partition(Str:D $subject, Str:D $p, Mode $mode --> Str:D)
 {
     # run lsblk only once
     state Str:D @partition =
@@ -366,17 +366,17 @@ method gen-partition(Str:D $subject, Str:D $p --> Str:D)
         # return only the device name
         .map({ .split(' ').first })
         .sort;
-    my Str:D $partition = gen-partition($subject, @partition);
+    my Str:D $partition = gen-partition($subject, @partition, $mode);
 }
 
-multi sub gen-partition('efi', Str:D @partition --> Str:D)
+multi sub gen-partition('efi', Str:D @partition, Mode $mode --> Str:D)
 {
     # e.g. /dev/sda2
     my UInt:D $index = 1;
     my Str:D $partition = @partition[$index];
 }
 
-multi sub gen-partition('vault', Str:D @partition --> Str:D)
+multi sub gen-partition('vault', Str:D @partition, Mode $mode --> Str:D)
 {
     # e.g. /dev/sda3
     my UInt:D $index = 2;
