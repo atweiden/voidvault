@@ -20,7 +20,7 @@ Voidvault bootstraps Void with whole system Btrfs on LUKS.
 
 Voidvault works on Void with Intel or AMD x86 CPU. It assumes you are
 comfortable working on the cmdline, and that you have no need for booting
-any other operating systems on the target partition.
+any other operating systems on the target block device.
 
 **WARNING**: failure to give appropriate values during Voidvault setup
 could cause catastrophic data loss and system instability.
@@ -145,20 +145,23 @@ VOIDVAULT_ROOT_PASS="your root password"
 VOIDVAULT_ROOT_PASS_HASH='$6$rounds=700000$xDn3UJKNvfOxJ1Ds$YEaaBAvQQgVdtV7jFfVnwmh57Do1awMh8vTBtI1higrZMAXUisX2XKuYbdTcxgQMleWZvK3zkSJQ4F3Jyd5Ln1'
 VOIDVAULT_VAULT_NAME="vault"
 VOIDVAULT_VAULT_PASS="your LUKS encrypted volume's password"
+VOIDVAULT_VAULT_KEY="/path/to/vault.key"
+VOIDVAULT_DEVICE="/dev/sda"
 VOIDVAULT_HOSTNAME="vault"
-VOIDVAULT_PARTITION="/dev/sdb"
 VOIDVAULT_PROCESSOR="other"
 VOIDVAULT_GRAPHICS="intel"
 VOIDVAULT_DISK_TYPE="usb"
 VOIDVAULT_LOCALE="en_US"
 VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
+VOIDVAULT_MODE="1fa"
 VOIDVAULT_REPOSITORY="/path/to/void/repository"
 VOIDVAULT_IGNORE_CONF_REPOS=1
 VOIDVAULT_PACKAGES="space separated list of packages"
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_DISABLE_IPV6=1
 VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
+VOIDVAULT_CHROOT_DIR="/mnt"
 ```
 
 **Supply options via cmdline flags**:
@@ -175,8 +178,8 @@ voidvault --admin-name="live"                                  \
           --root-pass="your root password"                     \
           --vault-name="vault"                                 \
           --vault-pass="your LUKS encrypted volume's password" \
+          --device="/dev/sda"                                  \
           --hostname="vault"                                   \
-          --partition="/dev/sdb"                               \
           --processor="other"                                  \
           --graphics="intel"                                   \
           --disk-type="usb"                                    \
@@ -212,13 +215,19 @@ voidvault                                                                       
 
 ### `voidvault ls`
 
-List system information including keymaps, locales, timezones, and
-partitions.
+List system information including devices, keymaps, locales, and
+timezones.
 
 It's recommended to run `voidvault ls <keymaps|locales|timezones>`
 before running `voidvault new` to ensure Voidvault types
 `Keymap`, `Locale`, `Timezone` are working properly (see:
 [doc/TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md#voidvault-type-errors)).
+
+**List devices**:
+
+```sh
+voidvault ls devices
+```
 
 **List keymaps**:
 
@@ -230,12 +239,6 @@ voidvault ls keymaps
 
 ```sh
 voidvault ls locales
-```
-
-**List partitions**:
-
-```sh
-voidvault ls partitions
 ```
 
 **List timezones**:
@@ -303,6 +306,7 @@ variable values for all configuration options aside from:
 - `--admin-pass-hash`
 - `--admin-pass`
 - `--augment`
+- `--chroot-dir`
 - `--disable-ipv6`
 - `--enable-serial-console`
 - `--grub-name`
@@ -322,6 +326,7 @@ variable values for all configuration options aside from:
 - `--sftp-pass`
 - `--vault-name`
 - `--vault-pass`
+- `--vault-key`
 
 For these options, console input is read with either `cryptsetup` or
 the built-in Raku subroutine `prompt()`.
@@ -330,6 +335,7 @@ No console input is read for configuration options:
 
 - `--admin-pass-hash`
 - `--augment`
+- `--chroot-dir`
 - `--disable-ipv6`
 - `--enable-serial-console`
 - `--grub-pass-hash`
@@ -339,6 +345,7 @@ No console input is read for configuration options:
 - `--repository`
 - `--root-pass-hash`
 - `--sftp-pass-hash`
+- `--vault-key`
 
 For user input of all other options, the `dialog` program is used.
 

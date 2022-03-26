@@ -207,19 +207,12 @@ If you're always prompted for a GRUB username and password on bootup,
 it probably means a system upgrade has destroyed Voidvault's changes to
 the config file at `/etc/grub.d/10_linux`.
 
-Run [this script][10_linux] to fix it:
+To fix it:
 
-```raku
-use v6;
-my Str:D $file = '/etc/grub.d/10_linux';
-my Str:D @line = $file.IO.lines;
-my Regex:D $regex = /'${CLASS}'\h/;
-my UInt:D @index = @line.grep($regex, :k);
-@index.race.map(-> UInt:D $index {
-    @line[$index] .= subst($regex, '--unrestricted ${CLASS} ')
-});
-my Str:D $replace = @line.join("\n");
-spurt($file, $replace ~ "\n");
+```bash
+# as root
+sed -i 's/^\(CLASS=.*\)"/\1 --unrestricted"/' /etc/grub.d/10_linux
+grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
 ## Error While Booting: Kernel Panic
@@ -331,7 +324,6 @@ Use <kbd>Ctrl-w</kbd> <kbd><</kbd>, <kbd>Ctrl-w</kbd> <kbd>></kbd>,
 split borders to your liking.
 
 
-[10_linux]: https://github.com/atweiden/voidvault/blob/d56f3e999a65b931811437fe6f8a0570bb5eec6d/lib/Voidvault/Bootstrap.pm6#L2068
 [GPE.L6F]: http://jhshi.me/2015/11/14/acpi-error-method-parseexecution-failed-_gpe_l6f/index.html#.W19wDdhKjdQ
 [GRUB]: https://www.reddit.com/r/archlinux/comments/6ahvnk/grub_decryption_really_slow/dhew32m/
 [Respecting the regulatory domain]: https://wiki.archlinux.org/index.php/Wireless_network_configuration#Respecting_the_regulatory_domain

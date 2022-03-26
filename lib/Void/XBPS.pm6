@@ -1,47 +1,80 @@
 use v6;
-use Voidvault::Types;
-unit module Void::XBPS;
+use Voidvault::Utils;
+use X::Void::XBPS;
+unit class Void::XBPS;
 
-# -----------------------------------------------------------------------------
-# helpers
-# -----------------------------------------------------------------------------
-
-multi sub gen-libc-flavor(Str:D $arch where /musl/ --> LibcFlavor:D)
+method xbps-install(
+    # ensure at least one package is given
+    *@pkg (Str:D $, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
+    --> Nil
+)
 {
-    my LibcFlavor:D $libc-flavor = 'MUSL';
+    my Str:D $xbps-install-cmdline = build-xbps-install-cmdline(@pkg, |%opts);
+    Voidvault::Utils.loop-cmdline-proc(
+        "Installing packages...",
+        $xbps-install-cmdline
+    );
 }
 
-multi sub gen-libc-flavor(Str:D $ --> LibcFlavor:D)
+multi sub build-xbps-install-cmdline(
+    :@repository! where .so,
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg (Str:D $, *@)
+    --> Str:D
+)
 {
-    my LibcFlavor:D $libc-flavor = 'GLIBC';
+    my Str:D $repository = @repository.join(' --repository ');
+    my Str:D $xbps-install-cmdline =
+        "xbps-install \\
+         --ignore-conf-repos \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @pkg[]";
 }
 
-proto sub gen-repository-official(LibcFlavor:D --> Str:D)
+multi sub build-xbps-install-cmdline(
+    :@repository! where .so,
+    Bool :ignore-conf-repos($),
+    *@pkg (Str:D $, *@)
+    --> Str:D
+)
 {
-    my Str:D $*repository = 'https://alpha.de.repo.voidlinux.org/current';
-    {*}
+    my Str:D $repository = @repository.join(' --repository ');
+    my Str:D $xbps-install-cmdline =
+        "xbps-install \\
+         --repository $repository \\
+         --sync \\
+         --yes \\
+         @pkg[]";
 }
 
-multi sub gen-repository-official('MUSL' --> Str:D)
+multi sub build-xbps-install-cmdline(
+    :repository(@),
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@ (Str:D $, *@)
+    --> Nil
+)
 {
-    # append /musl to official repository if machine has musl libc
-    my Str:D $repository = sprintf(Q{%s/musl}, $*repository);
+    die(X::Void::XBPS::IgnoreConfRepos.new);
 }
 
-multi sub gen-repository-official(LibcFlavor:D $ --> Str:D)
+multi sub build-xbps-install-cmdline(
+    :repository(@),
+    Bool :ignore-conf-repos($),
+    *@pkg (Str:D $, *@)
+    --> Str:D
+)
 {
-    my Str:D $repository = $*repository;
+    my Str:D $xbps-install-cmdline =
+        "xbps-install \\
+         --sync \\
+         --yes \\
+         @pkg[]";
 }
-
-
-# -----------------------------------------------------------------------------
-# constants
-# -----------------------------------------------------------------------------
-
-constant $XBPS-UHELPER-ARCH = qx<xbps-uhelper arch>.trim;
-constant $LIBC-FLAVOR = gen-libc-flavor($XBPS-UHELPER-ARCH);
-constant $REPOSITORY-OFFICIAL = gen-repository-official($LIBC-FLAVOR);
-constant $REPOSITORY-OFFICIAL-NONFREE =
-    sprintf(Q{%s/nonfree}, $REPOSITORY-OFFICIAL);
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:

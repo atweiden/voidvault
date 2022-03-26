@@ -53,7 +53,7 @@ regex user-name
         <+alnum-lower +[-]> ** 0..30
         <+alnum-lower +[-] +[$]>?
     )
-    { $0 !eq 'root' or fail }
+    { $0 ne 'root' or fail }
 }
 
 # LUKS encrypted volume device mapper name validation

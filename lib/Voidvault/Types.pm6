@@ -1,6 +1,8 @@
 use v6;
+use Voidvault::Constants;
 use Voidvault::Grammar;
 unit module Voidvault::Types;
+
 
 # -----------------------------------------------------------------------------
 # constants
@@ -1089,11 +1091,22 @@ constant @timezones = qw<
 >;
 
 # end timezones }}}
+# vault-type {{{
+
+constant @vault-type = qw<
+    LUKS1
+    LUKS2
+>;
+
+# end vault-type }}}
 
 
 # -----------------------------------------------------------------------------
 # types
 # -----------------------------------------------------------------------------
+
+subset AbsolutePath of Str is export where .defined && .IO.is-absolute.so;
+subset RelativePath of Str is export where .defined && .IO.is-relative.so;
 
 # hard disk type
 subset DiskType of Str is export where { %disktypes.keys.grep($_) };
@@ -1116,6 +1129,9 @@ subset LibcFlavor of Str is export where { @libc.grep($_) };
 # locale
 subset Locale of Str is export where { %locales.keys.grep($_) };
 
+# mode
+enum Mode is export <BASE 1FA 2FA>;
+
 # processor
 subset Processor of Str is export where { %processors.keys.grep($_) };
 
@@ -1128,6 +1144,27 @@ subset UserName of Str is export where
     Voidvault::Grammar.parse($_, :rule<user-name>);
 }
 
+# enforce LUKS encrypted vault secret material resides within /boot
+subset VaultSecretPrefix of AbsolutePath is export where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
+}
+
+# enforce LUKS encrypted boot vault secret material resides within /root
+subset BootvaultSecretPrefix of AbsolutePath where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
+}
+
+# enforce LUKS encrypted vault detached header resides within /boot
+subset VaultHeader of VaultSecretPrefix is export;
+
+# enforce LUKS encrypted volume key resides within /boot
+subset VaultKey of VaultSecretPrefix is export;
+
+# enforce LUKS encrypted boot volume key resides within /root
+subset BootvaultKey of BootvaultSecretPrefix is export;
+
 # LUKS encrypted volume device mapper name
 subset VaultName of Str is export where
 {
@@ -1136,5 +1173,23 @@ subset VaultName of Str is export where
 
 # LUKS encrypted volume password must be 1-512 characters
 subset VaultPass of Str is export where { 0 < .chars <= 512 };
+
+# LUKS encrypted volume type
+subset VaultType of Str is export where { @vault-type.grep($_) };
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D)
+{
+    my IO:D $rootpart = $path;
+}
+
+multi sub rootpart(IO:D $path --> IO:D)
+{
+    my IO:D $rootpart = rootpart($path.parent);
+}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:

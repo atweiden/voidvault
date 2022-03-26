@@ -4,7 +4,7 @@
 # mount-system: mount voidvault btrfs subvolumes and efi partition
 # ----------------------------------------------------------------------------
 # instructions
-# - modify target partition (`_partition=/dev/sda`) as needed
+# - modify target block device (`_device=/dev/sda`) as needed
 # - run `cryptsetup luksOpen /dev/sda3 vault` before running this script
 
 # setup
@@ -21,19 +21,22 @@ _btrfs_subvolumes=(''
                    'var-tmp')
 _compression='zstd'
 _mount_options="rw,noatime,compress-force=$_compression,space_cache=v2"
-_partition='/dev/sda'
+_device='/dev/sda'
 _vault_name='vault'
+# directory within which to mount system for recovery
+_mount_dir='/mnt'
 
 # mount btrfs subvolumes starting with root ('')
 for _btrfs_subvolume in "${_btrfs_subvolumes[@]}"; do
   _btrfs_dir="${_btrfs_subvolume//-//}"
-  mkdir --parents "/mnt/$_btrfs_dir"
+  mkdir --parents "$_mount_dir/$_btrfs_dir"
   mount \
     --types btrfs \
     --options "$_mount_options,subvol=@$_btrfs_subvolume" \
     "/dev/mapper/$_vault_name" \
-    "/mnt/$_btrfs_dir"
+    "$_mount_dir/$_btrfs_dir"
 done
 
 # mount uefi boot partition
-mkdir --parents /mnt/boot/efi && mount "${_partition}2" /mnt/boot/efi
+mkdir --parents "$_mount_dir/boot/efi" \
+  && mount "${_device}2" "$_mount_dir/boot/efi"

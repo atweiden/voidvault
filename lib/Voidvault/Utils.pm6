@@ -1,52 +1,14 @@
 use v6;
-use Crypt::Libcrypt:auth<atweiden>;
-use Void::XBPS;
+use Voidvault::Constants;
 use Voidvault::Types;
-use X::Void::XBPS;
 unit class Voidvault::Utils;
 
-# -----------------------------------------------------------------------------
-# constants
-# -----------------------------------------------------------------------------
-
-# libcrypt crypt encryption rounds
-constant $CRYPT-ROUNDS = 700_000;
-
-# libcrypt crypt encryption scheme
-constant $CRYPT-SCHEME = 'SHA512';
-
-# grub-mkpasswd-pbkdf2 iterations
-constant $PBKDF2-ITERATIONS = 25_000;
-
-# grub-mkpasswd-pbkdf2 length of generated hash
-constant $PBKDF2-LENGTH-HASH = 100;
-
-# grub-mkpasswd-pbkdf2 length of salt
-constant $PBKDF2-LENGTH-SALT = 100;
-
-# for C<--enable-serial-console>
-constant $VIRTUAL-CONSOLE = 'tty0';
-constant $SERIAL-CONSOLE = 'ttyS0';
-constant $GRUB-SERIAL-PORT-UNIT = '0';
-constant $GRUB-SERIAL-PORT-BAUD-RATE = '115200';
-constant $GRUB-SERIAL-PORT-PARITY = False;
-constant %GRUB-SERIAL-PORT-PARITY =
-    ::(True) => %(
-        GRUB_SERIAL_COMMAND => 'odd',
-        GRUB_CMDLINE_LINUX_DEFAULT => 'o'
-    ),
-    ::(False) => %(
-        GRUB_SERIAL_COMMAND => 'no',
-        GRUB_CMDLINE_LINUX_DEFAULT => 'n'
-    );
-constant $GRUB-SERIAL-PORT-STOP-BITS = '1';
-constant $GRUB-SERIAL-PORT-WORD-LENGTH-BITS = '8';
-
 
 # -----------------------------------------------------------------------------
-# copy-on-write
+# btrfs
 # -----------------------------------------------------------------------------
 
+# disable btrfs copy-on-write
 method disable-cow(
     *%opt (
         Bool :clean($),
@@ -63,8 +25,27 @@ method disable-cow(
     @directory.map(-> Str:D $directory { disable-cow($directory, |%opt) });
 }
 
-multi sub disable-cow(
+proto sub disable-cow(
     Str:D $directory,
+    Bool :clean($),
+    Bool :recursive($),
+    Str :permissions($),
+    Str :user($),
+    Str :group($)
+    --> Nil
+)
+{
+    my Str:D $*directory = ~$directory.IO.resolve;
+    with $*directory
+    {
+        [&&] .IO.e.so, .IO.r.so, .IO.d.so
+            or die('directory failed exists readable directory test');
+    }
+    {*}
+}
+
+multi sub disable-cow(
+    Str:D $,
     Bool:D :clean($)! where .so,
     # ignored, recursive is implied with :clean
     Bool :recursive($),
@@ -74,29 +55,20 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
-        or die('directory failed exists readable directory test');
-    my Str:D $backup-dir = sprintf(Q{%s-old}, $orig-dir);
-    rename($orig-dir, $backup-dir);
-    mkdir($orig-dir);
-    run(qqw<chmod $permissions $orig-dir>);
-    run(qqw<chown $user:$group $orig-dir>);
-    run(qqw<chattr -R +C $orig-dir>);
+    my Str:D $backup-dir = sprintf(Q{%s-old}, $*directory);
+    rename($*directory, $backup-dir);
+    mkdir($*directory);
+    run(qqw<chmod $permissions $*directory>);
+    run(qqw<chown $user:$group $*directory>);
+    run(qqw<chattr -R +C $*directory>);
     dir($backup-dir).map(-> IO::Path:D $file {
-        run(qqw<
-            cp
-            --no-dereference
-            --preserve=links,mode,ownership,timestamps
-            $file
-            $orig-dir
-        >);
+        run(qqw<cp --archive --reflink=never $file $*directory>);
     });
     run(qqw<rm --recursive --force $backup-dir>);
 }
 
 multi sub disable-cow(
-    Str:D $directory,
+    Str:D $,
     Bool :clean($),
     Bool:D :recursive($)! where .so,
     Str :permissions($),
@@ -105,14 +77,11 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
-        or die('directory failed exists readable directory test');
-    run(qqw<chattr -R +C $orig-dir>);
+    run(qqw<chattr -R +C $*directory>);
 }
 
 multi sub disable-cow(
-    Str:D $directory,
+    Str:D $,
     Bool :clean($),
     Bool :recursive($),
     Str :permissions($),
@@ -121,244 +90,185 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
-        or die('directory failed exists readable directory test');
-    run(qqw<chattr +C $orig-dir>);
+    run(qqw<chattr +C $*directory>);
 }
 
-
-# -----------------------------------------------------------------------------
-# password hashes
-# -----------------------------------------------------------------------------
-
-method gen-pass-hash(Str:D $pass, Bool :$grub --> Str:D)
+method mkbtrfs(
+    AbsolutePath:D :$chroot-dir! where .so,
+    VaultName:D :$vault-name! where .so,
+    # function to be called for mounting optional subvolumes
+    :&mount-subvolume,
+    # names of optional btrfs subvolumes to create
+    Str:D :@subvolume where {
+        # C<&mount-subvolume> must be present with C<@subvolume>
+        .not or &mount-subvolume.so
+    },
+    # optional kernel modules to load prior to C<mkfs.btrfs>
+    Str:D :@kernel-module,
+    # optional options to pass to C<mkfs.btrfs>
+    Str:D :@mkfs-option,
+    # optional base options with which to mount main btrfs filesystem
+    Str:D :@mount-option
+    --> Nil
+)
 {
-    my Str:D $pass-hash = gen-pass-hash($pass, :$grub);
+    my Str:D $vault-device-mapper = sprintf(Q{/dev/mapper/%s}, $vault-name);
+    my Str:D $mount-dir = sprintf(Q{%s2}, $chroot-dir);
+
+    # create btrfs filesystem on opened vault
+    run(qqw<modprobe $_>) for @kernel-module;
+    run('mkfs.btrfs', |@mkfs-option, $vault-device-mapper);
+
+    # mount main btrfs filesystem on open vault
+    mkdir($mount-dir);
+    my Str:D $mount-btrfs-cmdline =
+        Voidvault::Utils.build-mount-btrfs-cmdline(
+            :@mount-option,
+            :$vault-device-mapper,
+            :$mount-dir
+        );
+    shell($mount-btrfs-cmdline);
+
+    # create btrfs subvolumes
+    indir($mount-dir, {
+        run(qqw<btrfs subvolume create $_>) for @subvolume;
+    }) if @subvolume;
+
+    # mount btrfs subvolumes
+    @subvolume.map(-> Str:D $subvolume {
+        mount-subvolume(
+            :$subvolume,
+            :$vault-device-mapper,
+            :$chroot-dir,
+            :@mount-option
+        );
+    });
+
+    # unmount /mnt2 and remove
+    run(qqw<umount $mount-dir>);
+    rmdir($mount-dir);
 }
 
-# generate pbkdf2 password hash from plaintext password
-multi sub gen-pass-hash(Str:D $grub-pass, Bool:D :grub($)! where .so --> Str:D)
+# prepend --options only when options are present
+method build-mount-options-cmdline(Str:D :@mount-option --> Str:D)
 {
-    my &gen-pass-hash = gen-pass-hash-closure(:grub);
-    my Str:D $grub-pass-hash = &gen-pass-hash($grub-pass);
+    my Str:D $mount-options-cmdline =
+        build-mount-options-cmdline(:@mount-option);
 }
 
-# generate sha512 salted password hash from plaintext password
-multi sub gen-pass-hash(Str:D $user-pass, Bool :grub($) --> Str:D)
+multi sub build-mount-options-cmdline(Str:D :@mount-option where .so --> Str:D)
 {
-    my &gen-pass-hash = gen-pass-hash-closure();
-    my Str:D $user-pass-hash = &gen-pass-hash($user-pass);
+    my Str:D @mount-options-cmdline = '--options', @mount-option.join(',');
+    my Str:D $mount-options-cmdline = @mount-options-cmdline.join(' ');
 }
 
-method prompt-pass-hash(
-    Str $user-name?,
-    Bool :$grub,
-    Str:D :@repository,
-    Bool :$ignore-conf-repos
+multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
+{
+    my Str:D @mount-options-cmdline = '';
+}
+
+method build-mount-btrfs-cmdline(
+    Str:D :@mount-option! where .so,
+    Str:D :$vault-device-mapper! where .so,
+    Str:D :$mount-dir! where .so
     --> Str:D
 )
 {
-    my Str:D $pass-hash =
-        prompt-pass-hash($user-name, :$grub, :@repository, :$ignore-conf-repos);
-}
-
-# generate pbkdf2 password hash from interactive user input
-multi sub prompt-pass-hash(
-    Str $user-name?,
-    Bool:D :grub($)! where .so,
-    Str:D :@repository,
-    Bool :$ignore-conf-repos
-    --> Str:D
-)
-{
-    # install grub, expect for scripting C<grub-mkpasswd-pbkdf2>
-    '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
-        or Voidvault::Utils.xbps-install(
-               'grub',
-               :@repository,
-               :$ignore-conf-repos
-           );
-    '/usr/bin/expect'.IO.x.so
-        or Voidvault::Utils.xbps-install(
-               'expect',
-               :@repository,
-               :$ignore-conf-repos
-           );
-    my &gen-pass-hash = gen-pass-hash-closure(:grub);
-    my Str:D $enter = 'Enter password: ';
-    my Str:D $confirm = 'Reenter password: ';
-    my Str:D $context =
-        "Determining grub password for grub user $user-name..." if $user-name;
-    my %h;
-    %h<enter> = $enter;
-    %h<confirm> = $confirm;
-    %h<context> = $context if $context;
-    my Str:D $grub-pass-hash = loop-prompt-pass-hash(&gen-pass-hash, |%h);
-}
-
-# generate sha512 salted password hash from interactive user input
-multi sub prompt-pass-hash(
-    Str $user-name?,
-    Bool :grub($),
-    Str:D :repository(@),
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my &gen-pass-hash = gen-pass-hash-closure();
-    my Str:D $enter = 'Enter new password: ';
-    my Str:D $confirm = 'Retype new password: ';
-    my Str:D $context =
-        "Determining login password for user $user-name..." if $user-name;
-    my %h;
-    %h<enter> = $enter;
-    %h<confirm> = $confirm;
-    %h<context> = $context if $context;
-    my Str:D $user-pass-hash = loop-prompt-pass-hash(&gen-pass-hash, |%h);
-}
-
-multi sub gen-pass-hash-closure(Bool:D :grub($)! where .so --> Sub:D)
-{
-    my &gen-pass-hash = sub (Str:D $grub-pass --> Str:D)
-    {
-        my Str:D $grub-mkpasswd-pbkdf2-cmdline =
-            build-grub-mkpasswd-pbkdf2-cmdline($grub-pass);
-        my Str:D $grub-pass-hash =
-            qqx{$grub-mkpasswd-pbkdf2-cmdline}.trim.comb(/\S+/).tail;
-    };
-}
-
-multi sub gen-pass-hash-closure(Bool :grub($) --> Sub:D)
-{
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
-    my &gen-pass-hash = sub (Str:D $user-pass --> Str:D)
-    {
-        my Str:D $salt = gen-pass-salt();
-        my Str:D $user-pass-hash = crypt($libc-flavor, $user-pass, $salt);
-    };
-}
-
-sub build-grub-mkpasswd-pbkdf2-cmdline(Str:D $grub-pass --> Str:D)
-{
-    my Str:D $log-user =
-                'log_user 0';
-    my Str:D $set-timeout =
-                'set timeout -1';
-    my Str:D $spawn-grub-mkpasswd-pbkdf2 = qqw<
-                 spawn grub-mkpasswd-pbkdf2
-                 --iteration-count $PBKDF2-ITERATIONS
-                 --buflen $PBKDF2-LENGTH-HASH
-                 --salt $PBKDF2-LENGTH-SALT
+    my Str:D $mount-options-cmdline =
+        Voidvault::Utils.build-mount-options-cmdline(:@mount-option);
+    my Str:D $mount-btrfs-cmdline = qqw<
+        mount
+        --types btrfs
+        $mount-options-cmdline
+        $vault-device-mapper
+        $mount-dir
     >.join(' ');
-    my Str:D $sleep =
-                'sleep 0.33';
-    my Str:D $expect-enter =
-        sprintf('expect "Enter*" { send "%s\r" }', $grub-pass);
-    my Str:D $expect-reenter =
-        sprintf('expect "Reenter*" { send "%s\r" }', $grub-pass);
-    my Str:D $expect-eof =
-                'expect eof { puts "\$expect_out(buffer)" }';
-    my Str:D $exit =
-                'exit 0';
-
-    my Str:D @grub-mkpasswd-pbkdf2-cmdline =
-        $log-user,
-        $set-timeout,
-        $spawn-grub-mkpasswd-pbkdf2,
-        $sleep,
-        $expect-enter,
-        $sleep,
-        $expect-reenter,
-        $sleep,
-        $expect-eof,
-        $exit;
-
-    my Str:D $grub-mkpasswd-pbkdf2-cmdline =
-        sprintf(q:to/EOF/, |@grub-mkpasswd-pbkdf2-cmdline);
-        expect <<EOS
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-        EOS
-        EOF
 }
 
-sub gen-pass-salt(--> Str:D)
-{
-    my Str:D $scheme = gen-scheme-id($CRYPT-SCHEME);
-    my Str:D $rounds = ~$CRYPT-ROUNDS;
-    my Str:D $rand =
-        qx<openssl rand -base64 16>.trim.subst(/<[+=]>/, '', :g).substr(0, 16);
-    my Str:D $salt = sprintf('$%s$rounds=%s$%s$', $scheme, $rounds, $rand);
-}
 
-# linux crypt encrypted method id accessed by encryption method
-multi sub gen-scheme-id('MD5' --> Str:D)      { '1' }
-multi sub gen-scheme-id('BLOWFISH' --> Str:D) { '2a' }
-multi sub gen-scheme-id('SHA256' --> Str:D)   { '5' }
-multi sub gen-scheme-id('SHA512' --> Str:D)   { '6' }
+# -----------------------------------------------------------------------------
+# system
+# -----------------------------------------------------------------------------
 
-sub loop-prompt-pass-hash(
-    # closure for generating pass hash from plaintext password
-    &gen-pass-hash,
-    # prompt message text for initial password entry
-    Str:D :$enter!,
-    # prompt message text for password confirmation
-    Str:D :$confirm!,
-    # non-prompt message for general context
-    Str :$context
-    --> Str:D
+method groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@),
+    *%opts (
+        Bool :system($)
+    )
+    --> Nil
 )
 {
-    my Str $pass-hash;
-    my Str:D $blank = 'Password cannot be blank. Please try again';
-    my Str:D $no-match = 'Please try again';
+    groupadd(@group-name, :$chroot-dir, |%opts);
+}
+
+multi sub groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    Bool:D :system($)! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
+    });
+}
+
+multi sub groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
+    });
+}
+
+method install-resource(
+    # unprefixed, relative path to resource for copy
+    RelativePath:D $resource where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+)
+{
+    my AbsolutePath:D $path = sprintf(Q{%s/%s}, $chroot-dir, $resource);
+    my Bool:D $parent-exists = $path.IO.dirname.IO.d.so;
+    # only attempt to make parent directory if does not exist
+    Voidvault::Utils.mkdir-parent($path) unless $parent-exists;
+    copy(%?RESOURCES{$resource}, $path);
+}
+
+# execute shell process and re-attempt on failure
+method loop-cmdline-proc(
+    Str:D $message where .so,
+    Str:D $cmdline where .so
+    --> Nil
+)
+{
     loop
     {
-        say($context) if $context;
-        my Str:D $pass = stprompt($enter);
-        $pass !eqv '' or do {
-            say($blank);
-            next;
-        }
-        my Str:D $pass-confirm = stprompt($confirm);
-        $pass eqv $pass-confirm or do {
-            say($no-match);
-            next;
-        }
-        $pass-hash = &gen-pass-hash($pass);
-        last;
+        say($message);
+        my Proc:D $proc = shell($cmdline);
+        last if $proc.exitcode == 0;
     }
-    $pass-hash;
 }
 
-# user input prompt (secret text)
-sub stprompt(Str:D $prompt-text --> Str:D)
+# list block devices
+method ls-devices(--> Array[Str:D])
 {
-    ENTER { run(qw<stty -echo>); }
-    LEAVE { run(qw<stty echo>); say(''); }
-    my Str:D $secret = prompt($prompt-text);
+    my Str:D @device =
+        qx<lsblk --noheadings --nodeps --raw --output NAME>
+        .trim
+        .split("\n")
+        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
+        .sort;
 }
 
-
-# -----------------------------------------------------------------------------
-# partitions
-# -----------------------------------------------------------------------------
-
-# generate target partition based on subject
-method gen-partition(Str:D $subject, Str:D $p --> Str:D)
+# list partitions on block device
+method ls-partitions(Str:D $device --> Array[Str:D])
 {
-    # run lsblk only once
-    state Str:D @partition =
-        qqx<lsblk $p --noheadings --paths --raw --output NAME,TYPE>
+    my Str:D @partition =
+        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
         .trim
         .lines
         # make sure we're not getting the master device partition
@@ -366,27 +276,7 @@ method gen-partition(Str:D $subject, Str:D $p --> Str:D)
         # return only the device name
         .map({ .split(' ').first })
         .sort;
-    my Str:D $partition = gen-partition($subject, @partition);
 }
-
-multi sub gen-partition('efi', Str:D @partition --> Str:D)
-{
-    # e.g. /dev/sda2
-    my UInt:D $index = 1;
-    my Str:D $partition = @partition[$index];
-}
-
-multi sub gen-partition('vault', Str:D @partition --> Str:D)
-{
-    # e.g. /dev/sda3
-    my UInt:D $index = 2;
-    my Str:D $partition = @partition[$index];
-}
-
-
-# -----------------------------------------------------------------------------
-# system information
-# -----------------------------------------------------------------------------
 
 # list keymaps
 method ls-keymaps(--> Array[Keymap:D])
@@ -462,14 +352,6 @@ multi sub ls-locales(
     my Locale:D @locale;
 }
 
-# list block devices (partitions)
-method ls-partitions(--> Array[Str:D])
-{
-    my Str:D @partitions = qx<
-        lsblk --output NAME --nodeps --noheadings --raw
-    >.trim.split("\n").map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) }).sort;
-}
-
 # list timezones
 method ls-timezones(--> Array[Timezone:D])
 {
@@ -486,103 +368,790 @@ method ls-timezones(--> Array[Timezone:D])
     my Timezone:D @timezones = |@zoneinfo, 'UTC';
 }
 
-
-# -----------------------------------------------------------------------------
-# utils
-# -----------------------------------------------------------------------------
-
-method loop-cmdline-proc(
-    Str:D $message where .so,
-    Str:D $cmdline where .so
+# make parent directory of C<$path> with (octal) C<$permissions>
+method mkdir-parent(
+    AbsolutePath:D $path where .so,
+    UInt:D $permissions = 0o755
     --> Nil
 )
 {
-    loop
-    {
-        say($message);
-        my Proc:D $proc = shell($cmdline);
-        last if $proc.exitcode == 0;
-    }
+    my Str:D $parent = $path.IO.dirname;
+    mkdir($parent, $permissions);
 }
 
-method xbps-install(
-    Str:D $package where .so,
-    Str:D :@repository,
-    Bool :$ignore-conf-repos
+method partuuid(Str:D $partition --> Str:D)
+{
+    my Str:D $partuuid =
+        qqx<blkid --match-tag PARTUUID --output value $partition>.trim;
+}
+
+method uuid(Str:D $partition --> Str:D)
+{
+    my Str:D $uuid =
+        qqx<blkid --match-tag UUID --output value $partition>.trim;
+}
+
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
+{
+    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
+    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
+}
+
+# chroot into C<$chroot-dir> to then C<grub-install>
+multi method void-chroot-grub-install(
+    # legacy bios
+    Bool:D :legacy($)! where .so,
+    Str:D :$device! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    # Cxbps-install> requires root privileges
-    my Str:D $message =
-        "Sorry, missing pkg $package. Please install: xbps-install $package";
-    $*USER == 0 or die($message);
-    my Str:D $xbps-install-cmdline =
-        build-xbps-install-cmdline(
-            $package,
-            :@repository,
-            :$ignore-conf-repos
-        );
-    Voidvault::Utils.loop-cmdline-proc(
-        "Installing $package...",
-        $xbps-install-cmdline
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-install
+        --target=i386-pc
+        --recheck
+    >, $device);
+}
+
+multi method void-chroot-grub-install(
+    Int:D $kernel-bits,
+    Bool:D :uefi($)! where .so,
+    Str:D :$device! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
+{
+    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
+    my Str:D $uefi-target = gen-grub-install-uefi-target($kernel-bits);
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-install
+        --target=$uefi-target
+        --efi-directory=$directory-efi
+        --removable
+    >, $device);
+}
+
+multi sub gen-grub-install-uefi-target(32 --> Str:D) { 'i386-efi' }
+multi sub gen-grub-install-uefi-target(64 --> Str:D) { 'x86_64-efi' }
+
+# chroot into C<$chroot-dir> to then C<grub-mkconfig>
+method void-chroot-grub-mkconfig(AbsolutePath:D :$chroot-dir! where .so --> Nil)
+{
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-mkconfig
+        --output=/boot/grub/grub.cfg
+    >);
+}
+
+# chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
+method void-chroot-mkdir(
+    Str:D :$user! where .so,
+    Str:D :$group! where .so,
+    # permissions should be octal: https://docs.raku.org/routine/chmod
+    UInt:D :$permissions! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@dir (Str:D $, *@)
+    --> Nil
+)
+{
+    @dir.map(-> Str:D $dir {
+        mkdir("$chroot-dir/$dir", $permissions);
+        run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
+    });
+}
+
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-xbps-reconfigure-linux(
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
+{
+    my Str:D $xbps-linux = do {
+        my Str:D $xbps-linux-version-raw =
+            qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
+        my Str:D $xbps-linux-version =
+            $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
+        sprintf(Q{linux%s}, $xbps-linux-version);
+    };
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
+}
+
+
+# -----------------------------------------------------------------------------
+# vault
+# -----------------------------------------------------------------------------
+
+# create vault with cryptsetup, then open it if requested
+proto method mkvault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    # pass C<:open> to open vault after creating it
+    Bool :open($),
+    *%opts (
+        # prefixed C<VaultHeader> path is C<AbsolutePath>, but
+        # C<$vault-header> is optional here, hence C<Str>
+        Str :$vault-header,
+        VaultPass :vault-pass($)
+    )
+    --> Nil
+)
+{
+    # load kernel modules for cryptsetup
+    run(qw<modprobe dm_mod dm-crypt>);
+
+    # create base directory for vault header if necessary
+    Voidvault::Utils.mkdir-parent($vault-header, 0o700) if $vault-header;
+
+    # create vault with password
+    mkvault(:$vault-type, :$partition-vault, |%opts);
+
+    # open vault if requested
+    {*}
+}
+
+# open vault with password
+multi method mkvault(
+    Bool:D :open($)! where .so,
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    *%opts (
+        Str :vault-header($),
+        VaultPass :vault-pass($)
+    )
+    --> Nil
+)
+{
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        |%opts
     );
 }
 
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Str:D
+# opening vault not requested
+multi method mkvault(
+    VaultType:D :vault-type($)!,
+    Str:D :partition-vault($)!,
+    VaultName:D :vault-name($)!,
+    Bool :open($),
+    *%opts (
+        Str :vault-header($),
+        VaultPass :vault-pass($)
+    )
+    --> Nil
 )
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --ignore-conf-repos \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         $package";
-}
+{*}
 
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :@repository! where .so,
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         $package";
-}
-
-multi sub build-xbps-install-cmdline(
-    $,
-    Str:D :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so
+# LUKS encrypted volume password was given
+multi sub mkvault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
     --> Nil
 )
 {
-    die(X::Void::XBPS::IgnoreConfRepos.new);
+    my Str:D $cryptsetup-luks-format-cmdline =
+        build-cryptsetup-luks-format-cmdline(
+            :non-interactive,
+            :$vault-type,
+            :$partition-vault,
+            :$vault-pass,
+            |%opts
+        );
+
+    # make LUKS encrypted volume without prompt for vault password
+    shell($cryptsetup-luks-format-cmdline);
 }
 
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :repository(@),
-    Bool :ignore-conf-repos($)
+# LUKS encrypted volume password not given
+multi sub mkvault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass :vault-pass($),
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-format-cmdline =
+        build-cryptsetup-luks-format-cmdline(
+            :interactive,
+            :$vault-type,
+            :$partition-vault,
+            |%opts
+        );
+
+    # create LUKS encrypted volume, prompt user for vault password
+    Voidvault::Utils.loop-cmdline-proc(
+        'Creating LUKS vault...',
+        $cryptsetup-luks-format-cmdline
+    );
+}
+
+multi sub build-cryptsetup-luks-format-cmdline(
+    Bool:D :interactive($)! where .so,
+    VaultType:D :$vault-type!,
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
     --> Str:D
 )
 {
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --sync \\
-         --yes \\
-         $package";
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$partition-vault,
+            |%opts
+        );
+    my Str:D $expect-are-you-sure-send-yes =
+        'expect "Are you sure*" { send "YES\r" }';
+    my Str:D $interact =
+        'interact';
+    my Str:D $catch-wait-result =
+        'catch wait result';
+    my Str:D $exit-lindex-result =
+        'exit [lindex $result 3]';
+
+    my Str:D @cryptsetup-luks-format-cmdline =
+        $spawn-cryptsetup-luks-format,
+        $expect-are-you-sure-send-yes,
+        $interact,
+        $catch-wait-result,
+        $exit-lindex-result;
+
+    my Str:D $cryptsetup-luks-format-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-format-cmdline);
+        expect -c '%s;
+                   %s;
+                   %s;
+                   %s;
+                   %s'
+        EOF
+}
+
+multi sub build-cryptsetup-luks-format-cmdline(
+    Bool:D :non-interactive($)! where .so,
+    VaultType:D :$vault-type!,
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$partition-vault,
+            |%opts
+        );
+    my Str:D $sleep =
+                'sleep 0.33';
+    my Str:D $expect-are-you-sure-send-yes =
+                'expect "Are you sure*" { send "YES\r" }';
+    my Str:D $expect-enter-send-vault-pass =
+        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-verify-send-vault-pass =
+        sprintf('expect "Verify*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-eof =
+                'expect eof';
+
+    my Str:D @cryptsetup-luks-format-cmdline =
+        $spawn-cryptsetup-luks-format,
+        $sleep,
+        $expect-are-you-sure-send-yes,
+        $sleep,
+        $expect-enter-send-vault-pass,
+        $sleep,
+        $expect-verify-send-vault-pass,
+        'sleep 7',
+        $expect-eof;
+
+    my Str:D $cryptsetup-luks-format-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-format-cmdline);
+        expect <<EOS
+          %s
+          %s
+          %s
+          %s
+          %s
+          %s
+          %s
+          %s
+          %s
+        EOS
+        EOF
+}
+
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS1',
+    Str:D :$partition-vault! where .so,
+    # LUKS1 variant is never called with optional C<$vault-header>
+    *% (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+        spawn cryptsetup
+        --type luks1
+        --cipher aes-xts-plain64
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        luksFormat $partition-vault
+    >.join(' ');
+}
+
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    AbsolutePath:D :$vault-header! where .so
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+        spawn cryptsetup
+        --type luks2
+        --header $vault-header
+        --cipher aes-xts-plain64
+        --pbkdf argon2id
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        luksFormat $partition-vault
+    >.join(' ');
+}
+
+# effectively dead code until GRUB ships reasonable support for LUKS2
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    Str :vault-header($)
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+        spawn cryptsetup
+        --type luks2
+        --cipher aes-xts-plain64
+        --pbkdf argon2id
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        luksFormat $partition-vault
+    >.join(' ');
+}
+
+method open-vault(
+    # luksOpen cmdline options differ by type
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    *%opts (
+        # prefixed C<VaultHeader> path is C<AbsolutePath>
+        Str :vault-header($),
+        VaultPass :vault-pass($)
+    )
+)
+{
+    open-vault(:$vault-type, :$partition-vault, :$vault-name, |%opts);
+}
+
+# LUKS encrypted volume password was given
+multi sub open-vault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        build-cryptsetup-luks-open-cmdline(
+            :non-interactive,
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name,
+            :$vault-pass,
+            |%opts
+        );
+
+    # open vault without prompt for vault password
+    shell($cryptsetup-luks-open-cmdline);
+}
+
+# LUKS encrypted volume password not given
+multi sub open-vault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass :vault-pass($),
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        build-cryptsetup-luks-open-cmdline(
+            :interactive,
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name,
+            |%opts
+        );
+
+    # open LUKS encrypted volume, prompt user for vault password
+    Voidvault::Utils.loop-cmdline-proc(
+        'Opening LUKS vault...',
+        $cryptsetup-luks-open-cmdline
+    );
+}
+
+multi sub build-cryptsetup-luks-open-cmdline(
+    Bool:D :interactive($)! where .so,
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        gen-cryptsetup-luks-open(
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name,
+            |%opts
+        );
+}
+
+multi sub build-cryptsetup-luks-open-cmdline(
+    Bool:D :non-interactive($)! where .so,
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open =
+        gen-cryptsetup-luks-open(
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name,
+            |%opts
+        );
+    my Str:D $spawn-cryptsetup-luks-open =
+        sprintf('spawn %s', $cryptsetup-luks-open);
+    my Str:D $sleep =
+                'sleep 0.33';
+    my Str:D $expect-enter-send-vault-pass =
+        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-eof =
+                'expect eof';
+
+    my Str:D @cryptsetup-luks-open-cmdline =
+        $spawn-cryptsetup-luks-open,
+        $sleep,
+        $expect-enter-send-vault-pass,
+        $sleep,
+        $expect-eof;
+
+    my Str:D $cryptsetup-luks-open-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-open-cmdline);
+        expect <<EOS
+          %s
+          %s
+          %s
+          %s
+          %s
+        EOS
+        EOF
+}
+
+multi sub gen-cryptsetup-luks-open(
+    VaultType:D :vault-type($)! where 'LUKS1',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    # LUKS1 variant is never called with optional C<$vault-header>
+    Str :vault-header($)
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup luksOpen $partition-vault $vault-name";
+}
+
+multi sub gen-cryptsetup-luks-open(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    AbsolutePath:D :$vault-header! where .so
+    --> Str:D
+)
+{
+    my Str:D $opts = qqw<
+        --header $vault-header
+        --perf-no_read_workqueue
+        --persistent
+    >.join(' ');
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+}
+
+# effectively dead code until GRUB ships reasonable support for LUKS2
+multi sub gen-cryptsetup-luks-open(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    Str :vault-header($)
+    --> Str:D
+)
+{
+    my Str:D $opts = qqw<
+        --perf-no_read_workqueue
+        --persistent
+    >.join(' ');
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+}
+
+method install-vault-key(
+    Str:D :$partition-vault where .so,
+    # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
+    # it would be typed as <VaultKey:D> if not for C<BootvaultKey> usage
+    AbsolutePath:D :vault-key($vault-key-unprefixed) where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
+    *%opts (
+        VaultPass :vault-pass($),
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my AbsolutePath:D $vault-key =
+        sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
+    Voidvault::Utils.mkdir-parent($vault-key, 0o700);
+    mkkey(:$vault-key);
+    addkey(:$vault-key, :$partition-vault, |%opts);
+    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key-unprefixed>);
+}
+
+# make vault key
+sub mkkey(
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so
+    --> Nil
+)
+{
+    # source of entropy
+    my Str:D $src = '/dev/random';
+    # bytes to read from C<$src>
+    my UInt:D $bytes = 64;
+    # exec idiomatic version of C<head -c 64 /dev/random > $vault-key>
+    my IO::Handle:D $fh = $src.IO.open(:bin);
+    my Buf:D $buf = $fh.read($bytes);
+    $fh.close;
+    spurt($vault-key, $buf);
+}
+
+# LUKS encrypted volume password was given
+multi sub addkey(
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        build-cryptsetup-luks-add-key-cmdline(
+            :non-interactive,
+            :$vault-key,
+            :$partition-vault,
+            :$vault-pass,
+            |%opts
+        );
+
+    # add key to LUKS encrypted volume without prompt for vault password
+    shell($cryptsetup-luks-add-key-cmdline);
+}
+
+# LUKS encrypted volume password not given
+multi sub addkey(
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass :vault-pass($),
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Nil
+)
+{
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        build-cryptsetup-luks-add-key-cmdline(
+            :interactive,
+            :$vault-key,
+            :$partition-vault,
+            |%opts
+        );
+
+    # add key to LUKS encrypted volume, prompt user for vault password
+    Voidvault::Utils.loop-cmdline-proc(
+        'Adding LUKS key...',
+        $cryptsetup-luks-add-key-cmdline
+    );
+}
+
+multi sub build-cryptsetup-luks-add-key-cmdline(
+    Bool:D :interactive($)! where .so,
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        gen-spawn-cryptsetup-luks-add-key(
+            :$vault-key,
+            :$partition-vault,
+            |%opts
+        );
+    my Str:D $interact =
+        'interact';
+    my Str:D $catch-wait-result =
+        'catch wait result';
+    my Str:D $exit-lindex-result =
+        'exit [lindex $result 3]';
+
+    my Str:D @cryptsetup-luks-add-key-cmdline =
+        $spawn-cryptsetup-luks-add-key,
+        $interact,
+        $catch-wait-result,
+        $exit-lindex-result;
+
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-add-key-cmdline);
+        expect -c '%s;
+                   %s;
+                   %s;
+                   %s'
+        EOF
+}
+
+multi sub build-cryptsetup-luks-add-key-cmdline(
+    Bool:D :non-interactive($)! where .so,
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        gen-spawn-cryptsetup-luks-add-key(
+            :$vault-key,
+            :$partition-vault,
+            |%opts
+        );
+    my Str:D $sleep =
+                'sleep 0.33';
+    my Str:D $expect-enter-send-vault-pass =
+        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-eof =
+                'expect eof';
+
+    my Str:D @cryptsetup-luks-add-key-cmdline =
+        $spawn-cryptsetup-luks-add-key,
+        $sleep,
+        $expect-enter-send-vault-pass,
+        'sleep 7',
+        $expect-eof;
+
+    my Str:D $cryptsetup-luks-add-key-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-add-key-cmdline);
+        expect <<EOS
+          %s
+          %s
+          %s
+          %s
+          %s
+        EOS
+        EOF
+}
+
+sub gen-spawn-cryptsetup-luks-add-key(
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $opts = build-cryptsetup-luks-add-key-options-cmdline(|%opts);
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
+}
+
+multi sub build-cryptsetup-luks-add-key-options-cmdline(
+    AbsolutePath:D :$vault-header! where .so
+    --> Str:D
+)
+{
+    my Str:D $opts = qqw<--header $vault-header --iter-time 1 >.join(' ');
+}
+
+multi sub build-cryptsetup-luks-add-key-options-cmdline(
+    Str :vault-header($)
+    --> Str:D
+)
+{
+    my Str:D $opts = '--iter-time 1';
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

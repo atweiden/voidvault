@@ -1,5 +1,6 @@
 use v6;
-use Void::XBPS;
+use Void::Constants;
+use Voidvault::Utils;
 use X::Void::XBPS;
 unit class Void::Utils;
 
@@ -9,31 +10,37 @@ constant $VERSION = v1.16.0;
 
 # based on arch-install-scripts v24
 method voidstrap(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
     Str:D $chroot-dir,
-    :@repository,
-    Bool :$ignore-conf-repos,
     # ensure at least one package is given
-    *@pkg ($, *@)
+    *@pkg ($, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
     --> Nil
 )
 {
-    voidstrap($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
+    voidstrap($chroot-dir, @pkg, |%opts);
 }
 
 sub voidstrap(
     Str:D $chroot-dir,
-    :@repository,
-    Bool :$ignore-conf-repos,
-    *@pkg ($, *@)
+    *@pkg ($, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
     --> Nil
 )
 {
     my Str:D @*chroot-active-mount;
+    LEAVE chroot-teardown();
+    UNDO chroot-teardown();
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
-    voidstrap-install($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
-    LEAVE chroot-teardown();
+    voidstrap-install($chroot-dir, @pkg, |%opts);
 }
 
 # --- sub create-obligatory-dirs {{{
@@ -79,7 +86,7 @@ sub chroot-setup(Str:D $chroot-dir --> Nil)
         $chroot-dir/sys/firmware/efi/efivars
         --types efivarfs
         --options nodev,noexec,nosuid
-    >) if "$chroot-dir/sys/firmware/efi/efivars".IO.d;
+    >) if "$chroot-dir/sys/firmware/efi/efivars".IO.d.so;
     chroot-add-mount(|qqw<
         udev
         $chroot-dir/dev
@@ -143,119 +150,105 @@ sub chroot-add-host-keys(
     --> Nil
 )
 {
-    my Str:D $host-keys-dir =
-        '/var/db/xbps/keys';
+    my Str:D $host-keys-dir = '/var/db/xbps/keys';
     my Str:D $host-keys-chroot-dir =
         sprintf(Q{%s%s}, $chroot-dir, $host-keys-dir);
     dir($host-keys-dir)
-        .map(-> IO::Path:D $path {
-            $path.basename
-        })
+        .map(-> IO::Path:D $path { $path.basename })
         .map(-> Str:D $basename {
-            copy(
-                "$host-keys-dir/$basename",
-                "$host-keys-chroot-dir/$basename"
-            );
+            copy("$host-keys-dir/$basename", "$host-keys-chroot-dir/$basename");
         });
 }
 
 # --- end sub chroot-add-host-keys }}}
 # --- sub voidstrap-install {{{
 
-multi sub voidstrap-install(
+sub voidstrap-install(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
     Str:D $chroot-dir,
-    :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so,
-    *@pkg ($, *@)
-    --> Nil
+    *@pkg ($, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
+    --> Str:D
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
-    my Str:D $repository = @repository.join(' --repository ');
-    # rm official repo in the presence of C<--repository --ignore-conf-repos>
-    shell(
-        "XBPS_ARCH=$xbps-uhelper-arch \\
-         unshare \\
-         --fork \\
-         --pid \\
-         xbps-install \\
-         --force \\
-         --ignore-conf-repos \\
-         --repository $repository \\
-         --rootdir $chroot-dir \\
-         --sync \\
-         --yes \\
-         @pkg[]"
+    my Str:D $xbps-uhelper-arch = $Void::Constants::XBPS-UHELPER-ARCH;
+    my Str:D @voidstrap-install-cmdline = qqw<
+        XBPS_ARCH=$xbps-uhelper-arch
+        unshare
+        --fork
+        --pid
+        xbps-install
+        --force
+        --rootdir $chroot-dir
+        --sync
+        --yes
+    >;
+    my Str:D @repository-flag = gen-repository-flags(|%opts);
+    append(@voidstrap-install-cmdline, @repository-flag);
+    append(@voidstrap-install-cmdline, @pkg);
+    my Str:D $voidstrap-install-cmdline = @voidstrap-install-cmdline.join(' ');
+    Voidvault::Utils.loop-cmdline-proc(
+        "Running voidstrap...",
+        $voidstrap-install-cmdline
     );
 }
 
-multi sub voidstrap-install(
-    Str:D $chroot-dir,
+multi sub gen-repository-flags(
     :@repository! where .so,
-    Bool :ignore-conf-repos($),
-    *@pkg ($, *@)
-    --> Nil
+    Bool:D :ignore-conf-repos($)! where .so
+    --> Array[Str:D]
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
     my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    # omit official repos when passed C<--repository --ignore-conf-repos>
+    my Str:D @gen-repository-flag = qqw<
+       --repository $repository
+       --ignore-conf-repos
+    >;
+}
+
+multi sub gen-repository-flags(
+    :@repository! where .so,
+    Bool :ignore-conf-repos($)
+    --> Array[Str:D]
+)
+{
+    my Str:D $repository = @repository.join(' --repository ');
+    my Str:D $repository-official = $Void::Constants::REPOSITORY-OFFICIAL;
     my Str:D $repository-official-nonfree =
-        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
-    shell(
-        "XBPS_ARCH=$xbps-uhelper-arch \\
-         unshare \\
-         --fork \\
-         --pid \\
-         xbps-install \\
-         --force \\
-         --repository $repository \\
-         --repository $repository-official \\
-         --repository $repository-official-nonfree \\
-         --rootdir $chroot-dir \\
-         --sync \\
-         --yes \\
-         @pkg[]"
-    );
+        $Void::Constants::REPOSITORY-OFFICIAL-NONFREE;
+    my Str:D @gen-repository-flag = qqw<
+       --repository $repository
+       --repository $repository-official
+       --repository $repository-official-nonfree
+    >;
 }
 
-multi sub voidstrap-install(
-    Str:D $chroot-dir,
+multi sub gen-repository-flags(
     :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so,
-    *@pkg ($, *@)
+    Bool:D :ignore-conf-repos($)! where .so
     --> Nil
 )
 {
     die(X::Void::XBPS::IgnoreConfRepos.new);
 }
 
-multi sub voidstrap-install(
-    Str:D $chroot-dir,
+multi sub gen-repository-flags(
     :repository(@),
-    Bool :ignore-conf-repos($),
-    *@pkg ($, *@)
-    --> Nil
+    Bool :ignore-conf-repos($)
+    --> Array[Str:D]
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
-    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    my Str:D $repository-official = $Void::Constants::REPOSITORY-OFFICIAL;
     my Str:D $repository-official-nonfree =
-        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
-    shell(
-        "XBPS_ARCH=$xbps-uhelper-arch \\
-         unshare \\
-         --fork \\
-         --pid \\
-         xbps-install \\
-         --force \\
-         --repository $repository-official \\
-         --repository $repository-official-nonfree \\
-         --rootdir $chroot-dir \\
-         --sync \\
-         --yes \\
-         @pkg[]"
-    );
+        $Void::Constants::REPOSITORY-OFFICIAL-NONFREE;
+    my Str:D @gen-repository-flag = qqw<
+       --repository $repository-official
+       --repository $repository-official-nonfree
+   >;
 }
 
 # --- end sub voidstrap-install }}}
@@ -263,7 +256,12 @@ multi sub voidstrap-install(
 # end method voidstrap }}}
 # method void-chroot {{{
 
-method void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
+method void-chroot(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
+    Str:D $chroot-dir,
+    *@cmdline ($, *@)
+    --> Nil
+)
 {
     void-chroot($chroot-dir, @cmdline);
 }
@@ -271,13 +269,14 @@ method void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
 sub void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
 {
     my Str:D @*chroot-active-mount;
+    LEAVE chroot-teardown();
+    UNDO chroot-teardown();
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-resolv-conf($chroot-dir);
     my Str:D $cmdline =
         "SHELL=/bin/bash unshare --fork --pid chroot $chroot-dir @cmdline[]";
     shell($cmdline);
-    LEAVE chroot-teardown();
 }
 
 # --- sub chroot-add-resolv-conf {{{
