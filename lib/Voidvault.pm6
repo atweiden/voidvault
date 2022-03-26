@@ -6,6 +6,7 @@ unit class Voidvault;
 constant $VERSION = v1.16.0;
 
 method new(
+    *@mode,
     *%opts (
         Str :admin-name($),
         Str :admin-pass($),
@@ -42,7 +43,7 @@ method new(
 )
 {
     # instantiate voidvault config, prompting for user input as needed
-    my Voidvault::Config $config .= new(|%opts);
+    my Voidvault::Config $config .= new(|@mode, |%opts);
 
     # bootstrap voidvault
     Voidvault::Bootstrap.new(:$config).bootstrap;
