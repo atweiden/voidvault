@@ -92,6 +92,7 @@ multi sub MAIN('help', $? --> Nil)
 
 multi sub MAIN(
     'new',
+    *@mode,
     :@repository,
     *%opts (
         Str :admin-name($),
@@ -127,11 +128,12 @@ multi sub MAIN(
     --> Nil
 )
 {
-    Voidvault.new(:@repository, |%opts);
+    Voidvault.new(|@mode, :@repository, |%opts);
 }
 
 multi sub MAIN(
     'new',
+    *@mode,
     :$repository,
     *%opts (
         Str :admin-name($),
@@ -168,7 +170,7 @@ multi sub MAIN(
 )
 {
     my @repository = $repository;
-    Voidvault.new(:@repository, |%opts);
+    Voidvault.new(|@mode, :@repository, |%opts);
 }
 
 
@@ -317,7 +319,7 @@ multi sub USAGE('new' --> Nil)
                 [--packages=<packages>]
                 [--augment]
                 [--disable-ipv6] [--enable-serial-console]
-                new
+                new [mode]
 
     Options:
       --admin-name=<username>
@@ -380,6 +382,16 @@ multi sub USAGE('new' --> Nil)
         Name for LUKS encrypted volume
       --vault-pass=<password>
         Password for LUKS encrypted volume
+
+    Arguments:
+      mode      Activate mode
+
+    Mode
+      | 1fa     Make LUKS2 vault with detached header on LUKS1-encrypted boot
+      |         partition
+      |
+      |         A temporary stand-in for LUKS2-encrypted /boot, and developer
+      |         bridge to 2FA mode
     EOF
     say($HELP);
 }
