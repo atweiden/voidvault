@@ -305,6 +305,8 @@ multi sub USAGE('new' --> Nil)
 {
     constant $HELP = q:to/EOF/.trim;
     Usage:
+      voidvault [options] new [mode]
+
       voidvault [--admin-name=<username>] [--admin-pass=<password>]
                 [--guest-name=<username>] [--guest-pass=<password>]
                 [--sftp-name=<username>] [--sftp-pass=<password>]
@@ -319,7 +321,10 @@ multi sub USAGE('new' --> Nil)
                 [--packages=<packages>]
                 [--augment]
                 [--disable-ipv6] [--enable-serial-console]
-                new [mode]
+                new
+
+      voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
+                new 1fa
 
     Options:
       --admin-name=<username>
@@ -383,15 +388,25 @@ multi sub USAGE('new' --> Nil)
       --vault-pass=<password>
         Password for LUKS encrypted volume
 
+    Options (1FA):
+      --bootvault-name=<vaultname>
+        Name for LUKS encrypted boot volume
+      --bootvault-pass=<password>
+        Password for LUKS encrypted boot volume
+
     Arguments:
       mode      Activate mode
 
     Mode
-      | base    Make LUKS1 vault with encrypted /boot (default)
+      | base (Default)
       |
-      | 1fa     Make LUKS2 vault with detached header inside LUKS1 boot partition
+      |   Make LUKS1 vault with encrypted /boot
       |
-      |         Make LUKS1 boot partition on same device as LUKS2 vault
+      | 1fa
+      |
+      |   Make LUKS2 vault with detached header inside LUKS1 boot partition
+      |
+      |   Make LUKS1 boot partition on same device as LUKS2 vault
     EOF
     say($HELP);
 }
