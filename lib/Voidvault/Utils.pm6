@@ -474,6 +474,12 @@ multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
     >, $partition);
 }
 
+method mkefi(Str:D $partition-efi --> Nil)
+{
+    run(qw<modprobe vfat>);
+    run(qqw<mkfs.vfat -F 32 $partition-efi>);
+}
+
 
 # -----------------------------------------------------------------------------
 # system information

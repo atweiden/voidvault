@@ -106,7 +106,7 @@ method !mkdisk(--> Nil)
     # create uefi partition
     my Str:D $partition-efi =
         Voidvault::Utils.gen-partition('efi', $partition, $mode);
-    mkefi($partition-efi);
+    Voidvault::Utils.mkefi($partition-efi);
 
     # create vault
     my Str:D $partition-vault =
@@ -121,12 +121,6 @@ method !mkdisk(--> Nil)
 
     # disable Btrfs CoW
     disable-cow();
-}
-
-sub mkefi(Str:D $partition-efi --> Nil)
-{
-    run(qw<modprobe vfat>);
-    run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
 # create vault with cryptsetup
