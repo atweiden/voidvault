@@ -4,7 +4,7 @@ use Voidvault::Config;
 use Voidvault::Types;
 use Voidvault::Utils;
 use X::Void::XBPS;
-unit class Voidvault::Bootstrap;
+unit class Voidvault::Bootstrap::OneFA;
 
 
 # -----------------------------------------------------------------------------
