@@ -730,36 +730,26 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
-# avoid having to enter password twice on boot
-method !mkvault-key(--> Nil)
-{
-    my Mode:D $mode = $.config.mode;
-    my Str:D $partition = $.config.partition;
-    my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition, $mode);
-    my VaultName:D $vault-name = $.config.vault-name;
-    my VaultPass $vault-pass = $.config.vault-pass;
-    mkvault-key-gen();
-    mkvault-key-add(:$partition-vault, :$vault-pass);
-    mkvault-key-sec();
-    mkvault-key-cfg($partition-vault, $vault-name);
-}
-
-# generate LUKS key
-sub mkvault-key-gen(--> Nil)
+# generate and secure vault key
+sub mkvault-key(
+    Str:D :$partition-vault! where .so,
+    Str:D :$add-key-path! where .so
+    --> Nil
+)
 {
     # source of entropy
     my Str:D $src = '/dev/random';
-    my Str:D $dst = '/mnt/boot/volume.key';
+    my Str:D $dst = sprintf(Q{/mnt%s}, $add-key-path);
     # bytes to read from C<$src>
     my UInt:D $bytes = 64;
-    # exec idiomatic version of C<head -c 64 /dev/random > /mnt/boot/volume.key>
+    # exec idiomatic version of C<head -c 64 /dev/random > key>
     my IO::Handle:D $fh = $src.IO.open(:bin);
     my Buf:D $buf = $fh.read($bytes);
     $fh.close;
     spurt($dst, $buf);
 }
 
+# TODO: relocate this
 # LUKS encrypted volume password was given
 multi sub mkvault-key-add(
     Str:D :$partition-vault! where .so,
@@ -778,6 +768,7 @@ multi sub mkvault-key-add(
     shell($cryptsetup-luks-add-key-cmdline);
 }
 
+# TODO: relocate this
 multi sub mkvault-key-add(
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($)
@@ -866,8 +857,11 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
         EOF
 }
 
+# TODO: relocate this
 sub mkvault-key-sec(--> Nil)
 {
+    # XXX
+    #run(qw<void-chroot /mnt chmod 000 /boot/bootvolume.key>);
     run(qw<void-chroot /mnt chmod 000 /boot/volume.key>);
     run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
