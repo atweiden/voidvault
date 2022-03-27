@@ -21,10 +21,25 @@ has Voidvault::Config:D $.config is required;
 method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
+    my Mode $mode = $.config.mode;
+
     # verify root permissions
     $*USER == 0 or die('root privileges required');
+
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
+
+    if $mode.eq('1FA')
+    {
+        use Voidvault::Bootstrap::OneFA;
+        Voidvault::Bootstrap::OneFA.new();
+    }
+    else
+    {
+        use Voidvault::Bootstrap::Default;
+        Voidvault::Bootstrap::Default.new();
+    }
+
     self!setup;
     self!mkdisk;
     self!voidstrap-base;

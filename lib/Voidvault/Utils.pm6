@@ -369,14 +369,28 @@ method gen-partition(Str:D $subject, Str:D $p, Mode $mode --> Str:D)
     my Str:D $partition = gen-partition($subject, @partition, $mode);
 }
 
-multi sub gen-partition('efi', Str:D @partition, Mode $mode --> Str:D)
+multi sub gen-partition('efi', Str:D @partition, Mode $ --> Str:D)
 {
     # e.g. /dev/sda2
     my UInt:D $index = 1;
     my Str:D $partition = @partition[$index];
 }
 
-multi sub gen-partition('vault', Str:D @partition, Mode $mode --> Str:D)
+multi sub gen-partition('boot', Str:D @partition, Mode $ where '1FA' --> Str:D)
+{
+    # e.g. /dev/sda3
+    my UInt:D $index = 2;
+    my Str:D $partition = @partition[$index];
+}
+
+multi sub gen-partition('vault', Str:D @partition, Mode $ where '1FA' --> Str:D)
+{
+    # e.g. /dev/sda4
+    my UInt:D $index = 3;
+    my Str:D $partition = @partition[$index];
+}
+
+multi sub gen-partition('vault', Str:D @partition, Mode $ --> Str:D)
 {
     # e.g. /dev/sda3
     my UInt:D $index = 2;

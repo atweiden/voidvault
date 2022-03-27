@@ -1,5 +1,4 @@
 use v6;
-use Voidvault::Bootstrap;
 use Voidvault::Config;
 unit class Voidvault;
 
@@ -42,11 +41,35 @@ method new(
     --> Nil
 )
 {
+    # verify root permissions
+    $*USER == 0 or die('root privileges required');
+
+    # ensure pressing Ctrl-C works
+    signal(SIGINT).tap({ exit(130) });
+
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
 
     # bootstrap voidvault
-    Voidvault::Bootstrap.new(:$config).bootstrap;
+    new($config);
+}
+
+multi sub new(
+    Voidvault::Config:D $config where .mode.so && .mode eq '1FA'
+    --> Nil
+)
+{
+    use Voidvault::Bootstrap::OneFA;
+    Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
+}
+
+multi sub new(
+    Voidvault::Config:D $config
+    --> Nil
+)
+{
+    use Voidvault::Bootstrap::Default;
+    Voidvault::Bootstrap::Default.new(:$config).bootstrap;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
