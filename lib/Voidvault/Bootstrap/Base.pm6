@@ -101,7 +101,7 @@ method !mkdisk(--> Nil)
     my VaultPass $vault-pass = $.config.vault-pass;
 
     # partition disk
-    sgdisk($partition, $mode);
+    Voidvault::Utils.sgdisk($partition, $mode);
 
     # create uefi partition
     my Str:D $partition-efi =
@@ -121,51 +121,6 @@ method !mkdisk(--> Nil)
 
     # disable Btrfs CoW
     disable-cow();
-}
-
-# partition disk with gdisk - 1fa mode
-multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
-{
-    # erase existing partition table
-    # create 2M EF02 BIOS boot sector
-    # create 550M EF00 EFI system partition
-    # create 1024M sized partition for LUKS1-encrypted boot
-    # create max sized partition for LUKS2-encrypted vault
-    run(qw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+2M
-        --typecode=1:EF02
-        --new=2:0:+550M
-        --typecode=2:EF00
-        --new=3:0:+1024M
-        --typecode=3:8300
-        --new=4:0:0
-        --typecode=4:8300
-    >, $partition);
-}
-
-# partition disk with gdisk
-multi sub sgdisk(Str:D $partition, Mode:D $ --> Nil)
-{
-    # erase existing partition table
-    # create 2M EF02 BIOS boot sector
-    # create 550M EF00 EFI system partition
-    # create max sized partition for LUKS-encrypted vault
-    run(qw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+2M
-        --typecode=1:EF02
-        --new=2:0:+550M
-        --typecode=2:EF00
-        --new=3:0:0
-        --typecode=3:8300
-    >, $partition);
 }
 
 sub mkefi(Str:D $partition-efi --> Nil)
