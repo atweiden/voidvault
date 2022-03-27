@@ -120,7 +120,6 @@ method !mkdisk(--> Nil)
         :$add-key,
         :$add-password,
         :$partition-vault,
-        :$vault-name,
         :$vault-pass,
         :$add-key-path
     );

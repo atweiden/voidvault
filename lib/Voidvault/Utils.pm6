@@ -486,7 +486,6 @@ method mkvault(
     Bool:D :$add-key!,
     Bool:D :$add-password!,
     Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
     *%opts (
         Str :add-key-path($),
         VaultPass :vault-pass($)
@@ -503,28 +502,30 @@ method mkvault(
         :$add-key,
         :$add-password,
         :$partition-vault,
-        :$vault-name,
         |%opts
     );
 }
 
 # LUKS encrypted volume password was given
 multi sub mkvault(
-    VaultType:D :vault-type($)! where 'LUKS1',
+    VaultType:D :$vault-type! where 'LUKS1',
     # TODO: luksAddKey
-    Bool:D :add-key($)! where .so,
-    Bool:D :add-password($)! where .so,
+    Bool:D :$add-key! where .so,
+    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    VaultPass:D :$vault-pass! where .so
+    VaultPass:D :$vault-pass! where .so,
+    Str:D :$add-key-path! where .so
     --> Nil
 )
 {
     my Str:D $cryptsetup-luks-format-cmdline =
         build-cryptsetup-luks-format-cmdline(
             :non-interactive,
-            $partition-vault,
-            $vault-pass
+            :$vault-type,
+            :$add-key,
+            :$add-password,
+            :$partition-vault,
+            :$vault-pass
         );
 
     # make LUKS encrypted volume without prompt for vault password
@@ -533,11 +534,11 @@ multi sub mkvault(
 
 # LUKS encrypted volume password not given
 multi sub mkvault(
-    VaultType:D :vault-type($)! where 'LUKS1',
-    Bool:D :add-key($)! where .so,
-    Bool:D :add-password($)! where .so,
+    VaultType:D :$vault-type! where 'LUKS1',
+    Bool:D :$add-key! where .so,
+    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
+    Str:D :$add-key-path! where .so,
     VaultPass :vault-pass($)
     --> Nil
 )
@@ -545,7 +546,10 @@ multi sub mkvault(
     my Str:D $cryptsetup-luks-format-cmdline =
         build-cryptsetup-luks-format-cmdline(
             :interactive,
-            $partition-vault
+            :$vault-type,
+            :$add-key,
+            :$add-password,
+            :$partition-vault
         );
 
     # create LUKS encrypted volume, prompt user for vault password
@@ -556,23 +560,21 @@ multi sub mkvault(
 }
 
 multi sub build-cryptsetup-luks-format-cmdline(
-    Str:D $partition-vault where .so,
-    Bool:D :interactive($)! where .so
+    Bool:D :interactive($)! where .so,
+    VaultType:D :$vault-type!,
+    Bool:D :$add-key! where .so,
+    Bool:D :$add-password! where .so,
+    Str:D :$partition-vault! where .so
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks1
-         --cipher aes-xts-plain64
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         luksFormat $partition-vault
-    >.join(' ');
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$add-key,
+            :$add-password,
+            :$partition-vault
+        );
     my Str:D $expect-are-you-sure-send-yes =
         'expect "Are you sure*" { send "YES\r" }';
     my Str:D $interact =
@@ -600,24 +602,22 @@ multi sub build-cryptsetup-luks-format-cmdline(
 }
 
 multi sub build-cryptsetup-luks-format-cmdline(
-    Str:D $partition-vault where .so,
-    VaultPass:D $vault-pass where .so,
-    Bool:D :non-interactive($)! where .so
+    Bool:D :non-interactive($)! where .so,
+    VaultType:D :$vault-type!,
+    Bool:D :$add-key! where .so,
+    Bool:D :$add-password! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultPass:D :$vault-pass! where .so
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-                spawn cryptsetup
-                --type luks1
-                --cipher aes-xts-plain64
-                --key-slot 1
-                --key-size 512
-                --hash sha512
-                --iter-time 5000
-                --use-random
-                --verify-passphrase
-                luksFormat $partition-vault
-    >.join(' ');
+    my Str:D $spawn-cryptsetup-luks-format =
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$add-key,
+            :$add-password,
+            :$partition-vault
+        );
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-are-you-sure-send-yes =
@@ -654,6 +654,79 @@ multi sub build-cryptsetup-luks-format-cmdline(
           %s
         EOS
         EOF
+}
+
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS1',
+    # we need to know whether key will be added, because it goes in slot 0
+    Bool:D :add-key($)! where .so,
+    Bool:D :add-password($)! where .so,
+    Str:D :$partition-vault! where .so
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks1
+         --cipher aes-xts-plain64
+         --key-slot 1
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         --verify-passphrase
+         luksFormat $partition-vault
+    >.join(' ');
+}
+
+# constitutes dead code pending grub luks2 support
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Bool:D :add-key($)! where .so,
+    Bool:D :add-password($)! where .so,
+    Str:D :$partition-vault! where .so
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks2
+         --cipher aes-xts-plain64
+         --pbkdf argon2id
+         --key-slot 1
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         --verify-passphrase
+         luksFormat $partition-vault
+    >.join(' ');
+}
+
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Bool:D :add-key($)! where .so,
+    Bool:D :add-password($)! where .not,
+    Str:D :$partition-vault! where .so,
+    Str:D :$add-key-path! where .so
+    --> Str:D
+)
+{
+    # TODO: luksAddKey for 1fa mode vault
+    my Str:D $key-file = sprintf(Q{/mnt%}, $add-key-path);
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks2
+         --cipher aes-xts-plain64
+         --pbkdf argon2id
+         --key-file $key-file
+         --key-slot 0
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         luksFormat $partition-vault
+    >.join(' ');
 }
 
 method open-vault(
