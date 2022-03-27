@@ -354,7 +354,7 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # -----------------------------------------------------------------------------
 
 # generate target partition based on subject
-method gen-partition(Str:D $subject, Str:D $p, Mode $mode --> Str:D)
+method gen-partition(Str:D $subject, Str:D $p, Mode:D $mode --> Str:D)
 {
     # run lsblk only once
     state Str:D @partition =
@@ -369,31 +369,51 @@ method gen-partition(Str:D $subject, Str:D $p, Mode $mode --> Str:D)
     my Str:D $partition = gen-partition($subject, @partition, $mode);
 }
 
-multi sub gen-partition('efi', Str:D @partition, Mode $ --> Str:D)
+multi sub gen-partition(
+    'efi',
+    Str:D @partition,
+    Mode:D $
+    --> Str:D
+)
 {
     # e.g. /dev/sda2
     my UInt:D $index = 1;
     my Str:D $partition = @partition[$index];
 }
 
-multi sub gen-partition('boot', Str:D @partition, Mode $ where '1FA' --> Str:D)
+multi sub gen-partition(
+    'vault',
+    Str:D @partition,
+    Mode:D $ where 'BASE'
+    --> Str:D
+)
 {
     # e.g. /dev/sda3
     my UInt:D $index = 2;
     my Str:D $partition = @partition[$index];
 }
 
-multi sub gen-partition('vault', Str:D @partition, Mode $ where '1FA' --> Str:D)
+multi sub gen-partition(
+    'boot',
+    Str:D @partition,
+    Mode:D $ where '1FA'
+    --> Str:D
+)
+{
+    # e.g. /dev/sda3
+    my UInt:D $index = 2;
+    my Str:D $partition = @partition[$index];
+}
+
+multi sub gen-partition(
+    'vault',
+    Str:D @partition,
+    Mode:D $ where '1FA'
+    --> Str:D
+)
 {
     # e.g. /dev/sda4
     my UInt:D $index = 3;
-    my Str:D $partition = @partition[$index];
-}
-
-multi sub gen-partition('vault', Str:D @partition, Mode $ --> Str:D)
-{
-    # e.g. /dev/sda3
-    my UInt:D $index = 2;
     my Str:D $partition = @partition[$index];
 }
 
