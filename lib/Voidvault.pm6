@@ -7,6 +7,7 @@ constant $VERSION = v1.16.0;
 method new(
     Str $mode?,
     *%opts (
+        # list options pertinent to base Voidvault::Config only
         Str :admin-name($),
         Str :admin-pass($),
         Str :admin-pass-hash($),
@@ -37,7 +38,7 @@ method new(
         Str :timezone($),
         Str :vault-name($),
         Str :vault-pass($),
-        # facilitate passing auxiliary options to non-base mode
+        # facilitate passing additional options to non-base mode
         *%
     )
     --> Nil
@@ -56,16 +57,16 @@ method new(
     new($config);
 }
 
+multi sub new(Voidvault::Config:D $config where .mode eq 'BASE' --> Nil)
+{
+    use Voidvault::Bootstrap::Base;
+    Voidvault::Bootstrap::Base.new(:$config).bootstrap;
+}
+
 multi sub new(Voidvault::Config:D $config where .mode eq '1FA' --> Nil)
 {
     use Voidvault::Bootstrap::OneFA;
     Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
-}
-
-multi sub new(Voidvault::Config:D $config --> Nil)
-{
-    use Voidvault::Bootstrap::Default;
-    Voidvault::Bootstrap::Default.new(:$config).bootstrap;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
