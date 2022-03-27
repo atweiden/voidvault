@@ -13,10 +13,10 @@ unit class Voidvault::Config;
 # - defaults are geared towards live media installation
 
 # mode to activate
-has Mode $.mode =
+has Mode:D $.mode =
     ?%*ENV<VOIDVAULT_MODE>
         ?? Voidvault::Config.gen-mode(%*ENV<VOIDVAULT_MODE>)
-        !! Nil;
+        !! 'BASE';
 
 # location of void package repository (prioritized)
 has Str:D @.repository =
@@ -241,7 +241,8 @@ submethod BUILD(
     Str :$sftp-pass-hash,
     Str :$timezone,
     Str :$vault-name,
-    Str :$vault-pass
+    Str :$vault-pass,
+    *%
     --> Nil
 )
 {
@@ -341,7 +342,8 @@ method new(
         Str :sftp-pass-hash($),
         Str :timezone($),
         Str :vault-name($),
-        Str :vault-pass($)
+        Str :vault-pass($),
+        *%
     )
     --> Voidvault::Config:D
 )

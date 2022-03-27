@@ -36,7 +36,9 @@ method new(
         Str :sftp-pass-hash($),
         Str :timezone($),
         Str :vault-name($),
-        Str :vault-pass($)
+        Str :vault-pass($),
+        # facilitate passing auxiliary options to non-base mode
+        *%
     )
     --> Nil
 )
@@ -54,19 +56,13 @@ method new(
     new($config);
 }
 
-multi sub new(
-    Voidvault::Config:D $config where .mode.so && .mode eq '1FA'
-    --> Nil
-)
+multi sub new(Voidvault::Config:D $config where .mode eq '1FA' --> Nil)
 {
     use Voidvault::Bootstrap::OneFA;
     Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
 }
 
-multi sub new(
-    Voidvault::Config:D $config
-    --> Nil
-)
+multi sub new(Voidvault::Config:D $config --> Nil)
 {
     use Voidvault::Bootstrap::Default;
     Voidvault::Bootstrap::Default.new(:$config).bootstrap;

@@ -647,6 +647,7 @@ constant %locales = Map.new(
 # mode {{{
 
 constant @mode = qw<
+    BASE
     1FA
 >;
 

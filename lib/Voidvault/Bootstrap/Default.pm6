@@ -1,17 +1,12 @@
 use v6;
 use Void::XBPS;
+use Voidvault::Bootstrap;
 use Voidvault::Config;
 use Voidvault::Types;
 use Voidvault::Utils;
 use X::Void::XBPS;
 unit class Voidvault::Bootstrap::Default;
-
-
-# -----------------------------------------------------------------------------
-# attributes
-# -----------------------------------------------------------------------------
-
-has Voidvault::Config:D $.config is required;
+also is Voidvault::Bootstrap;
 
 
 # -----------------------------------------------------------------------------

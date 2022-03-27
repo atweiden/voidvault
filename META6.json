@@ -18,6 +18,7 @@
         "Void::Utils"                   : "lib/Void/Utils.pm6",
         "Void::XBPS"                    : "lib/Void/XBPS.pm6",
         "Voidvault"                     : "lib/Voidvault.pm6",
+        "Voidvault::Bootstrap"          : "lib/Voidvault/Bootstrap.pm6",
         "Voidvault::Bootstrap::Default" : "lib/Voidvault/Bootstrap/Default.pm6",
         "Voidvault::Bootstrap::OneFA"   : "lib/Voidvault/Bootstrap/OneFA.pm6",
         "Voidvault::Config"             : "lib/Voidvault/Config.pm6",
