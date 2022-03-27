@@ -160,7 +160,7 @@ multi sub build-xbps-install-dep-cmdline(
 method !mkdisk(--> Nil)
 {
     my DiskType:D $disk-type = $.config.disk-type;
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
@@ -189,7 +189,7 @@ method !mkdisk(--> Nil)
 }
 
 # partition disk with gdisk - 1fa mode
-multi sub sgdisk(Str:D $partition, Mode $ where '1FA' --> Nil)
+multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -213,7 +213,7 @@ multi sub sgdisk(Str:D $partition, Mode $ where '1FA' --> Nil)
 }
 
 # partition disk with gdisk
-multi sub sgdisk(Str:D $partition, Mode $ --> Nil)
+multi sub sgdisk(Str:D $partition, Mode:D $ --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -870,7 +870,7 @@ multi sub build-voidstrap-cmdline(
 # avoid having to enter password twice on boot
 method !mkvault-key(--> Nil)
 {
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
@@ -1356,7 +1356,7 @@ method !install-bootloader(--> Nil)
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);

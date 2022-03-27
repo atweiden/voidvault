@@ -48,7 +48,7 @@ submethod BUILD(
 method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
 
     # verify root permissions
     $*USER == 0 or die('root privileges required');
@@ -211,7 +211,7 @@ multi sub build-xbps-install-dep-cmdline(
 method !mkdisk(--> Nil)
 {
     my DiskType:D $disk-type = $.config.disk-type;
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
@@ -240,7 +240,7 @@ method !mkdisk(--> Nil)
 }
 
 # partition disk with gdisk - 1fa mode
-multi sub sgdisk(Str:D $partition, Mode $ where '1FA' --> Nil)
+multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -264,7 +264,7 @@ multi sub sgdisk(Str:D $partition, Mode $ where '1FA' --> Nil)
 }
 
 # partition disk with gdisk
-multi sub sgdisk(Str:D $partition, Mode $ --> Nil)
+multi sub sgdisk(Str:D $partition, Mode:D $ --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -293,7 +293,7 @@ sub mkefi(Str:D $partition-efi --> Nil)
 # create vault with cryptsetup
 sub mkvault(
     Str:D $partition-vault,
-    Mode $mode,
+    Mode:D $mode,
     VaultName:D $vault-name,
     VaultPass :$vault-pass
     --> Nil
@@ -308,7 +308,7 @@ sub mkvault(
 # LUKS encrypted volume password was given
 multi sub mkvault-cryptsetup(
     Str:D :$partition-vault! where .so,
-    Mode :$mode!,
+    Mode:D :$mode! where .so,
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -341,7 +341,7 @@ multi sub mkvault-cryptsetup(
 # LUKS encrypted volume password not given
 multi sub mkvault-cryptsetup(
     Str:D :$partition-vault! where .so,
-    Mode :$mode!,
+    Mode:D :$mode! where .so,
     VaultName:D :$vault-name! where .so,
     VaultPass :vault-pass($)
     --> Nil
@@ -377,7 +377,7 @@ multi sub mkvault-cryptsetup(
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
-    Mode $mode,
+    Mode:D $mode where .so,
     Bool:D :interactive($)! where .so
     --> Str:D
 )
@@ -412,7 +412,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Str:D $partition-vault where .so,
-    Mode $mode,
+    Mode:D $mode where .so,
     VaultPass:D $vault-pass where .so,
     Bool:D :non-interactive($)! where .so
     --> Str:D
@@ -460,7 +460,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
 
 multi sub gen-spawn-cryptsetup-luks-format(
     Str:D $partition-vault where .so,
-    Mode $ where '1FA'
+    Mode:D $ where '1FA'
     --> Str:D
 )
 {
@@ -481,7 +481,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
 
 multi sub gen-spawn-cryptsetup-luks-format(
     Str:D $partition-vault where .so,
-    Mode $
+    Mode:D $
     --> Str:D
 )
 {
@@ -501,7 +501,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
 
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
-    Mode $mode,
+    Mode:D $mode where .so,
     VaultName:D $vault-name where .so,
     Bool:D :interactive($)! where .so
     --> Str:D
@@ -513,7 +513,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
 
 multi sub build-cryptsetup-luks-open-cmdline(
     Str:D $partition-vault where .so,
-    Mode $mode,
+    Mode:D $mode where .so,
     VaultName:D $vault-name where .so,
     VaultPass:D $vault-pass where .so,
     Bool:D :non-interactive($)! where .so
@@ -552,7 +552,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
 
 multi sub gen-cryptsetup-luks-open(
     Str:D $partition-vault where .so,
-    Mode $ where '1FA',
+    Mode:D $ where '1FA',
     VaultName:D $vault-name where .so
     --> Str:D
 )
@@ -567,7 +567,7 @@ multi sub gen-cryptsetup-luks-open(
 
 multi sub gen-cryptsetup-luks-open(
     Str:D $partition-vault where .so,
-    Mode $,
+    Mode:D $,
     VaultName:D $vault-name where .so
     --> Str:D
 )
@@ -981,7 +981,7 @@ multi sub build-voidstrap-cmdline(
 # avoid having to enter password twice on boot
 method !mkvault-key(--> Nil)
 {
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
@@ -1467,7 +1467,7 @@ method !install-bootloader(--> Nil)
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
-    my Mode $mode = $.config.mode;
+    my Mode:D $mode = $.config.mode;
     my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
