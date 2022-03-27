@@ -10,27 +10,27 @@ unit class Voidvault::Utils;
 # -----------------------------------------------------------------------------
 
 # sgdisk
-constant $GDISK-SIZE-BIOS = '2M';
-constant $GDISK-SIZE-EFI = '550M';
-constant $GDISK-SIZE-BOOT = '1024M';
-constant $GDISK-TYPECODE-BIOS = 'EF02';
-constant $GDISK-TYPECODE-EFI = 'EF00';
-constant $GDISK-TYPECODE-LINUX = '8300';
+my constant $GDISK-SIZE-BIOS = '2M';
+my constant $GDISK-SIZE-EFI = '550M';
+my constant $GDISK-SIZE-BOOT = '1024M';
+my constant $GDISK-TYPECODE-BIOS = 'EF02';
+my constant $GDISK-TYPECODE-EFI = 'EF00';
+my constant $GDISK-TYPECODE-LINUX = '8300';
 
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
 # libcrypt crypt encryption scheme
-constant $CRYPT-SCHEME = 'SHA512';
+my constant $CRYPT-SCHEME = 'SHA512';
 
 # grub-mkpasswd-pbkdf2 iterations
-constant $PBKDF2-ITERATIONS = 25_000;
+my constant $PBKDF2-ITERATIONS = 25_000;
 
 # grub-mkpasswd-pbkdf2 length of generated hash
-constant $PBKDF2-LENGTH-HASH = 100;
+my constant $PBKDF2-LENGTH-HASH = 100;
 
 # grub-mkpasswd-pbkdf2 length of salt
-constant $PBKDF2-LENGTH-SALT = 100;
+my constant $PBKDF2-LENGTH-SALT = 100;
 
 # for C<--enable-serial-console>
 constant $VIRTUAL-CONSOLE = 'tty0';
