@@ -9,6 +9,14 @@ unit class Voidvault::Utils;
 # constants
 # -----------------------------------------------------------------------------
 
+# sgdisk
+constant $GDISK-SIZE-BIOS = '2M';
+constant $GDISK-SIZE-EFI = '550M';
+constant $GDISK-SIZE-BOOT = '1024M';
+constant $GDISK-TYPECODE-BIOS = 'EF02';
+constant $GDISK-TYPECODE-EFI = 'EF00';
+constant $GDISK-TYPECODE-LINUX = '8300';
+
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
@@ -429,17 +437,17 @@ multi sub sgdisk(Str:D $partition, Mode:D $ where 'BASE' --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
-    run(qw<
+    run(qqw<
         sgdisk
         --zap-all
         --clear
         --mbrtogpt
-        --new=1:0:+2M
-        --typecode=1:EF02
-        --new=2:0:+550M
-        --typecode=2:EF00
+        --new=1:0:+$GDISK-SIZE-BIOS
+        --typecode=1:$GDISK-TYPECODE-BIOS
+        --new=2:0:+$GDISK-SIZE-EFI
+        --typecode=2:$GDISK-TYPECODE-EFI
         --new=3:0:0
-        --typecode=3:8300
+        --typecode=3:$GDISK-TYPECODE-LINUX
     >, $partition);
 }
 
@@ -450,19 +458,19 @@ multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
     # create 550M EF00 EFI system partition
     # create 1024M sized partition for LUKS1-encrypted boot
     # create max sized partition for LUKS2-encrypted vault
-    run(qw<
+    run(qqw<
         sgdisk
         --zap-all
         --clear
         --mbrtogpt
-        --new=1:0:+2M
-        --typecode=1:EF02
-        --new=2:0:+550M
-        --typecode=2:EF00
-        --new=3:0:+1024M
-        --typecode=3:8300
+        --new=1:0:+$GDISK-SIZE-BIOS
+        --typecode=1:$GDISK-TYPECODE-BIOS
+        --new=2:0:+$GDISK-SIZE-EFI
+        --typecode=2:$GDISK-TYPECODE-EFI
+        --new=3:0:+$GDISK-SIZE-BOOT
+        --typecode=3:$GDISK-TYPECODE-LINUX
         --new=4:0:0
-        --typecode=4:8300
+        --typecode=4:$GDISK-TYPECODE-LINUX
     >, $partition);
 }
 
