@@ -53,7 +53,7 @@ method new(
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
 
-    # bootstrap voidvault
+    # mode-dependent bootstrap
     new($config);
 }
 
