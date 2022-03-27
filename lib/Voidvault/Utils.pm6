@@ -522,7 +522,7 @@ method ls-timezones(--> Array[Timezone:D])
 
 
 # -----------------------------------------------------------------------------
-# utils
+# recovery
 # -----------------------------------------------------------------------------
 
 method loop-cmdline-proc(
@@ -537,86 +537,6 @@ method loop-cmdline-proc(
         my Proc:D $proc = shell($cmdline);
         last if $proc.exitcode == 0;
     }
-}
-
-method xbps-install(
-    Str:D $package where .so,
-    Str:D :@repository,
-    Bool :$ignore-conf-repos
-    --> Nil
-)
-{
-    # Cxbps-install> requires root privileges
-    my Str:D $message =
-        "Sorry, missing pkg $package. Please install: xbps-install $package";
-    $*USER == 0 or die($message);
-    my Str:D $xbps-install-cmdline =
-        build-xbps-install-cmdline(
-            $package,
-            :@repository,
-            :$ignore-conf-repos
-        );
-    Voidvault::Utils.loop-cmdline-proc(
-        "Installing $package...",
-        $xbps-install-cmdline
-    );
-}
-
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --ignore-conf-repos \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         $package";
-}
-
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :@repository! where .so,
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         $package";
-}
-
-multi sub build-xbps-install-cmdline(
-    $,
-    Str:D :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Nil
-)
-{
-    die(X::Void::XBPS::IgnoreConfRepos.new);
-}
-
-multi sub build-xbps-install-cmdline(
-    Str:D $package where .so,
-    Str:D :repository(@),
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $xbps-install-cmdline =
-        "xbps-install \\
-         --sync \\
-         --yes \\
-         $package";
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

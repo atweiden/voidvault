@@ -85,75 +85,10 @@ method !setup(--> Nil)
     push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
     push(@dep, 'musl') if $libc-flavor eq 'MUSL';
 
-    my Str:D $xbps-install-dep-cmdline =
-        build-xbps-install-dep-cmdline(@dep, :@repository, :$ignore-conf-repos);
-    Voidvault::Utils.loop-cmdline-proc(
-        'Installing dependencies...',
-        $xbps-install-dep-cmdline
-    );
+    Void::XBPS.xbps-install(@dep);
 
     # use readable font
     run(qw<setfont Lat2-Terminus16>);
-}
-
-multi sub build-xbps-install-dep-cmdline(
-    Str:D @dep,
-    Str:D :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-dep-cmdline =
-        "xbps-install \\
-         --force \\
-         --ignore-conf-repos \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         @dep[]";
-}
-
-multi sub build-xbps-install-dep-cmdline(
-    Str:D @dep,
-    Str:D :@repository! where .so,
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $xbps-install-dep-cmdline =
-        "xbps-install \\
-         --force \\
-         --repository $repository \\
-         --sync \\
-         --yes \\
-         @dep[]";
-}
-
-multi sub build-xbps-install-dep-cmdline(
-    Str:D @dep,
-    Str:D :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Nil
-)
-{
-    die(X::Void::XBPS::IgnoreConfRepos.new);
-}
-
-multi sub build-xbps-install-dep-cmdline(
-    Str:D @dep,
-    Str:D :repository(@),
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $xbps-install-dep-cmdline =
-        "xbps-install \\
-         --force \\
-         --sync \\
-         --yes \\
-         @dep[]";
 }
 
 # secure disk configuration
