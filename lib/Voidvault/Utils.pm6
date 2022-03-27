@@ -483,8 +483,8 @@ method mkefi(Str:D $partition-efi --> Nil)
 # create vault with cryptsetup
 method mkvault(
     VaultType:D :$vault-type! where .so,
-    Bool:D :$add-key! where .so,
-    Bool:D :$add-password! where .so,
+    Bool:D :$add-key!,
+    Bool:D :$add-password!,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
