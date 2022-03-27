@@ -1097,6 +1097,14 @@ constant @timezones = qw<
 >;
 
 # end timezones }}}
+# vault-type {{{
+
+constant @vault-type = qw<
+    LUKS1
+    LUKS2
+>;
+
+# end vault-type }}}
 
 
 # -----------------------------------------------------------------------------
@@ -1144,6 +1152,9 @@ subset VaultName of Str is export where
 {
     Voidvault::Grammar.parse($_, :rule<vault-name>);
 }
+
+# LUKS encrypted volume type
+subset VaultType of Str is export where { @vault-type.grep($_) };
 
 # LUKS encrypted volume password must be 1-512 characters
 subset VaultPass of Str is export where { 0 < .chars <= 512 };

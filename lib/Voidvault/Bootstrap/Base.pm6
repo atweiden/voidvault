@@ -108,10 +108,28 @@ method !mkdisk(--> Nil)
         Voidvault::Utils.gen-partition('efi', $partition, $mode);
     Voidvault::Utils.mkefi($partition-efi);
 
-    # create vault
+    # create and open vault
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
-    mkvault($partition-vault, $vault-name, :$vault-pass);
+    my VaultType:D $vault-type = 'LUKS1';
+    my Str:D $add-key = True;
+    my Bool:D $add-password = True;
+    my Str:D $add-key-path = '/boot/volume.key';
+    Voidvault::Utils.mkvault(
+        :$vault-type,
+        :$add-key,
+        :$add-password,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass,
+        :$add-key-path
+    );
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass
+    );
 
     # create and mount btrfs volumes
     mkbtrfs($disk-type, $vault-name);
@@ -121,232 +139,6 @@ method !mkdisk(--> Nil)
 
     # disable Btrfs CoW
     disable-cow();
-}
-
-# create vault with cryptsetup
-sub mkvault(
-    Str:D $partition-vault,
-    VaultName:D $vault-name,
-    VaultPass :$vault-pass
-    --> Nil
-)
-{
-    # load kernel modules for cryptsetup
-    run(qw<modprobe dm_mod dm-crypt>);
-    # create vault
-    mkvault-cryptsetup(:$partition-vault, :$vault-name, :$vault-pass);
-}
-
-# LUKS encrypted volume password was given
-multi sub mkvault-cryptsetup(
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    VaultPass:D :$vault-pass! where .so
-    --> Nil
-)
-{
-    my Str:D $cryptsetup-luks-format-cmdline =
-        build-cryptsetup-luks-format-cmdline(
-            :non-interactive,
-            $partition-vault,
-            $vault-pass
-        );
-
-    my Str:D $cryptsetup-luks-open-cmdline =
-        build-cryptsetup-luks-open-cmdline(
-            :non-interactive,
-            $partition-vault,
-            $vault-name,
-            $vault-pass
-        );
-
-    # make LUKS encrypted volume without prompt for vault password
-    shell($cryptsetup-luks-format-cmdline);
-
-    # open vault without prompt for vault password
-    shell($cryptsetup-luks-open-cmdline);
-}
-
-# LUKS encrypted volume password not given
-multi sub mkvault-cryptsetup(
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    VaultPass :vault-pass($)
-    --> Nil
-)
-{
-    my Str:D $cryptsetup-luks-format-cmdline =
-        build-cryptsetup-luks-format-cmdline(
-            :interactive,
-            $partition-vault
-        );
-
-    my Str:D $cryptsetup-luks-open-cmdline =
-        build-cryptsetup-luks-open-cmdline(
-            :interactive,
-            $partition-vault,
-            $vault-name
-        );
-
-    # create LUKS encrypted volume, prompt user for vault password
-    Voidvault::Utils.loop-cmdline-proc(
-        'Creating LUKS vault...',
-        $cryptsetup-luks-format-cmdline
-    );
-
-    # open LUKS encrypted volume, prompt user for vault password
-    Voidvault::Utils.loop-cmdline-proc(
-        'Opening LUKS vault...',
-        $cryptsetup-luks-open-cmdline
-    );
-}
-
-multi sub build-cryptsetup-luks-format-cmdline(
-    Str:D $partition-vault where .so,
-    Bool:D :interactive($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks1
-         --cipher aes-xts-plain64
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         luksFormat $partition-vault
-    >.join(' ');
-    my Str:D $expect-are-you-sure-send-yes =
-        'expect "Are you sure*" { send "YES\r" }';
-    my Str:D $interact =
-        'interact';
-    my Str:D $catch-wait-result =
-        'catch wait result';
-    my Str:D $exit-lindex-result =
-        'exit [lindex $result 3]';
-
-    my Str:D @cryptsetup-luks-format-cmdline =
-        $spawn-cryptsetup-luks-format,
-        $expect-are-you-sure-send-yes,
-        $interact,
-        $catch-wait-result,
-        $exit-lindex-result;
-
-    my Str:D $cryptsetup-luks-format-cmdline =
-        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-format-cmdline);
-        expect -c '%s;
-                   %s;
-                   %s;
-                   %s;
-                   %s'
-        EOF
-}
-
-multi sub build-cryptsetup-luks-format-cmdline(
-    Str:D $partition-vault where .so,
-    VaultPass:D $vault-pass where .so,
-    Bool:D :non-interactive($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-                spawn cryptsetup
-                --type luks1
-                --cipher aes-xts-plain64
-                --key-slot 1
-                --key-size 512
-                --hash sha512
-                --iter-time 5000
-                --use-random
-                --verify-passphrase
-                luksFormat $partition-vault
-    >.join(' ');
-    my Str:D $sleep =
-                'sleep 0.33';
-    my Str:D $expect-are-you-sure-send-yes =
-                'expect "Are you sure*" { send "YES\r" }';
-    my Str:D $expect-enter-send-vault-pass =
-        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
-    my Str:D $expect-verify-send-vault-pass =
-        sprintf('expect "Verify*" { send "%s\r" }', $vault-pass);
-    my Str:D $expect-eof =
-                'expect eof';
-
-    my Str:D @cryptsetup-luks-format-cmdline =
-        $spawn-cryptsetup-luks-format,
-        $sleep,
-        $expect-are-you-sure-send-yes,
-        $sleep,
-        $expect-enter-send-vault-pass,
-        $sleep,
-        $expect-verify-send-vault-pass,
-        'sleep 7',
-        $expect-eof;
-
-    my Str:D $cryptsetup-luks-format-cmdline =
-        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-format-cmdline);
-        expect <<EOS
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-          %s
-        EOS
-        EOF
-}
-
-multi sub build-cryptsetup-luks-open-cmdline(
-    Str:D $partition-vault where .so,
-    VaultName:D $vault-name where .so,
-    Bool:D :interactive($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup luksOpen $partition-vault $vault-name";
-}
-
-multi sub build-cryptsetup-luks-open-cmdline(
-    Str:D $partition-vault where .so,
-    VaultName:D $vault-name where .so,
-    VaultPass:D $vault-pass where .so,
-    Bool:D :non-interactive($)! where .so
-    --> Str:D
-)
-{
-    my Str:D $spawn-cryptsetup-luks-open =
-                "spawn cryptsetup luksOpen $partition-vault $vault-name";
-    my Str:D $sleep =
-                'sleep 0.33';
-    my Str:D $expect-enter-send-vault-pass =
-        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
-    my Str:D $expect-eof =
-                'expect eof';
-
-    my Str:D @cryptsetup-luks-open-cmdline =
-        $spawn-cryptsetup-luks-open,
-        $sleep,
-        $expect-enter-send-vault-pass,
-        $sleep,
-        $expect-eof;
-
-    my Str:D $cryptsetup-luks-open-cmdline =
-        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-open-cmdline);
-        expect <<EOS
-          %s
-          %s
-          %s
-          %s
-          %s
-        EOS
-        EOF
 }
 
 # create and mount btrfs volumes on open vault
