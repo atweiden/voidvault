@@ -387,11 +387,11 @@ multi sub USAGE('new' --> Nil)
       mode      Activate mode
 
     Mode
-      | 1fa     Make LUKS2 vault with detached header on LUKS1-encrypted boot
-      |         partition
+      | base    Make LUKS1 vault with encrypted /boot (default)
       |
-      |         A temporary stand-in for LUKS2-encrypted /boot, and developer
-      |         bridge to 2FA mode
+      | 1fa     Make LUKS2 vault with detached header inside LUKS1 boot partition
+      |
+      |         Make LUKS1 boot partition on same device as LUKS2 vault
     EOF
     say($HELP);
 }
