@@ -666,51 +666,133 @@ multi sub gen-spawn-cryptsetup-luks-format(
 
 method open-vault(
     # luksOpen cmdline options differ by type
-    VaultType:D :$vault-type!,
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
-    # open vault with key
-    Str:D :$add-key-path! where .so
+    *%opts (
+        VaultPass :vault-pass($)
+    )
+)
+{
+    open-vault(:$vault-type, :$partition-vault, :$vault-name, |%opts);
+}
+
+# LUKS encrypted volume password was given
+multi sub open-vault(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass:D :$vault-pass! where .so
+    --> Nil
 )
 {
     my Str:D $cryptsetup-luks-open-cmdline =
         build-cryptsetup-luks-open-cmdline(
+            :non-interactive,
             :$vault-type,
             :$partition-vault,
             :$vault-name,
-            :$add-key-path
+            :$vault-pass
         );
 
+    # open vault without prompt for vault password
     shell($cryptsetup-luks-open-cmdline);
 }
 
-multi sub build-cryptsetup-luks-open-cmdline(
-    VaultType:D :vault-type($)! where 'LUKS1',
+# LUKS encrypted volume password not given
+multi sub open-vault(
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
-    Str:D :$add-key-path! where .so
-    --> Str:D
+    VaultPass :vault-pass($)
+    --> Nil
 )
 {
-    my Str:D $key-file = key-file($add-key-path);
-    my Str:D $opts = qqw<
-        --key-file $key-file
-    >.join(' ');
     my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+        build-cryptsetup-luks-open-cmdline(
+            :interactive,
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name
+        );
+
+    # open LUKS encrypted volume, prompt user for vault password
+    Voidvault::Utils.loop-cmdline-proc(
+        'Opening LUKS vault...',
+        $cryptsetup-luks-open-cmdline
+    );
 }
 
 multi sub build-cryptsetup-luks-open-cmdline(
-    VaultType:D :vault-type($)! where 'LUKS2',
+    Bool:D :interactive($)! where .so,
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    Str:D :$add-key-path! where .so
+    VaultName:D :$vault-name! where .so
     --> Str:D
 )
 {
-    my Str:D $key-file = key-file($add-key-path);
+    my Str:D $cryptsetup-luks-open-cmdline =
+        gen-cryptsetup-luks-open(:$vault-type, :$partition-vault, :$vault-name);
+}
+
+multi sub build-cryptsetup-luks-open-cmdline(
+    Bool:D :non-interactive($)! where .so,
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass:D :$vault-pass! where .so
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open =
+        gen-cryptsetup-luks-open(:$vault-type, :$partition-vault, :$vault-name);
+    my Str:D $spawn-cryptsetup-luks-open =
+        sprintf('spawn %s', $cryptsetup-luks-open);
+    my Str:D $sleep =
+                'sleep 0.33';
+    my Str:D $expect-enter-send-vault-pass =
+        sprintf('expect "Enter*" { send "%s\r" }', $vault-pass);
+    my Str:D $expect-eof =
+                'expect eof';
+
+    my Str:D @cryptsetup-luks-open-cmdline =
+        $spawn-cryptsetup-luks-open,
+        $sleep,
+        $expect-enter-send-vault-pass,
+        $sleep,
+        $expect-eof;
+
+    my Str:D $cryptsetup-luks-open-cmdline =
+        sprintf(q:to/EOF/.trim, |@cryptsetup-luks-open-cmdline);
+        expect <<EOS
+          %s
+          %s
+          %s
+          %s
+          %s
+        EOS
+        EOF
+}
+
+multi sub gen-cryptsetup-luks-open(
+    VaultType:D :vault-type($)! where 'LUKS1',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so
+    --> Str:D
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup luksOpen $partition-vault $vault-name";
+}
+
+multi sub gen-cryptsetup-luks-open(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so
+    --> Str:D
+)
+{
     my Str:D $opts = qqw<
-        --key-file $key-file
         --perf-no_read_workqueue
         --persistent
     >.join(' ');
