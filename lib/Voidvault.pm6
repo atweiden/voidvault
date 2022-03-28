@@ -58,13 +58,13 @@ method new(
     new($config);
 }
 
-multi sub new(Voidvault::Config:D $config where .mode eq 'BASE' --> Nil)
+multi sub new(Voidvault::Config::Base:D $config --> Nil)
 {
     use Voidvault::Bootstrap::Base;
     Voidvault::Bootstrap::Base.new(:$config).bootstrap;
 }
 
-multi sub new(Voidvault::Config:D $config where .mode eq '1FA' --> Nil)
+multi sub new(Voidvault::Config::OneFA:D $config --> Nil)
 {
     use Voidvault::Bootstrap::OneFA;
     Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
