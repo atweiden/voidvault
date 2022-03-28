@@ -54,6 +54,10 @@ Todo
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
   [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
+- use typestate pattern
+  - to gate available methods by state of installer
+    - `install-vault-key`
+  - to resume installer after crashing or exiting
 - implement dracut-sshd-nonet
   - new profile: `headless-nonet`
     - disable grub boot encryption
