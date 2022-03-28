@@ -17,6 +17,9 @@ my constant $GDISK-TYPECODE-BIOS = 'EF02';
 my constant $GDISK-TYPECODE-EFI = 'EF00';
 my constant $GDISK-TYPECODE-LINUX = '8300';
 
+# directory in which to temporarily house vault keys
+constant $CRYPTSETUP-KEYS-DIR = '/root/voidvault-keys';
+
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
@@ -714,7 +717,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
 )
 {
     # TODO: luksAddKey for 1fa mode vault
-    my Str:D $key-file = sprintf(Q{/mnt%}, $add-key-path);
+    my Str:D $key-file = key-file($add-key-path);
     my Str:D $spawn-cryptsetup-luks-format = qqw<
          spawn cryptsetup
          --type luks2
@@ -730,16 +733,14 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
-# generate and secure vault key
-sub mkvault-key(
-    Str:D :$partition-vault! where .so,
-    Str:D :$add-key-path! where .so
-    --> Nil
-)
+# make vault key
+sub mkkey(Str:D $add-key-path where .so --> Nil)
 {
     # source of entropy
     my Str:D $src = '/dev/random';
-    my Str:D $dst = sprintf(Q{/mnt%s}, $add-key-path);
+    # maintain tree structure, e.g. C</root/voidvault-keys/boot/volume.key>
+    my Str:D $dst = key-file($add-key-path);
+    mkdir($dst.IO.dirname, 0o0600);
     # bytes to read from C<$src>
     my UInt:D $bytes = 64;
     # exec idiomatic version of C<head -c 64 /dev/random > key>
@@ -748,6 +749,14 @@ sub mkvault-key(
     $fh.close;
     spurt($dst, $buf);
 }
+
+# return path to vault key given its intended path on bootstrapped system
+sub key-file(Str:D $add-key-path where .so --> Str:D)
+{
+    my Str:D $key-file = sprintf(Q{%s%s}, $CRYPTSETUP-KEYS-DIR, $add-key-path);
+}
+
+# mkvault key {{{
 
 # TODO: relocate this
 # LUKS encrypted volume password was given
@@ -877,6 +886,8 @@ sub mkvault-key-cfg(
     replace('crypttab', $partition-vault, $vault-name);
 }
 
+# end mkvault key }}}
+
 method open-vault(
     # luksOpen cmdline options differ by type
     VaultType:D :$vault-type!,
@@ -912,7 +923,7 @@ multi sub open-vault(
 }
 
 # LUKS encrypted volume password not given
-multi sub mkvault(
+multi sub open-vault(
     VaultType:D :vault-type($)! where 'LUKS1',
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
