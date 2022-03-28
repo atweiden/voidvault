@@ -123,7 +123,8 @@ multi sub MAIN(
         Str :sftp-pass-hash($),
         Str :timezone($),
         Str :vault-name($),
-        Str :vault-pass($)
+        Str :vault-pass($),
+        Str :vault-key($)
     )
     --> Nil
 )
@@ -164,7 +165,8 @@ multi sub MAIN(
         Str :sftp-pass-hash($),
         Str :timezone($),
         Str :vault-name($),
-        Str :vault-pass($)
+        Str :vault-pass($),
+        Str :vault-key($)
     )
     --> Nil
 )
@@ -313,6 +315,7 @@ multi sub USAGE('new' --> Nil)
                 [--grub-name=<username>] [--grub-pass=<password>]
                 [--root-pass=<password>]
                 [--vault-name=<vaultname>] [--vault-pass=<password>]
+                [--vault-key=<path>]
                 [--hostname=<hostname>] [--partition=<device>]
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
@@ -324,6 +327,7 @@ multi sub USAGE('new' --> Nil)
                 new
 
       voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
+                [--bootvault-key=<path>]
                 new 1fa
 
     Options:
@@ -387,12 +391,16 @@ multi sub USAGE('new' --> Nil)
         Name for LUKS encrypted volume
       --vault-pass=<password>
         Password for LUKS encrypted volume
+      --vault-key=<path>
+        Path to LUKS encrypted volume key
 
     Options (1FA):
       --bootvault-name=<vaultname>
         Name for LUKS encrypted boot volume
       --bootvault-pass=<password>
         Password for LUKS encrypted boot volume
+      --bootvault-key=<path>
+        Path to LUKS encrypted boot volume key
 
     Arguments:
       mode      Activate mode

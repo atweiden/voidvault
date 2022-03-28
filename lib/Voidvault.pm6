@@ -38,6 +38,7 @@ method new(
         Str :timezone($),
         Str :vault-name($),
         Str :vault-pass($),
+        Str :vault-key($),
         # facilitate passing additional options to non-base mode
         *%
     )

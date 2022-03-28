@@ -145,6 +145,7 @@ VOIDVAULT_ROOT_PASS="your root password"
 VOIDVAULT_ROOT_PASS_HASH='$6$rounds=700000$xDn3UJKNvfOxJ1Ds$YEaaBAvQQgVdtV7jFfVnwmh57Do1awMh8vTBtI1higrZMAXUisX2XKuYbdTcxgQMleWZvK3zkSJQ4F3Jyd5Ln1'
 VOIDVAULT_VAULT_NAME="vault"
 VOIDVAULT_VAULT_PASS="your LUKS encrypted volume's password"
+VOIDVAULT_VAULT_KEY="/path/to/volume.key"
 VOIDVAULT_HOSTNAME="vault"
 VOIDVAULT_PARTITION="/dev/sdb"
 VOIDVAULT_PROCESSOR="other"
@@ -323,6 +324,7 @@ variable values for all configuration options aside from:
 - `--sftp-pass`
 - `--vault-name`
 - `--vault-pass`
+- `--vault-key`
 
 For these options, console input is read with either `cryptsetup` or
 the built-in Raku subroutine `prompt()`.
@@ -340,6 +342,7 @@ No console input is read for configuration options:
 - `--repository`
 - `--root-pass-hash`
 - `--sftp-pass-hash`
+- `--vault-key`
 
 For user input of all other options, the `dialog` program is used.
 

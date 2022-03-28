@@ -115,6 +115,12 @@ has VaultPass $.vault-pass =
         ?? Voidvault::Config.gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
         !! Nil;
 
+# intended path to vault key on bootstrapped system
+has Str:D $.vault-key =
+    ?%*ENV<VOIDVAULT_VAULT_KEY>
+        ?? %*ENV<VOIDVAULT_VAULT_KEY>
+        !! '/boot/volume.key';
+
 # name for host (default: vault)
 has HostName:D $.host-name =
     %*ENV<VOIDVAULT_HOSTNAME>
@@ -242,6 +248,7 @@ submethod BUILD(
     Str :$timezone,
     Str :$vault-name,
     Str :$vault-pass,
+    Str :$vault-key,
     *%
     --> Nil
 )
@@ -308,6 +315,8 @@ submethod BUILD(
         if $vault-name;
     $!vault-pass = Voidvault::Config.gen-vault-pass($vault-pass)
         if $vault-pass;
+    $!vault-key = $vault-key
+        if $vault-key;
 }
 
 method new(
@@ -343,6 +352,7 @@ method new(
         Str :timezone($),
         Str :vault-name($),
         Str :vault-pass($),
+        Str :vault-key($),
         *%
     )
     --> Voidvault::Config:D

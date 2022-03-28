@@ -19,6 +19,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self!setup;
     self!mkdisk;
     self!voidstrap-base;
+    self!install-vault-key;
     self!configure-users;
     self!configure-sudoers;
     self!genfstab;
@@ -98,6 +99,7 @@ method !mkdisk(--> Nil)
     my Str:D $partition = $.config.partition;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
+    my Str:D $vault-key = $.config.vault-key;
 
     # partition disk
     Voidvault::Utils.sgdisk($partition, $mode);
@@ -113,14 +115,13 @@ method !mkdisk(--> Nil)
     my VaultType:D $vault-type = 'LUKS1';
     my Str:D $add-key = True;
     my Bool:D $add-password = True;
-    my Str:D $add-key-path = '/boot/volume.key';
     Voidvault::Utils.mkvault(
         :$vault-type,
         :$add-key,
         :$add-password,
         :$partition-vault,
         :$vault-pass,
-        :$add-key-path
+        :add-key-path($vault-key)
     );
     Voidvault::Utils.open-vault(
         :$vault-type,
@@ -1284,7 +1285,8 @@ multi sub replace(
 multi sub replace(
     'crypttab',
     Str:D $partition-vault,
-    VaultName:D $vault-name
+    VaultName:D $vault-name,
+    Str:D $vault-key
     --> Nil
 )
 {
@@ -1292,7 +1294,7 @@ multi sub replace(
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
     my Str:D $file = '/mnt/etc/crypttab';
     my Str:D $key = qq:to/EOF/;
-    $vault-name   UUID=$vault-uuid   /boot/volume.key   luks
+    $vault-name   UUID=$vault-uuid   $vault-key   luks
     EOF
     spurt($file, "\n" ~ $key, :append);
 }
@@ -1753,7 +1755,8 @@ multi sub replace(
 multi sub replace(
     'dracut.conf',
     Graphics:D $graphics,
-    Processor:D $processor
+    Processor:D $processor,
+    Str:D $vault-key
     --> Nil
 )
 {
@@ -1761,7 +1764,7 @@ multi sub replace(
     replace('dracut.conf', 'add_drivers', $graphics, $processor);
     replace('dracut.conf', 'compress');
     replace('dracut.conf', 'hostonly');
-    replace('dracut.conf', 'install_items');
+    replace('dracut.conf', 'install_items', $vault-key);
     replace('dracut.conf', 'omit_dracutmodules');
     replace('dracut.conf', 'persistent_policy');
     replace('dracut.conf', 'tmpdir');
@@ -1833,13 +1836,14 @@ multi sub replace(
 
 multi sub replace(
     'dracut.conf',
-    Str:D $subject where 'install_items'
+    Str:D $subject where 'install_items',
+    Str:D $vault-key
     --> Nil
 )
 {
     my Str:D $file = sprintf(Q{/mnt/etc/dracut.conf.d/%s.conf}, $subject);
-    my Str:D @item = qw<
-        /boot/volume.key
+    my Str:D @item = qqw<
+        $vault-key
         /etc/crypttab
     >;
     my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @item.join(' '));

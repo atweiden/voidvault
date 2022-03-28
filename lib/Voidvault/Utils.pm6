@@ -18,7 +18,7 @@ my constant $GDISK-TYPECODE-EFI = 'EF00';
 my constant $GDISK-TYPECODE-LINUX = '8300';
 
 # directory in which to temporarily house vault keys
-constant $CRYPTSETUP-KEYS-DIR = '/root/voidvault-keys';
+my constant $CRYPTSETUP-KEYS-DIR = '/root/voidvault-keys';
 
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
@@ -879,12 +879,15 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
         EOF
 }
 
-# TODO: relocate this
-sub mkvault-key-sec(--> Nil)
+method install-vault-key(Str:D *@key-file --> Nil)
 {
-    # XXX
-    #run(qw<void-chroot /mnt chmod 000 /boot/bootvolume.key>);
-    run(qw<void-chroot /mnt chmod 000 /boot/volume.key>);
+    @key-file.map(-> Str:D $key-file {
+        # key file temporarily housed at C<$src>
+        my Str:D $src = key-file($key-file);
+        my Str:D $dst = sprintf(Q{/mnt%}, $key-file);
+        copy($src, $dst);
+        run(qqw<void-chroot /mnt chmod 000 $key-file>);
+    });
     run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
 
