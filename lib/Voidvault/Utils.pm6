@@ -17,9 +17,6 @@ my constant $GDISK-TYPECODE-BIOS = 'EF02';
 my constant $GDISK-TYPECODE-EFI = 'EF00';
 my constant $GDISK-TYPECODE-LINUX = '8300';
 
-# directory in which to temporarily house vault keys
-my constant $CRYPTSETUP-KEYS-DIR = '/root/voidvault-keys';
-
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
@@ -486,11 +483,8 @@ method mkefi(Str:D $partition-efi --> Nil)
 # create vault with cryptsetup
 method mkvault(
     VaultType:D :$vault-type! where .so,
-    Bool:D :$add-key!,
-    Bool:D :$add-password!,
     Str:D :$partition-vault! where .so,
     *%opts (
-        Str :add-key-path($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -500,23 +494,14 @@ method mkvault(
     run(qw<modprobe dm_mod dm-crypt>);
 
     # create vault
-    mkvault(
-        :$vault-type,
-        :$add-key,
-        :$add-password,
-        :$partition-vault,
-        |%opts
-    );
+    mkvault(:$vault-type, :$partition-vault, |%opts);
 }
 
 # LUKS encrypted volume password was given
 multi sub mkvault(
     VaultType:D :$vault-type! where 'LUKS1',
-    Bool:D :$add-key! where .so,
-    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so,
-    Str:D :$add-key-path! where .so
+    VaultPass:D :$vault-pass! where .so
     --> Nil
 )
 {
@@ -524,27 +509,18 @@ multi sub mkvault(
         build-cryptsetup-luks-format-cmdline(
             :non-interactive,
             :$vault-type,
-            :$add-key,
-            :$add-password,
             :$partition-vault,
             :$vault-pass
         );
 
     # make LUKS encrypted volume without prompt for vault password
     shell($cryptsetup-luks-format-cmdline);
-
-    # make and add key without prompt for vault password
-    mkkey($add-key-path);
-    addkey(:$add-key-path, :$partition-vault, :$vault-pass);
 }
 
 # LUKS encrypted volume password not given
 multi sub mkvault(
     VaultType:D :$vault-type! where 'LUKS1',
-    Bool:D :$add-key! where .so,
-    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so,
-    Str:D :$add-key-path! where .so,
     VaultPass :vault-pass($)
     --> Nil
 )
@@ -553,8 +529,6 @@ multi sub mkvault(
         build-cryptsetup-luks-format-cmdline(
             :interactive,
             :$vault-type,
-            :$add-key,
-            :$add-password,
             :$partition-vault
         );
 
@@ -563,28 +537,17 @@ multi sub mkvault(
         'Creating LUKS vault...',
         $cryptsetup-luks-format-cmdline
     );
-
-    # make and add key, prompt user for vault password
-    mkkey($add-key-path);
-    addkey(:$add-key-path, :$partition-vault);
 }
 
 multi sub build-cryptsetup-luks-format-cmdline(
     Bool:D :interactive($)! where .so,
     VaultType:D :$vault-type!,
-    Bool:D :$add-key! where .so,
-    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
 )
 {
     my Str:D $spawn-cryptsetup-luks-format =
-        gen-spawn-cryptsetup-luks-format(
-            :$vault-type,
-            :$add-key,
-            :$add-password,
-            :$partition-vault
-        );
+        gen-spawn-cryptsetup-luks-format(:$vault-type, :$partition-vault);
     my Str:D $expect-are-you-sure-send-yes =
         'expect "Are you sure*" { send "YES\r" }';
     my Str:D $interact =
@@ -614,20 +577,13 @@ multi sub build-cryptsetup-luks-format-cmdline(
 multi sub build-cryptsetup-luks-format-cmdline(
     Bool:D :non-interactive($)! where .so,
     VaultType:D :$vault-type!,
-    Bool:D :$add-key! where .so,
-    Bool:D :$add-password! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Str:D
 )
 {
     my Str:D $spawn-cryptsetup-luks-format =
-        gen-spawn-cryptsetup-luks-format(
-            :$vault-type,
-            :$add-key,
-            :$add-password,
-            :$partition-vault
-        );
+        gen-spawn-cryptsetup-luks-format(:$vault-type, :$partition-vault);
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-are-you-sure-send-yes =
@@ -668,9 +624,6 @@ multi sub build-cryptsetup-luks-format-cmdline(
 
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS1',
-    # we need to know whether key will be added, because it goes in slot 0
-    Bool:D :add-key($)! where .so,
-    Bool:D :add-password($)! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
 )
@@ -689,12 +642,9 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
-# constitutes dead code pending grub luks2 support
-# this will be useful for base mode in the future
+# for base mode pending grub luks2 support, constitutes dead code for now
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS2',
-    Bool:D :add-key($)! where .so,
-    Bool:D :add-password($)! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
 )
@@ -714,57 +664,38 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
-multi sub gen-spawn-cryptsetup-luks-format(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Bool:D :add-key($)! where .so,
-    Bool:D :add-password($)! where .not,
-    Str:D :$partition-vault! where .so,
-    Str:D :$add-key-path! where .so
-    --> Str:D
+method install-vault-key(
+    Str:D :$partition-vault where .so,
+    Str:D :$vault-key where .so,
+    *%opts (
+        VaultPass :vault-pass($)
+    )
+    --> Nil
 )
 {
-    my Str:D $key-file = key-file($add-key-path);
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks2
-         --cipher aes-xts-plain64
-         --pbkdf argon2id
-         --key-file $key-file
-         --key-slot 0
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         luksFormat $partition-vault
-    >.join(' ');
+    mkkey(:$vault-key);
+    addkey(:$vault-key, :$partition-vault, |%opts)
+    run(qqw<void-chroot /mnt chmod 000 $vault-key>);
+    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
 
 # make vault key
-sub mkkey(Str:D $add-key-path where .so --> Nil)
+sub mkkey(Str:D :$vault-key! where .so --> Nil)
 {
     # source of entropy
     my Str:D $src = '/dev/random';
-    # maintain tree structure, e.g. C</root/voidvault-keys/boot/volume.key>
-    my Str:D $dst = key-file($add-key-path);
-    mkdir($dst.IO.dirname, 0o0600);
     # bytes to read from C<$src>
     my UInt:D $bytes = 64;
-    # exec idiomatic version of C<head -c 64 /dev/random > key>
+    # exec idiomatic version of C<head -c 64 /dev/random > $vault-key>
     my IO::Handle:D $fh = $src.IO.open(:bin);
     my Buf:D $buf = $fh.read($bytes);
     $fh.close;
-    spurt($dst, $buf);
-}
-
-# return path to vault key given its intended path on bootstrapped system
-sub key-file(Str:D $add-key-path where .so --> Str:D)
-{
-    my Str:D $key-file = sprintf(Q{%s%s}, $CRYPTSETUP-KEYS-DIR, $add-key-path);
+    spurt($vault-key, $buf);
 }
 
 # LUKS encrypted volume password was given
 multi sub addkey(
-    Str:D :$add-key-path! where .so,
+    Str:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -773,7 +704,7 @@ multi sub addkey(
     my Str:D $cryptsetup-luks-add-key-cmdline =
         build-cryptsetup-luks-add-key-cmdline(
             :non-interactive,
-            :$add-key-path,
+            :$vault-key,
             :$partition-vault,
             :$vault-pass
         );
@@ -784,7 +715,7 @@ multi sub addkey(
 
 # LUKS encrypted volume password not given
 multi sub addkey(
-    Str:D :$add-key-path! where .so,
+    Str:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($)
     --> Nil
@@ -793,7 +724,7 @@ multi sub addkey(
     my Str:D $cryptsetup-luks-add-key-cmdline =
         build-cryptsetup-luks-add-key-cmdline(
             :interactive,
-            :$add-key-path,
+            :$vault-key,
             :$partition-vault
         );
 
@@ -805,7 +736,7 @@ multi sub addkey(
 }
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
-    Str:D :$add-key-path! where .so,
+    Str:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     Bool:D :interactive($)! where .so
     --> Str:D
@@ -816,7 +747,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     >.join(' ');
     my Str:D $key-file = key-file($add-key-path);
     my Str:D $spawn-cryptsetup-luks-add-key =
-        "spawn cryptsetup $opts luksAddKey $partition-vault $key-file";
+        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
     my Str:D $interact =
         'interact';
     my Str:D $catch-wait-result =
@@ -840,7 +771,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
-    Str:D :$add-key-path! where .so,
+    Str:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
     Bool:D :non-interactive($)! where .so
@@ -850,9 +781,8 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     my Str:D $opts = qw<
         --iter-time 1
     >.join(' ');
-    my Str:D $key-file = key-file($add-key-path);
     my Str:D $spawn-cryptsetup-luks-add-key =
-                "spawn cryptsetup $opts luksAddKey $partition-vault $key-file";
+                "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-enter-send-vault-pass =
@@ -877,18 +807,6 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
           %s
         EOS
         EOF
-}
-
-method install-vault-key(Str:D *@key-file --> Nil)
-{
-    @key-file.map(-> Str:D $key-file {
-        # key file temporarily housed at C<$src>
-        my Str:D $src = key-file($key-file);
-        my Str:D $dst = sprintf(Q{/mnt%}, $key-file);
-        copy($src, $dst);
-        run(qqw<void-chroot /mnt chmod 000 $key-file>);
-    });
-    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
 
 method open-vault(

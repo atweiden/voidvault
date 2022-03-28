@@ -113,22 +113,16 @@ method !mkdisk(--> Nil)
     my Str:D $partition-vault =
         Voidvault::Utils.gen-partition('vault', $partition, $mode);
     my VaultType:D $vault-type = 'LUKS1';
-    my Str:D $add-key = True;
-    my Bool:D $add-password = True;
-    Voidvault::Utils.mkvault(
-        :$vault-type,
-        :$add-key,
-        :$add-password,
-        :$partition-vault,
-        :$vault-pass,
-        :add-key-path($vault-key)
-    );
+    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
     Voidvault::Utils.open-vault(
         :$vault-type,
         :$partition-vault,
         :$vault-name,
         :$vault-pass
     );
+
+    # add key to vault
+    Voidvault::Utils.install-vault-key(:$partition-vault, :$vault-key);
 
     # create and mount btrfs volumes
     mkbtrfs($disk-type, $vault-name);
