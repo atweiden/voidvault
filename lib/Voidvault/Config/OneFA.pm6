@@ -25,7 +25,12 @@ has VaultPass $.bootvault-pass =
 has Str:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
         ?? %*ENV<VOIDVAULT_BOOTVAULT_KEY>
-        !! '/boot/bootvolume.key';
+        !! '/keys/bootvault.key';
+
+
+# -----------------------------------------------------------------------------
+# class instantation
+# -----------------------------------------------------------------------------
 
 submethod BUILD(
     Str :$bootvault-name,

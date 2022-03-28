@@ -119,7 +119,7 @@ has VaultPass $.vault-pass =
 has Str:D $.vault-key =
     ?%*ENV<VOIDVAULT_VAULT_KEY>
         ?? %*ENV<VOIDVAULT_VAULT_KEY>
-        !! '/boot/volume.key';
+        !! '/boot/vault.key';
 
 # name for host (default: vault)
 has HostName:D $.host-name =
