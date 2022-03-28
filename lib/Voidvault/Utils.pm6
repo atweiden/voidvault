@@ -728,9 +728,8 @@ method install-vault-key(
 )
 {
     mkkey(:$vault-key);
-    addkey(:$vault-key, :$partition-vault, |%opts)
-    run(qqw<void-chroot /mnt chmod 000 $vault-key>);
-    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
+    addkey(:$vault-key, :$partition-vault, |%opts);
+    seckey(:$vault-key);
 }
 
 # make vault key
@@ -861,6 +860,13 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
           %s
         EOS
         EOF
+}
+
+# secure vault key
+sub seckey(Str:D :$vault-key! where .so --> Nil)
+{
+    run(qqw<void-chroot /mnt chmod 000 $vault-key>);
+    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
 
 
