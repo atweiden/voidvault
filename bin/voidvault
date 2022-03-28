@@ -400,13 +400,13 @@ multi sub USAGE('new' --> Nil)
     Mode
       | base (Default)
       |
-      |   Make LUKS1 vault with encrypted /boot
+      | | Make LUKS1 vault with encrypted /boot
       |
       | 1fa
       |
-      |   Make LUKS2 vault with detached header inside LUKS1 boot partition
-      |
-      |   Make LUKS1 boot partition on same device as LUKS2 vault
+      | | Make LUKS2 vault with detached header inside LUKS1 boot partition
+      | |
+      | | Make LUKS1 boot partition on same device as LUKS2 vault
     EOF
     say($HELP);
 }
