@@ -891,17 +891,6 @@ method install-vault-key(Str:D *@key-file --> Nil)
     run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
 }
 
-# TODO: relocate this
-# configure /etc/crypttab for vault key
-sub mkvault-key-cfg(
-    Str:D $partition-vault where .so,
-    VaultName:D $vault-name where .so
-    --> Nil
-)
-{
-    replace('crypttab', $partition-vault, $vault-name);
-}
-
 method open-vault(
     # luksOpen cmdline options differ by type
     VaultType:D :$vault-type!,

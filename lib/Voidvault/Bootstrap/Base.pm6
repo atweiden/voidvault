@@ -542,6 +542,21 @@ multi sub build-voidstrap-cmdline(
          @pkg[]";
 }
 
+method !install-vault-key(--> Nil)
+{
+    my Mode:D $mode = $.config.mode;
+    my Str:D $partition = $.config.partition;
+    my Str:D $partition-vault =
+        Voidvault::Utils.gen-partition('vault', $partition, $mode);
+    my VaultName:D $vault-name = $.config.vault-name;
+    my Str:D $vault-key = $.config.vault-key;
+
+    Voidvault::Utils.install-vault-key($vault-key);
+
+    # configure /etc/crypttab for vault key
+    replace('crypttab', $partition-vault, $vault-name, $vault-key);
+}
+
 # secure user configuration
 method !configure-users(--> Nil)
 {
@@ -1246,6 +1261,26 @@ multi sub void-chroot-mkdir(
 # end sub void-chroot-mkdir }}}
 # sub replace {{{
 
+# --- crypttab {{{
+
+multi sub replace(
+    'crypttab',
+    Str:D $partition-vault,
+    VaultName:D $vault-name,
+    Str:D $vault-key
+    --> Nil
+)
+{
+    my Str:D $vault-uuid =
+        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
+    my Str:D $file = '/mnt/etc/crypttab';
+    my Str:D $key = qq:to/EOF/;
+    $vault-name   UUID=$vault-uuid   $vault-key   luks
+    EOF
+    spurt($file, "\n" ~ $key, :append);
+}
+
+# --- end crypttab }}}
 # --- sudoers {{{
 
 multi sub replace(
@@ -1280,26 +1315,6 @@ multi sub replace(
 }
 
 # --- end sudoers }}}
-# --- crypttab {{{
-
-multi sub replace(
-    'crypttab',
-    Str:D $partition-vault,
-    VaultName:D $vault-name,
-    Str:D $vault-key
-    --> Nil
-)
-{
-    my Str:D $vault-uuid =
-        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
-    my Str:D $file = '/mnt/etc/crypttab';
-    my Str:D $key = qq:to/EOF/;
-    $vault-name   UUID=$vault-uuid   $vault-key   luks
-    EOF
-    spurt($file, "\n" ~ $key, :append);
-}
-
-# --- end crypttab }}}
 # --- fstab {{{
 
 multi sub replace(
