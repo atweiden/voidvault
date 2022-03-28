@@ -664,6 +664,60 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
+method open-vault(
+    # luksOpen cmdline options differ by type
+    VaultType:D :$vault-type!,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    # open vault with key
+    Str:D :$add-key-path! where .so
+)
+{
+    my Str:D $cryptsetup-luks-open-cmdline =
+        build-cryptsetup-luks-open-cmdline(
+            :$vault-type,
+            :$partition-vault,
+            :$vault-name,
+            :$add-key-path
+        );
+
+    shell($cryptsetup-luks-open-cmdline);
+}
+
+multi sub build-cryptsetup-luks-open-cmdline(
+    VaultType:D :vault-type($)! where 'LUKS1',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    Str:D :$add-key-path! where .so
+    --> Str:D
+)
+{
+    my Str:D $key-file = key-file($add-key-path);
+    my Str:D $opts = qqw<
+        --key-file $key-file
+    >.join(' ');
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+}
+
+multi sub build-cryptsetup-luks-open-cmdline(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    Str:D :$add-key-path! where .so
+    --> Str:D
+)
+{
+    my Str:D $key-file = key-file($add-key-path);
+    my Str:D $opts = qqw<
+        --key-file $key-file
+        --perf-no_read_workqueue
+        --persistent
+    >.join(' ');
+    my Str:D $cryptsetup-luks-open-cmdline =
+        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+}
+
 method install-vault-key(
     Str:D :$partition-vault where .so,
     Str:D :$vault-key where .so,
@@ -807,60 +861,6 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
           %s
         EOS
         EOF
-}
-
-method open-vault(
-    # luksOpen cmdline options differ by type
-    VaultType:D :$vault-type!,
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    # open vault with key
-    Str:D :$add-key-path! where .so
-)
-{
-    my Str:D $cryptsetup-luks-open-cmdline =
-        build-cryptsetup-luks-open-cmdline(
-            :$vault-type,
-            :$partition-vault,
-            :$vault-name,
-            :$add-key-path
-        );
-
-    shell($cryptsetup-luks-open-cmdline);
-}
-
-multi sub build-cryptsetup-luks-open-cmdline(
-    VaultType:D :vault-type($)! where 'LUKS1',
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    Str:D :$add-key-path! where .so
-    --> Str:D
-)
-{
-    my Str:D $key-file = key-file($add-key-path);
-    my Str:D $opts = qqw<
-        --key-file $key-file
-    >.join(' ');
-    my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup $opts luksOpen $partition-vault $vault-name";
-}
-
-multi sub build-cryptsetup-luks-open-cmdline(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    Str:D :$add-key-path! where .so
-    --> Str:D
-)
-{
-    my Str:D $key-file = key-file($add-key-path);
-    my Str:D $opts = qqw<
-        --key-file $key-file
-        --perf-no_read_workqueue
-        --persistent
-    >.join(' ');
-    my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup $opts luksOpen $partition-vault $vault-name";
 }
 
 
