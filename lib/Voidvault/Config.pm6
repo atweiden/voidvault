@@ -319,7 +319,49 @@ submethod BUILD(
         if $vault-key;
 }
 
-method new(
+multi method new(
+    Str:D $mode where m:i/1fa/,
+    *%opts (
+        Str :admin-name($),
+        Str :admin-pass($),
+        Str :admin-pass-hash($),
+        Bool :augment($),
+        Bool :disable-ipv6($),
+        Str :disk-type($),
+        Bool :enable-serial-console($),
+        Str :graphics($),
+        Str :grub-name($),
+        Str :grub-pass($),
+        Str :grub-pass-hash($),
+        Str :guest-name($),
+        Str :guest-pass($),
+        Str :guest-pass-hash($),
+        Str :hostname($),
+        Bool :ignore-conf-repos($),
+        Str :keymap($),
+        Str :locale($),
+        Str :packages($),
+        Str :partition($),
+        Str :processor($),
+        :repository(@),
+        Str :root-pass($),
+        Str :root-pass-hash($),
+        Str :sftp-name($),
+        Str :sftp-pass($),
+        Str :sftp-pass-hash($),
+        Str :timezone($),
+        Str :vault-name($),
+        Str :vault-pass($),
+        Str :vault-key($),
+        *%
+    )
+    --> Voidvault::Config::OneFA:D
+)
+{
+    Voidvault::Config::OneFA.bless($mode, |%opts);
+}
+
+multi method new(
     Str $mode?,
     *%opts (
         Str :admin-name($),
@@ -355,10 +397,10 @@ method new(
         Str :vault-key($),
         *%
     )
-    --> Voidvault::Config:D
+    --> Voidvault::Config::Base:D
 )
 {
-    self.bless($mode, |%opts);
+    Voidvault::Config::Base.bless($mode, |%opts);
 }
 
 
