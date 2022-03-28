@@ -2,7 +2,7 @@ use v6;
 use Void::XBPS;
 use Voidvault::Types;
 use Voidvault::Utils;
-unit class Voidvault::Config;
+unit role Voidvault::Config;
 
 
 # -----------------------------------------------------------------------------
