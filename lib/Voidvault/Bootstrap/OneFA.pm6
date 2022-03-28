@@ -14,31 +14,7 @@ also is Voidvault::Bootstrap;
 # attributes
 # -----------------------------------------------------------------------------
 
-has Voidvault::Config::OneFA:D $.config-onefa is required;
-
-
-# -----------------------------------------------------------------------------
-# instantiation
-# -----------------------------------------------------------------------------
-
-submethod BUILD(
-    *%opts (
-        # bootvault-pass = vault-pass when only of the two is given
-        #
-        # this has implications during mkvault, since in 1fa mode
-        # we luksAddKey to vault and only attach password to bootvault
-        # by default
-        Str :vault-name($),
-        Str :vault-pass($),
-        Str :bootvault-name($),
-        Str :bootvault-pass($),
-        *%
-    )
-    --> Voidvault::Bootstrap::OneFA:D
-)
-{
-    $!config-onefa = Voidvault::Config::OneFA.new(|%opts);
-}
+has Voidvault::Config::OneFA:D $.config is required;
 
 
 # -----------------------------------------------------------------------------
