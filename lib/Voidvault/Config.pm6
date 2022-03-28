@@ -2,7 +2,7 @@ use v6;
 use Void::XBPS;
 use Voidvault::Types;
 use Voidvault::Utils;
-unit role Voidvault::Config;
+unit class Voidvault::Config;
 
 
 # -----------------------------------------------------------------------------
@@ -458,7 +458,7 @@ multi sub dprompt(
     # context string for confirm text
     Str:D :$confirm-topic!
     --> Any:D
-)
+) is export
 {
     my T $response;
 
@@ -509,7 +509,7 @@ multi sub dprompt(
     # context string for confirm text
     Str:D :$confirm-topic!
     --> Any:D
-)
+) is export
 {
     my T $response;
 
@@ -552,7 +552,7 @@ sub tprompt(
     # optional help text to display before prompt
     Str :$help-text
     --> Any:D
-)
+) is export
 {
     my $response;
 

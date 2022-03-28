@@ -2,12 +2,14 @@ use v6;
 use Voidvault::Config;
 use Voidvault::Types;
 unit role Voidvault::Config::OneFA;
-also does Voidvault::Config;
+also is Voidvault::Config;
 
 
 # -----------------------------------------------------------------------------
 # settings
 # -----------------------------------------------------------------------------
+
+# - attributes appear in specific order for prompting user
 
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
@@ -48,17 +50,31 @@ submethod BUILD(
         if $bootvault-key;
 }
 
-method new(
-    *%opts (
-        Str :bootvault-name($),
-        Str :bootvault-pass($),
-        Str :bootvault-key($),
-        *%
-    )
-    --> Voidvault::Config::OneFA:D
+
+# -----------------------------------------------------------------------------
+# user input prompts
+# -----------------------------------------------------------------------------
+
+sub prompt-name(
+    Bool:D :bootvault($)! where .so
+    --> VaultName:D
 )
 {
-    self.bless(|%opts);
+    my VaultName:D $vault-name = do {
+        my VaultName:D $response-default = 'bootvault';
+        my Str:D $prompt-text = "Enter bootvault name [$response-default]: ";
+        my Str:D $help-text = q:to/EOF/.trim;
+        Determining name of LUKS encrypted boot volume...
+
+        Leave blank if you don't know what this is
+        EOF
+        tprompt(
+            VaultName,
+            $response-default,
+            :$prompt-text,
+            :$help-text
+        );
+    }
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
