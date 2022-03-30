@@ -86,7 +86,7 @@ multi sub disable-cow(
     run(qqw<chattr +C $orig-dir>);
 }
 
-# execute shell process and re-attempt on failure until SIGINT
+# execute shell process and re-attempt on failure
 method loop-cmdline-proc(
     Str:D $message where .so,
     Str:D $cmdline where .so
