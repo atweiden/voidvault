@@ -308,12 +308,6 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # filesystem
 # -----------------------------------------------------------------------------
 
-method mkefi(Str:D $partition-efi --> Nil)
-{
-    run(qw<modprobe vfat>);
-    run(qqw<mkfs.vfat -F 32 $partition-efi>);
-}
-
 # create vault with cryptsetup
 method mkvault(
     VaultType:D :$vault-type! where .so,

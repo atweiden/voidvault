@@ -56,4 +56,10 @@ method sgdisk(Str:D $device --> Nil)
     >, $device);
 }
 
+method mkefi(Str:D $partition-efi --> Nil)
+{
+    run(qw<modprobe vfat>);
+    run(qqw<mkfs.vfat -F 32 $partition-efi>);
+}
+
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
