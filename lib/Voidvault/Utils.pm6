@@ -361,21 +361,6 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # filesystem
 # -----------------------------------------------------------------------------
 
-# list partitions on block device
-method ls-partitions(Str:D $device --> Array[Str:D])
-{
-    # run lsblk only once
-    state Str:D @partition =
-        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
-        .trim
-        .lines
-        # make sure we're not getting the master device partition
-        .grep(/part$/)
-        # return only the device name
-        .map({ .split(' ').first })
-        .sort;
-}
-
 # partition device with gdisk
 method sgdisk(Str:D $device, Mode:D $mode --> Nil)
 {
@@ -915,6 +900,21 @@ method ls-devices(--> Array[Str:D])
         .trim
         .split("\n")
         .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
+        .sort;
+}
+
+# list partitions on block device
+method ls-partitions(Str:D $device --> Array[Str:D])
+{
+    # run lsblk only once
+    state Str:D @partition =
+        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
+        .trim
+        .lines
+        # make sure we're not getting the master device partition
+        .grep(/part$/)
+        # return only the device name
+        .map({ .split(' ').first })
         .sort;
 }
 
