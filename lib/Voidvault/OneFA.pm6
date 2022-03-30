@@ -18,14 +18,14 @@ has Voidvault::Config::OneFA:D $.config is required;
 # helper functions
 # -----------------------------------------------------------------------------
 
-multi method gen-partition('boot' --> Str:D)
+multi method gen-partition(::?CLASS:D: 'boot' --> Str:D)
 {
     # e.g. /dev/sda3
     my UInt:D $index = 2;
     my Str:D $partition = @*partition[$index];
 }
 
-multi method gen-partition('vault' --> Str:D)
+multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
 {
     # e.g. /dev/sda4
     my UInt:D $index = 3;
