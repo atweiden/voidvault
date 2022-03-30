@@ -8,6 +8,33 @@ unit class Voidvault;
 # constants
 # -----------------------------------------------------------------------------
 
+# dependencies needed prior to config instantiation
+my constant @DEPENDENCY-PRE-CONFIG = qw<
+    expect
+    grub
+>;
+
+# dependencies needed prior to voidstrap
+my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
+    btrfs-progs
+    coreutils
+    cryptsetup
+    dialog
+    dosfstools
+    e2fsprogs
+    efibootmgr
+    gptfdisk
+    kbd
+    kmod
+    openssl
+    procps-ng
+    tzdata
+    util-linux
+    xbps
+>;
+
+my constant @DEPENDENCY = |@DEPENDENCY-PRE-CONFIG, |@DEPENDENCY-PRE-VOIDSTRAP;
+
 constant $VERSION = v1.16.0;
 
 
@@ -63,13 +90,16 @@ method new(
     --> Voidvault:D
 )
 {
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+
     # verify root permissions
     $*USER == 0 or die('root privileges required');
 
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
 
-    install-dependencies(:@repository, :$ignore-conf-repos);
+    # fetch dependencies
+    install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
 
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
@@ -77,39 +107,22 @@ method new(
     my Voidvault:D $voidvault = new(:$config);
 }
 
-sub install-dependencies(
-    *%opts (
-        Bool :ignore-conf-repos($),
-        :repository(@)
-    )
+multi sub install-dependencies(
+    'GLIBC',
+    *%opts (Bool :ignore-conf-repos($), :repository(@))
     --> Nil
 )
 {
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+    Void::XBPS.xbps-install(@DEPENDENCY, 'glibc', |%opts);
+}
 
-    # fetch dependencies needed prior to voidstrap
-    my Str:D @dep = qw<
-        btrfs-progs
-        coreutils
-        cryptsetup
-        dialog
-        dosfstools
-        e2fsprogs
-        efibootmgr
-        expect
-        gptfdisk
-        grub
-        kbd
-        kmod
-        openssl
-        procps-ng
-        tzdata
-        util-linux
-        xbps
-    >;
-    push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
-    push(@dep, 'musl') if $libc-flavor eq 'MUSL';
-    Void::XBPS.xbps-install(@dep, |%opts);
+multi sub install-dependencies(
+    'MUSL',
+    *%opts (Bool :ignore-conf-repos($), :repository(@))
+    --> Nil
+)
+{
+    Void::XBPS.xbps-install(@DEPENDENCY, 'musl', |%opts);
 }
 
 multi sub new(Voidvault::Config::Base:D :$config! --> Voidvault::Base:D)
