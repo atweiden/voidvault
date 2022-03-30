@@ -361,55 +361,6 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # filesystem
 # -----------------------------------------------------------------------------
 
-# partition device with gdisk
-method sgdisk(Str:D $device, Mode:D $mode --> Nil)
-{
-    sgdisk($device, $mode);
-}
-
-multi sub sgdisk(Str:D $device, Mode:D $ where 'BASE' --> Nil)
-{
-    # erase existing partition table
-    # create 2M EF02 BIOS boot sector
-    # create 550M EF00 EFI system partition
-    # create max sized partition for LUKS-encrypted vault
-    run(qqw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+$GDISK-SIZE-BIOS
-        --typecode=1:$GDISK-TYPECODE-BIOS
-        --new=2:0:+$GDISK-SIZE-EFI
-        --typecode=2:$GDISK-TYPECODE-EFI
-        --new=3:0:0
-        --typecode=3:$GDISK-TYPECODE-LINUX
-    >, $device);
-}
-
-multi sub sgdisk(Str:D $device, Mode:D $ where '1FA' --> Nil)
-{
-    # erase existing partition table
-    # create 2M EF02 BIOS boot sector
-    # create 550M EF00 EFI system partition
-    # create 1024M sized partition for LUKS1-encrypted boot
-    # create max sized partition for LUKS2-encrypted vault
-    run(qqw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+$GDISK-SIZE-BIOS
-        --typecode=1:$GDISK-TYPECODE-BIOS
-        --new=2:0:+$GDISK-SIZE-EFI
-        --typecode=2:$GDISK-TYPECODE-EFI
-        --new=3:0:+$GDISK-SIZE-BOOT
-        --typecode=3:$GDISK-TYPECODE-LINUX
-        --new=4:0:0
-        --typecode=4:$GDISK-TYPECODE-LINUX
-    >, $device);
-}
-
 method mkefi(Str:D $partition-efi --> Nil)
 {
     run(qw<modprobe vfat>);
