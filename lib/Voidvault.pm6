@@ -379,6 +379,19 @@ method mkvault(::?CLASS:D: --> Nil)
     );
 }
 
+method mount-efi(::?CLASS:D: --> Nil)
+{
+    my Str:D $partition-efi = self.gen-partition('efi');
+    my Str:D $efi-dir = '/mnt/boot/efi';
+    mkdir($efi-dir);
+    my Str:D $mount-options = qw<
+        nodev
+        noexec
+        nosuid
+    >.join(',');
+    run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
