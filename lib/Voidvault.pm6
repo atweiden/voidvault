@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Config;
+use Voidvault::Constants;
 use Void::XBPS;
 unit class Voidvault;
 
@@ -7,33 +8,6 @@ unit class Voidvault;
 # -----------------------------------------------------------------------------
 # constants
 # -----------------------------------------------------------------------------
-
-# dependencies needed prior to config instantiation
-my constant @DEPENDENCY-PRE-CONFIG = qw<
-    expect
-    grub
->;
-
-# dependencies needed prior to voidstrap
-my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
-    btrfs-progs
-    coreutils
-    cryptsetup
-    dialog
-    dosfstools
-    e2fsprogs
-    efibootmgr
-    gptfdisk
-    kbd
-    kmod
-    openssl
-    procps-ng
-    tzdata
-    util-linux
-    xbps
->;
-
-my constant @DEPENDENCY = |@DEPENDENCY-PRE-CONFIG, |@DEPENDENCY-PRE-VOIDSTRAP;
 
 constant $VERSION = v1.16.0;
 
@@ -113,7 +87,7 @@ multi sub install-dependencies(
     --> Nil
 )
 {
-    Void::XBPS.xbps-install(@DEPENDENCY, 'glibc', |%opts);
+    Void::XBPS.xbps-install(@Voidvault::Constants::DEPENDENCY, 'glibc', |%opts);
 }
 
 multi sub install-dependencies(
@@ -122,7 +96,7 @@ multi sub install-dependencies(
     --> Nil
 )
 {
-    Void::XBPS.xbps-install(@DEPENDENCY, 'musl', |%opts);
+    Void::XBPS.xbps-install(@Voidvault::Constants::DEPENDENCY, 'musl', |%opts);
 }
 
 multi sub new(Voidvault::Config::Base:D :$config! --> Voidvault::Base:D)

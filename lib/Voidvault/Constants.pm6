@@ -1,6 +1,33 @@
 use v6;
 unit module Voidvault::Constants;
 
+# dependencies needed prior to config instantiation
+my constant @DEPENDENCY-PRE-CONFIG = qw<
+    expect
+    grub
+>;
+
+# dependencies needed prior to voidstrap
+my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
+    btrfs-progs
+    coreutils
+    cryptsetup
+    dialog
+    dosfstools
+    e2fsprogs
+    efibootmgr
+    gptfdisk
+    kbd
+    kmod
+    openssl
+    procps-ng
+    tzdata
+    util-linux
+    xbps
+>;
+
+constant @DEPENDENCY = |@DEPENDENCY-PRE-CONFIG, |@DEPENDENCY-PRE-VOIDSTRAP;
+
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
