@@ -134,7 +134,7 @@ method mkdisk(::?CLASS:D: --> Nil)
     # mount efi boot
     self.mount-efi;
 
-    # disable Btrfs CoW
+    # disable btrfs copy-on-write on select directories
     self.disable-cow;
 }
 
