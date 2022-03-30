@@ -113,29 +113,8 @@ multi sub new(Voidvault::Config::OneFA:D :$config! --> Voidvault::OneFA:D)
 
 
 # -----------------------------------------------------------------------------
-# helper functions
+# worker functions
 # -----------------------------------------------------------------------------
-
-proto method gen-partition(::?CLASS:D: Str:D --> Str:D)
-{
-    my Str:D $device = $.config.device;
-    my Str:D @*partition = Voidvault::Utils.ls-partitions($device);
-    {*}
-}
-
-multi method gen-partition(::?CLASS:D: 'efi' --> Str:D)
-{
-    # e.g. /dev/sda2
-    my UInt:D $index = 1;
-    my Str:D $partition = @*partition[$index];
-}
-
-multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
-{
-    # e.g. /dev/sda3
-    my UInt:D $index = 2;
-    my Str:D $partition = @*partition[$index];
-}
 
 # partition device with gdisk
 method sgdisk(Str:D $device --> Nil)
@@ -162,6 +141,32 @@ method mkefi(Str:D $partition-efi --> Nil)
 {
     run(qw<modprobe vfat>);
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
+}
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+proto method gen-partition(::?CLASS:D: Str:D --> Str:D)
+{
+    my Str:D $device = $.config.device;
+    my Str:D @*partition = Voidvault::Utils.ls-partitions($device);
+    {*}
+}
+
+multi method gen-partition(::?CLASS:D: 'efi' --> Str:D)
+{
+    # e.g. /dev/sda2
+    my UInt:D $index = 1;
+    my Str:D $partition = @*partition[$index];
+}
+
+multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
+{
+    # e.g. /dev/sda3
+    my UInt:D $index = 2;
+    my Str:D $partition = @*partition[$index];
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
