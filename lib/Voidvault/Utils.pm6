@@ -830,9 +830,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     --> Str:D
 )
 {
-    my Str:D $opts = qw<
-        --iter-time 1
-    >.join(' ');
+    my Str:D $opts = '--iter-time 1';
     my Str:D $key-file = key-file($add-key-path);
     my Str:D $spawn-cryptsetup-luks-add-key =
         "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
@@ -866,9 +864,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     --> Str:D
 )
 {
-    my Str:D $opts = qw<
-        --iter-time 1
-    >.join(' ');
+    my Str:D $opts = '--iter-time 1';
     my Str:D $spawn-cryptsetup-luks-add-key =
                 "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
     my Str:D $sleep =
