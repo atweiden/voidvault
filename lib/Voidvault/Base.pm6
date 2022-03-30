@@ -453,6 +453,8 @@ method !voidstrap-base(--> Nil)
     # download and install base packages with voidstrap in chroot
     my Str:D $voidstrap-base-cmdline =
         build-voidstrap-cmdline(@pkg, :@repository, :$ignore-conf-repos);
+
+    # why launch a new shell process for this? superstition.
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
         $voidstrap-base-cmdline
