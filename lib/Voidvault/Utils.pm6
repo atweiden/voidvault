@@ -454,7 +454,7 @@ method mkvault(
 
 # LUKS encrypted volume password was given
 multi sub mkvault(
-    VaultType:D :$vault-type! where 'LUKS1',
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -474,7 +474,7 @@ multi sub mkvault(
 
 # LUKS encrypted volume password not given
 multi sub mkvault(
-    VaultType:D :$vault-type! where 'LUKS1',
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($)
     --> Nil
