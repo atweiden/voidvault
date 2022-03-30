@@ -65,25 +65,22 @@ method bootstrap(::?CLASS:D: --> Nil)
 # -----------------------------------------------------------------------------
 
 # secure disk configuration
-method !mkdisk(--> Nil)
+method !mkdisk(::?CLASS:D: --> Nil)
 {
-    my Str:D $device = $.config.device;
     my DiskType:D $disk-type = $.config.disk-type;
-    my Mode:D $mode = $.config.mode;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     my Str:D $vault-key = $.config.vault-key;
 
     # partition device
-    self.sgdisk($device, $mode);
+    self.sgdisk;
 
     # create uefi partition
-    my Str:D $partition-efi = self.gen-partition('efi');
-    self.mkefi($partition-efi);
+    self.mkefi;
 
     # create vault with password
-    my Str:D $partition-vault = self.gen-partition('vault');
     my VaultType:D $vault-type = 'LUKS1';
+    my Str:D $partition-vault = self.gen-partition('vault');
     Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
 
     # open vault with password
