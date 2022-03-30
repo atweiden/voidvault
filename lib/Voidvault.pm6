@@ -146,6 +146,7 @@ proto method gen-partition(::?CLASS:D: Str:D --> Str:D)
 {
     my Str:D $device = $.config.device;
     my Str:D @*partition = Voidvault::Utils.ls-partitions($device);
+    {*}
 }
 
 multi method gen-partition(::?CLASS:D: 'efi' --> Str:D)
