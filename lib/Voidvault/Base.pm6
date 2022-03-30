@@ -67,36 +67,14 @@ method bootstrap(::?CLASS:D: --> Nil)
 # secure disk configuration
 method !mkdisk(::?CLASS:D: --> Nil)
 {
-    my DiskType:D $disk-type = $.config.disk-type;
-    my VaultName:D $vault-name = $.config.vault-name;
-    my VaultPass $vault-pass = $.config.vault-pass;
-    my Str:D $vault-key = $.config.vault-key;
-
     # partition device
     self.sgdisk;
 
     # create uefi partition
     self.mkefi;
 
-    # create vault with password
-    my VaultType:D $vault-type = 'LUKS1';
-    my Str:D $partition-vault = self.gen-partition('vault');
-    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
-
-    # open vault with password
-    Voidvault::Utils.open-vault(
-        :$vault-type,
-        :$partition-vault,
-        :$vault-name,
-        :$vault-pass
-    );
-
-    # add key to vault
-    Voidvault::Utils.install-vault-key(
-        :$partition-vault,
-        :$vault-key,
-        :$vault-pass
-    );
+    # create, open and add randomized key to LUKS encrypted volume
+    self.mkvault;
 
     # create and mount btrfs volumes
     self.mkbtrfs;

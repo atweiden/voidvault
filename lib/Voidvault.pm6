@@ -352,6 +352,33 @@ multi sub mount-btrfs-subvolume(
     >);
 }
 
+method mkvault(::?CLASS:D: --> Nil)
+{
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    my Str:D $vault-key = $.config.vault-key;
+    my VaultType:D $vault-type = 'LUKS1';
+    my Str:D $partition-vault = self.gen-partition('vault');
+
+    # create vault with password
+    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
+
+    # open vault with password
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass
+    );
+
+    # add key to vault
+    Voidvault::Utils.install-vault-key(
+        :$partition-vault,
+        :$vault-key,
+        :$vault-pass
+    );
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
