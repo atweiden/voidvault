@@ -146,6 +146,212 @@ method mkefi(::?CLASS:D: --> Nil)
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
+# create and mount btrfs filesystem on opened vault
+method mkbtrfs(::?CLASS:D: --> Nil)
+{
+    my DiskType:D $disk-type = $.config.disk-type;
+    my VaultName:D $vault-name = $.config.vault-name;
+
+    # create btrfs filesystem on opened vault
+    run(qw<modprobe btrfs xxhash_generic>);
+    run(qqw<mkfs.btrfs --csum xxhash /dev/mapper/$vault-name>);
+
+    # set mount options
+    my Str:D @mount-options = qw<
+        rw
+        noatime
+        compress-force=zstd
+        space_cache=v2
+    >;
+    push(@mount-options, 'ssd') if $disk-type eq 'SSD';
+    my Str:D $mount-options = @mount-options.join(',');
+
+    # mount main btrfs filesystem on open vault
+    mkdir('/mnt2');
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options
+        /dev/mapper/$vault-name
+        /mnt2
+    >);
+
+    # btrfs subvolumes, starting with root / ('')
+    my Str:D @btrfs-dir =
+        '',
+        'home',
+        'opt',
+        'srv',
+        'var',
+        'var-cache-xbps',
+        'var-lib-ex',
+        'var-log',
+        'var-opt',
+        'var-spool',
+        'var-tmp';
+
+    # create btrfs subvolumes
+    chdir('/mnt2');
+    @btrfs-dir.map(-> Str:D $btrfs-dir {
+        run(qqw<btrfs subvolume create @$btrfs-dir>);
+    });
+    chdir('/');
+
+    # mount btrfs subvolumes
+    @btrfs-dir.map(-> Str:D $btrfs-dir {
+        mount-btrfs-subvolume($btrfs-dir, $mount-options, $vault-name);
+    });
+
+    # unmount /mnt2 and remove
+    run(qw<umount /mnt2>);
+    rmdir('/mnt2');
+}
+
+multi sub mount-btrfs-subvolume(
+    'srv',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'srv';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-cache-xbps',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/cache/xbps';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,subvol=@var-cache-xbps
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-lib-ex',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/lib/ex';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-log',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/log';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-log
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-opt',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/opt';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,subvol=@var-opt
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-spool',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/spool';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-spool
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
+multi sub mount-btrfs-subvolume(
+    'var-tmp',
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    my Str:D $btrfs-dir = 'var/tmp';
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
+}
+
+multi sub mount-btrfs-subvolume(
+    Str:D $btrfs-dir,
+    Str:D $mount-options,
+    VaultName:D $vault-name
+    --> Nil
+)
+{
+    mkdir("/mnt/$btrfs-dir");
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options,subvol=@$btrfs-dir
+        /dev/mapper/$vault-name
+        /mnt/$btrfs-dir
+    >);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
