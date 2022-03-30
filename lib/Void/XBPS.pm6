@@ -54,7 +54,7 @@ constant $REPOSITORY-OFFICIAL-NONFREE =
 
 method xbps-install(
     Str:D :@repository,
-    Bool :$ignore-conf-repos
+    Bool :$ignore-conf-repos,
     # ensure at least one package is given
     *@pkg ($, *@)
     --> Nil
