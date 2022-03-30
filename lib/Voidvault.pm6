@@ -531,6 +531,161 @@ method install-vault-key(::?CLASS:D: --> Nil)
     replace('crypttab', $partition-vault, $vault-name, $vault-key);
 }
 
+# secure user configuration
+multi method configure-users(::?CLASS:D: --> Nil)
+{
+    self.configure-users('root');
+    self.configure-users('admin');
+    self.configure-users('guest');
+    self.configure-users('sftp');
+}
+
+multi method configure-users(::?CLASS:D: 'admin' --> Nil)
+{
+    my UserName:D $user-name-admin = $.config.user-name-admin;
+    self.useradd('admin');
+    say("Giving sudo privileges to admin user $user-name-admin...");
+    my Str:D $sudoers = qq:to/EOF/;
+    $user-name-admin ALL=(ALL) ALL
+    $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/reboot
+    $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/shutdown
+    EOF
+    spurt('/mnt/etc/sudoers', "\n" ~ $sudoers, :append);
+}
+
+multi method configure-users(::?CLASS:D: 'guest' --> Nil)
+{
+    self.useradd('guest');
+}
+
+multi method configure-users(::?CLASS:D: 'root' --> Nil)
+{
+    self.usermod('root');
+}
+
+multi method configure-users(::?CLASS:D: 'sftp' --> Nil)
+{
+    self.useradd('sftp');
+}
+
+multi method useradd(::?CLASS:D: 'admin' --> Nil)
+{
+    my UserName:D $user-name-admin = $.config.user-name-admin;
+    my Str:D $user-pass-hash-admin = $.config.user-pass-hash-admin;
+    my Str:D $user-group-admin = qw<
+        audio
+        cdrom
+        dialout
+        floppy
+        input
+        kvm
+        optical
+        proc
+        socklog
+        storage
+        users
+        video
+        wheel
+        xbuilder
+    >.join(',');
+    my Str:D $user-shell-admin = '/bin/bash';
+
+    say("Creating new admin user named $user-name-admin...");
+    groupadd(:system, 'proc');
+    groupadd($user-name-admin);
+    run(qqw<
+        void-chroot
+        /mnt
+        useradd
+        --create-home
+        --gid $user-name-admin
+        --groups $user-group-admin
+        --password '$user-pass-hash-admin'
+        --shell $user-shell-admin
+        $user-name-admin
+    >);
+    chmod(0o700, "/mnt/home/$user-name-admin");
+}
+
+multi method useradd(::?CLASS:D: 'guest' --> Nil)
+{
+    my UserName:D $user-name-guest = $.config.user-name-guest;
+    my Str:D $user-pass-hash-guest = $.config.user-pass-hash-guest;
+    my Str:D $user-group-guest = qw<
+        guests
+        users
+    >.join(',');
+    my Str:D $user-shell-guest = '/bin/bash';
+
+    say("Creating new guest user named $user-name-guest...");
+    groupadd($user-name-guest, 'guests');
+    run(qqw<
+        void-chroot
+        /mnt
+        useradd
+        --create-home
+        --gid $user-name-guest
+        --groups $user-group-guest
+        --password '$user-pass-hash-guest'
+        --shell $user-shell-guest
+        $user-name-guest
+    >);
+    chmod(0o700, "/mnt/home/$user-name-guest");
+}
+
+multi method useradd(::?CLASS:D: 'sftp' --> Nil)
+{
+    my UserName:D $user-name-sftp = $.config.user-name-sftp;
+    my Str:D $user-pass-hash-sftp = $.config.user-pass-hash-sftp;
+    # https://wiki.archlinux.org/index.php/SFTP_chroot
+    my Str:D $user-group-sftp = 'sftponly';
+    my Str:D $user-shell-sftp = '/sbin/nologin';
+    my Str:D $auth-dir = '/etc/ssh/authorized_keys';
+    my Str:D $jail-dir = '/srv/ssh/jail';
+    my Str:D $home-dir = "$jail-dir/$user-name-sftp";
+    my Str:D @root-dir = $auth-dir, $jail-dir;
+
+    say("Creating new SFTP user named $user-name-sftp...");
+    void-chroot-mkdir(@root-dir, 'root', 'root', 0o755);
+    groupadd($user-name-sftp, $user-group-sftp);
+    run(qqw<
+        void-chroot
+        /mnt
+        useradd
+        --no-create-home
+        --home-dir $home-dir
+        --gid $user-name-sftp
+        --groups $user-group-sftp
+        --password '$user-pass-hash-sftp'
+        --shell $user-shell-sftp
+        $user-name-sftp
+    >);
+    void-chroot-mkdir($home-dir, $user-name-sftp, $user-name-sftp, 0o700);
+}
+
+method usermod(::?CLASS:D: 'root' --> Nil)
+{
+    my Str:D $user-pass-hash-root = $.config.user-pass-hash-root;
+    say('Updating root password...');
+    run(qqw<void-chroot /mnt usermod --password '$user-pass-hash-root' root>);
+    say('Changing root shell to bash...');
+    run(qqw<void-chroot /mnt usermod --shell /bin/bash root>);
+}
+
+multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot /mnt groupadd --system $group-name>);
+    });
+}
+
+multi sub groupadd(*@group-name --> Nil)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot /mnt groupadd $group-name>);
+    });
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
@@ -555,6 +710,32 @@ multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
     # e.g. /dev/sda3
     my UInt:D $index = 2;
     my Str:D $partition = @*partition[$index];
+}
+
+multi sub void-chroot-mkdir(
+    Str:D @dir,
+    Str:D $user,
+    Str:D $group,
+    # permissions should be octal: https://docs.raku.org/routine/chmod
+    UInt:D $permissions
+    --> Nil
+)
+{
+    @dir.map(-> Str:D $dir {
+        void-chroot-mkdir($dir, $user, $group, $permissions)
+    });
+}
+
+multi sub void-chroot-mkdir(
+    Str:D $dir,
+    Str:D $user,
+    Str:D $group,
+    UInt:D $permissions
+    --> Nil
+)
+{
+    mkdir("/mnt/$dir", $permissions);
+    run(qqw<void-chroot /mnt chown $user:$group $dir>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
