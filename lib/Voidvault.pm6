@@ -117,8 +117,10 @@ multi sub new(Voidvault::Config::OneFA:D :$config! --> Voidvault::OneFA:D)
 # -----------------------------------------------------------------------------
 
 # partition device with gdisk
-method sgdisk(Str:D $device --> Nil)
+method sgdisk(::?CLASS:D: --> Nil)
 {
+    my Str:D $device = $.config.device;
+
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
