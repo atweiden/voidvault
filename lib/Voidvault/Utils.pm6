@@ -138,17 +138,9 @@ multi sub prompt-pass-hash(
 {
     # install grub, expect for scripting C<grub-mkpasswd-pbkdf2>
     '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
-        or Void::XBPS.xbps-install(
-               'grub',
-               :@repository,
-               :$ignore-conf-repos
-           );
+        or Void::XBPS.xbps-install('grub', :@repository, :$ignore-conf-repos);
     '/usr/bin/expect'.IO.x.so
-        or Void::XBPS.xbps-install(
-               'expect',
-               :@repository,
-               :$ignore-conf-repos
-           );
+        or Void::XBPS.xbps-install('expect', :@repository, :$ignore-conf-repos);
     my &gen-pass-hash = gen-pass-hash-closure(:grub);
     my Str:D $enter = 'Enter password: ';
     my Str:D $confirm = 'Reenter password: ';
