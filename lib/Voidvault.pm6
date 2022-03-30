@@ -392,6 +392,18 @@ method mount-efi(::?CLASS:D: --> Nil)
     run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
 }
 
+method disable-cow(--> Nil)
+{
+    my Str:D @directory = qw<
+        srv
+        var/lib/ex
+        var/log
+        var/spool
+        var/tmp
+    >.map(-> Str:D $directory { sprintf(Q{/mnt/%s}, $directory) });
+    Voidvault::Utils.disable-cow(|@directory, :recursive);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions

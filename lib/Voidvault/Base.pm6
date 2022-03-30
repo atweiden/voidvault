@@ -83,19 +83,7 @@ method !mkdisk(::?CLASS:D: --> Nil)
     self.mount-efi;
 
     # disable Btrfs CoW
-    disable-cow();
-}
-
-sub disable-cow(--> Nil)
-{
-    my Str:D @directory = qw<
-        srv
-        var/lib/ex
-        var/log
-        var/spool
-        var/tmp
-    >.map(-> Str:D $directory { sprintf(Q{/mnt/%s}, $directory) });
-    Voidvault::Utils.disable-cow(|@directory, :recursive);
+    self.disable-cow;
 }
 
 # bootstrap initial chroot with voidstrap
