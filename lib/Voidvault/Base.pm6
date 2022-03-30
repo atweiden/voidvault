@@ -70,11 +70,11 @@ method !mkdisk(--> Nil)
     Voidvault::Base.sgdisk($device, $mode);
 
     # create uefi partition
-    my Str:D $partition-efi = Voidvault::Base.gen-partition('efi');
+    my Str:D $partition-efi = self.gen-partition('efi');
     Voidvault::Base.mkefi($partition-efi);
 
     # create vault with password
-    my Str:D $partition-vault = Voidvault::Base.gen-partition('vault');
+    my Str:D $partition-vault = self.gen-partition('vault');
     my VaultType:D $vault-type = 'LUKS1';
     Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
 
@@ -507,7 +507,7 @@ multi sub build-voidstrap-cmdline(
 
 method !install-vault-key(--> Nil)
 {
-    my Str:D $partition-vault = Voidvault::Base.gen-partition('vault');
+    my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my Str:D $vault-key = $.config.vault-key;
 
@@ -855,7 +855,7 @@ method !install-bootloader(--> Nil)
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $device = $.config.device;
-    my Str:D $partition-vault = Voidvault::Base.gen-partition('vault');
+    my Str:D $partition-vault = self.gen-partition('vault');
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
