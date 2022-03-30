@@ -1,6 +1,7 @@
 use v6;
 use Void::XBPS;
 use Voidvault::Bootstrap;
+use Voidvault::Constants;
 use Voidvault::Config;
 use Voidvault::Types;
 use Voidvault::Utils;
@@ -2490,7 +2491,7 @@ multi sub replace(
     my Str:D $file = '/mnt/etc/pam.d/passwd';
     my Str:D $slurp = slurp($file).trim-trailing;
     my Str:D $replace =
-        sprintf(Q{%s rounds=%s}, $slurp, $Voidvault::Utils::CRYPT-ROUNDS);
+        sprintf(Q{%s rounds=%s}, $slurp, $Voidvault::Constants::CRYPT-ROUNDS);
     spurt($file, $replace ~ "\n");
 }
 

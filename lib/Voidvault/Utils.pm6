@@ -1,54 +1,10 @@
 use v6;
 use Crypt::Libcrypt:auth<atweiden>;
 use Void::XBPS;
+use Voidvault::Constants;
 use Voidvault::Types;
 use X::Void::XBPS;
 unit class Voidvault::Utils;
-
-# -----------------------------------------------------------------------------
-# constants
-# -----------------------------------------------------------------------------
-
-# sgdisk
-constant $GDISK-SIZE-BIOS = '2M';
-constant $GDISK-SIZE-EFI = '550M';
-constant $GDISK-SIZE-BOOT = '1024M';
-constant $GDISK-TYPECODE-BIOS = 'EF02';
-constant $GDISK-TYPECODE-EFI = 'EF00';
-constant $GDISK-TYPECODE-LINUX = '8300';
-
-# libcrypt crypt encryption rounds
-constant $CRYPT-ROUNDS = 700_000;
-
-# libcrypt crypt encryption scheme
-my constant $CRYPT-SCHEME = 'SHA512';
-
-# grub-mkpasswd-pbkdf2 iterations
-my constant $PBKDF2-ITERATIONS = 25_000;
-
-# grub-mkpasswd-pbkdf2 length of generated hash
-my constant $PBKDF2-LENGTH-HASH = 100;
-
-# grub-mkpasswd-pbkdf2 length of salt
-my constant $PBKDF2-LENGTH-SALT = 100;
-
-# for C<--enable-serial-console>
-constant $VIRTUAL-CONSOLE = 'tty0';
-constant $SERIAL-CONSOLE = 'ttyS0';
-constant $GRUB-SERIAL-PORT-UNIT = '0';
-constant $GRUB-SERIAL-PORT-BAUD-RATE = '115200';
-constant $GRUB-SERIAL-PORT-PARITY = False;
-constant %GRUB-SERIAL-PORT-PARITY =
-    ::(True) => %(
-        GRUB_SERIAL_COMMAND => 'odd',
-        GRUB_CMDLINE_LINUX_DEFAULT => 'o'
-    ),
-    ::(False) => %(
-        GRUB_SERIAL_COMMAND => 'no',
-        GRUB_CMDLINE_LINUX_DEFAULT => 'n'
-    );
-constant $GRUB-SERIAL-PORT-STOP-BITS = '1';
-constant $GRUB-SERIAL-PORT-WORD-LENGTH-BITS = '8';
 
 
 # -----------------------------------------------------------------------------
@@ -249,15 +205,19 @@ multi sub gen-pass-hash-closure(Bool :grub($) --> Sub:D)
 
 sub build-grub-mkpasswd-pbkdf2-cmdline(Str:D $grub-pass --> Str:D)
 {
+    my $iteration-count = $Voidvault::Constants::PBKDF2-ITERATIONS;
+    my $buflen = $Voidvault::Constants::PBKDF2-LENGTH-HASH;
+    my $salt = $Voidvault::Constants::PBKDF2-LENGTH-SALT;
+
     my Str:D $log-user =
                 'log_user 0';
     my Str:D $set-timeout =
                 'set timeout -1';
     my Str:D $spawn-grub-mkpasswd-pbkdf2 = qqw<
                  spawn grub-mkpasswd-pbkdf2
-                 --iteration-count $PBKDF2-ITERATIONS
-                 --buflen $PBKDF2-LENGTH-HASH
-                 --salt $PBKDF2-LENGTH-SALT
+                 --iteration-count $iteration-count
+                 --buflen $buflen
+                 --salt $salt
     >.join(' ');
     my Str:D $sleep =
                 'sleep 0.33';
@@ -301,8 +261,8 @@ sub build-grub-mkpasswd-pbkdf2-cmdline(Str:D $grub-pass --> Str:D)
 
 sub gen-pass-salt(--> Str:D)
 {
-    my Str:D $scheme = gen-scheme-id($CRYPT-SCHEME);
-    my Str:D $rounds = ~$CRYPT-ROUNDS;
+    my Str:D $scheme = gen-scheme-id($Voidvault::Constants::CRYPT-SCHEME);
+    my Str:D $rounds = ~$Voidvault::Constants::CRYPT-ROUNDS;
     my Str:D $rand =
         qx<openssl rand -base64 16>.trim.subst(/<[+=]>/, '', :g).substr(0, 16);
     my Str:D $salt = sprintf('$%s$rounds=%s$%s$', $scheme, $rounds, $rand);
