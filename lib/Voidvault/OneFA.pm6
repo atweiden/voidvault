@@ -15,22 +15,8 @@ has Voidvault::Config::OneFA:D $.config is required;
 
 
 # -----------------------------------------------------------------------------
-# helper functions
+# worker functions
 # -----------------------------------------------------------------------------
-
-multi method gen-partition(::?CLASS:D: 'boot' --> Str:D)
-{
-    # e.g. /dev/sda3
-    my UInt:D $index = 2;
-    my Str:D $partition = @*partition[$index];
-}
-
-multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
-{
-    # e.g. /dev/sda4
-    my UInt:D $index = 3;
-    my Str:D $partition = @*partition[$index];
-}
 
 # partition device with gdisk
 method sgdisk(Str:D $device --> Nil)
@@ -54,6 +40,25 @@ method sgdisk(Str:D $device --> Nil)
         --new=4:0:0
         --typecode=4:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
     >, $device);
+}
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+multi method gen-partition(::?CLASS:D: 'boot' --> Str:D)
+{
+    # e.g. /dev/sda3
+    my UInt:D $index = 2;
+    my Str:D $partition = @*partition[$index];
+}
+
+multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
+{
+    # e.g. /dev/sda4
+    my UInt:D $index = 3;
+    my Str:D $partition = @*partition[$index];
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
