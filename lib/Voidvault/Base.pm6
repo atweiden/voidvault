@@ -64,28 +64,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 # worker functions
 # -----------------------------------------------------------------------------
 
-# secure disk configuration
-method !mkdisk(::?CLASS:D: --> Nil)
-{
-    # partition device
-    self.sgdisk;
-
-    # create uefi partition
-    self.mkefi;
-
-    # create, open and add randomized key to LUKS encrypted volume
-    self.mkvault;
-
-    # create and mount btrfs volumes
-    self.mkbtrfs;
-
-    # mount efi boot
-    self.mount-efi;
-
-    # disable Btrfs CoW
-    self.disable-cow;
-}
-
 # bootstrap initial chroot with voidstrap
 method !voidstrap-base(--> Nil)
 {
