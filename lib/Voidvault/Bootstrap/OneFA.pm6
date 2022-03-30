@@ -2,7 +2,7 @@ use v6;
 use Voidvault::Bootstrap;
 use Voidvault::Config;
 use Voidvault::Config::OneFA;
-use Voidvault::Utils;
+use Voidvault::Constants;
 unit class Voidvault::Bootstrap::OneFA;
 also is Voidvault::Bootstrap;
 
@@ -45,14 +45,14 @@ method sgdisk(Str:D $device --> Nil)
         --zap-all
         --clear
         --mbrtogpt
-        --new=1:0:+{$Voidvault::Utils::GDISK-SIZE-BIOS}
-        --typecode=1:{$Voidvault::Utils::GDISK-TYPECODE-BIOS}
-        --new=2:0:+{$Voidvault::Utils::GDISK-SIZE-EFI}
-        --typecode=2:{$Voidvault::Utils::GDISK-TYPECODE-EFI}
-        --new=3:0:+{$Voidvault::Utils::GDISK-SIZE-BOOT}
-        --typecode=3:{$Voidvault::Utils::GDISK-TYPECODE-LINUX}
+        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
+        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
+        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
+        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
+        --new=3:0:+{$Voidvault::Constants::GDISK-SIZE-BOOT}
+        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
         --new=4:0:0
-        --typecode=4:{$Voidvault::Utils::GDISK-TYPECODE-LINUX}
+        --typecode=4:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
     >, $device);
 }
 

@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Config;
+use Voidvault::Constants;
 use Voidvault::Utils;
 unit class Voidvault::Bootstrap;
 
@@ -47,12 +48,12 @@ method sgdisk(Str:D $device --> Nil)
         --zap-all
         --clear
         --mbrtogpt
-        --new=1:0:+{$Voidvault::Utils::GDISK-SIZE-BIOS}
-        --typecode=1:{$Voidvault::Utils::GDISK-TYPECODE-BIOS}
-        --new=2:0:+{$Voidvault::Utils::GDISK-SIZE-EFI}
-        --typecode=2:{$Voidvault::Utils::GDISK-TYPECODE-EFI}
+        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
+        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
+        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
+        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
         --new=3:0:0
-        --typecode=3:{$Voidvault::Utils::GDISK-TYPECODE-LINUX}
+        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
     >, $device);
 }
 
