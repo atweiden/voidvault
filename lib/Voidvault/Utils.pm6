@@ -596,7 +596,6 @@ multi sub gen-spawn-cryptsetup-luks-format(
     >.join(' ');
 }
 
-# for base mode pending grub luks2 support, constitutes dead code for now
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS2',
     Str:D :$partition-vault! where .so
