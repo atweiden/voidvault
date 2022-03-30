@@ -75,11 +75,11 @@ method !mkdisk(--> Nil)
     my Str:D $vault-key = $.config.vault-key;
 
     # partition device
-    Voidvault::Base.sgdisk($device, $mode);
+    self.sgdisk($device, $mode);
 
     # create uefi partition
     my Str:D $partition-efi = self.gen-partition('efi');
-    Voidvault::Base.mkefi($partition-efi);
+    self.mkefi($partition-efi);
 
     # create vault with password
     my Str:D $partition-vault = self.gen-partition('vault');
