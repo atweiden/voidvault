@@ -28,6 +28,90 @@ my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
 
 constant @DEPENDENCY = |@DEPENDENCY-PRE-CONFIG, |@DEPENDENCY-PRE-VOIDSTRAP;
 
+constant @CORE-PACKAGE = 'base-minimal';
+
+# base packages - void's C<base-minimal> with light additions
+# duplicates C<base-minimal>'s C<depends> for thoroughness
+constant @BASE-PACKAGE = qw<
+    acpi
+    base-files
+    bash
+    bash-completion
+    btrfs-progs
+    busybox-huge
+    bzip2
+    ca-certificates
+    coreutils
+    crda
+    cryptsetup
+    curl
+    dash
+    device-mapper
+    dhcpcd
+    diffutils
+    dnscrypt-proxy
+    dosfstools
+    dracut
+    e2fsprogs
+    efibootmgr
+    eudev
+    exfat-utils
+    file
+    findutils
+    gawk
+    gptfdisk
+    grep
+    grub
+    gzip
+    iana-etc
+    iproute2
+    iputils
+    iw
+    kbd
+    kmod
+    ldns
+    less
+    linux
+    linux-firmware
+    linux-firmware-network
+    lynx
+    lz4
+    man-db
+    man-pages
+    ncurses
+    ncurses-term
+    nftables
+    nvi
+    openresolv
+    openssh
+    openssl
+    pciutils
+    perl
+    pinentry
+    pinentry-tty
+    procps-ng
+    removed-packages
+    rsync
+    runit-void
+    sed
+    shadow
+    socklog-void
+    sudo
+    tar
+    tzdata
+    util-linux
+    vim
+    which
+    wifi-firmware
+    wireguard-tools
+    wpa_supplicant
+    xbps
+    xz
+    zlib
+    zramen
+    zstd
+>;
+
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 

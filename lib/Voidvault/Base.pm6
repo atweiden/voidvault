@@ -65,7 +65,7 @@ method bootstrap(::?CLASS:D: --> Nil)
 # -----------------------------------------------------------------------------
 
 # bootstrap initial chroot with voidstrap
-method !voidstrap-base(--> Nil)
+method !voidstrap-base(::?CLASS:D: --> Nil)
 {
     my Str:D @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
@@ -73,9 +73,8 @@ method !voidstrap-base(--> Nil)
     my Processor:D $processor = $.config.processor;
     my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
-    my Str:D @core = 'base-minimal';
-
     # download and install core packages with voidstrap in chroot
+    my Str:D @core = @Voidvault::Constants::CORE-PACKAGE;
     my Str:D $voidstrap-core-cmdline =
         build-voidstrap-cmdline(@core, :@repository, :$ignore-conf-repos);
     Voidvault::Utils.loop-cmdline-proc(
@@ -85,100 +84,18 @@ method !voidstrap-base(--> Nil)
 
     # base packages - void's C<base-minimal> with light additions
     # duplicates C<base-minimal>'s C<depends> for thoroughness
-    my Str:D @pkg = qw<
-        acpi
-        base-files
-        bash
-        bash-completion
-        btrfs-progs
-        busybox-huge
-        bzip2
-        ca-certificates
-        coreutils
-        crda
-        cryptsetup
-        curl
-        dash
-        device-mapper
-        dhcpcd
-        diffutils
-        dnscrypt-proxy
-        dosfstools
-        dracut
-        e2fsprogs
-        efibootmgr
-        eudev
-        exfat-utils
-        file
-        findutils
-        gawk
-        gptfdisk
-        grep
-        grub
-        gzip
-        iana-etc
-        iproute2
-        iputils
-        iw
-        kbd
-        kmod
-        ldns
-        less
-        linux
-        linux-firmware
-        linux-firmware-network
-        lynx
-        lz4
-        man-db
-        man-pages
-        ncurses
-        ncurses-term
-        nftables
-        nvi
-        openresolv
-        openssh
-        openssl
-        pciutils
-        perl
-        pinentry
-        pinentry-tty
-        procps-ng
-        removed-packages
-        rsync
-        runit-void
-        sed
-        shadow
-        socklog-void
-        sudo
-        tar
-        tzdata
-        util-linux
-        vim
-        which
-        wifi-firmware
-        wireguard-tools
-        wpa_supplicant
-        xbps
-        xz
-        zlib
-        zramen
-        zstd
-    >;
-
-    push(@pkg, 'glibc') if $libc-flavor eq 'GLIBC';
-    push(@pkg, 'musl') if $libc-flavor eq 'MUSL';
-
-    push(@pkg, 'grub-i386-efi') if $*KERNEL.bits == 32;
-    push(@pkg, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
-
+    my Str:D @base = @Voidvault::Constants::BASE-PACKAGE;
+    push(@base, 'glibc') if $libc-flavor eq 'GLIBC';
+    push(@base, 'musl') if $libc-flavor eq 'MUSL';
+    push(@base, 'grub-i386-efi') if $*KERNEL.bits == 32;
+    push(@base, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
-    push(@pkg, 'intel-ucode') if $processor eq 'INTEL';
-
-    push(@pkg, $_) for @package;
+    push(@base, 'intel-ucode') if $processor eq 'INTEL';
+    push(@base, $_) for @package;
 
     # download and install base packages with voidstrap in chroot
     my Str:D $voidstrap-base-cmdline =
-        build-voidstrap-cmdline(@pkg, :@repository, :$ignore-conf-repos);
+        build-voidstrap-cmdline(@base, :@repository, :$ignore-conf-repos);
 
     # why launch a new shell process for this? superstition.
     Voidvault::Utils.loop-cmdline-proc(
@@ -188,7 +105,7 @@ method !voidstrap-base(--> Nil)
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @pkg,
+    Str:D @base,
     Str:D :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so
     --> Str:D
@@ -200,11 +117,11 @@ multi sub build-voidstrap-cmdline(
          --ignore-conf-repos \\
          --repository=$repository \\
          /mnt \\
-         @pkg[]";
+         @base[]";
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @pkg,
+    Str:D @base,
     Str:D :@repository! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
@@ -215,11 +132,11 @@ multi sub build-voidstrap-cmdline(
         "voidstrap \\
          --repository=$repository \\
          /mnt \\
-         @pkg[]";
+         @base[]";
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @pkg,
+    Str:D @,
     Str:D :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
     --> Nil
@@ -229,7 +146,7 @@ multi sub build-voidstrap-cmdline(
 }
 
 multi sub build-voidstrap-cmdline(
-    Str:D @pkg,
+    Str:D @base,
     Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
@@ -238,7 +155,7 @@ multi sub build-voidstrap-cmdline(
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
          /mnt \\
-         @pkg[]";
+         @base[]";
 }
 
 method !install-vault-key(--> Nil)
