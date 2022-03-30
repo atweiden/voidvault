@@ -3,7 +3,6 @@ use Crypt::Libcrypt:auth<atweiden>;
 use Void::XBPS;
 use Voidvault::Constants;
 use Voidvault::Types;
-use X::Void::XBPS;
 unit class Voidvault::Utils;
 
 # disable btrfs copy-on-write
