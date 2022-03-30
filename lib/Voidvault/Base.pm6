@@ -3,11 +3,19 @@ use Void::XBPS;
 use Voidvault;
 use Voidvault::Constants;
 use Voidvault::Config;
+use Voidvault::Config::Base;
 use Voidvault::Types;
 use Voidvault::Utils;
 use X::Void::XBPS;
 unit class Voidvault::Base;
 also is Voidvault;
+
+
+# -----------------------------------------------------------------------------
+# attributes
+# -----------------------------------------------------------------------------
+
+has Voidvault::Config::Base:D $.config is required;
 
 
 # -----------------------------------------------------------------------------
