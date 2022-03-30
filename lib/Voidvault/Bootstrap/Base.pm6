@@ -86,7 +86,7 @@ method !setup(--> Nil)
     push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
     push(@dep, 'musl') if $libc-flavor eq 'MUSL';
 
-    Void::XBPS.xbps-install(@dep);
+    Void::XBPS.xbps-install(@dep, :@repository, :$ignore-conf-repos);
 
     # use readable font
     run(qw<setfont Lat2-Terminus16>);
