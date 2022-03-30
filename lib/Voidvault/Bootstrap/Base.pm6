@@ -17,7 +17,6 @@ also is Voidvault::Bootstrap;
 method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
-    self!setup;
     self!mkdisk;
     self!voidstrap-base;
     self!install-vault-key;
@@ -56,41 +55,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 # -----------------------------------------------------------------------------
 # worker functions
 # -----------------------------------------------------------------------------
-
-method !setup(--> Nil)
-{
-    my Str:D @repository = $.config.repository;
-    my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
-
-    # fetch dependencies needed prior to voidstrap
-    my Str:D @dep = qw<
-        btrfs-progs
-        coreutils
-        cryptsetup
-        dialog
-        dosfstools
-        e2fsprogs
-        efibootmgr
-        expect
-        gptfdisk
-        grub
-        kbd
-        kmod
-        openssl
-        procps-ng
-        tzdata
-        util-linux
-        xbps
-    >;
-    push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
-    push(@dep, 'musl') if $libc-flavor eq 'MUSL';
-
-    Void::XBPS.xbps-install(@dep, :@repository, :$ignore-conf-repos);
-
-    # use readable font
-    run(qw<setfont Lat2-Terminus16>);
-}
 
 # secure disk configuration
 method !mkdisk(--> Nil)

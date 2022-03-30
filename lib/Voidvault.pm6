@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Config;
+use Void::XBPS;
 unit class Voidvault;
 
 constant $VERSION = v1.16.0;
@@ -24,12 +25,12 @@ method new(
         Str :guest-pass($),
         Str :guest-pass-hash($),
         Str :hostname($),
-        Bool :ignore-conf-repos($),
+        Bool :$ignore-conf-repos,
         Str :keymap($),
         Str :locale($),
         Str :packages($),
         Str :processor($),
-        :repository(@),
+        :@repository,
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
@@ -51,11 +52,48 @@ method new(
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
 
+    install-dependencies(:@repository, :$ignore-conf-repos);
+
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
 
     # mode-dependent bootstrap
     new($config);
+}
+
+sub install-dependencies(
+    *%opts (
+        Bool :ignore-conf-repos($),
+        :repository(@)
+    )
+    --> Nil
+)
+{
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+
+    # fetch dependencies needed prior to voidstrap
+    my Str:D @dep = qw<
+        btrfs-progs
+        coreutils
+        cryptsetup
+        dialog
+        dosfstools
+        e2fsprogs
+        efibootmgr
+        expect
+        gptfdisk
+        grub
+        kbd
+        kmod
+        openssl
+        procps-ng
+        tzdata
+        util-linux
+        xbps
+    >;
+    push(@dep, 'glibc') if $libc-flavor eq 'GLIBC';
+    push(@dep, 'musl') if $libc-flavor eq 'MUSL';
+    Void::XBPS.xbps-install(@dep, |%opts);
 }
 
 multi sub new(Voidvault::Config::Base:D $config --> Nil)
