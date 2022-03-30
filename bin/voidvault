@@ -339,6 +339,8 @@ multi sub USAGE('new' --> Nil)
         Encrypted password hash for admin account
       --augment
         Drop to Bash console mid-execution
+      --device=<device>
+        Target block device for install
       --disable-ipv6
         Disable IPv6
       --disk-type=<disktype>
@@ -369,8 +371,6 @@ multi sub USAGE('new' --> Nil)
         Locale
       --packages=<packages>
         List of additional packages to install
-      --device=<device>
-        Target block device for install
       --processor=<processor>
         Processor type
       --repository=<repository>
