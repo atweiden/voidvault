@@ -6,11 +6,7 @@ use Voidvault::Types;
 use X::Void::XBPS;
 unit class Voidvault::Utils;
 
-
-# -----------------------------------------------------------------------------
-# copy-on-write
-# -----------------------------------------------------------------------------
-
+# disable btrfs copy-on-write
 method disable-cow(
     *%opt (
         Bool :clean($),
@@ -89,6 +85,137 @@ multi sub disable-cow(
     $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
         or die('directory failed exists readable directory test');
     run(qqw<chattr +C $orig-dir>);
+}
+
+# execute shell process and re-attempt on failure until SIGINT
+method loop-cmdline-proc(
+    Str:D $message where .so,
+    Str:D $cmdline where .so
+    --> Nil
+)
+{
+    loop
+    {
+        say($message);
+        my Proc:D $proc = shell($cmdline);
+        last if $proc.exitcode == 0;
+    }
+}
+
+# list block devices
+method ls-devices(--> Array[Str:D])
+{
+    my Str:D @device =
+        qx<lsblk --noheadings --nodeps --raw --output NAME>
+        .trim
+        .split("\n")
+        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
+        .sort;
+}
+
+# list partitions on block device
+method ls-partitions(Str:D $device --> Array[Str:D])
+{
+    # run lsblk only once
+    state Str:D @partition =
+        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
+        .trim
+        .lines
+        # make sure we're not getting the master device partition
+        .grep(/part$/)
+        # return only the device name
+        .map({ .split(' ').first })
+        .sort;
+}
+
+# list keymaps
+method ls-keymaps(--> Array[Keymap:D])
+{
+    # equivalent to `localectl list-keymaps --no-pager`
+    # see: src/basic/def.h in systemd source code
+    my Keymap:D @keymaps = ls-keymaps();
+}
+
+sub ls-keymaps(--> Array[Str:D])
+{
+    my Str:D @keymap =
+        ls-keymap-tarballs()
+        .race
+        .map({ .split('/').tail.split('.').first })
+        .sort;
+}
+
+multi sub ls-keymap-tarballs(--> Array[Str:D])
+{
+    my Str:D $keymaps-dir = '/usr/share/kbd/keymaps';
+    my Str:D @tarball =
+        ls-keymap-tarballs(
+            Array[Str:D].new(dir($keymaps-dir).race.map({ .Str }))
+        )
+        .grep(/'.map.gz'$/);
+}
+
+multi sub ls-keymap-tarballs(Str:D @path --> Array[Str:D])
+{
+    my Str:D @tarball =
+        @path
+        .race
+        .map({ .Str })
+        .map(-> Str:D $path { ls-keymap-tarballs($path) })
+        .flat;
+}
+
+multi sub ls-keymap-tarballs(Str:D $path where .IO.d.so --> Array[Str:D])
+{
+    my Str:D @tarball =
+        ls-keymap-tarballs(
+            Array[Str:D].new(dir($path).race.map({ .Str }))
+        ).flat;
+}
+
+multi sub ls-keymap-tarballs(Str:D $path where .IO.f.so --> Array[Str:D])
+{
+    my Str:D @tarball = $path;
+}
+
+# list locales
+method ls-locales(--> Array[Locale:D])
+{
+    my Str:D $locale-dir = '/usr/share/i18n/locales';
+    my Locale:D @locale = ls-locales($locale-dir);
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir where .IO.e.so && .IO.d.so
+    --> Array[Locale:D]
+)
+{
+    my Locale:D @locale =
+        dir($locale-dir).race.map({ .Str }).map({ .split('/').tail }).sort;
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir
+    --> Array[Locale:D]
+)
+{
+    my Locale:D @locale;
+}
+
+# list timezones
+method ls-timezones(--> Array[Timezone:D])
+{
+    # equivalent to `timedatectl list-timezones --no-pager`
+    # see: src/basic/time-util.c in systemd source code
+    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone.tab';
+    my Str:D @zoneinfo =
+        $zoneinfo-file
+        .IO.lines
+        .grep(/^\w.*/)
+        .race
+        .map({ .split(/\h+/)[2] })
+        .sort;
+    my Timezone:D @timezones = |@zoneinfo, 'UTC';
 }
 
 
@@ -305,7 +432,7 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 
 
 # -----------------------------------------------------------------------------
-# filesystem
+# vault
 # -----------------------------------------------------------------------------
 
 # create vault with cryptsetup
@@ -777,146 +904,6 @@ sub seckey(Str:D :$vault-key! where .so --> Nil)
 {
     run(qqw<void-chroot /mnt chmod 000 $vault-key>);
     run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
-}
-
-
-# -----------------------------------------------------------------------------
-# system information
-# -----------------------------------------------------------------------------
-
-# list block devices
-method ls-devices(--> Array[Str:D])
-{
-    my Str:D @device =
-        qx<lsblk --noheadings --nodeps --raw --output NAME>
-        .trim
-        .split("\n")
-        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
-        .sort;
-}
-
-# list partitions on block device
-method ls-partitions(Str:D $device --> Array[Str:D])
-{
-    # run lsblk only once
-    state Str:D @partition =
-        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
-        .trim
-        .lines
-        # make sure we're not getting the master device partition
-        .grep(/part$/)
-        # return only the device name
-        .map({ .split(' ').first })
-        .sort;
-}
-
-# list keymaps
-method ls-keymaps(--> Array[Keymap:D])
-{
-    # equivalent to `localectl list-keymaps --no-pager`
-    # see: src/basic/def.h in systemd source code
-    my Keymap:D @keymaps = ls-keymaps();
-}
-
-sub ls-keymaps(--> Array[Str:D])
-{
-    my Str:D @keymap =
-        ls-keymap-tarballs()
-        .race
-        .map({ .split('/').tail.split('.').first })
-        .sort;
-}
-
-multi sub ls-keymap-tarballs(--> Array[Str:D])
-{
-    my Str:D $keymaps-dir = '/usr/share/kbd/keymaps';
-    my Str:D @tarball =
-        ls-keymap-tarballs(
-            Array[Str:D].new(dir($keymaps-dir).race.map({ .Str }))
-        )
-        .grep(/'.map.gz'$/);
-}
-
-multi sub ls-keymap-tarballs(Str:D @path --> Array[Str:D])
-{
-    my Str:D @tarball =
-        @path
-        .race
-        .map({ .Str })
-        .map(-> Str:D $path { ls-keymap-tarballs($path) })
-        .flat;
-}
-
-multi sub ls-keymap-tarballs(Str:D $path where .IO.d.so --> Array[Str:D])
-{
-    my Str:D @tarball =
-        ls-keymap-tarballs(
-            Array[Str:D].new(dir($path).race.map({ .Str }))
-        ).flat;
-}
-
-multi sub ls-keymap-tarballs(Str:D $path where .IO.f.so --> Array[Str:D])
-{
-    my Str:D @tarball = $path;
-}
-
-# list locales
-method ls-locales(--> Array[Locale:D])
-{
-    my Str:D $locale-dir = '/usr/share/i18n/locales';
-    my Locale:D @locale = ls-locales($locale-dir);
-}
-
-multi sub ls-locales(
-    Str:D $locale-dir where .IO.e.so && .IO.d.so
-    --> Array[Locale:D]
-)
-{
-    my Locale:D @locale =
-        dir($locale-dir).race.map({ .Str }).map({ .split('/').tail }).sort;
-}
-
-multi sub ls-locales(
-    Str:D $locale-dir
-    --> Array[Locale:D]
-)
-{
-    my Locale:D @locale;
-}
-
-# list timezones
-method ls-timezones(--> Array[Timezone:D])
-{
-    # equivalent to `timedatectl list-timezones --no-pager`
-    # see: src/basic/time-util.c in systemd source code
-    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone.tab';
-    my Str:D @zoneinfo =
-        $zoneinfo-file
-        .IO.lines
-        .grep(/^\w.*/)
-        .race
-        .map({ .split(/\h+/)[2] })
-        .sort;
-    my Timezone:D @timezones = |@zoneinfo, 'UTC';
-}
-
-
-# -----------------------------------------------------------------------------
-# recovery
-# -----------------------------------------------------------------------------
-
-method loop-cmdline-proc(
-    Str:D $message where .so,
-    Str:D $cmdline where .so
-    --> Nil
-)
-{
-    loop
-    {
-        say($message);
-        my Proc:D $proc = shell($cmdline);
-        last if $proc.exitcode == 0;
-    }
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
