@@ -23,7 +23,7 @@ has VaultPass $.bootvault-pass =
         ?? Voidvault::Config.gen-vault-pass(%*ENV<VOIDVAULT_BOOTVAULT_PASS>)
         !! Nil;
 
-# intended path to vault key on bootstrapped system
+# intended path to LUKS encrypted boot volume key on bootstrapped system
 has Str:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
         ?? %*ENV<VOIDVAULT_BOOTVAULT_KEY>
