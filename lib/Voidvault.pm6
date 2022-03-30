@@ -3,7 +3,24 @@ use Voidvault::Config;
 use Void::XBPS;
 unit class Voidvault;
 
+
+# -----------------------------------------------------------------------------
+# constants
+# -----------------------------------------------------------------------------
+
 constant $VERSION = v1.16.0;
+
+
+# -----------------------------------------------------------------------------
+# attributes
+# -----------------------------------------------------------------------------
+
+has Voidvault::Config:D $.config is required;
+
+
+# -----------------------------------------------------------------------------
+# instantiation
+# -----------------------------------------------------------------------------
 
 method new(
     Str $mode?,
@@ -43,7 +60,7 @@ method new(
         # facilitate passing additional options to non-base mode
         *%
     )
-    --> Nil
+    --> Voidvault:D
 )
 {
     # verify root permissions
@@ -57,8 +74,7 @@ method new(
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
 
-    # mode-dependent bootstrap
-    new($config);
+    my Voidvault:D $voidvault = new(:$config);
 }
 
 sub install-dependencies(
@@ -96,16 +112,68 @@ sub install-dependencies(
     Void::XBPS.xbps-install(@dep, |%opts);
 }
 
-multi sub new(Voidvault::Config::Base:D $config --> Nil)
+multi sub new(Voidvault::Config::Base:D :$config! --> Voidvault::Base:D)
 {
-    use Voidvault::Bootstrap::Base;
-    Voidvault::Bootstrap::Base.new(:$config).bootstrap;
+    use Voidvault::Base;
+    Voidvault::Base.bless(:$config);
 }
 
-multi sub new(Voidvault::Config::OneFA:D $config --> Nil)
+multi sub new(Voidvault::Config::OneFA:D :$config! --> Voidvault::OneFA:D)
 {
-    use Voidvault::Bootstrap::OneFA;
-    Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
+    use Voidvault::OneFA;
+    Voidvault::OneFA.bless(:$config);
+}
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+proto method gen-partition(Str:D --> Str:D)
+{
+    my Str:D $device = $.config.device;
+    my Str:D @*partition = Voidvault::Utils.ls-partitions($device);
+}
+
+multi method gen-partition('efi' --> Str:D)
+{
+    # e.g. /dev/sda2
+    my UInt:D $index = 1;
+    my Str:D $partition = @*partition[$index];
+}
+
+multi method gen-partition('vault' --> Str:D)
+{
+    # e.g. /dev/sda3
+    my UInt:D $index = 2;
+    my Str:D $partition = @*partition[$index];
+}
+
+# partition device with gdisk
+method sgdisk(Str:D $device --> Nil)
+{
+    # erase existing partition table
+    # create 2M EF02 BIOS boot sector
+    # create 550M EF00 EFI system partition
+    # create max sized partition for LUKS-encrypted vault
+    run(qqw<
+        sgdisk
+        --zap-all
+        --clear
+        --mbrtogpt
+        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
+        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
+        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
+        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
+        --new=3:0:0
+        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
+    >, $device);
+}
+
+method mkefi(Str:D $partition-efi --> Nil)
+{
+    run(qw<modprobe vfat>);
+    run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
