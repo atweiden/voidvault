@@ -1779,26 +1779,18 @@ method !unmount(--> Nil)
 # helper functions
 # -----------------------------------------------------------------------------
 
-multi method gen-partition(
-    'boot',
-    Str:D @partition
-    --> Str:D
-)
+multi method gen-partition('boot' --> Str:D)
 {
     # e.g. /dev/sda3
     my UInt:D $index = 2;
-    my Str:D $partition = @partition[$index];
+    my Str:D $partition = @*partition[$index];
 }
 
-multi method gen-partition(
-    'vault',
-    Str:D @partition
-    --> Str:D
-)
+multi method gen-partition('vault' --> Str:D)
 {
     # e.g. /dev/sda4
     my UInt:D $index = 3;
-    my Str:D $partition = @partition[$index];
+    my Str:D $partition = @*partition[$index];
 }
 
 # sub void-chroot-mkdir {{{

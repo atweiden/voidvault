@@ -366,7 +366,7 @@ method lsblk(Str:D $partition --> Array[Str:D])
 {
     # run lsblk only once
     state Str:D @partition =
-        qqx<lsblk $p --noheadings --paths --raw --output NAME,TYPE>
+        qqx<lsblk $partition --noheadings --paths --raw --output NAME,TYPE>
         .trim
         .lines
         # make sure we're not getting the master device partition
