@@ -513,6 +513,24 @@ multi sub build-voidstrap-cmdline(
          @base[]";
 }
 
+method install-vault-key(::?CLASS:D: --> Nil)
+{
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    my Str:D $vault-key = $.config.vault-key;
+    my Str:D $partition-vault = self.gen-partition('vault');
+
+    # add key to vault
+    Voidvault::Utils.install-vault-key(
+        :$partition-vault,
+        :$vault-key,
+        :$vault-pass
+    );
+
+    # configure /etc/crypttab for vault key
+    replace('crypttab', $partition-vault, $vault-name, $vault-key);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions

@@ -64,18 +64,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 # worker functions
 # -----------------------------------------------------------------------------
 
-method !install-vault-key(--> Nil)
-{
-    my Str:D $partition-vault = self.gen-partition('vault');
-    my VaultName:D $vault-name = $.config.vault-name;
-    my Str:D $vault-key = $.config.vault-key;
-
-    Voidvault::Utils.install-vault-key($vault-key);
-
-    # configure /etc/crypttab for vault key
-    replace('crypttab', $partition-vault, $vault-name, $vault-key);
-}
-
 # secure user configuration
 method !configure-users(--> Nil)
 {
