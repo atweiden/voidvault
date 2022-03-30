@@ -10,7 +10,7 @@ unit class Voidvault::Config;
 # -----------------------------------------------------------------------------
 
 # - attributes appear in specific order for prompting user
-# - defaults are geared towards live media installation
+# - defaults are geared towards desktop installation
 
 # mode to activate
 has Mode:D $.mode =
@@ -127,10 +127,10 @@ has HostName:D $.host-name =
         ?? Voidvault::Config.gen-host-name(%*ENV<VOIDVAULT_HOSTNAME>)
         !! prompt-name(:host);
 
-# device path of target partition (default: /dev/sdb)
-has Str:D $.partition =
-    %*ENV<VOIDVAULT_PARTITION>
-        || prompt-partition(Voidvault::Utils.ls-partitions);
+# target block device path (default: /dev/sda)
+has Str:D $.device =
+    %*ENV<VOIDVAULT_DEVICE>
+        || prompt-device(Voidvault::Utils.ls-devices);
 
 # type of processor (default: other)
 has Processor:D $.processor =
@@ -144,7 +144,7 @@ has Graphics:D $.graphics =
         ?? Voidvault::Config.gen-graphics(%*ENV<VOIDVAULT_GRAPHICS>)
         !! prompt-graphics();
 
-# type of hard drive (default: usb)
+# type of hard drive (default: ssd)
 has DiskType:D $.disk-type =
     %*ENV<VOIDVAULT_DISK_TYPE>
         ?? Voidvault::Config.gen-disk-type(%*ENV<VOIDVAULT_DISK_TYPE>)
@@ -222,6 +222,7 @@ submethod BUILD(
     Str :$admin-pass,
     Str :$admin-pass-hash,
     Bool :$augment,
+    Str :$device,
     Bool :$disable-ipv6,
     Str :$disk-type,
     Bool :$enable-serial-console,
@@ -237,7 +238,6 @@ submethod BUILD(
     Str :$keymap,
     Str :$locale,
     Str :$packages,
-    Str :$partition,
     Str :$processor,
     :@repository,
     Str :$root-pass,
@@ -257,6 +257,8 @@ submethod BUILD(
         if $mode;
     $!augment = $augment
         if $augment;
+    $!device = $device
+        if $device;
     $!disable-ipv6 = $disable-ipv6
         if $disable-ipv6;
     $!disk-type = Voidvault::Config.gen-disk-type($disk-type)
@@ -275,8 +277,6 @@ submethod BUILD(
         if $locale;
     @!package = $packages.split(' ')
         if $packages;
-    $!partition = $partition
-        if $partition;
     $!processor = Voidvault::Config.gen-processor($processor)
         if $processor;
     @!repository = @repository
@@ -326,6 +326,7 @@ multi method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
         Bool :enable-serial-console($),
@@ -341,7 +342,6 @@ multi method new(
         Str :keymap($),
         Str :locale($),
         Str :packages($),
-        Str :partition($),
         Str :processor($),
         :repository(@),
         Str :root-pass($),
@@ -368,6 +368,7 @@ multi method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
         Bool :enable-serial-console($),
@@ -383,7 +384,6 @@ multi method new(
         Str :keymap($),
         Str :locale($),
         Str :packages($),
-        Str :partition($),
         Str :processor($),
         :repository(@),
         Str :root-pass($),
@@ -654,10 +654,28 @@ multi sub is-confirmed($confirmation --> Bool:D)
     my Bool:D $is-confirmed = False;
 }
 
+sub prompt-device(Str:D @device --> Str:D)
+{
+    my Str:D $device = do {
+        my Str:D $default-item = @device[0];
+        my Str:D $prompt-text = 'Select target device for installing Void:';
+        my Str:D $title = 'TARGET DEVICE SELECTION';
+        my Str:D $confirm-topic = 'target device selected';
+        dprompt(
+            Str,
+            @device,
+            :$default-item,
+            :$prompt-text,
+            :$title,
+            :$confirm-topic
+        );
+    }
+}
+
 sub prompt-disk-type(--> DiskType:D)
 {
     my DiskType:D $disk-type = do {
-        my DiskType:D $default-item = 'USB';
+        my DiskType:D $default-item = 'SSD';
         my Str:D $prompt-text = 'Select disk type:';
         my Str:D $title = 'DISK TYPE SELECTION';
         my Str:D $confirm-topic = 'disk type selected';
@@ -858,24 +876,6 @@ multi sub prompt-name(
             $response-default,
             :$prompt-text,
             :$help-text
-        );
-    }
-}
-
-sub prompt-partition(Str:D @partitions --> Str:D)
-{
-    my Str:D $partition = do {
-        my Str:D $default-item = '/dev/sdb';
-        my Str:D $prompt-text = 'Select partition for installing Void:';
-        my Str:D $title = 'PARTITION SELECTION';
-        my Str:D $confirm-topic = 'partition selected';
-        dprompt(
-            Str,
-            @partitions,
-            :$default-item,
-            :$prompt-text,
-            :$title,
-            :$confirm-topic
         );
     }
 }

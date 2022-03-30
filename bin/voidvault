@@ -99,6 +99,7 @@ multi sub MAIN(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
         Bool :enable-serial-console($),
@@ -114,7 +115,6 @@ multi sub MAIN(
         Str :keymap($),
         Str :locale($),
         Str :packages($),
-        Str :partition($),
         Str :processor($),
         Str :root-pass($),
         Str :root-pass-hash($),
@@ -141,6 +141,7 @@ multi sub MAIN(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
         Bool :enable-serial-console($),
@@ -156,7 +157,6 @@ multi sub MAIN(
         Str :keymap($),
         Str :locale($),
         Str :packages($),
-        Str :partition($),
         Str :processor($),
         Str :root-pass($),
         Str :root-pass-hash($),
@@ -192,9 +192,9 @@ multi sub MAIN('ls', 'locales' --> Nil)
     Voidvault::Utils.ls-locales.map({ .say });
 }
 
-multi sub MAIN('ls', 'partitions' --> Nil)
+multi sub MAIN('ls', 'devices' --> Nil)
 {
-    Voidvault::Utils.ls-partitions.map({ .say });
+    Voidvault::Utils.ls-devices.map({ .say });
 }
 
 multi sub MAIN('ls', 'timezones' --> Nil)
@@ -232,7 +232,7 @@ multi sub USAGE(--> Nil)
       disable-cow          Disable copy-on-write on directories
       gen-pass-hash        Generate password hash
       help                 Show help for subcommands
-      ls                   List keymaps, locales, partitions, timezones
+      ls                   List devices, keymaps, locales, timezones
       new                  Bootstrap Void system with FDE
 
     Options:
@@ -295,9 +295,9 @@ multi sub USAGE('ls' --> Nil)
       voidvault ls <positional>
 
     Positionals
+      devices           List available block devices
       keymaps           List available keyboard table descriptions
       locales           List available sets of language/cultural rules
-      partitions        List available device paths
       timezones         List available geographic regions
     EOF
     say($HELP);
@@ -316,7 +316,7 @@ multi sub USAGE('new' --> Nil)
                 [--root-pass=<password>]
                 [--vault-name=<vaultname>] [--vault-pass=<password>]
                 [--vault-key=<path>]
-                [--hostname=<hostname>] [--partition=<device>]
+                [--device=<device>] [--hostname=<hostname>]
                 [--processor=<processor>] [--graphics=<graphics>]
                 [--disk-type=<disktype>] [--locale=<locale>]
                 [--keymap=<keymap>] [--timezone=<timezone>]
@@ -369,8 +369,8 @@ multi sub USAGE('new' --> Nil)
         Locale
       --packages=<packages>
         List of additional packages to install
-      --partition=<device>
-        Partition target for install
+      --device=<device>
+        Target block device for install
       --processor=<processor>
         Processor type
       --repository=<repository>

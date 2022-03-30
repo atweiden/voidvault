@@ -20,7 +20,7 @@ Voidvault bootstraps Void with whole system Btrfs on LUKS.
 
 Voidvault works on Void with Intel or AMD x86 CPU. It assumes you are
 comfortable working on the cmdline, and that you have no need for booting
-any other operating systems on the target partition.
+any other operating systems on the target block device.
 
 **WARNING**: failure to give appropriate values during Voidvault setup
 could cause catastrophic data loss and system instability.
@@ -146,8 +146,8 @@ VOIDVAULT_ROOT_PASS_HASH='$6$rounds=700000$xDn3UJKNvfOxJ1Ds$YEaaBAvQQgVdtV7jFfVn
 VOIDVAULT_VAULT_NAME="vault"
 VOIDVAULT_VAULT_PASS="your LUKS encrypted volume's password"
 VOIDVAULT_VAULT_KEY="/path/to/vault.key"
+VOIDVAULT_DEVICE="/dev/sda"
 VOIDVAULT_HOSTNAME="vault"
-VOIDVAULT_PARTITION="/dev/sdb"
 VOIDVAULT_PROCESSOR="other"
 VOIDVAULT_GRAPHICS="intel"
 VOIDVAULT_DISK_TYPE="usb"
@@ -177,8 +177,8 @@ voidvault --admin-name="live"                                  \
           --root-pass="your root password"                     \
           --vault-name="vault"                                 \
           --vault-pass="your LUKS encrypted volume's password" \
+          --device="/dev/sda"                                  \
           --hostname="vault"                                   \
-          --partition="/dev/sdb"                               \
           --processor="other"                                  \
           --graphics="intel"                                   \
           --disk-type="usb"                                    \
@@ -214,13 +214,19 @@ voidvault                                                                       
 
 ### `voidvault ls`
 
-List system information including keymaps, locales, timezones, and
-partitions.
+List system information including devices, keymaps, locales, and
+timezones.
 
 It's recommended to run `voidvault ls <keymaps|locales|timezones>`
 before running `voidvault new` to ensure Voidvault types
 `Keymap`, `Locale`, `Timezone` are working properly (see:
 [doc/TROUBLESHOOTING.md](doc/TROUBLESHOOTING.md#voidvault-type-errors)).
+
+**List devices**:
+
+```sh
+voidvault ls devices
+```
 
 **List keymaps**:
 
@@ -232,12 +238,6 @@ voidvault ls keymaps
 
 ```sh
 voidvault ls locales
-```
-
-**List partitions**:
-
-```sh
-voidvault ls partitions
 ```
 
 **List timezones**:

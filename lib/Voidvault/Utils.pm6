@@ -361,12 +361,12 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # filesystem
 # -----------------------------------------------------------------------------
 
-# generate target partition based on subject
-method lsblk(Str:D $partition --> Array[Str:D])
+# list partitions on block device
+method ls-partitions(Str:D $device --> Array[Str:D])
 {
     # run lsblk only once
     state Str:D @partition =
-        qqx<lsblk $partition --noheadings --paths --raw --output NAME,TYPE>
+        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
         .trim
         .lines
         # make sure we're not getting the master device partition
@@ -376,13 +376,13 @@ method lsblk(Str:D $partition --> Array[Str:D])
         .sort;
 }
 
-# partition disk with gdisk
-method sgdisk(Str:D $partition, Mode:D $mode --> Nil)
+# partition device with gdisk
+method sgdisk(Str:D $device, Mode:D $mode --> Nil)
 {
-    sgdisk($partition, $mode);
+    sgdisk($device, $mode);
 }
 
-multi sub sgdisk(Str:D $partition, Mode:D $ where 'BASE' --> Nil)
+multi sub sgdisk(Str:D $device, Mode:D $ where 'BASE' --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -399,10 +399,10 @@ multi sub sgdisk(Str:D $partition, Mode:D $ where 'BASE' --> Nil)
         --typecode=2:$GDISK-TYPECODE-EFI
         --new=3:0:0
         --typecode=3:$GDISK-TYPECODE-LINUX
-    >, $partition);
+    >, $device);
 }
 
-multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
+multi sub sgdisk(Str:D $device, Mode:D $ where '1FA' --> Nil)
 {
     # erase existing partition table
     # create 2M EF02 BIOS boot sector
@@ -422,7 +422,7 @@ multi sub sgdisk(Str:D $partition, Mode:D $ where '1FA' --> Nil)
         --typecode=3:$GDISK-TYPECODE-LINUX
         --new=4:0:0
         --typecode=4:$GDISK-TYPECODE-LINUX
-    >, $partition);
+    >, $device);
 }
 
 method mkefi(Str:D $partition-efi --> Nil)
@@ -907,6 +907,17 @@ sub seckey(Str:D :$vault-key! where .so --> Nil)
 # system information
 # -----------------------------------------------------------------------------
 
+# list block devices
+method ls-devices(--> Array[Str:D])
+{
+    my Str:D @device =
+        qx<lsblk --noheadings --nodeps --raw --output NAME>
+        .trim
+        .split("\n")
+        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
+        .sort;
+}
+
 # list keymaps
 method ls-keymaps(--> Array[Keymap:D])
 {
@@ -979,14 +990,6 @@ multi sub ls-locales(
 )
 {
     my Locale:D @locale;
-}
-
-# list block devices (partitions)
-method ls-partitions(--> Array[Str:D])
-{
-    my Str:D @partitions = qx<
-        lsblk --output NAME --nodeps --noheadings --raw
-    >.trim.split("\n").map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) }).sort;
 }
 
 # list timezones

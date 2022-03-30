@@ -94,24 +94,23 @@ method !setup(--> Nil)
 # secure disk configuration
 method !mkdisk(--> Nil)
 {
+    my Str:D $device = $.config.device;
     my DiskType:D $disk-type = $.config.disk-type;
     my Mode:D $mode = $.config.mode;
-    my Str:D $partition = $.config.partition;
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     my Str:D $vault-key = $.config.vault-key;
 
-    # partition disk
-    Voidvault::Utils.sgdisk($partition, $mode);
+    # partition device
+    Voidvault::Utils.sgdisk($device, $mode);
 
     # create uefi partition
-    my Str:D $partition-efi =
-        Voidvault::Utils.gen-partition('efi', $partition, $mode);
+    my Str:D $partition-efi = Voidvault::Bootstrap::Base.gen-partition('efi');
     Voidvault::Utils.mkefi($partition-efi);
 
     # create vault with password
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition, $mode);
+        Voidvault::Bootstrap::Base.gen-partition('vault');
     my VaultType:D $vault-type = 'LUKS1';
     Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
 
@@ -544,10 +543,8 @@ multi sub build-voidstrap-cmdline(
 
 method !install-vault-key(--> Nil)
 {
-    my Mode:D $mode = $.config.mode;
-    my Str:D $partition = $.config.partition;
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition, $mode);
+        Voidvault::Bootstrap::Base.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my Str:D $vault-key = $.config.vault-key;
 
@@ -894,10 +891,9 @@ method !install-bootloader(--> Nil)
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
-    my Mode:D $mode = $.config.mode;
-    my Str:D $partition = $.config.partition;
+    my Str:D $device = $.config.device;
     my Str:D $partition-vault =
-        Voidvault::Utils.gen-partition('vault', $partition, $mode);
+        Voidvault::Bootstrap::Base.gen-partition('vault');
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my VaultName:D $vault-name = $.config.vault-name;
@@ -911,7 +907,7 @@ method !install-bootloader(--> Nil)
     );
     replace('10_linux');
     configure-bootloader('superusers', $user-name-grub, $user-pass-hash-grub);
-    install-bootloader($partition);
+    install-bootloader($device);
 }
 
 sub configure-bootloader(
@@ -929,13 +925,13 @@ sub configure-bootloader(
 }
 
 multi sub install-bootloader(
-    Str:D $partition
+    Str:D $device
     --> Nil
 )
 {
-    install-bootloader(:legacy, $partition);
-    install-bootloader(:uefi, 32, $partition) if $*KERNEL.bits == 32;
-    install-bootloader(:uefi, 64, $partition) if $*KERNEL.bits == 64;
+    install-bootloader(:legacy, $device);
+    install-bootloader(:uefi, 32, $device) if $*KERNEL.bits == 32;
+    install-bootloader(:uefi, 64, $device) if $*KERNEL.bits == 64;
     mkdir('/mnt/boot/grub/locale');
     copy(
         '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
@@ -950,7 +946,7 @@ multi sub install-bootloader(
 }
 
 multi sub install-bootloader(
-    Str:D $partition,
+    Str:D $device,
     Bool:D :legacy($)! where .so
     --> Nil
 )
@@ -962,12 +958,12 @@ multi sub install-bootloader(
         grub-install
         --target=i386-pc
         --recheck
-    >, $partition);
+    >, $device);
 }
 
 multi sub install-bootloader(
     32,
-    Str:D $partition,
+    Str:D $device,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -980,7 +976,7 @@ multi sub install-bootloader(
         --target=i386-efi
         --efi-directory=/boot/efi
         --removable
-    >, $partition);
+    >, $device);
 
     # fix virtualbox uefi
     my Str:D $nsh = q:to/EOF/;
@@ -992,7 +988,7 @@ multi sub install-bootloader(
 
 multi sub install-bootloader(
     64,
-    Str:D $partition,
+    Str:D $device,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -1005,7 +1001,7 @@ multi sub install-bootloader(
         --target=x86_64-efi
         --efi-directory=/boot/efi
         --removable
-    >, $partition);
+    >, $device);
 
     # fix virtualbox uefi
     my Str:D $nsh = q:to/EOF/;

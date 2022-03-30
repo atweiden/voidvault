@@ -16,8 +16,8 @@ has Voidvault::Config:D $.config is required;
 
 proto method gen-partition(Str:D --> Str:D)
 {
-    my Str:D $partition = $.config.partition;
-    my Str:D @*partition = Voidvault::Utils.lsblk($partition);
+    my Str:D $device = $.config.device;
+    my Str:D @*partition = Voidvault::Utils.ls-partitions($device);
 }
 
 multi method gen-partition('efi' --> Str:D)
