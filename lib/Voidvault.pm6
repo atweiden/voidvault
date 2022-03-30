@@ -125,7 +125,7 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create uefi partition
     self.mkefi;
 
-    # create, open and add randomized key to LUKS encrypted volume
+    # create and open vault
     self.mkvault;
 
     # create and mount btrfs volumes
@@ -390,13 +390,6 @@ method mkvault(::?CLASS:D: --> Nil)
         :$vault-type,
         :$partition-vault,
         :$vault-name,
-        :$vault-pass
-    );
-
-    # add key to vault
-    Voidvault::Utils.install-vault-key(
-        :$partition-vault,
-        :$vault-key,
         :$vault-pass
     );
 }
