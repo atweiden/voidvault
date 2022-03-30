@@ -139,8 +139,9 @@ method sgdisk(::?CLASS:D: --> Nil)
     >, $device);
 }
 
-method mkefi(Str:D $partition-efi --> Nil)
+method mkefi(::?CLASS:D: --> Nil)
 {
+    my Str:D $partition-efi = self.gen-partition('efi');
     run(qw<modprobe vfat>);
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
