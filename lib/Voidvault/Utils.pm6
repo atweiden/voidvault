@@ -797,7 +797,7 @@ multi sub addkey(
             :$vault-pass
         );
 
-    # make LUKS key without prompt for vault password
+    # add key to LUKS encrypted volume without prompt for vault password
     shell($cryptsetup-luks-add-key-cmdline);
 }
 
@@ -816,7 +816,7 @@ multi sub addkey(
             :$partition-vault
         );
 
-    # add LUKS key, prompt user for vault password
+    # add key to LUKS encrypted volume, prompt user for vault password
     Voidvault::Utils.loop-cmdline-proc(
         'Adding LUKS key...',
         $cryptsetup-luks-add-key-cmdline
