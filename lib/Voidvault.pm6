@@ -545,7 +545,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
     );
 
     # configure /etc/crypttab for vault key
-    self.replace('/etc/crypttab');
+    self.replace($Voidvault::Replace::FILE-CRYPTTAB);
 }
 
 # secure user configuration
@@ -705,16 +705,16 @@ multi sub groupadd(*@group-name --> Nil)
 
 method configure-sudoers(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/sudoers');
+    self.replace($Voidvault::Replace::FILE-SUDOERS);
 }
 
 method genfstab(::?CLASS:D: --> Nil)
 {
     my Str:D $path = 'usr/bin/genfstab';
-    copy(%?RESOURCES{$path}, "/$path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-    shell('/usr/bin/genfstab -U -p /mnt >> /mnt/etc/fstab');
-    self.replace('/etc/fstab');
+    my Str:D $file = sprintf(Q{/mnt%s}, $Voidvault::Replace::FILE-FSTAB);
+    copy(%?RESOURCES{$path}, $file);
+    shell("%?RESOURCES{$path} -U -p /mnt >> $file");
+    self.replace($Voidvault::Replace::FILE-FSTAB);
 }
 
 method set-hostname(::?CLASS:D: --> Nil)
@@ -725,22 +725,22 @@ method set-hostname(::?CLASS:D: --> Nil)
 
 method configure-hosts(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/hosts');
+    self.replace($Voidvault::Replace::FILE-HOSTS);
 }
 
 method configure-dhcpcd(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/dhcpcd.conf');
+    self.replace($Voidvault::Replace::FILE-DHCPCD);
 }
 
 method configure-dnscrypt-proxy(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/dnscrypt-proxy.toml');
+    self.replace($Voidvault::Replace::FILE-DNSCRYPT-PROXY);
 }
 
 method set-nameservers(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/resolvconf.conf');
+    self.replace($Voidvault::Replace::FILE-OPENRESOLV);
 }
 
 method set-locale(::?CLASS:D: --> Nil)
@@ -761,7 +761,7 @@ method set-locale(::?CLASS:D: --> Nil)
     if $libc-flavor eq 'GLIBC'
     {
         # customize /etc/default/libc-locales
-        self.replace('/etc/default/libc-locales');
+        self.replace($Voidvault::Replace::FILE-LOCALES);
         # regenerate locales
         run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
     }
@@ -769,9 +769,9 @@ method set-locale(::?CLASS:D: --> Nil)
 
 method set-keymap(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/rc.conf', 'KEYMAP');
-    self.replace('/etc/rc.conf', 'FONT');
-    self.replace('/etc/rc.conf', 'FONT_MAP');
+    self.replace($Voidvault::Replace::FILE-RC, 'KEYMAP');
+    self.replace($Voidvault::Replace::FILE-RC, 'FONT');
+    self.replace($Voidvault::Replace::FILE-RC, 'FONT_MAP');
 }
 
 method set-timezone(::?CLASS:D: --> Nil)
@@ -786,12 +786,12 @@ method set-timezone(::?CLASS:D: --> Nil)
         /usr/share/zoneinfo/$timezone
         /etc/localtime
     >);
-    self.replace('/etc/rc.conf', 'TIMEZONE');
+    self.replace($Voidvault::Replace::FILE-RC, 'TIMEZONE');
 }
 
 method set-hwclock(::?CLASS:D: --> Nil)
 {
-    self.replace('/etc/rc.conf', 'HARDWARECLOCK');
+    self.replace($Voidvault::Replace::FILE-RC, 'HARDWARECLOCK');
     run(qqw<void-chroot /mnt hwclock --systohc --utc>);
 }
 
@@ -817,7 +817,7 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
 
     # dracut
-    self.replace('/etc/dracut.conf.d');
+    self.replace($Voidvault::Replace::FILE-DRACUT);
     run(qqw<void-chroot /mnt dracut --force --kver $linux-version>);
 
     # xbps-reconfigure
