@@ -7,7 +7,11 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my DiskType:D $disk-type = $.config.disk-type;
+    my Str:D $path = $FILE.substr(1);
     my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, $file);
     replace($file, $disable-ipv6, $disk-type);
 }
 

@@ -131,6 +131,49 @@ multi sub new(Voidvault::Config::OneFA:D :$config! --> Voidvault::OneFA:D)
 
 
 # -----------------------------------------------------------------------------
+# bootstrap
+# -----------------------------------------------------------------------------
+
+method bootstrap(::?CLASS:D: --> Nil)
+{
+    my Bool:D $augment = $.config.augment;
+    self.mkdisk;
+    self.voidstrap-base;
+    self.install-vault-key;
+    self.configure-users;
+    self.configure-sudoers;
+    self.genfstab;
+    self.set-hostname;
+    self.configure-hosts;
+    self.configure-dhcpcd;
+    self.configure-dnscrypt-proxy;
+    self.set-nameservers;
+    self.set-locale;
+    self.set-keymap;
+    self.set-timezone;
+    self.set-hwclock;
+    self.configure-modprobe;
+    self.configure-modules-load;
+    self.generate-initramfs;
+    self.install-bootloader;
+    self.configure-sysctl;
+    self.configure-nftables;
+    self.configure-openssh;
+    self.configure-udev;
+    self.configure-hidepid;
+    self.configure-securetty;
+    self.configure-shell-timeout;
+    self.configure-pamd;
+    self.configure-xorg;
+    self.configure-rc-local;
+    self.configure-rc-shutdown;
+    self.enable-runit-services;
+    self.augment if $augment.so;
+    self.unmount;
+}
+
+
+# -----------------------------------------------------------------------------
 # worker functions
 # -----------------------------------------------------------------------------
 
@@ -929,6 +972,177 @@ multi sub install-bootloader(
     \EFI\BOOT\BOOTX64.EFI
     EOF
     spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+}
+
+method configure-sysctl(::?CLASS:D: --> Nil)
+{
+    self.replace($Voidvault::Replace::FILE-SYSCTL);
+    run(qqw<void-chroot /mnt sysctl --system>);
+}
+
+method configure-nftables(::?CLASS:D: --> Nil)
+{
+    my Str:D @path =
+        'etc/nftables.conf',
+        'etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft',
+        'etc/nftables/wireguard/table/inet/filter/input/wireguard.nft',
+        'etc/nftables/wireguard/table/wireguard.nft';
+    @path.map(-> Str:D $path {
+        my Str:D $base-path = $path.IO.dirname;
+        mkdir("/mnt/$base-path");
+        copy(%?RESOURCES{$path}, "/mnt/$path");
+    });
+}
+
+method configure-openssh(::?CLASS:D: --> Nil)
+{
+    self.configure-openssh('ssh_config');
+    self.configure-openssh('sshd_config');
+    self.configure-openssh('moduli');
+}
+
+multi method configure-openssh(::?CLASS:D: 'ssh_config' --> Nil)
+{
+    my Str:D $path = 'etc/ssh/ssh_config';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi method configure-openssh(::?CLASS:D: 'sshd_config' --> Nil)
+{
+    self.replace('sshd_config');
+}
+
+multi method configure-openssh(::?CLASS:D: 'moduli' --> Nil)
+{
+    # filter weak ssh moduli
+    self.replace('moduli');
+}
+
+method configure-udev(::?CLASS:D: --> Nil)
+{
+    my Str:D $path = 'etc/udev/rules.d/60-io-schedulers.rules';
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method configure-hidepid(::?CLASS:D: --> Nil)
+{
+    my Str:D $file = sprintf(Q{/mnt%s}, $Voidvault::Replace::FILE-FSTAB);
+    my Str:D $fstab-hidepid = q:to/EOF/;
+    # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
+    proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
+    EOF
+    spurt($file, "\n" ~ $fstab-hidepid, :append);
+}
+
+method configure-securetty(::?CLASS:D: --> Nil)
+{
+    self.replace('securetty');
+}
+
+
+method configure-shell-timeout(::?CLASS:D: --> Nil)
+{
+    my Str:D $path = 'etc/profile.d/shell-timeout.sh';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method configure-pamd(::?CLASS:D: --> Nil)
+{
+    # raise number of passphrase hashing rounds C<passwd> employs
+    self.replace($Voidvault::Replace::FILE-PAM);
+}
+
+method configure-xorg(::?CLASS:D: --> Nil)
+{
+    configure-xorg('Xwrapper.config');
+    configure-xorg('10-synaptics.conf');
+    configure-xorg('99-security.conf');
+}
+
+multi sub configure-xorg('Xwrapper.config' --> Nil)
+{
+    my Str:D $path = 'etc/X11/Xwrapper.config';
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub configure-xorg('10-synaptics.conf' --> Nil)
+{
+    my Str:D $path = 'etc/X11/xorg.conf.d/10-synaptics.conf';
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+multi sub configure-xorg('99-security.conf' --> Nil)
+{
+    my Str:D $path = 'etc/X11/xorg.conf.d/99-security.conf';
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir("/mnt/$base-path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method configure-rc-local(::?CLASS:D: --> Nil)
+{
+    my Str:D $rc-local = q:to/EOF/;
+    # create zram swap device
+    zramen make
+
+    # disable blinking cursor in Linux tty
+    echo 0 > /sys/class/graphics/fbcon/cursor_blink
+    EOF
+    spurt('/mnt/etc/rc.local', "\n" ~ $rc-local, :append);
+}
+
+method configure-rc-shutdown(::?CLASS:D: --> Nil)
+{
+    my Str:D $rc-shutdown = q:to/EOF/;
+    # teardown zram swap device
+    zramen toss
+    EOF
+    spurt('/mnt/etc/rc.shutdown', "\n" ~ $rc-shutdown, :append);
+}
+
+method enable-runit-services(::?CLASS:D: --> Nil)
+{
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
+
+    my Str:D @service = @Voidvault::Constants::SERVICE;
+
+    # enable serial getty when using serial console, e.g. agetty-ttyS0
+    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::SERIAL-CONSOLE))
+        if $enable-serial-console.so;
+
+    @service.map(-> Str:D $service {
+        run(qqw<
+            void-chroot
+            /mnt
+            ln
+            --symbolic
+            --force
+            /etc/sv/$service
+            /etc/runit/runsvdir/default/$service
+        >);
+    });
+}
+
+# interactive console
+method augment(::?CLASS:D: --> Nil)
+{
+    # launch fully interactive Bash console, type 'exit' to exit
+    shell('expect -c "spawn /bin/bash; interact"');
+}
+
+method unmount(::?CLASS:D: --> Nil)
+{
+    my VaultName:D $vault-name = $.config.vault-name;
+    # resume after error with C<umount -R>, obsolete but harmless
+    CATCH { default { .resume } };
+    run(qw<umount --recursive --verbose /mnt>);
+    run(qqw<cryptsetup luksClose $vault-name>);
 }
 
 
