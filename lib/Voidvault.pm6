@@ -415,7 +415,7 @@ method mkvault(::?CLASS:D: --> Nil)
 method mount-efi(::?CLASS:D: --> Nil)
 {
     my Str:D $partition-efi = self.gen-partition('efi');
-    my Str:D $efi-dir = '/mnt/boot/efi';
+    my Str:D $efi-dir = sprintf(Q{/mnt%}, $Voidvault::Constants::EFI-DIR);
     mkdir($efi-dir);
     my Str:D $mount-options = qw<
         nodev

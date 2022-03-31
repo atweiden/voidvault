@@ -112,6 +112,8 @@ constant @BASE-PACKAGE = qw<
     zstd
 >;
 
+constant $EFI-DIR = '/boot/efi';
+
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
 
