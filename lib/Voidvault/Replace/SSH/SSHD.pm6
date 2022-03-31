@@ -5,10 +5,11 @@ constant $FILE = '/etc/ssh/sshd_config';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my UserName:D $user-name-sftp = $.config.user-name-sftp;
     my Str:D $path = $FILE.substr(1);
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     copy(%?RESOURCES{$path}, $file);
     replace($file, $disable-ipv6, $user-name-sftp);
 }

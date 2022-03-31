@@ -5,8 +5,9 @@ constant $FILE = '/etc/default/libc-locales';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Locale:D $locale = $.config.locale;
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my Str:D $locale-full = sprintf(Q{%s.UTF-8 UTF-8}, $locale);
     my UInt:D $index = @line.first(/^"#$locale-full"/, :k);

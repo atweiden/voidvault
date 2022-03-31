@@ -762,9 +762,10 @@ method install-vault-key(
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
-    seckey(:$vault-key);
+    seckey(:$vault-key, :$chroot-dir);
 }
 
 # make vault key
@@ -894,10 +895,10 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 # secure vault key
-sub seckey(Str:D :$vault-key! where .so --> Nil)
+sub seckey(Str:D :$vault-key! where .so, Str:D :$chroot-dir! where .so --> Nil)
 {
-    run(qqw<void-chroot /mnt chmod 000 $vault-key>);
-    run(qw<void-chroot /mnt chmod -R g-rwx,o-rwx /boot>);
+    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key>);
+    run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx /boot>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

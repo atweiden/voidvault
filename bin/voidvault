@@ -99,6 +99,7 @@ multi sub MAIN(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :chroot-dir($),
         Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
@@ -142,6 +143,7 @@ multi sub MAIN(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :chroot-dir($),
         Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
@@ -326,6 +328,7 @@ multi sub USAGE('new' --> Nil)
                 [--packages=<packages>]
                 [--augment]
                 [--disable-ipv6] [--enable-serial-console]
+                [--chroot-dir=<path>]
                 new
 
       voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
@@ -341,6 +344,8 @@ multi sub USAGE('new' --> Nil)
         Encrypted password hash for admin account
       --augment
         Drop to Bash console mid-execution
+      --chroot-dir=<path>
+        Path to directory within which to mount system for bootstrap
       --device=<device>
         Target block device for install
       --disable-ipv6

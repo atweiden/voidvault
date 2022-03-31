@@ -5,8 +5,9 @@ constant $FILE = '/etc/rc.conf';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'KEYMAP' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Keymap:D $keymap = $.config.keymap;
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?KEYMAP'='/, :k);
     my Str:D $keymap-line = sprintf(Q{KEYMAP=%s}, $keymap);
@@ -17,7 +18,8 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'KEYMAP' --> Nil)
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'FONT' --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?FONT'='/, :k);
     my Str:D $font-line = 'FONT=Lat2-Terminus16';
@@ -28,7 +30,8 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'FONT' --> Nil)
 
 multi method replace(Str:D $ where $FILE, 'FONT_MAP' --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?FONT_MAP'='/, :k);
     my Str:D $font-map-line = 'FONT_MAP=';
@@ -39,7 +42,8 @@ multi method replace(Str:D $ where $FILE, 'FONT_MAP' --> Nil)
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'TIMEZONE' --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?TIMEZONE'='/, :k);
     my Str:D $timezone-line = sprintf(Q{TIMEZONE=%s}, $timezone);
@@ -50,7 +54,8 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'TIMEZONE' --> Nil)
 
 multi method replace(Str:D $ where $FILE, 'HARDWARECLOCK' --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?HARDWARECLOCK'='/, :k);
     my Str:D $hardwareclock-line = 'HARDWARECLOCK="UTC"';

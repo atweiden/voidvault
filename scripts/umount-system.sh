@@ -6,4 +6,5 @@
 # instructions
 # - run `cryptsetup luksClose vault` after running this script
 
-umount --recursive /mnt
+_mount_dir='/mnt'
+umount --recursive "$_mount_dir"

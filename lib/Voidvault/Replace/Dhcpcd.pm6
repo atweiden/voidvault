@@ -5,8 +5,9 @@ constant $FILE = '/etc/dhcpcd.conf';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     replace($file, $disable-ipv6);
 }
 

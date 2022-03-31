@@ -5,25 +5,27 @@ constant $FILE = '/etc/dracut.conf.d'
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
     my Str:D $vault-key = $.config.vault-key;
-    replace('add_dracutmodules');
-    replace('add_drivers', $graphics, $processor);
-    replace('compress');
-    replace('hostonly');
-    replace('install_items', $vault-key);
-    replace('omit_dracutmodules');
-    replace('persistent_policy');
-    replace('tmpdir');
+    replace('add_dracutmodules', :$chroot-dir);
+    replace('add_drivers', $graphics, $processor, :$chroot-dir);
+    replace('compress', :$chroot-dir);
+    replace('hostonly', :$chroot-dir);
+    replace('install_items', $vault-key, :$chroot-dir);
+    replace('omit_dracutmodules', :$chroot-dir);
+    replace('persistent_policy', :$chroot-dir);
+    replace('tmpdir', :$chroot-dir);
 }
 
 multi sub replace(
-    Str:D $subject where 'add_dracutmodules'
+    Str:D $subject where 'add_dracutmodules',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
         btrfs
@@ -38,11 +40,12 @@ multi sub replace(
 multi sub replace(
     Str:D $subject where 'add_drivers',
     Graphics:D $graphics,
-    Processor:D $processor
+    Processor:D $processor,
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     # drivers are C<*.ko*> files in C</lib/modules>
     my Str:D @driver = qw<
         ahci
@@ -59,32 +62,35 @@ multi sub replace(
 }
 
 multi sub replace(
-    Str:D $subject where 'compress'
+    Str:D $subject where 'compress',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    Str:D $subject where 'hostonly'
+    Str:D $subject where 'hostonly',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="yes"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
     Str:D $subject where 'install_items',
-    Str:D $vault-key
+    Str:D $vault-key,
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @item = qqw<
         $vault-key
         /etc/crypttab
@@ -94,11 +100,12 @@ multi sub replace(
 }
 
 multi sub replace(
-    Str:D $subject where 'omit_dracutmodules'
+    Str:D $subject where 'omit_dracutmodules',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @module = qw<
         dracut-systemd
         plymouth
@@ -111,21 +118,23 @@ multi sub replace(
 }
 
 multi sub replace(
-    Str:D $subject where 'persistent_policy'
+    Str:D $subject where 'persistent_policy',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="by-uuid"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    Str:D $subject where 'tmpdir'
+    Str:D $subject where 'tmpdir',
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    my Str:D $file = sprintf(Q{/mnt%s/%s.conf}, $FILE, $subject);
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="/tmp"}, $subject);
     spurt($file, $replace ~ "\n");
 }

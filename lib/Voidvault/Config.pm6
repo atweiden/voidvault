@@ -17,6 +17,12 @@ has Mode:D $.mode =
         ?? Voidvault::Config.gen-mode(%*ENV<VOIDVAULT_MODE>)
         !! 'BASE';
 
+# path within which to mount system for bootstrap
+has Str:D $.chroot-dir =
+    ?%*ENV<VOIDVAULT_CHROOT_DIR>
+        ?? %*ENV<VOIDVAULT_CHROOT_DIR>
+        !! '/mnt';
+
 # location of void package repository (prioritized)
 has Str:D @.repository =
     ?%*ENV<VOIDVAULT_REPOSITORY>
@@ -221,6 +227,7 @@ submethod BUILD(
     Str :$admin-pass,
     Str :$admin-pass-hash,
     Bool :$augment,
+    Str :$chroot-dir,
     Str :$device,
     Bool :$disable-ipv6,
     Str :$disk-type,
@@ -256,6 +263,8 @@ submethod BUILD(
         if $mode;
     $!augment = $augment
         if $augment;
+    $!chroot-dir = $chroot-dir
+        if $chroot-dir;
     $!device = $device
         if $device;
     $!disable-ipv6 = $disable-ipv6
@@ -325,6 +334,7 @@ multi method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :chroot-dir($),
         Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
@@ -367,6 +377,7 @@ multi method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :chroot-dir($),
         Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),

@@ -49,6 +49,7 @@ method new(
         Str :admin-pass($),
         Str :admin-pass-hash($),
         Bool :augment($),
+        Str :chroot-dir($),
         Str :device($),
         Bool :disable-ipv6($),
         Str :disk-type($),
@@ -232,8 +233,12 @@ method mkefi(::?CLASS:D: --> Nil)
 # create and mount btrfs filesystem on opened vault
 method mkbtrfs(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.vault-name;
+
+    my Str:D $aux-dir = sprintf(Q{%s2}, $chroot-dir);
+    my Str:D $root-dir = '/';
 
     # create btrfs filesystem on opened vault
     run(qw<modprobe btrfs xxhash_generic>);
@@ -250,13 +255,13 @@ method mkbtrfs(::?CLASS:D: --> Nil)
     my Str:D $mount-options = @mount-options.join(',');
 
     # mount main btrfs filesystem on open vault
-    mkdir('/mnt2');
+    mkdir($aux-dir);
     run(qqw<
         mount
         --types btrfs
         --options $mount-options
         /dev/mapper/$vault-name
-        /mnt2
+        $aux-dir
     >);
 
     # btrfs subvolumes, starting with root / ('')
@@ -274,164 +279,180 @@ method mkbtrfs(::?CLASS:D: --> Nil)
         'var-tmp';
 
     # create btrfs subvolumes
-    chdir('/mnt2');
+    chdir($aux-dir);
     @btrfs-dir.map(-> Str:D $btrfs-dir {
         run(qqw<btrfs subvolume create @$btrfs-dir>);
     });
-    chdir('/');
+    chdir($root-dir);
 
     # mount btrfs subvolumes
     @btrfs-dir.map(-> Str:D $btrfs-dir {
-        mount-btrfs-subvolume($btrfs-dir, $mount-options, $vault-name);
+        self.mount-btrfs-subvolume($btrfs-dir, $mount-options, $vault-name);
     });
 
     # unmount /mnt2 and remove
-    run(qw<umount /mnt2>);
-    rmdir('/mnt2');
+    run(qqw<umount $aux-dir>);
+    rmdir($aux-dir);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'srv',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'srv';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-cache-xbps',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/cache/xbps';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,subvol=@var-cache-xbps
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-lib-ex',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/lib/ex';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
-    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
+    run(qqw<chmod 1777 $chroot-dir/$btrfs-dir>);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-log',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/log';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,nodev,noexec,nosuid,subvol=@var-log
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-opt',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/opt';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,subvol=@var-opt
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-spool',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/spool';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,nodev,noexec,nosuid,subvol=@var-spool
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     'var-tmp',
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $btrfs-dir = 'var/tmp';
-    mkdir("/mnt/$btrfs-dir");
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
-    run(qqw<chmod 1777 /mnt/$btrfs-dir>);
+    run(qqw<chmod 1777 $chroot-dir/$btrfs-dir>);
 }
 
-multi sub mount-btrfs-subvolume(
+multi method mount-btrfs-subvolume(
+    ::?CLASS:D:
     Str:D $btrfs-dir,
     Str:D $mount-options,
     VaultName:D $vault-name
     --> Nil
 )
 {
-    mkdir("/mnt/$btrfs-dir");
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    mkdir("$chroot-dir/$btrfs-dir");
     run(qqw<
         mount
         --types btrfs
         --options $mount-options,subvol=@$btrfs-dir
         /dev/mapper/$vault-name
-        /mnt/$btrfs-dir
+        $chroot-dir/$btrfs-dir
     >);
 }
 
@@ -457,8 +478,10 @@ method mkvault(::?CLASS:D: --> Nil)
 
 method mount-efi(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $partition-efi = self.gen-partition('efi');
-    my Str:D $efi-dir = sprintf(Q{/mnt%}, $Voidvault::Constants::EFI-DIR);
+    my Str:D $efi-dir =
+        sprintf(Q{%%}, $chroot-dir, $Voidvault::Constants::EFI-DIR);
     mkdir($efi-dir);
     my Str:D $mount-options = qw<
         nodev
@@ -470,19 +493,21 @@ method mount-efi(::?CLASS:D: --> Nil)
 
 method disable-cow(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D @directory = qw<
         srv
         var/lib/ex
         var/log
         var/spool
         var/tmp
-    >.map(-> Str:D $directory { sprintf(Q{/mnt/%s}, $directory) });
+    >.map(-> Str:D $directory { sprintf(Q{%s/%s}, $chroot-dir, $directory) });
     Voidvault::Utils.disable-cow(|@directory, :recursive);
 }
 
 # bootstrap initial chroot with voidstrap
 method voidstrap-base(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my Str:D @package = $.config.package;
@@ -491,8 +516,12 @@ method voidstrap-base(::?CLASS:D: --> Nil)
 
     # download and install core packages with voidstrap in chroot
     my Str:D @core = @Voidvault::Constants::CORE-PACKAGE;
-    my Str:D $voidstrap-core-cmdline =
-        build-voidstrap-cmdline(@core, :@repository, :$ignore-conf-repos);
+    my Str:D $voidstrap-core-cmdline = build-voidstrap-cmdline(
+        @core,
+        :@repository,
+        :$ignore-conf-repos,
+        :$chroot-dir
+    );
     Voidvault::Utils.loop-cmdline-proc(
         'Running voidstrap...',
         $voidstrap-core-cmdline
@@ -510,8 +539,12 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     push(@base, $_) for @package;
 
     # download and install base packages with voidstrap in chroot
-    my Str:D $voidstrap-base-cmdline =
-        build-voidstrap-cmdline(@base, :@repository, :$ignore-conf-repos);
+    my Str:D $voidstrap-base-cmdline = build-voidstrap-cmdline(
+        @base,
+        :@repository,
+        :$ignore-conf-repos,
+        :$chroot-dir
+    );
 
     # why launch a new shell process for this? superstition.
     Voidvault::Utils.loop-cmdline-proc(
@@ -523,7 +556,8 @@ method voidstrap-base(::?CLASS:D: --> Nil)
 multi sub build-voidstrap-cmdline(
     Str:D @base,
     Str:D :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
+    Bool:D :ignore-conf-repos($)! where .so,
+    Str:D :$chroot-dir! where .so
     --> Str:D
 )
 {
@@ -532,13 +566,14 @@ multi sub build-voidstrap-cmdline(
         "voidstrap \\
          --ignore-conf-repos \\
          --repository=$repository \\
-         /mnt \\
+         $chroot-dir \\
          @base[]";
 }
 
 multi sub build-voidstrap-cmdline(
     Str:D @base,
     Str:D :@repository! where .so,
+    Str:D :$chroot-dir! where .so,
     Bool :ignore-conf-repos($)
     --> Str:D
 )
@@ -547,11 +582,12 @@ multi sub build-voidstrap-cmdline(
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
          --repository=$repository \\
-         /mnt \\
+         $chroot-dir \\
          @base[]";
 }
 
 multi sub build-voidstrap-cmdline(
+    Str:D $,
     Str:D @,
     Str:D :repository(@),
     Bool:D :ignore-conf-repos($)! where .so
@@ -563,6 +599,7 @@ multi sub build-voidstrap-cmdline(
 
 multi sub build-voidstrap-cmdline(
     Str:D @base,
+    Str:D :$chroot-dir! where .so,
     Str:D :repository(@),
     Bool :ignore-conf-repos($)
     --> Str:D
@@ -570,7 +607,7 @@ multi sub build-voidstrap-cmdline(
 {
     my Str:D $voidstrap-cmdline =
         "voidstrap \\
-         /mnt \\
+         $chroot-dir \\
          @base[]";
 }
 
@@ -602,7 +639,10 @@ multi method configure-users(::?CLASS:D: --> Nil)
 
 multi method configure-users(::?CLASS:D: 'admin' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-admin = $.config.user-name-admin;
+    my Str:D $file =
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-SUDOERS);
     self.useradd('admin');
     say("Giving sudo privileges to admin user $user-name-admin...");
     my Str:D $sudoers = qq:to/EOF/;
@@ -610,7 +650,7 @@ multi method configure-users(::?CLASS:D: 'admin' --> Nil)
     $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/reboot
     $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/shutdown
     EOF
-    spurt('/mnt/etc/sudoers', "\n" ~ $sudoers, :append);
+    spurt($file, "\n" ~ $sudoers, :append);
 }
 
 multi method configure-users(::?CLASS:D: 'guest' --> Nil)
@@ -630,6 +670,7 @@ multi method configure-users(::?CLASS:D: 'sftp' --> Nil)
 
 multi method useradd(::?CLASS:D: 'admin' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-admin = $.config.user-name-admin;
     my Str:D $user-pass-hash-admin = $.config.user-pass-hash-admin;
     my Str:D $user-group-admin = qw<
@@ -651,11 +692,11 @@ multi method useradd(::?CLASS:D: 'admin' --> Nil)
     my Str:D $user-shell-admin = '/bin/bash';
 
     say("Creating new admin user named $user-name-admin...");
-    groupadd(:system, 'proc');
-    groupadd($user-name-admin);
+    groupadd(:system, 'proc', :$chroot-dir);
+    groupadd($user-name-admin, :$chroot-dir);
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         useradd
         --create-home
         --gid $user-name-admin
@@ -664,11 +705,12 @@ multi method useradd(::?CLASS:D: 'admin' --> Nil)
         --shell $user-shell-admin
         $user-name-admin
     >);
-    chmod(0o700, "/mnt/home/$user-name-admin");
+    chmod(0o700, "$chroot-dir/home/$user-name-admin");
 }
 
 multi method useradd(::?CLASS:D: 'guest' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-guest = $.config.user-name-guest;
     my Str:D $user-pass-hash-guest = $.config.user-pass-hash-guest;
     my Str:D $user-group-guest = qw<
@@ -678,10 +720,10 @@ multi method useradd(::?CLASS:D: 'guest' --> Nil)
     my Str:D $user-shell-guest = '/bin/bash';
 
     say("Creating new guest user named $user-name-guest...");
-    groupadd($user-name-guest, 'guests');
+    groupadd($user-name-guest, 'guests', :$chroot-dir);
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         useradd
         --create-home
         --gid $user-name-guest
@@ -690,11 +732,12 @@ multi method useradd(::?CLASS:D: 'guest' --> Nil)
         --shell $user-shell-guest
         $user-name-guest
     >);
-    chmod(0o700, "/mnt/home/$user-name-guest");
+    chmod(0o700, "$chroot-dir/home/$user-name-guest");
 }
 
 multi method useradd(::?CLASS:D: 'sftp' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-sftp = $.config.user-name-sftp;
     my Str:D $user-pass-hash-sftp = $.config.user-pass-hash-sftp;
     # https://wiki.archlinux.org/index.php/SFTP_chroot
@@ -706,11 +749,11 @@ multi method useradd(::?CLASS:D: 'sftp' --> Nil)
     my Str:D @root-dir = $auth-dir, $jail-dir;
 
     say("Creating new SFTP user named $user-name-sftp...");
-    void-chroot-mkdir(@root-dir, 'root', 'root', 0o755);
-    groupadd($user-name-sftp, $user-group-sftp);
+    void-chroot-mkdir(@root-dir, 'root', 'root', 0o755, :$chroot-dir);
+    groupadd($user-name-sftp, $user-group-sftp, :$chroot-dir);
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         useradd
         --no-create-home
         --home-dir $home-dir
@@ -720,29 +763,57 @@ multi method useradd(::?CLASS:D: 'sftp' --> Nil)
         --shell $user-shell-sftp
         $user-name-sftp
     >);
-    void-chroot-mkdir($home-dir, $user-name-sftp, $user-name-sftp, 0o700);
+    void-chroot-mkdir(
+        $home-dir,
+        $user-name-sftp,
+        $user-name-sftp,
+        0o700,
+        :$chroot-dir
+    );
 }
 
 method usermod(::?CLASS:D: 'root' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $user-pass-hash-root = $.config.user-pass-hash-root;
     say('Updating root password...');
-    run(qqw<void-chroot /mnt usermod --password '$user-pass-hash-root' root>);
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        usermod
+        --password '$user-pass-hash-root'
+        root
+    >);
     say('Changing root shell to bash...');
-    run(qqw<void-chroot /mnt usermod --shell /bin/bash root>);
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        usermod
+        --shell /bin/bash
+        root
+    >);
 }
 
-multi sub groupadd(Bool:D :system($)! where .so, *@group-name --> Nil)
+multi sub groupadd(
+    Str:D :$chroot-dir! where .so,
+    Bool:D :system($)! where .so,
+    *@group-name
+    --> Nil
+)
 {
     @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot /mnt groupadd --system $group-name>);
+        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
     });
 }
 
-multi sub groupadd(*@group-name --> Nil)
+multi sub groupadd(
+    Str:D :$chroot-dir! where .so,
+    *@group-name
+    --> Nil
+)
 {
     @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot /mnt groupadd $group-name>);
+        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
     });
 }
 
@@ -753,17 +824,20 @@ method configure-sudoers(::?CLASS:D: --> Nil)
 
 method genfstab(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'usr/bin/genfstab';
-    my Str:D $file = sprintf(Q{/mnt%s}, $Voidvault::Replace::FILE-FSTAB);
+    my Str:D $file =
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
     copy(%?RESOURCES{$path}, $file);
-    shell("%?RESOURCES{$path} -U -p /mnt >> $file");
+    shell("%?RESOURCES{$path} -U -p $chroot-dir >> $file");
     self.replace($Voidvault::Replace::FILE-FSTAB);
 }
 
 method set-hostname(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my HostName:D $host-name = $.config.host-name;
-    spurt('/mnt/etc/hostname', $host-name ~ "\n");
+    spurt("$chroot-dir/etc/hostname", $host-name ~ "\n");
 }
 
 method configure-hosts(::?CLASS:D: --> Nil)
@@ -786,11 +860,11 @@ method set-nameservers(::?CLASS:D: --> Nil)
     self.replace($Voidvault::Replace::FILE-OPENRESOLV);
 }
 
-method set-locale(::?CLASS:D: --> Nil)
+proto method set-locale(::?CLASS:D: LibcFlavor? --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;
@@ -798,17 +872,31 @@ method set-locale(::?CLASS:D: --> Nil)
     LANGUAGE=$locale:$locale-fallback
     LC_TIME=$locale.UTF-8
     EOF
-    spurt('/mnt/etc/locale.conf', $locale-conf);
+    spurt("$chroot-dir/etc/locale.conf", $locale-conf);
 
-    # musl doesn't support locales
-    if $libc-flavor eq 'GLIBC'
-    {
-        # customize /etc/default/libc-locales
-        self.replace($Voidvault::Replace::FILE-LOCALES);
-        # regenerate locales
-        run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
-    }
+    nextwith($Void::XBPS::LIBC-FLAVOR)
 }
+
+multi method set-locale(
+    ::?CLASS:D:
+    LibcFlavor:D $libc-flavor where 'GLIBC',
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    # customize /etc/default/libc-locales
+    self.replace($Voidvault::Replace::FILE-LOCALES);
+    # regenerate locales
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force glibc-locales>);
+}
+
+# musl doesn't support locales
+multi method set-locale(
+    ::?CLASS:D:
+    LibcFlavor:D $,
+    --> Nil
+)
+{*}
 
 method set-keymap(::?CLASS:D: --> Nil)
 {
@@ -819,10 +907,11 @@ method set-keymap(::?CLASS:D: --> Nil)
 
 method set-timezone(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Timezone:D $timezone = $.config.timezone;
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         ln
         --symbolic
         --force
@@ -834,75 +923,82 @@ method set-timezone(::?CLASS:D: --> Nil)
 
 method set-hwclock(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     self.replace($Voidvault::Replace::FILE-RC, 'HARDWARECLOCK');
-    run(qqw<void-chroot /mnt hwclock --systohc --utc>);
+    run(qqw<void-chroot $chroot-dir hwclock --systohc --utc>);
 }
 
 method configure-modprobe(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'etc/modprobe.d/modprobe.conf';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 method configure-modules-load(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'etc/modules-load.d/bbr.conf';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 method generate-initramfs(::?CLASS:D: --> Nil)
 {
-    my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
     my Str:D $xbps-linux-version-raw =
-        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
+        qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
     my Str:D $xbps-linux-version =
         $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
     my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
 
     # dracut
     self.replace($Voidvault::Replace::FILE-DRACUT);
-    run(qqw<void-chroot /mnt dracut --force --kver $linux-version>);
+    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
 
     # xbps-reconfigure
-    run(qqw<void-chroot /mnt xbps-reconfigure --force $xbps-linux>);
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }
 
 method install-bootloader(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $device = $.config.device;
     self.replace($Voidvault::Replace::FILE-GRUB-DEFAULT);
     self.replace($Voidvault::Replace::FILE-GRUB-LINUX);
     self.configure-bootloader('superusers');
-    install-bootloader($device);
+    install-bootloader($device, :$chroot-dir);
 }
 
 method configure-bootloader(::?CLASS:D: 'superusers' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
     my Str:D $grub-superusers = qq:to/EOF/;
     set superusers="$user-name-grub"
     password_pbkdf2 $user-name-grub $user-pass-hash-grub
     EOF
-    spurt('/mnt/etc/grub.d/40_custom', $grub-superusers, :append);
+    spurt("$chroot-dir/etc/grub.d/40_custom", $grub-superusers, :append);
 }
 
 multi sub install-bootloader(
-    Str:D $device
+    Str:D $device,
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    install-bootloader(:legacy, $device);
-    install-bootloader(:uefi, 32, $device) if $*KERNEL.bits == 32;
-    install-bootloader(:uefi, 64, $device) if $*KERNEL.bits == 64;
-    mkdir('/mnt/boot/grub/locale');
+    install-bootloader(:legacy, $device, :$chroot-dir);
+    install-bootloader(:uefi, 32, $device, :$chroot-dir) if $*KERNEL.bits == 32;
+    install-bootloader(:uefi, 64, $device, :$chroot-dir) if $*KERNEL.bits == 64;
+    mkdir("$chroot-dir/boot/grub/locale");
     copy(
-        '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
-        '/mnt/boot/grub/locale/en.mo'
+        "$chroot-dir/usr/share/locale/en@quot/LC_MESSAGES/grub.mo",
+        "$chroot-dir/boot/grub/locale/en.mo"
     );
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         grub-mkconfig
         --output=/boot/grub/grub.cfg
     >);
@@ -910,6 +1006,7 @@ multi sub install-bootloader(
 
 multi sub install-bootloader(
     Str:D $device,
+    Str:D :$chroot-dir! where .so,
     Bool:D :legacy($)! where .so
     --> Nil
 )
@@ -917,7 +1014,7 @@ multi sub install-bootloader(
     # legacy bios
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         grub-install
         --target=i386-pc
         --recheck
@@ -927,6 +1024,7 @@ multi sub install-bootloader(
 multi sub install-bootloader(
     32,
     Str:D $device,
+    Str:D :$chroot-dir! where .so,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -934,7 +1032,7 @@ multi sub install-bootloader(
     # uefi - i686
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         grub-install
         --target=i386-efi
         --efi-directory=/boot/efi
@@ -946,12 +1044,13 @@ multi sub install-bootloader(
     fs0:
     \EFI\BOOT\BOOTIA32.EFI
     EOF
-    spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+    spurt("$chroot-dir/boot/efi/startup.nsh", $nsh, :append);
 }
 
 multi sub install-bootloader(
     64,
     Str:D $device,
+    Str:D :$chroot-dir! where .so,
     Bool:D :uefi($)! where .so
     --> Nil
 )
@@ -959,7 +1058,7 @@ multi sub install-bootloader(
     # uefi - x86_64
     run(qqw<
         void-chroot
-        /mnt
+        $chroot-dir
         grub-install
         --target=x86_64-efi
         --efi-directory=/boot/efi
@@ -971,17 +1070,19 @@ multi sub install-bootloader(
     fs0:
     \EFI\BOOT\BOOTX64.EFI
     EOF
-    spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+    spurt("$chroot-dir/boot/efi/startup.nsh", $nsh, :append);
 }
 
 method configure-sysctl(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     self.replace($Voidvault::Replace::FILE-SYSCTL);
-    run(qqw<void-chroot /mnt sysctl --system>);
+    run(qqw<void-chroot $chroot-dir sysctl --system>);
 }
 
 method configure-nftables(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D @path =
         'etc/nftables.conf',
         'etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft',
@@ -989,8 +1090,8 @@ method configure-nftables(::?CLASS:D: --> Nil)
         'etc/nftables/wireguard/table/wireguard.nft';
     @path.map(-> Str:D $path {
         my Str:D $base-path = $path.IO.dirname;
-        mkdir("/mnt/$base-path");
-        copy(%?RESOURCES{$path}, "/mnt/$path");
+        mkdir("$chroot-dir/$base-path");
+        copy(%?RESOURCES{$path}, "$chroot-dir/$path");
     });
 }
 
@@ -1003,8 +1104,9 @@ method configure-openssh(::?CLASS:D: --> Nil)
 
 multi method configure-openssh(::?CLASS:D: 'ssh_config' --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'etc/ssh/ssh_config';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 multi method configure-openssh(::?CLASS:D: 'sshd_config' --> Nil)
@@ -1020,15 +1122,18 @@ multi method configure-openssh(::?CLASS:D: 'moduli' --> Nil)
 
 method configure-udev(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'etc/udev/rules.d/60-io-schedulers.rules';
     my Str:D $base-path = $path.IO.dirname;
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    mkdir("$chroot-dir/$base-path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 method configure-hidepid(::?CLASS:D: --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $Voidvault::Replace::FILE-FSTAB);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file =
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
     my Str:D $fstab-hidepid = q:to/EOF/;
     # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
     proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
@@ -1044,8 +1149,9 @@ method configure-securetty(::?CLASS:D: --> Nil)
 
 method configure-shell-timeout(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'etc/profile.d/shell-timeout.sh';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 method configure-pamd(::?CLASS:D: --> Nil)
@@ -1056,37 +1162,51 @@ method configure-pamd(::?CLASS:D: --> Nil)
 
 method configure-xorg(::?CLASS:D: --> Nil)
 {
-    configure-xorg('Xwrapper.config');
-    configure-xorg('10-synaptics.conf');
-    configure-xorg('99-security.conf');
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    configure-xorg('Xwrapper.config', :$chroot-dir);
+    configure-xorg('10-synaptics.conf', :$chroot-dir);
+    configure-xorg('99-security.conf', :$chroot-dir);
 }
 
-multi sub configure-xorg('Xwrapper.config' --> Nil)
+multi sub configure-xorg(
+    'Xwrapper.config',
+    Str:D :$chroot-dir! where .so
+    --> Nil
+)
 {
     my Str:D $path = 'etc/X11/Xwrapper.config';
     my Str:D $base-path = $path.IO.dirname;
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    mkdir("$chroot-dir/$base-path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
-multi sub configure-xorg('10-synaptics.conf' --> Nil)
+multi sub configure-xorg(
+    '10-synaptics.conf',
+    Str:D :$chroot-dir! where .so
+    --> Nil
+)
 {
     my Str:D $path = 'etc/X11/xorg.conf.d/10-synaptics.conf';
     my Str:D $base-path = $path.IO.dirname;
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    mkdir("$chroot-dir/$base-path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
-multi sub configure-xorg('99-security.conf' --> Nil)
+multi sub configure-xorg(
+    '99-security.conf',
+    Str:D :$chroot-dir! where .so
+    --> Nil
+)
 {
     my Str:D $path = 'etc/X11/xorg.conf.d/99-security.conf';
     my Str:D $base-path = $path.IO.dirname;
-    mkdir("/mnt/$base-path");
-    copy(%?RESOURCES{$path}, "/mnt/$path");
+    mkdir("$chroot-dir/$base-path");
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
 }
 
 method configure-rc-local(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $rc-local = q:to/EOF/;
     # create zram swap device
     zramen make
@@ -1094,20 +1214,22 @@ method configure-rc-local(::?CLASS:D: --> Nil)
     # disable blinking cursor in Linux tty
     echo 0 > /sys/class/graphics/fbcon/cursor_blink
     EOF
-    spurt('/mnt/etc/rc.local', "\n" ~ $rc-local, :append);
+    spurt("$chroot-dir/etc/rc.local", "\n" ~ $rc-local, :append);
 }
 
 method configure-rc-shutdown(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $rc-shutdown = q:to/EOF/;
     # teardown zram swap device
     zramen toss
     EOF
-    spurt('/mnt/etc/rc.shutdown', "\n" ~ $rc-shutdown, :append);
+    spurt("$chroot-dir/etc/rc.shutdown", "\n" ~ $rc-shutdown, :append);
 }
 
 method enable-runit-services(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
 
     my Str:D @service = @Voidvault::Constants::SERVICE;
@@ -1119,7 +1241,7 @@ method enable-runit-services(::?CLASS:D: --> Nil)
     @service.map(-> Str:D $service {
         run(qqw<
             void-chroot
-            /mnt
+            $chroot-dir
             ln
             --symbolic
             --force
@@ -1138,10 +1260,11 @@ method augment(::?CLASS:D: --> Nil)
 
 method unmount(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my VaultName:D $vault-name = $.config.vault-name;
     # resume after error with C<umount -R>, obsolete but harmless
     CATCH { default { .resume } };
-    run(qw<umount --recursive --verbose /mnt>);
+    run(qqw<umount --recursive --verbose $chroot-dir>);
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
@@ -1172,29 +1295,31 @@ multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
 }
 
 multi sub void-chroot-mkdir(
-    Str:D @dir,
-    Str:D $user,
-    Str:D $group,
+    Str:D @dir where .so,
+    Str:D $user where .so,
+    Str:D $group where .so,
     # permissions should be octal: https://docs.raku.org/routine/chmod
-    UInt:D $permissions
+    UInt:D $permissions where .so,
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
     @dir.map(-> Str:D $dir {
-        void-chroot-mkdir($dir, $user, $group, $permissions)
+        void-chroot-mkdir($dir, $user, $group, $permissions, :$chroot-dir)
     });
 }
 
 multi sub void-chroot-mkdir(
-    Str:D $dir,
-    Str:D $user,
-    Str:D $group,
-    UInt:D $permissions
+    Str:D $dir where .so,
+    Str:D $user where .so,
+    Str:D $group where .so,
+    UInt:D $permissions where .so,
+    Str:D :$chroot-dir! where .so
     --> Nil
 )
 {
-    mkdir("/mnt/$dir", $permissions);
-    run(qqw<void-chroot /mnt chown $user:$group $dir>);
+    mkdir("$chroot-dir/$dir", $permissions);
+    run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

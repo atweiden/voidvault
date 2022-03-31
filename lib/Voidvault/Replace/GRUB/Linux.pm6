@@ -5,7 +5,8 @@ constant $FILE = '/etc/grub.d/10_linux';
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {
-    my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my Regex:D $regex = /'${CLASS}'\h/;
     my UInt:D @index = @line.grep($regex, :k);

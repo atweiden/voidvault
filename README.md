@@ -161,6 +161,7 @@ VOIDVAULT_PACKAGES="space separated list of packages"
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_DISABLE_IPV6=1
 VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
+VOIDVAULT_CHROOT_DIR="/mnt"
 ```
 
 **Supply options via cmdline flags**:
@@ -305,6 +306,7 @@ variable values for all configuration options aside from:
 - `--admin-pass-hash`
 - `--admin-pass`
 - `--augment`
+- `--chroot-dir`
 - `--disable-ipv6`
 - `--enable-serial-console`
 - `--grub-name`
@@ -333,6 +335,7 @@ No console input is read for configuration options:
 
 - `--admin-pass-hash`
 - `--augment`
+- `--chroot-dir`
 - `--disable-ipv6`
 - `--enable-serial-console`
 - `--grub-pass-hash`
