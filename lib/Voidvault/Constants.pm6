@@ -112,6 +112,14 @@ constant @BASE-PACKAGE = qw<
     zstd
 >;
 
+# runit services to enable
+constant @SERVICE = qw<
+    dnscrypt-proxy
+    nanoklogd
+    nftables
+    socklog-unix
+>;
+
 constant $EFI-DIR = '/boot/efi';
 
 # libcrypt crypt encryption rounds

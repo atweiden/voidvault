@@ -233,12 +233,7 @@ method !enable-runit-services(--> Nil)
 {
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
 
-    my Str:D @service = qw<
-        dnscrypt-proxy
-        nanoklogd
-        nftables
-        socklog-unix
-    >;
+    my Str:D @service = @Voidvault::Constants::SERVICE;
 
     # enable serial getty when using serial console, e.g. agetty-ttyS0
     push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::SERIAL-CONSOLE))
