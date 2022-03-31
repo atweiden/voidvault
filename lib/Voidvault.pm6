@@ -688,6 +688,120 @@ multi sub groupadd(*@group-name --> Nil)
     });
 }
 
+method configure-sudoers(--> Nil)
+{
+    replace('sudoers');
+}
+
+method genfstab(--> Nil)
+{
+    my Str:D $path = 'usr/bin/genfstab';
+    copy(%?RESOURCES{$path}, "/$path");
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+    shell('/usr/bin/genfstab -U -p /mnt >> /mnt/etc/fstab');
+    replace('fstab');
+}
+
+method set-hostname(--> Nil)
+{
+    my HostName:D $host-name = $.config.host-name;
+    spurt('/mnt/etc/hostname', $host-name ~ "\n");
+}
+
+method configure-hosts(--> Nil)
+{
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    my HostName:D $host-name = $.config.host-name;
+    my Str:D $path = 'etc/hosts';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+    replace('hosts', $disable-ipv6, $host-name);
+}
+
+method configure-dhcpcd(--> Nil)
+{
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    replace('dhcpcd.conf', $disable-ipv6);
+}
+
+method configure-dnscrypt-proxy(--> Nil)
+{
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    replace('dnscrypt-proxy.toml', $disable-ipv6);
+}
+
+method set-nameservers(--> Nil)
+{
+    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    my Str:D $path = 'etc/resolvconf.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+    replace('resolvconf.conf', $disable-ipv6);
+}
+
+method set-locale(--> Nil)
+{
+    my Locale:D $locale = $.config.locale;
+    my Str:D $locale-fallback = $locale.substr(0, 2);
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+
+    # customize /etc/locale.conf
+    my Str:D $locale-conf = qq:to/EOF/;
+    LANG=$locale.UTF-8
+    LANGUAGE=$locale:$locale-fallback
+    LC_TIME=$locale.UTF-8
+    EOF
+    spurt('/mnt/etc/locale.conf', $locale-conf);
+
+    # musl doesn't support locales
+    if $libc-flavor eq 'GLIBC'
+    {
+        # customize /etc/default/libc-locales
+        replace('libc-locales', $locale);
+        # regenerate locales
+        run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
+    }
+}
+
+method set-keymap(--> Nil)
+{
+    my Keymap:D $keymap = $.config.keymap;
+    replace('rc.conf', 'KEYMAP', $keymap);
+    replace('rc.conf', 'FONT');
+    replace('rc.conf', 'FONT_MAP');
+}
+
+method set-timezone(--> Nil)
+{
+    my Timezone:D $timezone = $.config.timezone;
+    run(qqw<
+        void-chroot
+        /mnt
+        ln
+        --symbolic
+        --force
+        /usr/share/zoneinfo/$timezone
+        /etc/localtime
+    >);
+    replace('rc.conf', 'TIMEZONE', $timezone);
+}
+
+method set-hwclock(--> Nil)
+{
+    replace('rc.conf', 'HARDWARECLOCK');
+    run(qqw<void-chroot /mnt hwclock --systohc --utc>);
+}
+
+method configure-modprobe(--> Nil)
+{
+    my Str:D $path = 'etc/modprobe.d/modprobe.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
+method configure-modules-load(--> Nil)
+{
+    my Str:D $path = 'etc/modules-load.d/bbr.conf';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
