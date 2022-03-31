@@ -425,7 +425,7 @@ method mount-efi(::?CLASS:D: --> Nil)
     run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
 }
 
-method disable-cow(--> Nil)
+method disable-cow(::?CLASS:D: --> Nil)
 {
     my Str:D @directory = qw<
         srv
@@ -533,7 +533,6 @@ multi sub build-voidstrap-cmdline(
 
 method install-vault-key(::?CLASS:D: --> Nil)
 {
-    my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     my Str:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
@@ -546,7 +545,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
     );
 
     # configure /etc/crypttab for vault key
-    replace('crypttab', $partition-vault, $vault-name, $vault-key);
+    self.replace('/etc/crypttab');
 }
 
 # secure user configuration
@@ -704,56 +703,47 @@ multi sub groupadd(*@group-name --> Nil)
     });
 }
 
-method configure-sudoers(--> Nil)
+method configure-sudoers(::?CLASS:D: --> Nil)
 {
-    replace('sudoers');
+    self.replace('/etc/sudoers');
 }
 
-method genfstab(--> Nil)
+method genfstab(::?CLASS:D: --> Nil)
 {
     my Str:D $path = 'usr/bin/genfstab';
     copy(%?RESOURCES{$path}, "/$path");
     copy(%?RESOURCES{$path}, "/mnt/$path");
     shell('/usr/bin/genfstab -U -p /mnt >> /mnt/etc/fstab');
-    replace('fstab');
+    self.replace('/etc/fstab');
 }
 
-method set-hostname(--> Nil)
+method set-hostname(::?CLASS:D: --> Nil)
 {
     my HostName:D $host-name = $.config.host-name;
     spurt('/mnt/etc/hostname', $host-name ~ "\n");
 }
 
-method configure-hosts(--> Nil)
+method configure-hosts(::?CLASS:D: --> Nil)
 {
-    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    my HostName:D $host-name = $.config.host-name;
-    my Str:D $path = 'etc/hosts';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-    replace('hosts', $disable-ipv6, $host-name);
+    self.replace('/etc/hosts');
 }
 
-method configure-dhcpcd(--> Nil)
+method configure-dhcpcd(::?CLASS:D: --> Nil)
 {
-    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    replace('dhcpcd.conf', $disable-ipv6);
+    self.replace('/etc/dhcpcd.conf');
 }
 
-method configure-dnscrypt-proxy(--> Nil)
+method configure-dnscrypt-proxy(::?CLASS:D: --> Nil)
 {
-    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    replace('dnscrypt-proxy.toml', $disable-ipv6);
+    self.replace('/etc/dnscrypt-proxy.toml');
 }
 
-method set-nameservers(--> Nil)
+method set-nameservers(::?CLASS:D: --> Nil)
 {
-    my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    my Str:D $path = 'etc/resolvconf.conf';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
-    replace('resolvconf.conf', $disable-ipv6);
+    self.replace('/etc/resolvconf.conf');
 }
 
-method set-locale(--> Nil)
+method set-locale(::?CLASS:D: --> Nil)
 {
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
@@ -771,21 +761,20 @@ method set-locale(--> Nil)
     if $libc-flavor eq 'GLIBC'
     {
         # customize /etc/default/libc-locales
-        replace('libc-locales', $locale);
+        self.replace('/etc/default/libc-locales');
         # regenerate locales
         run(qqw<void-chroot /mnt xbps-reconfigure --force glibc-locales>);
     }
 }
 
-method set-keymap(--> Nil)
+method set-keymap(::?CLASS:D: --> Nil)
 {
-    my Keymap:D $keymap = $.config.keymap;
-    replace('rc.conf', 'KEYMAP', $keymap);
-    replace('rc.conf', 'FONT');
-    replace('rc.conf', 'FONT_MAP');
+    self.replace('/etc/rc.conf', 'KEYMAP');
+    self.replace('/etc/rc.conf', 'FONT');
+    self.replace('/etc/rc.conf', 'FONT_MAP');
 }
 
-method set-timezone(--> Nil)
+method set-timezone(::?CLASS:D: --> Nil)
 {
     my Timezone:D $timezone = $.config.timezone;
     run(qqw<
@@ -797,22 +786,22 @@ method set-timezone(--> Nil)
         /usr/share/zoneinfo/$timezone
         /etc/localtime
     >);
-    replace('rc.conf', 'TIMEZONE', $timezone);
+    self.replace('/etc/rc.conf', 'TIMEZONE');
 }
 
-method set-hwclock(--> Nil)
+method set-hwclock(::?CLASS:D: --> Nil)
 {
-    replace('rc.conf', 'HARDWARECLOCK');
+    self.replace('/etc/rc.conf', 'HARDWARECLOCK');
     run(qqw<void-chroot /mnt hwclock --systohc --utc>);
 }
 
-method configure-modprobe(--> Nil)
+method configure-modprobe(::?CLASS:D: --> Nil)
 {
     my Str:D $path = 'etc/modprobe.d/modprobe.conf';
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
-method configure-modules-load(--> Nil)
+method configure-modules-load(::?CLASS:D: --> Nil)
 {
     my Str:D $path = 'etc/modules-load.d/bbr.conf';
     copy(%?RESOURCES{$path}, "/mnt/$path");
@@ -828,7 +817,7 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
 
     # dracut
-    self.replace('/etc/dracut.conf');
+    self.replace('/etc/dracut.conf.d');
     run(qqw<void-chroot /mnt dracut --force --kver $linux-version>);
 
     # xbps-reconfigure

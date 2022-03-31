@@ -6,7 +6,9 @@ constant $FILE = '/etc/resolvconf.conf';
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    my Str:D $path = $FILE.substr(1);
     my Str:D $file = sprintf(Q{/mnt%s}, $FILE);
+    copy(%?RESOURCES{$path}, $file);
     replace($file, $disable-ipv6);
 }
 
