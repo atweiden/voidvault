@@ -4,7 +4,23 @@ use Voidvault::Constants;
 use Voidvault::Replace;
 use Void::XBPS;
 unit class Voidvault;
-also does Voidvault::Replace;
+also does Voidvault::Replace[$Voidvault::Replace::FILE-CRYPTTAB];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-DNSCRYPT-PROXY];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-DHCPCD];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-DRACUT];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-FSTAB];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-DEFAULT];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-LINUX];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-HOSTS];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-LOCALES];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENRESOLV];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-PAM];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-RC];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-SSH-MODULI];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-SSH-SSHD];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-SECURETTY];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-SUDOERS];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-SYSCTL];
 
 
 # -----------------------------------------------------------------------------

@@ -17,23 +17,23 @@ use Voidvault::Replace::SecureTTY;
 use Voidvault::Replace::Sudoers;
 use Voidvault::Replace::Sysctl;
 
-my constant $FILE-CRYPTTAB = $Voidvault::Replace::Crypttab::FILE;
-my constant $FILE-DNSCRYPT-PROXY = $Voidvault::Replace::DNSCryptProxy::FILE;
-my constant $FILE-DHCPCD = $Voidvault::Replace::Dhcpcd::FILE;
-my constant $FILE-DRACUT = $Voidvault::Replace::Dracut::FILE;
-my constant $FILE-FSTAB = $Voidvault::Replace::FSTab::FILE;
-my constant $FILE-GRUB-DEFAULT = $Voidvault::Replace::GRUB::Default::FILE;
-my constant $FILE-GRUB-LINUX = $Voidvault::Replace::GRUB::Linux::FILE;
-my constant $FILE-HOSTS = $Voidvault::Replace::Hosts::FILE;
-my constant $FILE-LOCALES = $Voidvault::Replace::Locales::FILE;
-my constant $FILE-OPENRESOLV = $Voidvault::Replace::OpenResolv::FILE;
-my constant $FILE-PAM = $Voidvault::Replace::PAM::FILE;
-my constant $FILE-RC = $Voidvault::Replace::RC::FILE;
-my constant $FILE-SSH-MODULI = $Voidvault::Replace::SSH::Moduli::FILE;
-my constant $FILE-SSH-SSHD = $Voidvault::Replace::SSH::SSHD::FILE;
-my constant $FILE-SECURETTY = $Voidvault::Replace::SecureTTY::FILE;
-my constant $FILE-SUDOERS = $Voidvault::Replace::Sudoers::FILE;
-my constant $FILE-SYSCTL = $Voidvault::Replace::Sysctl::FILE;
+constant $FILE-CRYPTTAB = $Voidvault::Replace::Crypttab::FILE;
+constant $FILE-DNSCRYPT-PROXY = $Voidvault::Replace::DNSCryptProxy::FILE;
+constant $FILE-DHCPCD = $Voidvault::Replace::Dhcpcd::FILE;
+constant $FILE-DRACUT = $Voidvault::Replace::Dracut::FILE;
+constant $FILE-FSTAB = $Voidvault::Replace::FSTab::FILE;
+constant $FILE-GRUB-DEFAULT = $Voidvault::Replace::GRUB::Default::FILE;
+constant $FILE-GRUB-LINUX = $Voidvault::Replace::GRUB::Linux::FILE;
+constant $FILE-HOSTS = $Voidvault::Replace::Hosts::FILE;
+constant $FILE-LOCALES = $Voidvault::Replace::Locales::FILE;
+constant $FILE-OPENRESOLV = $Voidvault::Replace::OpenResolv::FILE;
+constant $FILE-PAM = $Voidvault::Replace::PAM::FILE;
+constant $FILE-RC = $Voidvault::Replace::RC::FILE;
+constant $FILE-SSH-MODULI = $Voidvault::Replace::SSH::Moduli::FILE;
+constant $FILE-SSH-SSHD = $Voidvault::Replace::SSH::SSHD::FILE;
+constant $FILE-SECURETTY = $Voidvault::Replace::SecureTTY::FILE;
+constant $FILE-SUDOERS = $Voidvault::Replace::Sudoers::FILE;
+constant $FILE-SYSCTL = $Voidvault::Replace::Sysctl::FILE;
 
 role Voidvault::Replace[Str:D $ where $FILE-CRYPTTAB]
 {
