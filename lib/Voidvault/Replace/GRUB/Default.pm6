@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::GRUB::Default;
 
-my constant $FILE = '/etc/default/grub';
+constant $FILE = '/etc/default/grub';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

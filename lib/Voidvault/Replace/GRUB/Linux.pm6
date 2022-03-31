@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::GRUB::Linux;
 
-my constant $FILE = '/etc/grub.d/10_linux';
+constant $FILE = '/etc/grub.d/10_linux';
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

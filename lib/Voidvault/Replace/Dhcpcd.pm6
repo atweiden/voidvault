@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::Dhcpcd;
 
-my constant $FILE = '/etc/dhcpcd.conf';
+constant $FILE = '/etc/dhcpcd.conf';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

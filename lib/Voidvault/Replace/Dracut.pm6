@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::Dracut;
 
-my constant $FILE = '/etc/dracut.conf.d'
+constant $FILE = '/etc/dracut.conf.d'
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

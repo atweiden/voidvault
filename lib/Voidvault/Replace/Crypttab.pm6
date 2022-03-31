@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::Crypttab;
 
-my constant $FILE = '/etc/crypttab';
+constant $FILE = '/etc/crypttab';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

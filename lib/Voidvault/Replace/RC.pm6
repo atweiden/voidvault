@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::RC;
 
-my constant $FILE = '/etc/rc.conf';
+constant $FILE = '/etc/rc.conf';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'KEYMAP' --> Nil)
 {

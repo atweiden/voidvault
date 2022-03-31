@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::FSTab;
 
-my constant $FILE = '/etc/fstab';
+constant $FILE = '/etc/fstab';
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::SSH::SSHD;
 
-my constant $FILE = '/etc/ssh/sshd_config';
+constant $FILE = '/etc/ssh/sshd_config';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

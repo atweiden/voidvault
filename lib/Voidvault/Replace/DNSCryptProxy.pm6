@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::DNSCryptProxy;
 
-my constant $FILE = '/etc/dnscrypt-proxy.toml';
+constant $FILE = '/etc/dnscrypt-proxy.toml';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::SSH::Moduli;
 
-my constant $FILE = '/etc/ssh/moduli';
+constant $FILE = '/etc/ssh/moduli';
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

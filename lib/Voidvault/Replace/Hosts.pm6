@@ -1,7 +1,7 @@
 use v6;
 unit role Voidvault::Replace::Hosts;
 
-my constant $FILE = '/etc/hosts';
+constant $FILE = '/etc/hosts';
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
