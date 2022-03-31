@@ -824,6 +824,113 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     run(qqw<void-chroot /mnt xbps-reconfigure --force $xbps-linux>);
 }
 
+method install-bootloader(::?CLASS:D: --> Nil)
+{
+    my Str:D $device = $.config.device;
+    self.replace($Voidvault::Replace::FILE-GRUB-DEFAULT);
+    self.replace($Voidvault::Replace::FILE-GRUB-LINUX);
+    self.configure-bootloader('superusers');
+    install-bootloader($device);
+}
+
+method configure-bootloader(::?CLASS:D: 'superusers' --> Nil)
+{
+    my UserName:D $user-name-grub = $.config.user-name-grub;
+    my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
+    my Str:D $grub-superusers = qq:to/EOF/;
+    set superusers="$user-name-grub"
+    password_pbkdf2 $user-name-grub $user-pass-hash-grub
+    EOF
+    spurt('/mnt/etc/grub.d/40_custom', $grub-superusers, :append);
+}
+
+multi sub install-bootloader(
+    Str:D $device
+    --> Nil
+)
+{
+    install-bootloader(:legacy, $device);
+    install-bootloader(:uefi, 32, $device) if $*KERNEL.bits == 32;
+    install-bootloader(:uefi, 64, $device) if $*KERNEL.bits == 64;
+    mkdir('/mnt/boot/grub/locale');
+    copy(
+        '/mnt/usr/share/locale/en@quot/LC_MESSAGES/grub.mo',
+        '/mnt/boot/grub/locale/en.mo'
+    );
+    run(qqw<
+        void-chroot
+        /mnt
+        grub-mkconfig
+        --output=/boot/grub/grub.cfg
+    >);
+}
+
+multi sub install-bootloader(
+    Str:D $device,
+    Bool:D :legacy($)! where .so
+    --> Nil
+)
+{
+    # legacy bios
+    run(qqw<
+        void-chroot
+        /mnt
+        grub-install
+        --target=i386-pc
+        --recheck
+    >, $device);
+}
+
+multi sub install-bootloader(
+    32,
+    Str:D $device,
+    Bool:D :uefi($)! where .so
+    --> Nil
+)
+{
+    # uefi - i686
+    run(qqw<
+        void-chroot
+        /mnt
+        grub-install
+        --target=i386-efi
+        --efi-directory=/boot/efi
+        --removable
+    >, $device);
+
+    # fix virtualbox uefi
+    my Str:D $nsh = q:to/EOF/;
+    fs0:
+    \EFI\BOOT\BOOTIA32.EFI
+    EOF
+    spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+}
+
+multi sub install-bootloader(
+    64,
+    Str:D $device,
+    Bool:D :uefi($)! where .so
+    --> Nil
+)
+{
+    # uefi - x86_64
+    run(qqw<
+        void-chroot
+        /mnt
+        grub-install
+        --target=x86_64-efi
+        --efi-directory=/boot/efi
+        --removable
+    >, $device);
+
+    # fix virtualbox uefi
+    my Str:D $nsh = q:to/EOF/;
+    fs0:
+    \EFI\BOOT\BOOTX64.EFI
+    EOF
+    spurt('/mnt/boot/efi/startup.nsh', $nsh, :append);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions
