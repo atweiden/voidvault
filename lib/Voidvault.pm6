@@ -1,8 +1,10 @@
 use v6;
 use Voidvault::Config;
 use Voidvault::Constants;
+use Voidvault::Replace;
 use Void::XBPS;
 unit class Voidvault;
+also does Voidvault::Replace;
 
 
 # -----------------------------------------------------------------------------
