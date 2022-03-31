@@ -1,11 +1,10 @@
 use v6;
 use Void::XBPS;
 use Voidvault;
-use Voidvault::Constants;
 use Voidvault::Config;
 use Voidvault::Config::Base;
+use Voidvault::Constants;
 use Voidvault::Types;
-use Voidvault::Utils;
 use X::Void::XBPS;
 unit class Voidvault::Base;
 also is Voidvault;
@@ -366,7 +365,7 @@ method !enable-runit-services(--> Nil)
     >;
 
     # enable serial getty when using serial console, e.g. agetty-ttyS0
-    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Utils::SERIAL-CONSOLE))
+    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::SERIAL-CONSOLE))
         if $enable-serial-console.so;
 
     @service.map(-> Str:D $service {

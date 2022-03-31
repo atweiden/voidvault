@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::GRUB::Default;
 
 constant $FILE = '/etc/default/grub';
@@ -70,15 +71,15 @@ multi sub replace(
     {
         # e.g. console=tty0
         my Str:D $virtual =
-            sprintf('console=%s', $Voidvault::Utils::VIRTUAL-CONSOLE);
+            sprintf('console=%s', $Voidvault::Constants::VIRTUAL-CONSOLE);
 
         # e.g. console=ttyS0,115200n8
         my Str:D $serial = sprintf(
             'console=%s,%s%s%s',
-            $Voidvault::Utils::SERIAL-CONSOLE,
-            $Voidvault::Utils::GRUB-SERIAL-PORT-BAUD-RATE,
-            %Voidvault::Utils::GRUB-SERIAL-PORT-PARITY{$Voidvault::Utils::GRUB-SERIAL-PORT-PARITY}{$subject},
-            $Voidvault::Utils::GRUB-SERIAL-PORT-WORD-LENGTH-BITS
+            $Voidvault::Constants::SERIAL-CONSOLE,
+            $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE,
+            %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject},
+            $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS
         );
 
         # enable both serial and virtual console on boot
@@ -211,11 +212,11 @@ multi sub replace(
 {
     # if C<GRUB_SERIAL_COMMAND> not found, append to bottom of file
     my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $speed = $Voidvault::Utils::GRUB-SERIAL-PORT-BAUD-RATE;
-    my Str:D $unit = $Voidvault::Utils::GRUB-SERIAL-PORT-UNIT;
-    my Str:D $word = $Voidvault::Utils::GRUB-SERIAL-PORT-WORD-LENGTH-BITS;
-    my Str:D $parity = %Voidvault::Utils::GRUB-SERIAL-PORT-PARITY{$Voidvault::Utils::GRUB-SERIAL-PORT-PARITY}{$subject};
-    my Str:D $stop = $Voidvault::Utils::GRUB-SERIAL-PORT-STOP-BITS;
+    my Str:D $speed = $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE;
+    my Str:D $unit = $Voidvault::Constants::GRUB-SERIAL-PORT-UNIT;
+    my Str:D $word = $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS;
+    my Str:D $parity = %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject};
+    my Str:D $stop = $Voidvault::Constants::GRUB-SERIAL-PORT-STOP-BITS;
     my Str:D $grub-serial-command = qqw<
         serial
         --speed=$speed
