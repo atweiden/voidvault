@@ -818,6 +818,23 @@ method configure-modules-load(--> Nil)
     copy(%?RESOURCES{$path}, "/mnt/$path");
 }
 
+method generate-initramfs(::?CLASS:D: --> Nil)
+{
+    my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
+    my Str:D $xbps-linux-version-raw =
+        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
+    my Str:D $xbps-linux-version =
+        $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
+    my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
+
+    # dracut
+    self.replace('/etc/dracut.conf');
+    run(qqw<void-chroot /mnt dracut --force --kver $linux-version>);
+
+    # xbps-reconfigure
+    run(qqw<void-chroot /mnt xbps-reconfigure --force $xbps-linux>);
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions

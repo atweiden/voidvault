@@ -64,25 +64,6 @@ method bootstrap(::?CLASS:D: --> Nil)
 # worker functions
 # -----------------------------------------------------------------------------
 
-method !generate-initramfs(--> Nil)
-{
-    my Graphics:D $graphics = $.config.graphics;
-    my Processor:D $processor = $.config.processor;
-
-    # dracut
-    replace('dracut.conf', $graphics, $processor);
-    my Str:D $linux-version = dir('/mnt/usr/lib/modules').first.basename;
-    run(qqw<void-chroot /mnt dracut --force --kver $linux-version>);
-
-    # xbps-reconfigure
-    my Str:D $xbps-linux-version-raw =
-        qx{xbps-query --rootdir /mnt --property pkgver linux}.trim;
-    my Str:D $xbps-linux-version =
-        $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
-    my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
-    run(qqw<void-chroot /mnt xbps-reconfigure --force $xbps-linux>);
-}
-
 method !install-bootloader(--> Nil)
 {
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
