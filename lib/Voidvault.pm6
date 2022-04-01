@@ -2,6 +2,7 @@ use v6;
 use Voidvault::Config;
 use Voidvault::Constants;
 use Voidvault::Replace;
+use Voidvault::Utils;
 use Void::XBPS;
 unit class Voidvault;
 also does Voidvault::Replace[$Voidvault::Replace::FILE-CRYPTTAB];
@@ -692,8 +693,8 @@ multi method useradd(::?CLASS:D: 'admin' --> Nil)
     my Str:D $user-shell-admin = '/bin/bash';
 
     say("Creating new admin user named $user-name-admin...");
-    groupadd(:system, 'proc', :$chroot-dir);
-    groupadd($user-name-admin, :$chroot-dir);
+    Voidvault::Utils.groupadd(:system, 'proc', :$chroot-dir);
+    Voidvault::Utils.groupadd($user-name-admin, :$chroot-dir);
     run(qqw<
         void-chroot
         $chroot-dir
@@ -720,7 +721,7 @@ multi method useradd(::?CLASS:D: 'guest' --> Nil)
     my Str:D $user-shell-guest = '/bin/bash';
 
     say("Creating new guest user named $user-name-guest...");
-    groupadd($user-name-guest, 'guests', :$chroot-dir);
+    Voidvault::Utils.groupadd($user-name-guest, 'guests', :$chroot-dir);
     run(qqw<
         void-chroot
         $chroot-dir
@@ -749,8 +750,14 @@ multi method useradd(::?CLASS:D: 'sftp' --> Nil)
     my Str:D @root-dir = $auth-dir, $jail-dir;
 
     say("Creating new SFTP user named $user-name-sftp...");
-    void-chroot-mkdir(@root-dir, 'root', 'root', 0o755, :$chroot-dir);
-    groupadd($user-name-sftp, $user-group-sftp, :$chroot-dir);
+    Voidvault::Utils.void-chroot-mkdir(
+        @root-dir,
+        :user<root>,
+        :group<root>,
+        :permissions(0o755),
+        :$chroot-dir
+    );
+    Voidvault::Utils.groupadd($user-name-sftp, $user-group-sftp, :$chroot-dir);
     run(qqw<
         void-chroot
         $chroot-dir
@@ -763,11 +770,11 @@ multi method useradd(::?CLASS:D: 'sftp' --> Nil)
         --shell $user-shell-sftp
         $user-name-sftp
     >);
-    void-chroot-mkdir(
+    Voidvault::Utils.void-chroot-mkdir(
         $home-dir,
-        $user-name-sftp,
-        $user-name-sftp,
-        0o700,
+        :user($user-name-sftp),
+        :group($user-name-sftp),
+        :permissions(0o700),
         :$chroot-dir
     );
 }
@@ -792,29 +799,6 @@ method usermod(::?CLASS:D: 'root' --> Nil)
         --shell /bin/bash
         root
     >);
-}
-
-multi sub groupadd(
-    Str:D :$chroot-dir! where .so,
-    Bool:D :system($)! where .so,
-    *@group-name
-    --> Nil
-)
-{
-    @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
-    });
-}
-
-multi sub groupadd(
-    Str:D :$chroot-dir! where .so,
-    *@group-name
-    --> Nil
-)
-{
-    @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
-    });
 }
 
 method configure-sudoers(::?CLASS:D: --> Nil)
@@ -1292,34 +1276,6 @@ multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
     # e.g. /dev/sda3
     my UInt:D $index = 2;
     my Str:D $partition = @*partition[$index];
-}
-
-multi sub void-chroot-mkdir(
-    Str:D @dir where .so,
-    Str:D $user where .so,
-    Str:D $group where .so,
-    # permissions should be octal: https://docs.raku.org/routine/chmod
-    UInt:D $permissions where .so,
-    Str:D :$chroot-dir! where .so
-    --> Nil
-)
-{
-    @dir.map(-> Str:D $dir {
-        void-chroot-mkdir($dir, $user, $group, $permissions, :$chroot-dir)
-    });
-}
-
-multi sub void-chroot-mkdir(
-    Str:D $dir where .so,
-    Str:D $user where .so,
-    Str:D $group where .so,
-    UInt:D $permissions where .so,
-    Str:D :$chroot-dir! where .so
-    --> Nil
-)
-{
-    mkdir("$chroot-dir/$dir", $permissions);
-    run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

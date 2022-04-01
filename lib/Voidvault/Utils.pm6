@@ -86,6 +86,41 @@ multi sub disable-cow(
     run(qqw<chattr +C $orig-dir>);
 }
 
+method groupadd(
+    Str:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@),
+    *%opts (
+        Bool :system($)
+    )
+    --> Nil
+)
+{
+    groupadd(@group-name, :$chroot-dir, |%opts);
+}
+
+multi sub groupadd(
+    Str:D :$chroot-dir! where .so,
+    Bool:D :system($)! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
+    });
+}
+
+multi sub groupadd(
+    Str:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
+    });
+}
+
 # execute shell process and re-attempt on failure
 method loop-cmdline-proc(
     Str:D $message where .so,
@@ -215,6 +250,23 @@ method ls-timezones(--> Array[Timezone:D])
         .map({ .split(/\h+/)[2] })
         .sort;
     my Timezone:D @timezones = |@zoneinfo, 'UTC';
+}
+
+# chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
+method void-chroot-mkdir(
+    Str:D :$user! where .so,
+    Str:D :$group! where .so,
+    # permissions should be octal: https://docs.raku.org/routine/chmod
+    UInt:D :$permissions! where .so,
+    Str:D :$chroot-dir! where .so,
+    *@dir (Str:D $, *@)
+    --> Nil
+)
+{
+    @dir.map(-> Str:D $dir {
+        mkdir("$chroot-dir/$dir", $permissions);
+        run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
+    });
 }
 
 
