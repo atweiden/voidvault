@@ -809,11 +809,17 @@ method configure-sudoers(::?CLASS:D: --> Nil)
 method genfstab(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'usr/bin/genfstab';
-    copy(%?RESOURCES{$path}, "/mnt/$path");
     my Str:D $file =
         sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
+    my Str:D $path = 'usr/bin/genfstab';
+
+    # install genfstab
+    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+
+    # generate /etc/fstab
     shell("%?RESOURCES{$path} -U -p $chroot-dir >> $file");
+
+    # customize /etc/fstab
     self.replace($Voidvault::Replace::FILE-FSTAB);
 }
 
