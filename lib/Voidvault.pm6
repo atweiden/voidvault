@@ -860,20 +860,16 @@ method set-locale(::?CLASS:D: --> Nil)
     spurt("$chroot-dir/etc/locale.conf", $locale-conf);
 
     # musl doesn't support locales
-    if $libc-flavor eq 'GLIBC'
-    {
-        my Str:D $chroot-dir = $.config.chroot-dir;
-        # customize /etc/default/libc-locales
-        self.replace($Voidvault::Replace::FILE-LOCALES);
-        # regenerate locales
-        run(qqw<
-            void-chroot
-            $chroot-dir
-            xbps-reconfigure
-            --force
-            glibc-locales
-        >);
-    }
+    self.set-locale-glibc if $libc-flavor eq 'GLIBC';
+}
+
+method set-locale-glibc(::?CLASS:D: --> Nil)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    # customize /etc/default/libc-locales
+    self.replace($Voidvault::Replace::FILE-LOCALES);
+    # regenerate locales
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force glibc-locales>);
 }
 
 method set-keymap(::?CLASS:D: --> Nil)
