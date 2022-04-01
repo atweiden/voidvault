@@ -91,11 +91,11 @@ multi sub replace(
 )
 {
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
-    my Str:D @item = qqw<
+    my Str:D $item = qqw<
         $vault-key
         /etc/crypttab
-    >;
-    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @item.join(' '));
+    >.join(' ');
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, $item);
     spurt($file, $replace ~ "\n");
 }
 
