@@ -186,6 +186,11 @@ multi sub MAIN(
 # ls
 # -----------------------------------------------------------------------------
 
+multi sub MAIN('ls', 'devices' --> Nil)
+{
+    Voidvault::Utils.ls-devices.map({ .say });
+}
+
 multi sub MAIN('ls', 'keymaps' --> Nil)
 {
     Voidvault::Utils.ls-keymaps.map({ .say });
@@ -194,11 +199,6 @@ multi sub MAIN('ls', 'keymaps' --> Nil)
 multi sub MAIN('ls', 'locales' --> Nil)
 {
     Voidvault::Utils.ls-locales.map({ .say });
-}
-
-multi sub MAIN('ls', 'devices' --> Nil)
-{
-    Voidvault::Utils.ls-devices.map({ .say });
 }
 
 multi sub MAIN('ls', 'timezones' --> Nil)
