@@ -60,47 +60,13 @@ multi sub replace(
 )
 {
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
-    my Str:D $vault-uuid =
-        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
-    my Str:D @grub-cmdline-linux = qqw<
-        rd.luks=1
-        rd.luks.uuid=$vault-uuid
-        rd.luks.name=$vault-uuid=$vault-name
-        loglevel=6
-    >;
-    if $enable-serial-console.so
-    {
-        # e.g. console=tty0
-        my Str:D $virtual =
-            sprintf('console=%s', $Voidvault::Constants::VIRTUAL-CONSOLE);
-
-        # e.g. console=ttyS0,115200n8
-        my Str:D $serial = sprintf(
-            'console=%s,%s%s%s',
-            $Voidvault::Constants::SERIAL-CONSOLE,
-            $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE,
-            %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject},
-            $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS
-        );
-
-        # enable both serial and virtual console on boot
-        push(@grub-cmdline-linux, $virtual);
-        push(@grub-cmdline-linux, $serial);
-    }
-    # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
-    push(@grub-cmdline-linux, 'slub_debug=FZ');
-    #                                     ||
-    #                                     |+--- redzoning (Z)
-    #                                     +---- sanity checks (F)
-    # disable slab merging (makes many heap overflow attacks more difficult)
-    push(@grub-cmdline-linux, 'slab_nomerge=1');
-    # always enable Kernel Page Table Isolation (to be safe from Meltdown)
-    push(@grub-cmdline-linux, 'pti=on');
-    # always panic on uncorrected errors, log corrected errors
-    push(@grub-cmdline-linux, 'mce=0');
-    push(@grub-cmdline-linux, 'printk.time=1');
-    push(@grub-cmdline-linux, 'radeon.dpm=1') if $graphics eq 'RADEON';
-    push(@grub-cmdline-linux, 'ipv6.disable=1') if $disable-ipv6.so;
+    my Str:D @grub-cmdline-linux;
+    set-log-level('informational', @grub-cmdline-linux);
+    enable-luks('UUID', @grub-cmdline-linux, :$partition-vault, :$vault-name);
+    enable-serial-console(@grub-cmdline-linux) if $enable-serial-console.so;
+    enable-security-features(@grub-cmdline-linux);
+    enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
+    disable-ipv6(@grub-cmdline-linux) if $disable-ipv6.so;
     my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
     # replace GRUB_CMDLINE_LINUX_DEFAULT
     my UInt:D $index = @line.first(/^$subject'='/, :k);
@@ -239,6 +205,97 @@ multi sub replace(
 )
 {
     @line;
+}
+
+multi sub set-log-level(Str:D $log-level, Str:D @grub-cmdline-linux --> Nil)
+{
+    my Str:D $gen-log-level = gen-log-level($log-level);
+    my Str:D $set-log-level = sprintf(Q{loglevel=%s}, $gen-log-level);
+    push(@grub-cmdline-linux, $set-log-level);
+}
+
+# kernel message limit level accessed phonetically
+multi sub gen-log-level('emergency' --> Str:D)     { '0' }
+multi sub gen-log-level('alert' --> Str:D)         { '1' }
+multi sub gen-log-level('critical' --> Str:D)      { '2' }
+multi sub gen-log-level('error' --> Str:D)         { '3' }
+multi sub gen-log-level('warning' --> Str:D)       { '4' }
+multi sub gen-log-level('notice' --> Str:D)        { '5' }
+multi sub gen-log-level('informational' --> Str:D) { '6' }
+multi sub gen-log-level('debug' --> Str:D)         { '7' }
+
+multi sub enable-luks(
+    'UUID',
+    Str:D @grub-cmdline-linux,
+    Str:D :$partition-vault! where .so,
+    Str:D :$vault-name! where .so
+    --> Nil
+)
+{
+    my Str:D $vault-uuid =
+        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
+    my Str:D @enable-luks = qqw<
+        rd.luks=1
+        rd.luks.uuid=$vault-uuid
+        rd.luks.name=$vault-uuid=$vault-name
+    >;
+    push(@grub-cmdline-linux, $_) for @enable-luks;
+}
+
+sub enable-serial-console(Str:D @grub-cmdline-linux --> Nil)
+{
+    # e.g. console=tty0
+    my Str:D $virtual = gen-console('virtual');
+    # e.g. console=ttyS0,115200n8
+    my Str:D $serial = gen-console('serial');
+    # enable both serial and virtual console on boot
+    push(@grub-cmdline-linux, $virtual);
+    push(@grub-cmdline-linux, $serial);
+}
+
+multi sub gen-console('virtual' --> Str:D)
+{
+    # e.g. console=tty0
+    my Str:D $virtual =
+        sprintf('console=%s', $Voidvault::Constants::VIRTUAL-CONSOLE);
+}
+
+multi sub gen-console('serial' --> Str:D)
+{
+    # e.g. console=ttyS0,115200n8
+    my Str:D $serial = sprintf(
+        'console=%s,%s%s%s',
+        $Voidvault::Constants::SERIAL-CONSOLE,
+        $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE,
+        %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject},
+        $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS
+    );
+}
+
+sub enable-security-features(Str:D @grub-cmdline-linux --> Nil)
+{
+    # enable slub/slab allocator free poisoning (needs CONFIG_SLUB_DEBUG=y)
+    push(@grub-cmdline-linux, 'slub_debug=FZ');
+    #                                     ||
+    #                                     |+--- redzoning (Z)
+    #                                     +---- sanity checks (F)
+    # disable slab merging (makes many heap overflow attacks more difficult)
+    push(@grub-cmdline-linux, 'slab_nomerge=1');
+    # always enable Kernel Page Table Isolation (to be safe from Meltdown)
+    push(@grub-cmdline-linux, 'pti=on');
+    # always panic on uncorrected errors, log corrected errors
+    push(@grub-cmdline-linux, 'mce=0');
+    push(@grub-cmdline-linux, 'printk.time=1');
+}
+
+sub enable-radeon(Str:D @grub-cmdline-linux --> Nil)
+{
+    push(@grub-cmdline-linux, 'radeon.dpm=1');
+}
+
+sub disable-ipv6(Str:D @grub-cmdline-linux --> Nil)
+{
+    push(@grub-cmdline-linux, 'ipv6.disable=1');
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
