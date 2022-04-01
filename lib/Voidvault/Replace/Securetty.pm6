@@ -1,6 +1,6 @@
 use v6;
 use Voidvault::Constants;
-unit role Voidvault::Replace::SecureTTY;
+unit role Voidvault::Replace::Securetty;
 
 constant $FILE = '/etc/securetty';
 

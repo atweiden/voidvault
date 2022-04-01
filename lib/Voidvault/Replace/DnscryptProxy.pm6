@@ -1,5 +1,5 @@
 use v6;
-unit role Voidvault::Replace::DNSCryptProxy;
+unit role Voidvault::Replace::DnscryptProxy;
 
 constant $FILE = '/etc/dnscrypt-proxy.toml';
 

@@ -1,5 +1,5 @@
 use v6;
-unit role Voidvault::Replace::GRUB::Linux;
+unit role Voidvault::Replace::Grub::Linux;
 
 constant $FILE = '/etc/grub.d/10_linux';
 

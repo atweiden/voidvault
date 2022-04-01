@@ -15,11 +15,11 @@ also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-LINUX];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-HOSTS];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-LOCALES];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENRESOLV];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENSSH-DAEMON];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENSSH-MODULI];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-PAM];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-RC];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-SECURETTY];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-SSH-MODULI];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-SSH-SSHD];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-SUDOERS];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-SYSCTL];
 

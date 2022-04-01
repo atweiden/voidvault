@@ -1,5 +1,5 @@
 use v6;
-unit role Voidvault::Replace::SSH::Moduli;
+unit role Voidvault::Replace::OpenSSH::Moduli;
 
 constant $FILE = '/etc/ssh/moduli';
 

@@ -1,5 +1,5 @@
 use v6;
-unit role Voidvault::Replace::SSH::SSHD;
+unit role Voidvault::Replace::OpenSSH::Daemon;
 
 constant $FILE = '/etc/ssh/sshd_config';
 

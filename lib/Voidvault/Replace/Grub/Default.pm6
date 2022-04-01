@@ -1,6 +1,6 @@
 use v6;
 use Voidvault::Constants;
-unit role Voidvault::Replace::GRUB::Default;
+unit role Voidvault::Replace::Grub::Default;
 
 constant $FILE = '/etc/default/grub';
 

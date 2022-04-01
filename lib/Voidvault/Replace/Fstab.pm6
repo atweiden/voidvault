@@ -1,5 +1,5 @@
 use v6;
-unit role Voidvault::Replace::FSTab;
+unit role Voidvault::Replace::Fstab;
 
 constant $FILE = '/etc/fstab';
 
