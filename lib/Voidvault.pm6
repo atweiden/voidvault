@@ -844,11 +844,12 @@ method set-nameservers(::?CLASS:D: --> Nil)
     self.replace($Voidvault::Replace::FILE-OPENRESOLV);
 }
 
-proto method set-locale(::?CLASS:D: LibcFlavor? --> Nil)
+method set-locale(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
+    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
 
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;
@@ -858,29 +859,22 @@ proto method set-locale(::?CLASS:D: LibcFlavor? --> Nil)
     EOF
     spurt("$chroot-dir/etc/locale.conf", $locale-conf);
 
-    nextwith($Void::XBPS::LIBC-FLAVOR)
+    # musl doesn't support locales
+    if $libc-flavor eq 'GLIBC'
+    {
+        my Str:D $chroot-dir = $.config.chroot-dir;
+        # customize /etc/default/libc-locales
+        self.replace($Voidvault::Replace::FILE-LOCALES);
+        # regenerate locales
+        run(qqw<
+            void-chroot
+            $chroot-dir
+            xbps-reconfigure
+            --force
+            glibc-locales
+        >);
+    }
 }
-
-multi method set-locale(
-    ::?CLASS:D:
-    LibcFlavor:D $libc-flavor where 'GLIBC',
-    --> Nil
-)
-{
-    my Str:D $chroot-dir = $.config.chroot-dir;
-    # customize /etc/default/libc-locales
-    self.replace($Voidvault::Replace::FILE-LOCALES);
-    # regenerate locales
-    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force glibc-locales>);
-}
-
-# musl doesn't support locales
-multi method set-locale(
-    ::?CLASS:D:
-    LibcFlavor:D $,
-    --> Nil
-)
-{*}
 
 method set-keymap(::?CLASS:D: --> Nil)
 {
