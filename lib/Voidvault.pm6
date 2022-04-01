@@ -810,9 +810,9 @@ method genfstab(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $path = 'usr/bin/genfstab';
+    copy(%?RESOURCES{$path}, "/mnt/$path");
     my Str:D $file =
         sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
-    copy(%?RESOURCES{$path}, $file);
     shell("%?RESOURCES{$path} -U -p $chroot-dir >> $file");
     self.replace($Voidvault::Replace::FILE-FSTAB);
 }
