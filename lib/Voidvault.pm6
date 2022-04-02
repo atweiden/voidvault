@@ -2,6 +2,7 @@ use v6;
 use Voidvault::Config;
 use Voidvault::Constants;
 use Voidvault::Replace;
+use Voidvault::Types;
 use Voidvault::Utils;
 use Void::Constants;
 use Void::Utils;
