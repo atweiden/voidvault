@@ -92,7 +92,7 @@ method new(
     signal(SIGINT).tap({ exit(130) });
 
     # fetch dependencies
-    install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
+    xbps-install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
 
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config .= new($mode, |%opts);
@@ -100,7 +100,7 @@ method new(
     my Voidvault:D $voidvault = new(:$config);
 }
 
-multi sub install-dependencies(
+multi sub xbps-install-dependencies(
     'GLIBC',
     *%opts (Bool :ignore-conf-repos($), :repository(@))
     --> Nil
@@ -109,7 +109,7 @@ multi sub install-dependencies(
     Void::XBPS.xbps-install(@Voidvault::Constants::DEPENDENCY, 'glibc', |%opts);
 }
 
-multi sub install-dependencies(
+multi sub xbps-install-dependencies(
     'MUSL',
     *%opts (Bool :ignore-conf-repos($), :repository(@))
     --> Nil
