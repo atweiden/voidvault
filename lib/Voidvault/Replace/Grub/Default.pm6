@@ -4,7 +4,12 @@ unit role Voidvault::Replace::Grub::Default;
 
 constant $FILE = '/etc/default/grub';
 
-multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
+    --> Nil
+)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
@@ -12,53 +17,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
-    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
-    replace(
-        $file,
-        $disable-ipv6,
-        $enable-serial-console,
-        $graphics,
-        $partition-vault,
-        $vault-name
-    );
-}
 
-multi sub replace(
-    Str:D $file where .so,
-    *@opts (
-        Bool:D $disable-ipv6,
-        Bool:D $enable-serial-console,
-        Graphics:D $graphics,
-        Str:D $partition-vault,
-        VaultName:D $vault-name
-    )
-    --> Nil
-)
-{
-    my Str:D @replace =
-        $file.IO.lines
-        ==> replace('GRUB_CMDLINE_LINUX_DEFAULT', |@opts)
-        ==> replace('GRUB_DISABLE_OS_PROBER')
-        ==> replace('GRUB_DISABLE_RECOVERY')
-        ==> replace('GRUB_ENABLE_CRYPTODISK')
-        ==> replace('GRUB_TERMINAL_INPUT', $enable-serial-console)
-        ==> replace('GRUB_TERMINAL_OUTPUT', $enable-serial-console)
-        ==> replace('GRUB_SERIAL_COMMAND', $enable-serial-console);
-    my Str:D $replace = @replace.join("\n");
-    spurt($file, $replace ~ "\n");
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
-    Bool:D $disable-ipv6,
-    Bool:D $enable-serial-console,
-    Graphics:D $graphics,
-    Str:D $partition-vault,
-    VaultName:D $vault-name,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D @grub-cmdline-linux;
     set-log-level('informational', @grub-cmdline-linux);
@@ -68,143 +27,15 @@ multi sub replace(
     enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
     disable-ipv6(@grub-cmdline-linux) if $disable-ipv6.so;
     my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
+
     # replace GRUB_CMDLINE_LINUX_DEFAULT
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^$subject'='/, :k);
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
     @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_DISABLE_OS_PROBER',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_DISABLE_OS_PROBER> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s=true}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_DISABLE_RECOVERY',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_DISABLE_RECOVERY> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s=true}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_ENABLE_CRYPTODISK',
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_ENABLE_CRYPTODISK> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s=y}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_TERMINAL_INPUT',
-    Bool:D $enable-serial-console where .so,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_TERMINAL_INPUT> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_TERMINAL_INPUT',
-    Bool:D $enable-serial-console,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_TERMINAL_INPUT> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
-    Bool:D $enable-serial-console where .so,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
-    Bool:D $enable-serial-console,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $subject where 'GRUB_SERIAL_COMMAND',
-    Bool:D $enable-serial-console where .so,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    # if C<GRUB_SERIAL_COMMAND> not found, append to bottom of file
-    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
-    my Str:D $speed = $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE;
-    my Str:D $unit = $Voidvault::Constants::GRUB-SERIAL-PORT-UNIT;
-    my Str:D $word = $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS;
-    my Str:D $parity = %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject};
-    my Str:D $stop = $Voidvault::Constants::GRUB-SERIAL-PORT-STOP-BITS;
-    my Str:D $grub-serial-command = qqw<
-        serial
-        --speed=$speed
-        --unit=$unit
-        --word=$word
-        --parity=$parity
-        --stop=$stop
-    >.join(' ');
-    my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-serial-command);
-    @line[$index] = $replace;
-    @line;
-}
-
-multi sub replace(
-    Str:D $ where 'GRUB_SERIAL_COMMAND',
-    Bool:D $,
-    Str:D @line
-    --> Array[Str:D]
-)
-{
-    @line;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
 }
 
 multi sub set-log-level(Str:D $log-level, Str:D @grub-cmdline-linux --> Nil)
@@ -296,6 +127,181 @@ sub enable-radeon(Str:D @grub-cmdline-linux --> Nil)
 sub disable-ipv6(Str:D @grub-cmdline-linux --> Nil)
 {
     push(@grub-cmdline-linux, 'ipv6.disable=1');
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_DISABLE_OS_PROBER'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
+    # if C<GRUB_DISABLE_OS_PROBER> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s=true}, $subject);
+    @line[$index] = $replace;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_DISABLE_RECOVERY'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
+    # if C<GRUB_DISABLE_RECOVERY> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s=true}, $subject);
+    @line[$index] = $replace;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_ENABLE_CRYPTODISK'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
+    # if C<GRUB_ENABLE_CRYPTODISK> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s=y}, $subject);
+    @line[$index] = $replace;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_TERMINAL_INPUT'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('GRUB_TERMINAL_INPUT', $enable-serial-console);
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    Str:D $subject where 'GRUB_TERMINAL_INPUT',
+    Bool:D $enable-serial-console where .so,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_INPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    Str:D $subject where 'GRUB_TERMINAL_INPUT',
+    Bool:D $enable-serial-console,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_INPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @replace =
+        $file.IO.lines
+        ==> replace('GRUB_TERMINAL_OUTPUT', $enable-serial-console);
+    my Str:D $replace = @replace.join("\n");
+    spurt($file, $replace ~ "\n");
+}
+
+multi sub replace(
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
+    Bool:D $enable-serial-console where .so,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console serial"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT',
+    Bool:D $enable-serial-console,
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    # if C<GRUB_TERMINAL_OUTPUT> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $replace = sprintf(Q{%s="console"}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_SERIAL_COMMAND'
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
+    # if C<GRUB_SERIAL_COMMAND> not found, append to bottom of file
+    my UInt:D $index = @line.first(/^'#'?$subject/, :k) // @line.elems;
+    my Str:D $speed = $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE;
+    my Str:D $unit = $Voidvault::Constants::GRUB-SERIAL-PORT-UNIT;
+    my Str:D $word = $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS;
+    my Str:D $parity = %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject};
+    my Str:D $stop = $Voidvault::Constants::GRUB-SERIAL-PORT-STOP-BITS;
+    my Str:D $grub-serial-command = qqw<
+        serial
+        --speed=$speed
+        --unit=$unit
+        --word=$word
+        --parity=$parity
+        --stop=$stop
+    >.join(' ');
+    my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-serial-command);
+    @line[$index] = $replace;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

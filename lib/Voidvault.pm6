@@ -157,6 +157,8 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-modprobe;
     self.configure-modules-load;
     self.generate-initramfs;
+    self.configure-bootloader('default');
+    self.configure-bootloader('secure');
     self.install-bootloader;
     self.configure-sysctl;
     self.configure-nftables;
@@ -940,34 +942,42 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }
 
-method install-bootloader(::?CLASS:D: --> Nil)
+# configure /etc/default/grub
+multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $device = $.config.device;
-    self.replace($Voidvault::Replace::FILE-GRUB-DEFAULT);
-    self.replace($Voidvault::Replace::FILE-GRUB-LINUX);
-    self.configure-bootloader('superusers');
-    install-bootloader($device, :$chroot-dir);
+    my Str:D $enable-serial-console = $.config.enable-serial-console;
+    my Str:D $default = $Voidvault::Replace::FILE-GRUB-DEFAULT;
+    self.replace($default, 'GRUB_CMDLINE_LINUX_DEFAULT');
+    self.replace($default, 'GRUB_DISABLE_OS_PROBER');
+    self.replace($default, 'GRUB_DISABLE_RECOVERY');
+    self.replace($default, 'GRUB_ENABLE_CRYPTODISK');
+    self.replace($default, 'GRUB_TERMINAL_INPUT');
+    self.replace($default, 'GRUB_TERMINAL_OUTPUT');
+    self.replace($default, 'GRUB_SERIAL_COMMAND') if $enable-serial-console;
 }
 
-method configure-bootloader(::?CLASS:D: 'superusers' --> Nil)
+# allow any user to boot os, but only allow superuser to edit boot
+# entries or access grub command console
+multi method configure-bootloader(::?CLASS:D: 'secure' --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
+
     my Str:D $grub-superusers = qq:to/EOF/;
     set superusers="$user-name-grub"
     password_pbkdf2 $user-name-grub $user-pass-hash-grub
     EOF
     spurt("$chroot-dir/etc/grub.d/40_custom", $grub-superusers, :append);
+
+    # TODO: make this more robust to grub updates
+    self.replace($Voidvault::Replace::FILE-GRUB-LINUX);
 }
 
-multi sub install-bootloader(
-    Str:D $device,
-    Str:D :$chroot-dir! where .so
-    --> Nil
-)
+method install-bootloader(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $device = $.config.device;
     install-bootloader(:legacy, $device, :$chroot-dir);
     install-bootloader(:uefi, 32, $device, :$chroot-dir) if $*KERNEL.bits == 32;
     install-bootloader(:uefi, 64, $device, :$chroot-dir) if $*KERNEL.bits == 64;
