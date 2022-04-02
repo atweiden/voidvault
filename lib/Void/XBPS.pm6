@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Utils;
 use X::Void::XBPS;
-unit module Void::XBPS;
+unit class Void::XBPS;
 
 method xbps-install(
     Str:D :@repository,
