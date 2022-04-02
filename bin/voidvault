@@ -554,7 +554,7 @@ multi sub exit-unless-requirements-satisfied(
     --> Nil
 )
 {
-    my Str:D $message = "Sorry, '$subject' requires installing";
+    my Str:D $message = "Sorry, `$subject` requires installing";
     $message = sprintf("%s: %s", $message, @missing-dependency.join(', '));
     say($message);
     exit(1);
