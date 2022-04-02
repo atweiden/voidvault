@@ -1,13 +1,22 @@
 #!/usr/bin/env raku
-
-
-
-
 use v6;
+use Void::Constants;
 use Voidvault;
 use Voidvault::Utils;
 
 
+# -----------------------------------------------------------------------------
+# constants
+# -----------------------------------------------------------------------------
+
+# for checking non-bootstrap command requirements not otherwise checked
+my constant $SUBJECT-DISABLE-COW = 'voidvault disable-cow';
+my constant $SUBJECT-GEN-PASS-HASH = 'voidvault gen-pass-hash';
+my constant $SUBJECT-GEN-PASS-HASH-GRUB = 'voidvault -g|--grub gen-pass-hash';
+my constant $SUBJECT-LS-DEVICES = 'voidvault ls-devices';
+my constant $SUBJECT-LS-KEYMAPS = 'voidvault ls-keymaps';
+my constant $SUBJECT-LS-LOCALES = 'voidvault ls-locales';
+my constant $SUBJECT-LS-TIMEZONES = 'voidvault ls-timezones';
 
 
 # -----------------------------------------------------------------------------
@@ -25,6 +34,7 @@ multi sub MAIN(
     --> Nil
 )
 {
+    ensure-requirements($SUBJECT-DISABLE-COW);
     my %opts;
     %opts<clean> = $clean if $clean;
     %opts<group> = $group if $group;
@@ -35,23 +45,53 @@ multi sub MAIN(
 }
 
 
-
-
 # -----------------------------------------------------------------------------
 # gen-pass-hash
 # -----------------------------------------------------------------------------
 
-multi sub MAIN('gen-pass-hash', Str:D :p(:$pass)!, Bool :g(:$grub) --> Nil)
+multi sub MAIN(
+    'gen-pass-hash',
+    Str:D :p(:$pass)! where .so,
+    Bool:D :g(:$grub)! where .so
+    --> Nil
+)
 {
+    ensure-requirements($SUBJECT-GEN-PASS-HASH-GRUB);
     say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
 }
 
-multi sub MAIN('gen-pass-hash', Bool :g(:$grub) --> Nil)
+multi sub MAIN(
+    'gen-pass-hash',
+    Str:D :p(:$pass)! where .so,
+    Bool :g(:$grub)
+    --> Nil
+)
 {
+    ensure-requirements($SUBJECT-GEN-PASS-HASH);
+    say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
+}
+
+multi sub MAIN(
+    'gen-pass-hash',
+    Bool:D :g(:$grub)! where .so,
+    Str :p(:pass($))
+    --> Nil
+)
+{
+    ensure-requirements($SUBJECT-GEN-PASS-HASH-GRUB);
     say(Voidvault::Utils.prompt-pass-hash(:$grub));
 }
 
-
+multi sub MAIN(
+    'gen-pass-hash',
+    Bool :g(:grub($)),
+    Str :p(:pass($))
+    --> Nil
+)
+{
+    ensure-requirements($SUBJECT-GEN-PASS-HASH);
+    say(Voidvault::Utils.prompt-pass-hash);
+}
 
 
 # -----------------------------------------------------------------------------
@@ -82,8 +122,6 @@ multi sub MAIN('help', $? --> Nil)
 {
     USAGE();
 }
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -178,33 +216,33 @@ multi sub MAIN(
 }
 
 
-
-
 # -----------------------------------------------------------------------------
 # ls
 # -----------------------------------------------------------------------------
 
 multi sub MAIN('ls', 'devices' --> Nil)
 {
+    ensure-requirements($SUBJECT-LS-DEVICES);
     Voidvault::Utils.ls-devices.map({ .say });
 }
 
 multi sub MAIN('ls', 'keymaps' --> Nil)
 {
+    ensure-requirements($SUBJECT-LS-KEYMAPS);
     Voidvault::Utils.ls-keymaps.map({ .say });
 }
 
 multi sub MAIN('ls', 'locales' --> Nil)
 {
+    ensure-requirements($SUBJECT-LS-LOCALES);
     Voidvault::Utils.ls-locales.map({ .say });
 }
 
 multi sub MAIN('ls', 'timezones' --> Nil)
 {
+    ensure-requirements($SUBJECT-LS-TIMEZONES);
     Voidvault::Utils.ls-timezones.map({ .say });
 }
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -216,8 +254,6 @@ multi sub MAIN(Bool:D :version($)! where .so --> Nil)
     printf("v%s\n", $Voidvault::VERSION);
     exit(0);
 }
-
-
 
 
 # -----------------------------------------------------------------------------
@@ -419,5 +455,116 @@ multi sub USAGE('new' --> Nil)
     EOF
     say($HELP);
 }
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+proto sub ensure-requirements(
+    Str:D $subject where .so
+    --> Nil
+)
+{
+    my Str:D @*missing-dependency;
+    {*}
+    exit-unless-requirements-satisfied($subject, @*missing-dependency);
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-DISABLE-COW
+    --> Nil
+)
+{
+    my Str:D @bin = qw<
+        chmod
+        chown
+        cp
+        rm
+    >.map(-> Str:D $bin { sprintf(Q{/usr/bin/%s}, $bin) });
+    so(@bin.all.IO.x)
+        or push(@*missing-dependency, 'coreutils');
+    '/usr/bin/chattr'.IO.x.so
+        or push(@*missing-dependency, 'e2fsprogs');
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-GEN-PASS-HASH
+    --> Nil
+)
+{
+    '/usr/bin/openssl'.IO.x.so
+        or push(@*missing-dependency, 'openssl');
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-GEN-PASS-HASH-GRUB
+    --> Nil
+)
+{
+    '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
+        or push(@*missing-dependency, 'grub');
+    '/usr/bin/expect'.IO.x.so
+        or push(@*missing-dependency, 'expect');
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-LS-DEVICES
+    --> Nil
+)
+{
+    '/usr/bin/lsblk'.IO.x.so
+        or push(@*missing-dependency, 'util-linux');
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-LS-KEYMAPS
+    --> Nil
+)
+{
+    # keymaps not supported on musl
+    '/usr/share/kbd/keymaps'.IO.d.so
+        or push(@*missing-dependency, 'kbd');
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-LS-LOCALES
+    --> Nil
+)
+{
+    # locales not supported on musl
+    '/usr/share/i18n/locales'.IO.d.so
+        or push(@*missing-dependency, 'glibc')
+            if $Void::Constants::LIBC-FLAVOR eq 'GLIBC';
+}
+
+multi sub ensure-requirements(
+    Str:D $subject where $SUBJECT-LS-TIMEZONES
+    --> Nil
+)
+{
+    # locales not supported on musl
+    '/usr/share/zoneinfo/zone.tab'.IO.d.so
+        or push(@*missing-dependency, 'tzdata');
+}
+
+multi sub exit-unless-requirements-satisfied(
+    Str:D $subject where .so,
+    Str:D @missing-dependency where .so
+    --> Nil
+)
+{
+    my Str:D $message = "Sorry, '$subject' requires installing";
+    $message = sprintf("%s: %s", $message, @missing-dependency.join(', '));
+    say($message);
+    exit(1);
+}
+
+multi sub exit-unless-requirements-satisfied(
+    Str:D $subject where .so,
+    Str:D @missing-dependency
+    --> Nil
+)
+{*}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
