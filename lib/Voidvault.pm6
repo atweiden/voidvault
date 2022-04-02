@@ -3,6 +3,7 @@ use Voidvault::Config;
 use Voidvault::Constants;
 use Voidvault::Replace;
 use Voidvault::Utils;
+use Void::Utils;
 use Void::XBPS;
 unit class Voidvault;
 also does Voidvault::Replace[$Voidvault::Replace::FILE-CRYPTTAB];
