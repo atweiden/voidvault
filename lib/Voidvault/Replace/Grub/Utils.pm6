@@ -39,12 +39,16 @@ multi method enable-luks(
     push(@grub-cmdline-linux, $_) for @enable-luks;
 }
 
-method enable-serial-console(Str:D @grub-cmdline-linux --> Nil)
+method enable-serial-console(
+    Str:D @grub-cmdline-linux,
+    Str:D $subject where .so
+    --> Nil
+)
 {
     # e.g. console=tty0
     my Str:D $virtual = gen-console('virtual');
     # e.g. console=ttyS0,115200n8
-    my Str:D $serial = gen-console('serial');
+    my Str:D $serial = gen-console('serial', $subject);
     # enable both serial and virtual console on boot
     push(@grub-cmdline-linux, $virtual);
     push(@grub-cmdline-linux, $serial);
@@ -57,7 +61,7 @@ multi sub gen-console('virtual' --> Str:D)
         sprintf('console=%s', $Voidvault::Constants::VIRTUAL-CONSOLE);
 }
 
-multi sub gen-console('serial' --> Str:D)
+multi sub gen-console('serial', Str:D $subject where .so --> Str:D)
 {
     # e.g. console=ttyS0,115200n8
     my Str:D $serial = sprintf(

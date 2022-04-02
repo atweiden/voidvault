@@ -29,7 +29,7 @@ multi method replace(
         :$partition-vault,
         :$vault-name
     );
-    $default-utils.enable-serial-console(@grub-cmdline-linux)
+    $default-utils.enable-serial-console(@grub-cmdline-linux, $subject)
         if $enable-serial-console.so;
     $default-utils.enable-security-features(@grub-cmdline-linux);
     $default-utils.enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
