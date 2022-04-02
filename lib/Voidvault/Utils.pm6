@@ -1,6 +1,6 @@
 use v6;
 use Crypt::Libcrypt:auth<atweiden>;
-use Void::XBPS;
+use Void::Constants;
 use Voidvault::Constants;
 use Voidvault::Types;
 unit class Voidvault::Utils;
@@ -380,7 +380,7 @@ multi sub gen-pass-hash-closure(Bool:D :grub($)! where .so --> Sub:D)
 
 multi sub gen-pass-hash-closure(Bool :grub($) --> Sub:D)
 {
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+    my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
     my &gen-pass-hash = sub (Str:D $user-pass --> Str:D)
     {
         my Str:D $salt = gen-pass-salt();

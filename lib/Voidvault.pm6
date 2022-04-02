@@ -3,6 +3,7 @@ use Voidvault::Config;
 use Voidvault::Constants;
 use Voidvault::Replace;
 use Voidvault::Utils;
+use Void::Constants;
 use Void::Utils;
 use Void::XBPS;
 unit class Voidvault;
@@ -84,7 +85,7 @@ method new(
     --> Voidvault:D
 )
 {
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+    my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
 
     # verify root permissions
     $*USER == 0 or die('root privileges required');
@@ -515,7 +516,7 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
     my Str:D @package = $.config.package;
     my Processor:D $processor = $.config.processor;
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+    my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
 
     # download and install core packages with voidstrap in chroot
     my Str:D @core = @Voidvault::Constants::CORE-PACKAGE;
@@ -789,7 +790,7 @@ method set-locale(::?CLASS:D: --> Nil)
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Locale:D $locale = $.config.locale;
     my Str:D $locale-fallback = $locale.substr(0, 2);
-    my LibcFlavor:D $libc-flavor = $Void::XBPS::LIBC-FLAVOR;
+    my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
 
     # customize /etc/locale.conf
     my Str:D $locale-conf = qq:to/EOF/;

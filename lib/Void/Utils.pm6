@@ -1,5 +1,5 @@
 use v6;
-use Void::XBPS;
+use Void::Constants;
 use X::Void::XBPS;
 unit class Void::Utils;
 
@@ -170,7 +170,7 @@ multi sub voidstrap-install(
     --> Nil
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $xbps-uhelper-arch = $Void::Constants::XBPS-UHELPER-ARCH;
     my Str:D $repository = @repository.join(' --repository ');
     # rm official repo in the presence of C<--repository --ignore-conf-repos>
     shell(
@@ -197,11 +197,11 @@ multi sub voidstrap-install(
     --> Nil
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
+    my Str:D $xbps-uhelper-arch = $Void::Constants::XBPS-UHELPER-ARCH;
     my Str:D $repository = @repository.join(' --repository ');
-    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    my Str:D $repository-official = $Void::Constants::REPOSITORY-OFFICIAL;
     my Str:D $repository-official-nonfree =
-        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
+        $Void::Constants::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
          unshare \\
@@ -238,10 +238,10 @@ multi sub voidstrap-install(
     --> Nil
 )
 {
-    my Str:D $xbps-uhelper-arch = $Void::XBPS::XBPS-UHELPER-ARCH;
-    my Str:D $repository-official = $Void::XBPS::REPOSITORY-OFFICIAL;
+    my Str:D $xbps-uhelper-arch = $Void::Constants::XBPS-UHELPER-ARCH;
+    my Str:D $repository-official = $Void::Constants::REPOSITORY-OFFICIAL;
     my Str:D $repository-official-nonfree =
-        $Void::XBPS::REPOSITORY-OFFICIAL-NONFREE;
+        $Void::Constants::REPOSITORY-OFFICIAL-NONFREE;
     shell(
         "XBPS_ARCH=$xbps-uhelper-arch \\
          unshare \\

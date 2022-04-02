@@ -15,6 +15,7 @@
         "Crypt::Libcrypt"                     : "lib/Crypt/Libcrypt.pm6",
         "Crypt::Libcrypt::Glibc"              : "lib/Crypt/Libcrypt/Glibc.pm6",
         "Crypt::Libcrypt::Musl"               : "lib/Crypt/Libcrypt/Musl.pm6",
+        "Void::Constants"                     : "lib/Void/Constants.pm6",
         "Void::Utils"                         : "lib/Void/Utils.pm6",
         "Void::XBPS"                          : "lib/Void/XBPS.pm6",
         "Voidvault"                           : "lib/Voidvault.pm6",
