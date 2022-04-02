@@ -465,33 +465,6 @@ class Voidvault::Config::OneFA
 
 
 # -----------------------------------------------------------------------------
-# user input prompts
-# -----------------------------------------------------------------------------
-
-sub prompt-name(
-    Bool:D :bootvault($)! where .so
-    --> VaultName:D
-)
-{
-    my VaultName:D $vault-name = do {
-        my VaultName:D $response-default = 'bootvault';
-        my Str:D $prompt-text = "Enter bootvault name [$response-default]: ";
-        my Str:D $help-text = q:to/EOF/.trim;
-        Determining name of LUKS encrypted boot volume...
-
-        Leave blank if you don't know what this is
-        EOF
-        tprompt(
-            VaultName,
-            $response-default,
-            :$prompt-text,
-            :$help-text
-        );
-    }
-}
-
-
-# -----------------------------------------------------------------------------
 # string formatting, resolution and validation
 # -----------------------------------------------------------------------------
 
@@ -955,6 +928,28 @@ multi sub prompt-name(
         my Str:D $prompt-text = "Enter vault name [$response-default]: ";
         my Str:D $help-text = q:to/EOF/.trim;
         Determining name of LUKS encrypted volume...
+
+        Leave blank if you don't know what this is
+        EOF
+        tprompt(
+            VaultName,
+            $response-default,
+            :$prompt-text,
+            :$help-text
+        );
+    }
+}
+
+multi sub prompt-name(
+    Bool:D :bootvault($)! where .so
+    --> VaultName:D
+)
+{
+    my VaultName:D $vault-name = do {
+        my VaultName:D $response-default = 'bootvault';
+        my Str:D $prompt-text = "Enter bootvault name [$response-default]: ";
+        my Str:D $help-text = q:to/EOF/.trim;
+        Determining name of LUKS encrypted boot volume...
 
         Leave blank if you don't know what this is
         EOF
