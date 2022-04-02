@@ -1,7 +1,6 @@
 use v6;
 use Voidvault::Bootstrap;
 use Voidvault::Config;
-use Voidvault::Config::Base;
 use Voidvault::Constants;
 use Voidvault::Replace;
 use Voidvault::Types;
