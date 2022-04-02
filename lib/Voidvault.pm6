@@ -562,7 +562,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
     );
 
     # configure /etc/crypttab for vault key
-    self.replace($Voidvault::Replace::FILE-CRYPTTAB);
+    self.replace($Voidvault::Constants::FILE-CRYPTTAB);
 }
 
 # secure user configuration
@@ -579,7 +579,7 @@ multi method configure-users(::?CLASS:D: 'admin' --> Nil)
     my Str:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-admin = $.config.user-name-admin;
     my Str:D $file =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-SUDOERS);
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::FILE-SUDOERS);
     self.useradd('admin');
     say("Giving sudo privileges to admin user $user-name-admin...");
     my Str:D $sudoers = qq:to/EOF/;
@@ -739,14 +739,14 @@ method usermod(::?CLASS:D: 'root' --> Nil)
 
 method configure-sudoers(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-SUDOERS);
+    self.replace($Voidvault::Constants::FILE-SUDOERS);
 }
 
 method genfstab(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::FILE-FSTAB);
     my Str:D $path = 'usr/bin/genfstab';
 
     # install genfstab
@@ -756,7 +756,7 @@ method genfstab(::?CLASS:D: --> Nil)
     shell("%?RESOURCES{$path} -U -p $chroot-dir >> $file");
 
     # customize /etc/fstab
-    self.replace($Voidvault::Replace::FILE-FSTAB);
+    self.replace($Voidvault::Constants::FILE-FSTAB);
 }
 
 method set-hostname(::?CLASS:D: --> Nil)
@@ -768,22 +768,22 @@ method set-hostname(::?CLASS:D: --> Nil)
 
 method configure-hosts(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-HOSTS);
+    self.replace($Voidvault::Constants::FILE-HOSTS);
 }
 
 method configure-dhcpcd(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-DHCPCD);
+    self.replace($Voidvault::Constants::FILE-DHCPCD);
 }
 
 method configure-dnscrypt-proxy(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-DNSCRYPT-PROXY);
+    self.replace($Voidvault::Constants::FILE-DNSCRYPT-PROXY);
 }
 
 method set-nameservers(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-OPENRESOLV);
+    self.replace($Voidvault::Constants::FILE-OPENRESOLV);
 }
 
 method set-locale(::?CLASS:D: --> Nil)
@@ -809,16 +809,16 @@ method set-locale-glibc(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     # customize /etc/default/libc-locales
-    self.replace($Voidvault::Replace::FILE-LOCALES);
+    self.replace($Voidvault::Constants::FILE-LOCALES);
     # regenerate locales
     run(qqw<void-chroot $chroot-dir xbps-reconfigure --force glibc-locales>);
 }
 
 method set-keymap(::?CLASS:D: --> Nil)
 {
-    self.replace($Voidvault::Replace::FILE-RC, 'KEYMAP');
-    self.replace($Voidvault::Replace::FILE-RC, 'FONT');
-    self.replace($Voidvault::Replace::FILE-RC, 'FONT_MAP');
+    self.replace($Voidvault::Constants::FILE-RC, 'KEYMAP');
+    self.replace($Voidvault::Constants::FILE-RC, 'FONT');
+    self.replace($Voidvault::Constants::FILE-RC, 'FONT_MAP');
 }
 
 method set-timezone(::?CLASS:D: --> Nil)
@@ -834,13 +834,13 @@ method set-timezone(::?CLASS:D: --> Nil)
         /usr/share/zoneinfo/$timezone
         /etc/localtime
     >);
-    self.replace($Voidvault::Replace::FILE-RC, 'TIMEZONE');
+    self.replace($Voidvault::Constants::FILE-RC, 'TIMEZONE');
 }
 
 method set-hwclock(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    self.replace($Voidvault::Replace::FILE-RC, 'HARDWARECLOCK');
+    self.replace($Voidvault::Constants::FILE-RC, 'HARDWARECLOCK');
     run(qqw<void-chroot $chroot-dir hwclock --systohc --utc>);
 }
 
@@ -863,14 +863,14 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     my Str:D $chroot-dir = $.config.chroot-dir;
 
     # dracut
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'add_dracutmodules');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'add_drivers');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'compress');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'hostonly');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'install_items');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'omit_dracutmodules');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'persistent_policy');
-    self.replace($Voidvault::Replace::FILE-DRACUT, 'tmpdir');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'add_dracutmodules');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'add_drivers');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'compress');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'hostonly');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'install_items');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'omit_dracutmodules');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'persistent_policy');
+    self.replace($Voidvault::Constants::FILE-DRACUT, 'tmpdir');
     Voidvault::Utils.void-chroot-dracut(:$chroot-dir);
 
     # xbps-reconfigure
@@ -881,13 +881,14 @@ method generate-initramfs(::?CLASS:D: --> Nil)
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
     my Str:D $enable-serial-console = $.config.enable-serial-console;
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_CMDLINE_LINUX_DEFAULT');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_DISABLE_OS_PROBER');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_DISABLE_RECOVERY');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_ENABLE_CRYPTODISK');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_TERMINAL_INPUT');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_TERMINAL_OUTPUT');
-    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_SERIAL_COMMAND')
+    self.replace($Voidvault::Constants::FILE-GRUB,
+        'GRUB_CMDLINE_LINUX_DEFAULT');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_DISABLE_OS_PROBER');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_DISABLE_RECOVERY');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_ENABLE_CRYPTODISK');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_TERMINAL_INPUT');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_TERMINAL_OUTPUT');
+    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_SERIAL_COMMAND')
         if $enable-serial-console;
 }
 
@@ -1005,7 +1006,7 @@ multi sub install-bootloader(
 method configure-sysctl(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    self.replace($Voidvault::Replace::FILE-SYSCTL);
+    self.replace($Voidvault::Constants::FILE-SYSCTL);
     run(qqw<void-chroot $chroot-dir sysctl --system>);
 }
 
@@ -1062,7 +1063,7 @@ method configure-hidepid(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Replace::FILE-FSTAB);
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::FILE-FSTAB);
     my Str:D $fstab-hidepid = q:to/EOF/;
     # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
     proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
@@ -1086,7 +1087,7 @@ method configure-shell-timeout(::?CLASS:D: --> Nil)
 method configure-pamd(::?CLASS:D: --> Nil)
 {
     # raise number of passphrase hashing rounds C<passwd> employs
-    self.replace($Voidvault::Replace::FILE-PAM);
+    self.replace($Voidvault::Constants::FILE-PAM);
 }
 
 method configure-xorg(::?CLASS:D: --> Nil)
