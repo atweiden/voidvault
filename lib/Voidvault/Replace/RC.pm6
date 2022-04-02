@@ -45,6 +45,7 @@ multi method replace(Str:D $ where $FILE, 'FONT_MAP' --> Nil)
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'TIMEZONE' --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
+    my Timezone:D $timezone = $.config.timezone;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?TIMEZONE'='/, :k);
