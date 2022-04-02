@@ -252,6 +252,13 @@ method ls-timezones(--> Array[Timezone:D])
     my Timezone:D @timezones = |@zoneinfo, 'UTC';
 }
 
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-dracut(Str:D :$chroot-dir! where .so --> Nil)
+{
+    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
+    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
+}
+
 # chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
 method void-chroot-mkdir(
     Str:D :$user! where .so,
@@ -267,6 +274,19 @@ method void-chroot-mkdir(
         mkdir("$chroot-dir/$dir", $permissions);
         run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
     });
+}
+
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-xbps-reconfigure-linux(Str:D :$chroot-dir! where .so --> Nil)
+{
+    my Str:D $xbps-linux = do {
+        my Str:D $xbps-linux-version-raw =
+            qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
+        my Str:D $xbps-linux-version =
+            $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
+        sprintf(Q{linux%s}, $xbps-linux-version);
+    };
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }
 
 

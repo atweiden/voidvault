@@ -3,28 +3,14 @@ unit role Voidvault::Replace::Dracut;
 
 constant $FILE = '/etc/dracut.conf.d'
 
-multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
-{
-    my Str:D $chroot-dir = $.config.chroot-dir;
-    my Graphics:D $graphics = $.config.graphics;
-    my Processor:D $processor = $.config.processor;
-    my Str:D $vault-key = $.config.vault-key;
-    replace('add_dracutmodules', :$chroot-dir);
-    replace('add_drivers', $graphics, $processor, :$chroot-dir);
-    replace('compress', :$chroot-dir);
-    replace('hostonly', :$chroot-dir);
-    replace('install_items', $vault-key, :$chroot-dir);
-    replace('omit_dracutmodules', :$chroot-dir);
-    replace('persistent_policy', :$chroot-dir);
-    replace('tmpdir', :$chroot-dir);
-}
-
-multi sub replace(
-    Str:D $subject where 'add_dracutmodules',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'add_dracutmodules'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
@@ -37,14 +23,16 @@ multi sub replace(
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'add_drivers',
-    Graphics:D $graphics,
-    Processor:D $processor,
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'add_drivers'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Graphics:D $graphics = $.config.graphics;
+    my Processor:D $processor = $.config.processor;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     # drivers are C<*.ko*> files in C</lib/modules>
     my Str:D @driver = qw<
@@ -61,35 +49,41 @@ multi sub replace(
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'compress',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'compress'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'hostonly',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'hostonly'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="yes"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'install_items',
-    Str:D $vault-key,
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'install_items'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $vault-key = $.config.vault-key;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @item = qqw<
         $vault-key
@@ -99,12 +93,14 @@ multi sub replace(
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'omit_dracutmodules',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'omit_dracutmodules'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @module = qw<
         dracut-systemd
@@ -117,23 +113,27 @@ multi sub replace(
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'persistent_policy',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'persistent_policy'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="by-uuid"}, $subject);
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(
-    Str:D $subject where 'tmpdir',
-    Str:D :$chroot-dir! where .so
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'tmpdir'
     --> Nil
 )
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="/tmp"}, $subject);
     spurt($file, $replace ~ "\n");

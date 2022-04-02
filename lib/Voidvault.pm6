@@ -927,19 +927,21 @@ method configure-modules-load(::?CLASS:D: --> Nil)
 method generate-initramfs(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
-    my Str:D $xbps-linux-version-raw =
-        qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
-    my Str:D $xbps-linux-version =
-        $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
-    my Str:D $xbps-linux = sprintf(Q{linux%s}, $xbps-linux-version);
+    my Str:D $file = $Voidvault::Replace::FILE-DRACUT;
 
     # dracut
-    self.replace($Voidvault::Replace::FILE-DRACUT);
-    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
+    self.replace($file, 'add_dracutmodules');
+    self.replace($file, 'add_drivers');
+    self.replace($file, 'compress');
+    self.replace($file, 'hostonly');
+    self.replace($file, 'install_items');
+    self.replace($file, 'omit_dracutmodules');
+    self.replace($file, 'persistent_policy');
+    self.replace($file, 'tmpdir');
+    Voidvault::Utils.void-chroot-dracut(:$chroot-dir);
 
     # xbps-reconfigure
-    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
+    Voidvault::Utils.void-chroot-xbps-reconfigure-linux(:$chroot-dir);
 }
 
 # configure /etc/default/grub
