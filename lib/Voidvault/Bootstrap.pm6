@@ -899,7 +899,7 @@ method configure-nftables(::?CLASS:D: --> Nil)
     });
 }
 
-method configure-openssh(::?CLASS:D: --> Nil)
+multi method configure-openssh(::?CLASS:D: --> Nil)
 {
     self.configure-openssh('ssh_config');
     self.configure-openssh('sshd_config');
