@@ -518,15 +518,11 @@ method voidstrap-base(::?CLASS:D: --> Nil)
 
     # download and install core packages with voidstrap in chroot
     my Str:D @core = @Voidvault::Constants::CORE-PACKAGE;
-    my Str:D $voidstrap-core-cmdline = build-voidstrap-cmdline(
-        @core,
+    Void::Utils.voidstrap(
+        $chroot-dir,
         :@repository,
         :$ignore-conf-repos,
-        :$chroot-dir
-    );
-    Voidvault::Utils.loop-cmdline-proc(
-        'Running voidstrap...',
-        $voidstrap-core-cmdline
+        @core
     );
 
     # base packages - void's C<base-minimal> with light additions
@@ -541,76 +537,12 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     push(@base, $_) for @package;
 
     # download and install base packages with voidstrap in chroot
-    my Str:D $voidstrap-base-cmdline = build-voidstrap-cmdline(
-        @base,
+    Void::Utils.voidstrap(
+        $chroot-dir,
         :@repository,
         :$ignore-conf-repos,
-        :$chroot-dir
+        @base
     );
-
-    # why launch a new shell process for this? superstition.
-    Voidvault::Utils.loop-cmdline-proc(
-        'Running voidstrap...',
-        $voidstrap-base-cmdline
-    );
-}
-
-multi sub build-voidstrap-cmdline(
-    Str:D @base,
-    Str:D :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so,
-    Str:D :$chroot-dir! where .so
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository=');
-    my Str:D $voidstrap-cmdline =
-        "voidstrap \\
-         --ignore-conf-repos \\
-         --repository=$repository \\
-         $chroot-dir \\
-         @base[]";
-}
-
-multi sub build-voidstrap-cmdline(
-    Str:D @base,
-    Str:D :@repository! where .so,
-    Str:D :$chroot-dir! where .so,
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $repository = @repository.join(' --repository=');
-    my Str:D $voidstrap-cmdline =
-        "voidstrap \\
-         --repository=$repository \\
-         $chroot-dir \\
-         @base[]";
-}
-
-multi sub build-voidstrap-cmdline(
-    Str:D $,
-    Str:D @,
-    Str:D :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so
-    --> Nil
-)
-{
-    die(X::Void::XBPS::IgnoreConfRepos.new);
-}
-
-multi sub build-voidstrap-cmdline(
-    Str:D @base,
-    Str:D :$chroot-dir! where .so,
-    Str:D :repository(@),
-    Bool :ignore-conf-repos($)
-    --> Str:D
-)
-{
-    my Str:D $voidstrap-cmdline =
-        "voidstrap \\
-         $chroot-dir \\
-         @base[]";
 }
 
 method install-vault-key(::?CLASS:D: --> Nil)
