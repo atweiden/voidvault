@@ -11,7 +11,6 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
@@ -26,16 +25,9 @@ multi method replace(
     enable-security-features(@grub-cmdline-linux);
     enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
     disable-ipv6(@grub-cmdline-linux) if $disable-ipv6.so;
-    my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
 
     # replace GRUB_CMDLINE_LINUX_DEFAULT
-    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
-    my Str:D @line = $file.IO.lines;
-    my UInt:D $index = @line.first(/^$subject'='/, :k);
-    my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
-    @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    self.finalize($FILE, $subject, @grub-cmdline-linux);
 }
 
 multi sub set-log-level(Str:D $log-level, Str:D @grub-cmdline-linux --> Nil)
@@ -127,6 +119,25 @@ sub enable-radeon(Str:D @grub-cmdline-linux --> Nil)
 sub disable-ipv6(Str:D @grub-cmdline-linux --> Nil)
 {
     push(@grub-cmdline-linux, 'ipv6.disable=1');
+}
+
+multi method finalize(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
+    Str:D @grub-cmdline-linux
+    --> Nil
+)
+{
+    my Str:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+    my Str:D @line = $file.IO.lines;
+    my UInt:D $index = @line.first(/^$subject'='/, :k);
+    my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
+    @line[$index] = $replace;
+    my Str:D $replace = @line.join("\n");
+    spurt($file, $replace ~ "\n");
 }
 
 multi method replace(
