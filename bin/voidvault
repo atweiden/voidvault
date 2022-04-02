@@ -562,7 +562,7 @@ multi sub exit-unless-requirements-satisfied(
 
 multi sub exit-unless-requirements-satisfied(
     Str:D $subject where .so,
-    Str:D @missing-dependency
+    Str:D @
     --> Nil
 )
 {*}
