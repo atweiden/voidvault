@@ -5,7 +5,7 @@ use Voidvault::Config::Base;
 use Voidvault::Constants;
 use Voidvault::Replace;
 use Voidvault::Types;
-unit class Voidvault::Base;
+unit class Voidvault::Bootstrap::Base;
 also does Voidvault::Bootstrap;
 also does Voidvault::Replace[$Voidvault::Constants::FILE-CRYPTTAB];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DHCPCD];

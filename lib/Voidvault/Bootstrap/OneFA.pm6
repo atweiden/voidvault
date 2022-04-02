@@ -3,7 +3,7 @@ use Voidvault::Bootstrap;
 use Voidvault::Config;
 use Voidvault::Config::OneFA;
 use Voidvault::Constants;
-unit class Voidvault::OneFA;
+unit class Voidvault::Bootstrap::OneFA;
 also does Voidvault::Bootstrap;
 
 
