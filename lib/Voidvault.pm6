@@ -101,13 +101,13 @@ multi sub xbps-install-dependencies(
 multi sub new(Voidvault::Config::Base:D :$config! --> Nil)
 {
     use Voidvault::Bootstrap::Base;
-    Voidvault::Bootstrap::Base.new(:$config);
+    Voidvault::Bootstrap::Base.new(:$config).bootstrap;
 }
 
 multi sub new(Voidvault::Config::OneFA:D :$config! --> Nil)
 {
     use Voidvault::Bootstrap::OneFA;
-    Voidvault::Bootstrap::OneFA.new(:$config);
+    Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

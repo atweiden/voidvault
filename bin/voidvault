@@ -130,8 +130,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    my Voidvault $voidvault .= new($mode, :@repository, |%opts);
-    $voidvault.bootstrap;
+    Voidvault.new($mode, :@repository, |%opts);
 }
 
 multi sub MAIN(
@@ -175,8 +174,7 @@ multi sub MAIN(
 )
 {
     my @repository = $repository;
-    my Voidvault $voidvault .= new($mode, :@repository, |%opts);
-    $voidvault.bootstrap;
+    Voidvault.new($mode, :@repository, |%opts);
 }
 
 
