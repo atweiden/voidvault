@@ -5,7 +5,6 @@ use Voidvault::Replace::DnscryptProxy;
 use Voidvault::Replace::Dracut;
 use Voidvault::Replace::Fstab;
 use Voidvault::Replace::Grub::Default;
-use Voidvault::Replace::Grub::Linux;
 use Voidvault::Replace::Hosts;
 use Voidvault::Replace::Locales;
 use Voidvault::Replace::OpenResolv;
@@ -23,7 +22,6 @@ constant $FILE-DNSCRYPT-PROXY = $Voidvault::Replace::DnscryptProxy::FILE;
 constant $FILE-DRACUT = $Voidvault::Replace::Dracut::FILE;
 constant $FILE-FSTAB = $Voidvault::Replace::Fstab::FILE;
 constant $FILE-GRUB-DEFAULT = $Voidvault::Replace::Grub::Default::FILE;
-constant $FILE-GRUB-LINUX = $Voidvault::Replace::Grub::Linux::FILE;
 constant $FILE-HOSTS = $Voidvault::Replace::Hosts::FILE;
 constant $FILE-LOCALES = $Voidvault::Replace::Locales::FILE;
 constant $FILE-OPENRESOLV = $Voidvault::Replace::OpenResolv::FILE;
@@ -63,11 +61,6 @@ role Voidvault::Replace[Str:D $ where $FILE-FSTAB]
 role Voidvault::Replace[Str:D $ where $FILE-GRUB-DEFAULT]
 {
     also does Voidvault::Replace::Grub::Default;
-}
-
-role Voidvault::Replace[Str:D $ where $FILE-GRUB-LINUX]
-{
-    also does Voidvault::Replace::Grub::Linux;
 }
 
 role Voidvault::Replace[Str:D $ where $FILE-HOSTS]

@@ -11,7 +11,6 @@ also does Voidvault::Replace[$Voidvault::Replace::FILE-DNSCRYPT-PROXY];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-DRACUT];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-FSTAB];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-DEFAULT];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-LINUX];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-HOSTS];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-LOCALES];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENRESOLV];
@@ -966,14 +965,18 @@ multi method configure-bootloader(::?CLASS:D: 'secure' --> Nil)
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
 
+    my Str:D $grub-unrestricted = q:to/EOF/;
+    #!/bin/sh
+    exec tail -n +3 $0
+    menuentry_id_option="--unrestricted $menuentry_id_option"
+    EOF
+    spurt("$chroot-dir/etc/grub.d/09_unrestricted", $grub-unrestricted);
+
     my Str:D $grub-superusers = qq:to/EOF/;
     set superusers="$user-name-grub"
     password_pbkdf2 $user-name-grub $user-pass-hash-grub
     EOF
     spurt("$chroot-dir/etc/grub.d/40_custom", $grub-superusers, :append);
-
-    # TODO: make this more robust to grub updates
-    self.replace($Voidvault::Replace::FILE-GRUB-LINUX);
 }
 
 method install-bootloader(::?CLASS:D: --> Nil)
