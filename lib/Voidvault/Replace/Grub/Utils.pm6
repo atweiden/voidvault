@@ -101,7 +101,6 @@ method finalize(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $grub-cmdline-linux = @grub-cmdline-linux.join(' ');
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
