@@ -54,8 +54,8 @@ multi method replace(
     my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
     my Str:D $replace = sprintf(Q{%s=true}, $subject);
     @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @line.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 multi method replace(
@@ -72,8 +72,8 @@ multi method replace(
     my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
     my Str:D $replace = sprintf(Q{%s=true}, $subject);
     @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @line.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 multi method replace(
@@ -90,8 +90,8 @@ multi method replace(
     my UInt:D $index = @line.first(/^'#'$subject/, :k) // @line.elems;
     my Str:D $replace = sprintf(Q{%s=y}, $subject);
     @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @line.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 multi method replace(
@@ -107,8 +107,8 @@ multi method replace(
     my Str:D @replace =
         $file.IO.lines
         ==> replace('GRUB_TERMINAL_INPUT', $enable-serial-console);
-    my Str:D $replace = @replace.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @replace.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 multi sub replace(
@@ -211,8 +211,8 @@ multi method replace(
     >.join(' ');
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-serial-command);
     @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @line.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
