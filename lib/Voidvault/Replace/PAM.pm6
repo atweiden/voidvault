@@ -2,7 +2,7 @@ use v6;
 use Voidvault::Constants;
 unit role Voidvault::Replace::PAM;
 
-constant $FILE = '/etc/pam.d/passwd';
+my constant $FILE = $Voidvault::Constants::FILE-PAM;
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

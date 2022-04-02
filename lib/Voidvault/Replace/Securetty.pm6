@@ -2,7 +2,7 @@ use v6;
 use Voidvault::Constants;
 unit role Voidvault::Replace::Securetty;
 
-constant $FILE = '/etc/securetty';
+my constant $FILE = $Voidvault::Constants::FILE-SECURETTY;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

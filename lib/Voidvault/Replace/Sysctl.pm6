@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::Sysctl;
 
-constant $FILE = '/etc/sysctl.d/99-sysctl.conf'
+my constant $FILE = $Voidvault::Constants::FILE-SYSCTL;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

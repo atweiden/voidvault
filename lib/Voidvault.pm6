@@ -7,22 +7,22 @@ use Void::Constants;
 use Void::Utils;
 use Void::XBPS;
 unit class Voidvault;
-also does Voidvault::Replace[$Voidvault::Replace::FILE-CRYPTTAB];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-DHCPCD];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-DNSCRYPT-PROXY];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-DRACUT];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-FSTAB];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-HOSTS];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-LOCALES];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENRESOLV];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENSSH-DAEMON];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENSSH-MODULI];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-PAM];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-RC];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-SECURETTY];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-SUDOERS];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-SYSCTL];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-CRYPTTAB];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-DHCPCD];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-DNSCRYPT-PROXY];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-DRACUT];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-FSTAB];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-GRUB];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-HOSTS];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-LOCALES];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-OPENRESOLV];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-OPENSSH-DAEMON];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-OPENSSH-MODULI];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-PAM];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-RC];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-SECURETTY];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-SUDOERS];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-SYSCTL];
 
 
 # -----------------------------------------------------------------------------

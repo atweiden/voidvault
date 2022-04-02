@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::Dhcpcd;
 
-constant $FILE = '/etc/dhcpcd.conf';
+my constant $FILE = $Voidvault::Constants::FILE-DHCPCD;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

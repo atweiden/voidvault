@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Constants;
 use Voidvault::Replace::Crypttab;
 use Voidvault::Replace::Dhcpcd;
 use Voidvault::Replace::DnscryptProxy;
@@ -16,99 +17,82 @@ use Voidvault::Replace::Securetty;
 use Voidvault::Replace::Sudoers;
 use Voidvault::Replace::Sysctl;
 
-constant $FILE-CRYPTTAB = $Voidvault::Replace::Crypttab::FILE;
-constant $FILE-DHCPCD = $Voidvault::Replace::Dhcpcd::FILE;
-constant $FILE-DNSCRYPT-PROXY = $Voidvault::Replace::DnscryptProxy::FILE;
-constant $FILE-DRACUT = $Voidvault::Replace::Dracut::FILE;
-constant $FILE-FSTAB = $Voidvault::Replace::Fstab::FILE;
-constant $FILE-GRUB = $Voidvault::Replace::Grub::FILE;
-constant $FILE-HOSTS = $Voidvault::Replace::Hosts::FILE;
-constant $FILE-LOCALES = $Voidvault::Replace::Locales::FILE;
-constant $FILE-OPENRESOLV = $Voidvault::Replace::OpenResolv::FILE;
-constant $FILE-OPENSSH-DAEMON = $Voidvault::Replace::OpenSSH::Daemon::FILE;
-constant $FILE-OPENSSH-MODULI = $Voidvault::Replace::OpenSSH::Moduli::FILE;
-constant $FILE-PAM = $Voidvault::Replace::PAM::FILE;
-constant $FILE-RC = $Voidvault::Replace::RC::FILE;
-constant $FILE-SECURETTY = $Voidvault::Replace::Securetty::FILE;
-constant $FILE-SUDOERS = $Voidvault::Replace::Sudoers::FILE;
-constant $FILE-SYSCTL = $Voidvault::Replace::Sysctl::FILE;
-
-role Voidvault::Replace[Str:D $ where $FILE-CRYPTTAB]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-CRYPTTAB]
 {
     also does Voidvault::Replace::Crypttab;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-DHCPCD]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-DHCPCD]
 {
     also does Voidvault::Replace::Dhcpcd;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-DNSCRYPT-PROXY]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-DNSCRYPT-PROXY]
 {
     also does Voidvault::Replace::DnscryptProxy;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-DRACUT]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-DRACUT]
 {
     also does Voidvault::Replace::Dracut;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-FSTAB]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-FSTAB]
 {
     also does Voidvault::Replace::Fstab;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-GRUB]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-GRUB]
 {
     also does Voidvault::Replace::Grub;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-HOSTS]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-HOSTS]
 {
     also does Voidvault::Replace::Hosts;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-LOCALES]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-LOCALES]
 {
     also does Voidvault::Replace::Locales;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-OPENRESOLV]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-OPENRESOLV]
 {
     also does Voidvault::Replace::OpenResolv;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-OPENSSH-DAEMON]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-OPENSSH-DAEMON]
 {
     also does Voidvault::Replace::OpenSSH::Daemon;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-OpenSSH-MODULI]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-OPENSSH-MODULI]
 {
     also does Voidvault::Replace::OpenSSH::Moduli;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-PAM]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-PAM]
 {
     also does Voidvault::Replace::PAM;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-RC]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-RC]
 {
     also does Voidvault::Replace::RC;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-SECURETTY]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-SECURETTY]
 {
     also does Voidvault::Replace::Securetty;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-SUDOERS]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-SUDOERS]
 {
     also does Voidvault::Replace::Sudoers;
 }
 
-role Voidvault::Replace[Str:D $ where $FILE-SYSCTL]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-SYSCTL]
 {
     also does Voidvault::Replace::Sysctl;
 }

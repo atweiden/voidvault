@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::OpenSSH::Moduli;
 
-constant $FILE = '/etc/ssh/moduli';
+my constant $FILE = $Voidvault::Constants::FILE-OPENSSH-MODULI;
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

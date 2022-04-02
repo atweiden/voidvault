@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::Locales;
 
-constant $FILE = '/etc/default/libc-locales';
+my constant $FILE = $Voidvault::Constants::FILE-LOCALES;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

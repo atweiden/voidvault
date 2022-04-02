@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::Dracut;
 
-constant $FILE = '/etc/dracut.conf.d'
+my constant $FILE = $Voidvault::Constants::FILE-DRACUT;
 
 multi method replace(
     ::?CLASS:D:

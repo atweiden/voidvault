@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::OpenResolv;
 
-constant $FILE = '/etc/resolvconf.conf';
+my constant $FILE = $Voidvault::Constants::OPENRESOLV;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {

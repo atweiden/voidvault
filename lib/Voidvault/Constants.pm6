@@ -1,6 +1,23 @@
 use v6;
 unit module Voidvault::Constants;
 
+constant $FILE-CRYPTTAB = '/etc/crypttab';
+constant $FILE-DHCPCD = '/etc/dhcpcd.conf';
+constant $FILE-DNSCRYPT-PROXY = '/etc/dnscrypt-proxy.toml';
+constant $FILE-DRACUT = '/etc/dracut.conf.d';
+constant $FILE-FSTAB = '/etc/fstab';
+constant $FILE-GRUB = '/etc/default/grub';
+constant $FILE-HOSTS = '/etc/hosts';
+constant $FILE-LOCALES = '/etc/default/libc-locales';
+constant $FILE-OPENRESOLV = '/etc/resolvconf.conf';
+constant $FILE-OPENSSH-DAEMON = '/etc/ssh/sshd_config';
+constant $FILE-OPENSSH-MODULI = '/etc/ssh/moduli';
+constant $FILE-PAM = '/etc/pam.d/passwd';
+constant $FILE-RC = '/etc/rc.conf';
+constant $FILE-SECURETTY = '/etc/securetty';
+constant $FILE-SUDOERS = '/etc/sudoers';
+constant $FILE-SYSCTL = '/etc/sysctl.d/99-sysctl.conf';
+
 # dependencies needed prior to config instantiation
 my constant @DEPENDENCY-PRE-CONFIG = qw<
     expect

@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::Sudoers;
 
-constant $FILE = '/etc/sudoers';
+my constant $FILE = $Voidvault::Constants::FILE-SUDOERS;
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {

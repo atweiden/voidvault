@@ -1,7 +1,8 @@
 use v6;
+use Voidvault::Constants;
 unit role Voidvault::Replace::OpenSSH::Daemon;
 
-constant $FILE = '/etc/ssh/sshd_config';
+my constant $FILE = $Voidvault::Constants::FILE-OPENSSH-DAEMON;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
