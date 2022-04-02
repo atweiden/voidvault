@@ -112,8 +112,8 @@ method finalize(
     my UInt:D $index = @line.first(/^$subject'='/, :k);
     my Str:D $replace = sprintf(Q{%s="%s"}, $subject, $grub-cmdline-linux);
     @line[$index] = $replace;
-    my Str:D $replace = @line.join("\n");
-    spurt($file, $replace ~ "\n");
+    my Str:D $finalize = @line.join("\n");
+    spurt($file, $finalize ~ "\n");
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
