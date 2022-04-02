@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Constants;
+use Voidvault::Types;
 unit role Voidvault::Replace::OpenSSH::Daemon;
 
 my constant $FILE = $Voidvault::Constants::FILE-OPENSSH-DAEMON;
