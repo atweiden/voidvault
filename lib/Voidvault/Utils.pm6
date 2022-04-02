@@ -904,7 +904,6 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 )
 {
     my Str:D $opts = '--iter-time 1';
-    my Str:D $key-file = key-file($add-key-path);
     my Str:D $spawn-cryptsetup-luks-add-key =
         "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
     my Str:D $interact =
