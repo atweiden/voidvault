@@ -29,7 +29,7 @@ multi sub replace(
 }
 
 multi sub replace(
-    Str:D $
+    Str:D $,
     Bool:D $
     --> Nil
 )
