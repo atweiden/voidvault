@@ -926,17 +926,16 @@ method configure-modules-load(::?CLASS:D: --> Nil)
 method generate-initramfs(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $file = $Voidvault::Replace::FILE-DRACUT;
 
     # dracut
-    self.replace($file, 'add_dracutmodules');
-    self.replace($file, 'add_drivers');
-    self.replace($file, 'compress');
-    self.replace($file, 'hostonly');
-    self.replace($file, 'install_items');
-    self.replace($file, 'omit_dracutmodules');
-    self.replace($file, 'persistent_policy');
-    self.replace($file, 'tmpdir');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'add_dracutmodules');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'add_drivers');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'compress');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'hostonly');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'install_items');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'omit_dracutmodules');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'persistent_policy');
+    self.replace($Voidvault::Replace::FILE-DRACUT, 'tmpdir');
     Voidvault::Utils.void-chroot-dracut(:$chroot-dir);
 
     # xbps-reconfigure
@@ -947,14 +946,14 @@ method generate-initramfs(::?CLASS:D: --> Nil)
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
     my Str:D $enable-serial-console = $.config.enable-serial-console;
-    my Str:D $default = $Voidvault::Replace::FILE-GRUB;
-    self.replace($default, 'GRUB_CMDLINE_LINUX_DEFAULT');
-    self.replace($default, 'GRUB_DISABLE_OS_PROBER');
-    self.replace($default, 'GRUB_DISABLE_RECOVERY');
-    self.replace($default, 'GRUB_ENABLE_CRYPTODISK');
-    self.replace($default, 'GRUB_TERMINAL_INPUT');
-    self.replace($default, 'GRUB_TERMINAL_OUTPUT');
-    self.replace($default, 'GRUB_SERIAL_COMMAND') if $enable-serial-console;
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_CMDLINE_LINUX_DEFAULT');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_DISABLE_OS_PROBER');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_DISABLE_RECOVERY');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_ENABLE_CRYPTODISK');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_TERMINAL_INPUT');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_TERMINAL_OUTPUT');
+    self.replace($Voidvault::Replace::FILE-GRUB, 'GRUB_SERIAL_COMMAND')
+        if $enable-serial-console;
 }
 
 # allow any user to boot os, but only allow superuser to edit boot
