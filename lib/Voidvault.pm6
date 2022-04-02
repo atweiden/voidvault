@@ -10,7 +10,7 @@ also does Voidvault::Replace[$Voidvault::Replace::FILE-DHCPCD];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-DNSCRYPT-PROXY];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-DRACUT];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-FSTAB];
-also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB-DEFAULT];
+also does Voidvault::Replace[$Voidvault::Replace::FILE-GRUB];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-HOSTS];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-LOCALES];
 also does Voidvault::Replace[$Voidvault::Replace::FILE-OPENRESOLV];
@@ -947,7 +947,7 @@ method generate-initramfs(::?CLASS:D: --> Nil)
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
     my Str:D $enable-serial-console = $.config.enable-serial-console;
-    my Str:D $default = $Voidvault::Replace::FILE-GRUB-DEFAULT;
+    my Str:D $default = $Voidvault::Replace::FILE-GRUB;
     self.replace($default, 'GRUB_CMDLINE_LINUX_DEFAULT');
     self.replace($default, 'GRUB_DISABLE_OS_PROBER');
     self.replace($default, 'GRUB_DISABLE_RECOVERY');

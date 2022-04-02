@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Constants;
-use Voidvault::Replace::Grub::Default::Utils;
-unit role Voidvault::Replace::Grub::Default;
+use Voidvault::Replace::Grub::Utils;
+unit role Voidvault::Replace::Grub;
 
 constant $FILE = '/etc/default/grub';
 
@@ -17,7 +17,7 @@ multi method replace(
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
-    my $default-utils = Voidvault::Replace::Grub::Default::Utils[$FILE];
+    my $default-utils = Voidvault::Replace::Grub::Utils[$FILE];
 
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D @grub-cmdline-linux;

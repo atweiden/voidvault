@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Constants;
 # caller is expected to pass C<$FILE where '/etc/default/grub'>
-unit role Voidvault::Replace::Grub::Default::Utils[Str:D $FILE where .so];
+unit role Voidvault::Replace::Grub::Utils[Str:D $FILE where .so];
 
 method set-log-level(Str:D $log-level, Str:D @grub-cmdline-linux --> Nil)
 {
