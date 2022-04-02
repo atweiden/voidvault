@@ -1,10 +1,10 @@
 use v6;
-use Voidvault;
+use Voidvault::Bootstrap;
 use Voidvault::Config;
 use Voidvault::Config::OneFA;
 use Voidvault::Constants;
 unit class Voidvault::OneFA;
-also is Voidvault;
+also does Voidvault::Bootstrap;
 
 
 # -----------------------------------------------------------------------------
