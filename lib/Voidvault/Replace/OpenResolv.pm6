@@ -3,7 +3,7 @@ use Voidvault::Constants;
 use Voidvault::Types;
 unit role Voidvault::Replace::OpenResolv;
 
-my constant $FILE = $Voidvault::Constants::OPENRESOLV;
+my constant $FILE = $Voidvault::Constants::FILE-OPENRESOLV;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
