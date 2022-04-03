@@ -828,13 +828,13 @@ multi sub gen-cryptsetup-luks-open(
 method install-vault-key(
     Str:D :$partition-vault where .so,
     Str:D :$vault-key where .so,
+    Str:D :$chroot-dir! where .so,
     *%opts (
         VaultPass :vault-pass($)
     )
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
     seckey(:$vault-key, :$chroot-dir);

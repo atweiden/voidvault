@@ -424,6 +424,7 @@ method voidstrap-base(::?CLASS:D: --> Nil)
 
 method install-vault-key(::?CLASS:D: --> Nil)
 {
+    my Str:D $chroot-dir = $.config.chroot-dir;
     my VaultPass $vault-pass = $.config.vault-pass;
     my Str:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
@@ -432,7 +433,8 @@ method install-vault-key(::?CLASS:D: --> Nil)
     Voidvault::Utils.install-vault-key(
         :$partition-vault,
         :$vault-key,
-        :$vault-pass
+        :$vault-pass,
+        :$chroot-dir
     );
 
     # configure /etc/crypttab for vault key
