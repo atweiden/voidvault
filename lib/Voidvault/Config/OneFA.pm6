@@ -23,6 +23,9 @@ has VaultKey:D $.bootvault-key =
         ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! '/keys/bootvault.key';
 
+multi submethod TWEAK(--> Nil)
+{*}
+
 multi submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
