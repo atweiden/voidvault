@@ -7,7 +7,7 @@ my constant $FILE = $Voidvault::Constants::FILE-HOSTS;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my HostName:D $host-name = $.config.host-name;
     my Str:D $path = $FILE.substr(1);

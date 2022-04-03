@@ -7,7 +7,7 @@ my constant $FILE = $Voidvault::Constants::FILE-SYSCTL;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my DiskType:D $disk-type = $.config.disk-type;
     my Str:D $path = $FILE.substr(1);

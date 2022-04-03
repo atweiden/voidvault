@@ -13,7 +13,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
@@ -47,7 +47,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     # if C<GRUB_DISABLE_OS_PROBER> not found, append to bottom of file
@@ -65,7 +65,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     # if C<GRUB_DISABLE_RECOVERY> not found, append to bottom of file
@@ -83,7 +83,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     # if C<GRUB_ENABLE_CRYPTODISK> not found, append to bottom of file
@@ -101,7 +101,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @replace =
@@ -146,7 +146,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @replace =
@@ -191,7 +191,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     # if C<GRUB_SERIAL_COMMAND> not found, append to bottom of file

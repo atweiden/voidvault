@@ -7,7 +7,7 @@ my constant $FILE = $Voidvault::Constants::FILE-RC;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'KEYMAP' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Keymap:D $keymap = $.config.keymap;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
@@ -20,7 +20,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'KEYMAP' --> Nil)
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'FONT' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?FONT'='/, :k);
@@ -32,7 +32,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'FONT' --> Nil)
 
 multi method replace(Str:D $ where $FILE, 'FONT_MAP' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?FONT_MAP'='/, :k);
@@ -44,7 +44,7 @@ multi method replace(Str:D $ where $FILE, 'FONT_MAP' --> Nil)
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE, 'TIMEZONE' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Timezone:D $timezone = $.config.timezone;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
@@ -57,7 +57,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, 'TIMEZONE' --> Nil)
 
 multi method replace(Str:D $ where $FILE, 'HARDWARECLOCK' --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;
     my UInt:D $index = @line.first(/^'#'?HARDWARECLOCK'='/, :k);

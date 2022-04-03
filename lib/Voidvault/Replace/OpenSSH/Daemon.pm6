@@ -7,7 +7,7 @@ my constant $FILE = $Voidvault::Constants::FILE-OPENSSH-DAEMON;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my UserName:D $user-name-sftp = $.config.user-name-sftp;
     my Str:D $path = $FILE.substr(1);

@@ -7,7 +7,7 @@ my constant $FILE = $Voidvault::Constants::FILE-LOCALES;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Locale:D $locale = $.config.locale;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D @line = $file.IO.lines;

@@ -12,7 +12,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     # modules are found in C</usr/lib/dracut/modules.d>
     my Str:D @module = qw<
@@ -32,7 +32,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Graphics:D $graphics = $.config.graphics;
     my Processor:D $processor = $.config.processor;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
@@ -58,7 +58,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="lz4"}, $subject);
     spurt($file, $replace ~ "\n");
@@ -71,7 +71,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="yes"}, $subject);
     spurt($file, $replace ~ "\n");
@@ -84,7 +84,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @item = qqw<
@@ -102,7 +102,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @module = qw<
         dracut-systemd
@@ -122,7 +122,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="by-uuid"}, $subject);
     spurt($file, $replace ~ "\n");
@@ -135,7 +135,7 @@ multi method replace(
     --> Nil
 )
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D $replace = sprintf(Q{%s="/tmp"}, $subject);
     spurt($file, $replace ~ "\n");

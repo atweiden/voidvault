@@ -6,7 +6,7 @@ my constant $FILE = $Voidvault::Constants::FILE-DNSCRYPT-PROXY;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     replace($file, $disable-ipv6);

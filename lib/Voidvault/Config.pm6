@@ -24,9 +24,9 @@ class Voidvault::Config
             !! 'BASE';
 
     # path within which to mount system for bootstrap
-    has Str:D $.chroot-dir =
+    has AbsolutePath:D $.chroot-dir =
         ?%*ENV<VOIDVAULT_CHROOT_DIR>
-            ?? %*ENV<VOIDVAULT_CHROOT_DIR>
+            ?? gen-absolute-path(%*ENV<VOIDVAULT_CHROOT_DIR>)
             !! '/mnt';
 
     # location of void package repository (prioritized)
@@ -267,7 +267,7 @@ class Voidvault::Config
             if $mode;
         $!augment = $augment
             if $augment;
-        $!chroot-dir = $chroot-dir
+        $!chroot-dir = gen-absolute-path($chroot-dir)
             if $chroot-dir;
         $!device = $device
             if $device;
@@ -473,6 +473,13 @@ class Voidvault::Config::OneFA
 sub gen-mode($m --> Mode:D)
 {
     my Mode:D $mode = $m.uc or die("Sorry, invalid mode 「$m」");
+}
+
+# confirm path $p is valid AbsolutePath and return AbsolutePath
+sub gen-absolute-path(Str:D $p --> AbsolutePath:D)
+{
+    my AbsolutePath:D $path =
+        $p or die("Sorry, invalid absolute path 「$p」");
 }
 
 # confirm disk type $d is valid DiskType and return DiskType

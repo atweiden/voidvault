@@ -87,7 +87,7 @@ multi sub disable-cow(
 }
 
 method groupadd(
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     *@group-name (Str:D $, *@),
     *%opts (
         Bool :system($)
@@ -99,7 +99,7 @@ method groupadd(
 }
 
 multi sub groupadd(
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     Bool:D :system($)! where .so,
     *@group-name (Str:D $, *@)
     --> Nil
@@ -111,7 +111,7 @@ multi sub groupadd(
 }
 
 multi sub groupadd(
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     *@group-name (Str:D $, *@)
     --> Nil
 )
@@ -253,7 +253,7 @@ method ls-timezones(--> Array[Timezone:D])
 }
 
 # chroot into C<$chroot-dir> to then C<dracut>
-method void-chroot-dracut(Str:D :$chroot-dir! where .so --> Nil)
+method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
 {
     my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
     run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
@@ -265,7 +265,7 @@ method void-chroot-mkdir(
     Str:D :$group! where .so,
     # permissions should be octal: https://docs.raku.org/routine/chmod
     UInt:D :$permissions! where .so,
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     *@dir (Str:D $, *@)
     --> Nil
 )
@@ -277,7 +277,10 @@ method void-chroot-mkdir(
 }
 
 # chroot into C<$chroot-dir> to then C<dracut>
-method void-chroot-xbps-reconfigure-linux(Str:D :$chroot-dir! where .so --> Nil)
+method void-chroot-xbps-reconfigure-linux(
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
 {
     my Str:D $xbps-linux = do {
         my Str:D $xbps-linux-version-raw =
@@ -829,7 +832,7 @@ method install-vault-key(
     Str:D :$partition-vault where .so,
     # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
     VaultKey:D :vault-key($vault-key-unprefixed) where .so,
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     *%opts (
         VaultPass :vault-pass($)
     )

@@ -1111,6 +1111,8 @@ constant @vault-type = qw<
 # types
 # -----------------------------------------------------------------------------
 
+subset AbsolutePath of Str is export where .IO.is-absolute.so;
+
 # hard disk type
 subset DiskType of Str is export where { %disktypes.keys.grep($_) };
 
@@ -1148,7 +1150,7 @@ subset UserName of Str is export where
 }
 
 # LUKS encrypted volume key must be absolute path
-subset VaultKey of Str is export where .IO.is-absolute.so;
+subset VaultKey of AbsolutePath is export;
 
 # LUKS encrypted volume device mapper name
 subset VaultName of Str is export where

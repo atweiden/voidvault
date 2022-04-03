@@ -6,7 +6,7 @@ my constant $FILE = $Voidvault::Constants::FILE-SECURETTY;
 
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Str:D $path = $FILE.substr(1);
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);

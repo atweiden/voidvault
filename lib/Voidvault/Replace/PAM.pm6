@@ -6,7 +6,7 @@ my constant $FILE = $Voidvault::Constants::FILE-PAM;
 
 multi method replace(Str:D $ where $FILE --> Nil)
 {
-    my Str:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
     my Str:D $slurp = slurp($file).trim-trailing;
     my Str:D $replace =

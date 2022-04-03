@@ -102,7 +102,7 @@ method disable-ipv6(Str:D @grub-cmdline-linux --> Nil)
 method finalize(
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
     Str:D @grub-cmdline-linux,
-    Str:D :$chroot-dir! where .so
+    AbsolutePath:D :$chroot-dir! where .so
     --> Nil
 )
 {
