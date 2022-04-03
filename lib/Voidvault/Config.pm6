@@ -423,7 +423,6 @@ class Voidvault::Config::Base
     also is Voidvault::Config;
 }
 
-
 class Voidvault::Config::OneFA
 {
     also is Voidvault::Config;
