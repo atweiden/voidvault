@@ -414,10 +414,7 @@ class Voidvault::Config
         --> Voidvault::Config::Base:D
     )
     {
-        say('[DEBUG] in Voidvault::Config.new');
-        say('[DEBUG] in $mode: ', $mode.raku);
-        say('[DEBUG] in %opts: ', %opts.raku);
-        Voidvault::Config::Base.bless($mode, |%opts);
+        self.bless($mode, |%opts);
     }
 }
 
