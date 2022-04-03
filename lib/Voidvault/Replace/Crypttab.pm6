@@ -9,7 +9,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my VaultName:D $vault-name = $.config.vault-name;
-    my Str:D $vault-key = $.config.vault-key;
+    my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
     my Str:D $vault-uuid =
         qqx<blkid --match-tag UUID --output value $partition-vault>.trim;

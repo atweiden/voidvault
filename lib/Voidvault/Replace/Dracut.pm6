@@ -85,7 +85,7 @@ multi method replace(
 )
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $vault-key = $.config.vault-key;
+    my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @item = qqw<
         $vault-key

@@ -9,6 +9,8 @@ voidvault - Bootstrap Void Linux with full disk encryption
 *--vault-key=<path>*
 	Path to LUKS encrypted volume key. Default: */boot/vault.key*
 
+	Path must be absolute.
+
 	NOTE: It's strongly recommended to use a path inside */boot*,
 	because Voidvault removes _read_, _write_ and _execute_
 	permissions there from the _group_ and _other_ classes, leaving

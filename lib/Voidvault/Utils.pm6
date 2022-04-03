@@ -828,7 +828,7 @@ multi sub gen-cryptsetup-luks-open(
 method install-vault-key(
     Str:D :$partition-vault where .so,
     # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
-    Str:D :vault-key($vault-key-unprefixed) where .so,
+    VaultKey:D :vault-key($vault-key-unprefixed) where .so,
     Str:D :$chroot-dir! where .so,
     *%opts (
         VaultPass :vault-pass($)
@@ -836,14 +836,15 @@ method install-vault-key(
     --> Nil
 )
 {
-    my Str:D $vault-key = sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
+    my VaultKey:D $vault-key =
+        sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
     seckey(:$vault-key);
 }
 
 # make vault key
-sub mkkey(Str:D :$vault-key! where .so --> Nil)
+sub mkkey(VaultKey:D :$vault-key! where .so --> Nil)
 {
     # source of entropy
     my Str:D $src = '/dev/random';
@@ -858,7 +859,7 @@ sub mkkey(Str:D :$vault-key! where .so --> Nil)
 
 # LUKS encrypted volume password was given
 multi sub addkey(
-    Str:D :$vault-key! where .so,
+    VaultKey:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -878,7 +879,7 @@ multi sub addkey(
 
 # LUKS encrypted volume password not given
 multi sub addkey(
-    Str:D :$vault-key! where .so,
+    VaultKey:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($)
     --> Nil
@@ -900,7 +901,7 @@ multi sub addkey(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :interactive($)! where .so,
-    Str:D :$vault-key! where .so,
+    VaultKey:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
 )
@@ -932,7 +933,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :non-interactive($)! where .so,
-    Str:D :$vault-key! where .so,
+    VaultKey:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Str:D
@@ -968,7 +969,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 # secure vault key
-sub seckey(Str:D :$vault-key! where .so --> Nil)
+sub seckey(VaultKey:D :$vault-key! where .so --> Nil)
 {
     run(qqw<void-chroot $chroot-dir chmod 000 $vault-key>);
     run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx /boot>);

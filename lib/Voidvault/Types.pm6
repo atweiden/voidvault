@@ -1147,6 +1147,9 @@ subset UserName of Str is export where
     Voidvault::Grammar.parse($_, :rule<user-name>);
 }
 
+# LUKS encrypted volume key must be absolute path
+subset VaultKey of Str is export where .IO.is-absolute.so;
+
 # LUKS encrypted volume device mapper name
 subset VaultName of Str is export where
 {

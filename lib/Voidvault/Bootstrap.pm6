@@ -339,7 +339,7 @@ method mkvault(::?CLASS:D: --> Nil)
 {
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
-    my Str:D $vault-key = $.config.vault-key;
+    my VaultKey:D $vault-key = $.config.vault-key;
     my VaultType:D $vault-type = 'LUKS1';
     my Str:D $partition-vault = self.gen-partition('vault');
 
@@ -426,7 +426,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
 {
     my Str:D $chroot-dir = $.config.chroot-dir;
     my VaultPass $vault-pass = $.config.vault-pass;
-    my Str:D $vault-key = $.config.vault-key;
+    my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
 
     # add key to vault

@@ -130,9 +130,9 @@ class Voidvault::Config
             !! Nil;
 
     # intended path to LUKS encrypted volume key on bootstrapped system
-    has Str:D $.vault-key =
+    has VaultKey:D $.vault-key =
         ?%*ENV<VOIDVAULT_VAULT_KEY>
-            ?? %*ENV<VOIDVAULT_VAULT_KEY>
+            ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
             !! '/boot/vault.key';
 
     # name for host (default: vault)
@@ -327,7 +327,7 @@ class Voidvault::Config
             if $vault-name;
         $!vault-pass = gen-vault-pass($vault-pass)
             if $vault-pass;
-        $!vault-key = $vault-key
+        $!vault-key = gen-vault-key($vault-key)
             if $vault-key;
     }
 
@@ -442,9 +442,9 @@ class Voidvault::Config::OneFA
             !! Nil;
 
     # intended path to LUKS encrypted boot volume key on bootstrapped system
-    has Str:D $.bootvault-key =
+    has VaultKey:D $.bootvault-key =
         ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
-            ?? %*ENV<VOIDVAULT_BOOTVAULT_KEY>
+            ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
             !! '/keys/bootvault.key';
 
     submethod BUILD(
@@ -459,7 +459,7 @@ class Voidvault::Config::OneFA
             if $bootvault-name;
         $!bootvault-pass = gen-vault-pass($bootvault-pass)
             if $bootvault-pass;
-        $!bootvault-key = $bootvault-key
+        $!bootvault-key = gen-vault-key($bootvault-key)
             if $bootvault-key;
     }
 }
@@ -521,6 +521,12 @@ sub gen-timezone(Str:D $t --> Timezone:D)
 sub gen-user-name(Str:D $u --> UserName:D)
 {
     my UserName:D $user-name = $u or die("Sorry, invalid username 「$u」");
+}
+
+# confirm vault key $k is valid VaultKey and return VaultKey
+sub gen-vault-key(Str:D $k --> VaultKey:D)
+{
+    my VaultKey:D $vault-key = $k or die("Sorry, invalid vault key 「$k」");
 }
 
 # confirm vault name $v is valid VaultName and return VaultName
