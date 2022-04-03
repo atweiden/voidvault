@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Constants;
+use Voidvault::Types;
 unit role Voidvault::Replace::DnscryptProxy;
 
 my constant $FILE = $Voidvault::Constants::FILE-DNSCRYPT-PROXY;
