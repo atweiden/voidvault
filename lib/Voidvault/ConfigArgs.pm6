@@ -61,7 +61,7 @@ multi method Voidvault::Config(
 
 multi sub gen-mode(Str:D $ where m:i/1fa/ --> Mode:D)
 {
-    my Mode: $mode = Mode::<1FA>;
+    my Mode:D $mode = Mode::<1FA>;
 }
 
 multi sub gen-mode(Str:D $mode)
