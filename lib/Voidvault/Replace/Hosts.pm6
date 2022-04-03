@@ -26,8 +26,8 @@ multi sub replace(
     my Str:D @replace =
         $file.IO.lines
         # remove IPv6 hosts
-        ==> replace('hosts', '::1')
-        ==> replace('hosts', '127.0.1.1', $host-name);
+        ==> replace('::1')
+        ==> replace('127.0.1.1', $host-name);
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
@@ -41,13 +41,12 @@ multi sub replace(
 {
     my Str:D @replace =
         $file.IO.lines
-        ==> replace('hosts', '127.0.1.1', $host-name);
+        ==> replace('127.0.1.1', $host-name);
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
 
 multi sub replace(
-    'hosts',
     '::1',
     Str:D @line
     --> Array[Str:D]
@@ -59,7 +58,6 @@ multi sub replace(
 }
 
 multi sub replace(
-    'hosts',
     '127.0.1.1',
     HostName:D $host-name,
     Str:D @line

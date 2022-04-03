@@ -15,16 +15,24 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
     replace($file, $disable-ipv6);
 }
 
-multi sub replace(Str:D $file where .so, Bool:D $disable-ipv6 where .so --> Nil)
+multi sub replace(
+    Str:D $file where .so,
+    Bool:D $disable-ipv6 where .so
+    --> Nil
+)
 {
     my Str:D @replace =
         $file.IO.lines
-        ==> replace('resolvconf.conf', 'name_servers');
+        ==> replace('name_servers');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
 
-multi sub replace(Str:D $file where .so, Bool:D $disable-ipv6 --> Nil)
+multi sub replace(
+    Str:D $file where .so,
+    Bool:D $disable-ipv6
+    --> Nil
+)
 {*}
 
 multi sub replace(
