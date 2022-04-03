@@ -32,6 +32,7 @@
         "Voidvault::Replace::Dracut"          : "lib/Voidvault/Replace/Dracut.pm6",
         "Voidvault::Replace::Fstab"           : "lib/Voidvault/Replace/Fstab.pm6",
         "Voidvault::Replace::Grub::Default"   : "lib/Voidvault/Replace/Grub/Default.pm6",
+        "Voidvault::Replace::Grub::Linux"     : "lib/Voidvault/Replace/Grub/Linux.pm6",
         "Voidvault::Replace::Grub::Utils"     : "lib/Voidvault/Replace/Grub/Utils.pm6",
         "Voidvault::Replace::Hosts"           : "lib/Voidvault/Replace/Hosts.pm6",
         "Voidvault::Replace::Locales"         : "lib/Voidvault/Replace/Locales.pm6",
