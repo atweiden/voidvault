@@ -141,7 +141,7 @@ class Voidvault::Config
             ?? gen-host-name(%*ENV<VOIDVAULT_HOSTNAME>)
             !! prompt-name(:host);
 
-    # target block device path (default: /dev/sda)
+    # target block device path
     has Str:D $.device =
         %*ENV<VOIDVAULT_DEVICE>
             || prompt-device(Voidvault::Utils.ls-devices);
