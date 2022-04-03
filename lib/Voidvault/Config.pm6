@@ -332,7 +332,7 @@ class Voidvault::Config
     }
 
     multi method new(
-        Str:D $mode where m:i/1fa/,
+        Str:D :$mode! where m:i/1fa/,
         *%opts (
             Str :admin-name($),
             Str :admin-pass($),
@@ -371,12 +371,10 @@ class Voidvault::Config
         --> Voidvault::Config::OneFA:D
     )
     {
-        %opts<mode> = $mode if $mode;
         Voidvault::Config::OneFA.bless(|%opts);
     }
 
     multi method new(
-        Str $mode?,
         *%opts (
             Str :admin-name($),
             Str :admin-pass($),
@@ -398,6 +396,7 @@ class Voidvault::Config
             Bool :ignore-conf-repos($),
             Str :keymap($),
             Str :locale($),
+            Str :mode($),
             Str :packages($),
             Str :processor($),
             :repository(@),
@@ -415,7 +414,6 @@ class Voidvault::Config
         --> Voidvault::Config::Base:D
     )
     {
-        %opts<mode> = $mode if $mode;
         Voidvault::Config::Base.bless(|%opts);
     }
 }
@@ -469,12 +467,6 @@ class Voidvault::Config::OneFA
 # string formatting, resolution and validation
 # -----------------------------------------------------------------------------
 
-# confirm mode $m is valid Mode and return Mode
-sub gen-mode($m --> Mode:D)
-{
-    my Mode:D $mode = $m.uc or die("Sorry, invalid mode 「$m」");
-}
-
 # confirm path $p is valid AbsolutePath and return AbsolutePath
 sub gen-absolute-path(Str:D $p --> AbsolutePath:D)
 {
@@ -510,6 +502,12 @@ sub gen-keymap(Str:D $k --> Keymap:D)
 sub gen-locale(Str:D $l --> Locale:D)
 {
     my Locale:D $locale = $l or die("Sorry, invalid locale 「$l」");
+}
+
+# confirm mode $m is valid Mode and return Mode
+sub gen-mode($m --> Mode:D)
+{
+    my Mode:D $mode = $m.uc or die("Sorry, invalid mode 「$m」");
 }
 
 # confirm processor $p is valid Processor and return Processor

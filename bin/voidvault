@@ -168,7 +168,9 @@ multi sub MAIN(
     --> Nil
 )
 {
-    Voidvault.new($mode, :@repository, |%opts);
+    %opts<mode> = $mode if $mode;
+    %opts<repository> = @repository if @repository;
+    Voidvault.new(|%opts);
 }
 
 multi sub MAIN(
@@ -211,8 +213,9 @@ multi sub MAIN(
     --> Nil
 )
 {
-    my @repository = $repository;
-    Voidvault.new($mode, :@repository, |%opts);
+    %opts<mode> = $mode if $mode;
+    %opts<repository> = Array($repository) if $repository;
+    Voidvault.new(|%opts);
 }
 
 
