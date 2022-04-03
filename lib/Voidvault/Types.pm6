@@ -1153,10 +1153,10 @@ subset VaultName of Str is export where
     Voidvault::Grammar.parse($_, :rule<vault-name>);
 }
 
-# LUKS encrypted volume type
-subset VaultType of Str is export where { @vault-type.grep($_) };
-
 # LUKS encrypted volume password must be 1-512 characters
 subset VaultPass of Str is export where { 0 < .chars <= 512 };
+
+# LUKS encrypted volume type
+subset VaultType of Str is export where { @vault-type.grep($_) };
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
