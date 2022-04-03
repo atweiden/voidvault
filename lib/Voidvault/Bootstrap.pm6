@@ -756,7 +756,7 @@ method generate-initramfs(::?CLASS:D: --> Nil)
 # configure /etc/default/grub
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
-    my Str:D $enable-serial-console = $.config.enable-serial-console;
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
     self.replace($Voidvault::Constants::FILE-GRUB,
         'GRUB_CMDLINE_LINUX_DEFAULT');
     self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_DISABLE_OS_PROBER');
