@@ -897,9 +897,9 @@ multi sub addkey(
 }
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
+    Bool:D :interactive($)! where .so,
     Str:D :$vault-key! where .so,
-    Str:D :$partition-vault! where .so,
-    Bool:D :interactive($)! where .so
+    Str:D :$partition-vault! where .so
     --> Str:D
 )
 {
@@ -929,10 +929,10 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
+    Bool:D :non-interactive($)! where .so,
     Str:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so,
-    Bool:D :non-interactive($)! where .so
+    VaultPass:D :$vault-pass! where .so
     --> Str:D
 )
 {
