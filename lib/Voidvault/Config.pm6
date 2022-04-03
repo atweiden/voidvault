@@ -421,6 +421,10 @@ class Voidvault::Config
 class Voidvault::Config::Base
 {
     also is Voidvault::Config;
+
+    submethod BUILD(Str $?, *% --> Nil)
+    {*}
+
 }
 
 class Voidvault::Config::OneFA
