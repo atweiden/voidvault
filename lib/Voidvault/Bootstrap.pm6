@@ -360,7 +360,7 @@ method mount-efi(::?CLASS:D: --> Nil)
     my Str:D $chroot-dir = $.config.chroot-dir;
     my Str:D $partition-efi = self.gen-partition('efi');
     my Str:D $efi-dir =
-        sprintf(Q{%%}, $chroot-dir, $Voidvault::Constants::EFI-DIR);
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::EFI-DIR);
     mkdir($efi-dir);
     my Str:D $mount-options = qw<
         nodev
