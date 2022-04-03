@@ -263,7 +263,6 @@ class Voidvault::Config
         --> Nil
     )
     {
-        say('[DEBUG] in Voidvault::Config.BUILD');
         $!mode = gen-mode($mode)
             if $mode;
         $!augment = $augment
@@ -416,21 +415,14 @@ class Voidvault::Config
         --> Voidvault::Config::Base:D
     )
     {
-        say('[DEBUG] in Voidvault::Config.new');
         %opts<mode> = $mode if $mode;
-        self.bless(|%opts);
+        Voidvault::Config::Base.bless(|%opts);
     }
 }
 
 class Voidvault::Config::Base
 {
     also is Voidvault::Config;
-
-    submethod BUILD(Str $?, *% --> Nil)
-    {
-        say('[DEBUG] in Voidvault::Config::Base.BUILD');
-    }
-
 }
 
 class Voidvault::Config::OneFA
