@@ -4,7 +4,7 @@ use X::Void::XBPS;
 unit class Void::XBPS;
 
 method xbps-install(
-    Str:D :@repository,
+    :@repository,
     Bool :$ignore-conf-repos,
     # ensure at least one package is given
     *@pkg ($, *@)
