@@ -13,10 +13,10 @@ use Voidvault::Utils;
 my constant $SUBJECT-DISABLE-COW = 'voidvault disable-cow';
 my constant $SUBJECT-GEN-PASS-HASH = 'voidvault gen-pass-hash';
 my constant $SUBJECT-GEN-PASS-HASH-GRUB = 'voidvault -g|--grub gen-pass-hash';
-my constant $SUBJECT-LS-DEVICES = 'voidvault ls-devices';
-my constant $SUBJECT-LS-KEYMAPS = 'voidvault ls-keymaps';
-my constant $SUBJECT-LS-LOCALES = 'voidvault ls-locales';
-my constant $SUBJECT-LS-TIMEZONES = 'voidvault ls-timezones';
+my constant $SUBJECT-LS-DEVICES = 'voidvault ls devices';
+my constant $SUBJECT-LS-KEYMAPS = 'voidvault ls keymaps';
+my constant $SUBJECT-LS-LOCALES = 'voidvault ls locales';
+my constant $SUBJECT-LS-TIMEZONES = 'voidvault ls timezones';
 
 
 # -----------------------------------------------------------------------------
