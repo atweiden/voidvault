@@ -226,7 +226,6 @@ class Voidvault::Config
     }
 
     submethod BUILD(
-        Str :$mode,
         Str :$admin-name,
         Str :$admin-pass,
         Str :$admin-pass-hash,
@@ -247,6 +246,7 @@ class Voidvault::Config
         Bool :$ignore-conf-repos,
         Str :$keymap,
         Str :$locale,
+        Str :$mode,
         Str :$packages,
         Str :$processor,
         :@repository,
@@ -263,8 +263,6 @@ class Voidvault::Config
         --> Nil
     )
     {
-        $!mode = gen-mode($mode)
-            if $mode;
         $!augment = $augment
             if $augment;
         $!chroot-dir = gen-absolute-path($chroot-dir)
@@ -287,6 +285,8 @@ class Voidvault::Config
             if $keymap;
         $!locale = gen-locale($locale)
             if $locale;
+        $!mode = gen-mode($mode)
+            if $mode;
         @!package = $packages.split(' ')
             if $packages;
         $!processor = gen-processor($processor)
