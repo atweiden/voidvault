@@ -6,6 +6,7 @@ use Voidvault::Replace::DnscryptProxy;
 use Voidvault::Replace::Dracut;
 use Voidvault::Replace::Fstab;
 use Voidvault::Replace::Grub::Default;
+use Voidvault::Replace::Grub::Linux;
 use Voidvault::Replace::Hosts;
 use Voidvault::Replace::Locales;
 use Voidvault::Replace::OpenResolv;
@@ -45,6 +46,11 @@ role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-FSTAB]
 role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-GRUB-DEFAULT]
 {
     also does Voidvault::Replace::Grub::Default;
+}
+
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-GRUB-LINUX]
+{
+    also does Voidvault::Replace::Grub::Linux;
 }
 
 role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-HOSTS]
