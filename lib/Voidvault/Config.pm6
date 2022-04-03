@@ -220,9 +220,6 @@ proto submethod TWEAK(--> Nil)
     {*}
 }
 
-multi submethod TWEAK(--> Nil)
-{...}
-
 # proto submethod to facilitate extending through role composition
 proto submethod BUILD(
     Str :$admin-name,
@@ -329,11 +326,5 @@ proto submethod BUILD(
     # in case downstream user of C<Voidvault::Config> needs more building
     {*}
 }
-
-multi submethod BUILD(
-    *%
-    --> Nil
-)
-{...}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
