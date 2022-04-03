@@ -827,7 +827,8 @@ multi sub gen-cryptsetup-luks-open(
 
 method install-vault-key(
     Str:D :$partition-vault where .so,
-    Str:D :$vault-key where .so,
+    # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
+    Str:D :vault-key($vault-key-unprefixed) where .so,
     Str:D :$chroot-dir! where .so,
     *%opts (
         VaultPass :vault-pass($)
@@ -835,9 +836,10 @@ method install-vault-key(
     --> Nil
 )
 {
+    my Str:D $vault-key = sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
-    seckey(:$vault-key, :$chroot-dir);
+    seckey(:$vault-key);
 }
 
 # make vault key
@@ -966,7 +968,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 # secure vault key
-sub seckey(Str:D :$vault-key! where .so, Str:D :$chroot-dir! where .so --> Nil)
+sub seckey(Str:D :$vault-key! where .so --> Nil)
 {
     run(qqw<void-chroot $chroot-dir chmod 000 $vault-key>);
     run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx /boot>);
