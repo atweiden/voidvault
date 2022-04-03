@@ -917,13 +917,13 @@ multi method configure-openssh(::?CLASS:D: 'ssh_config' --> Nil)
 
 multi method configure-openssh(::?CLASS:D: 'sshd_config' --> Nil)
 {
-    self.replace('sshd_config');
+    self.replace($Voidvault::Constants::FILE-OPENSSH-DAEMON);
 }
 
 multi method configure-openssh(::?CLASS:D: 'moduli' --> Nil)
 {
     # filter weak ssh moduli
-    self.replace('moduli');
+    self.replace($Voidvault::Constants::FILE-OPENSSH-MODULI);
 }
 
 method configure-udev(::?CLASS:D: --> Nil)
@@ -949,7 +949,7 @@ method configure-hidepid(::?CLASS:D: --> Nil)
 
 method configure-securetty(::?CLASS:D: --> Nil)
 {
-    self.replace('securetty');
+    self.replace($Voidvault::Constants::FILE-SECURETTY);
 }
 
 
