@@ -7,6 +7,7 @@ Todo
   available in kernel][random.trust_bootloader]
 - add [modprobe settings from whonix][modprobe settings from whonix]
 - add [grub settings from whonix][grub settings from whonix]
+- add [grub settings from tails][grub settings from tails]
 - add [modules-load.d settings from whonix][modules-load.d settings from whonix]
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
@@ -70,6 +71,7 @@ Todo
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
 [modprobe settings from whonix]: https://github.com/Whonix/security-misc/blob/master/etc/modprobe.d/30_security-misc.conf
 [grub settings from whonix]: https://github.com/Whonix/security-misc/tree/master/etc/default/grub.d
+[grub settings from tails]: https://tails.boum.org/contribute/design/kernel_hardening/
 [modules-load.d settings from whonix]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
