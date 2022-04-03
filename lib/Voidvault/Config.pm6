@@ -226,7 +226,7 @@ class Voidvault::Config
     }
 
     submethod BUILD(
-        Str $mode?,
+        Str :$mode,
         Str :$admin-name,
         Str :$admin-pass,
         Str :$admin-pass-hash,
@@ -372,7 +372,8 @@ class Voidvault::Config
         --> Voidvault::Config::OneFA:D
     )
     {
-        Voidvault::Config::OneFA.bless($mode, |%opts);
+        %opts<mode> = $mode if $mode;
+        Voidvault::Config::OneFA.bless(|%opts);
     }
 
     multi method new(
@@ -416,7 +417,8 @@ class Voidvault::Config
     )
     {
         say('[DEBUG] in Voidvault::Config.new');
-        self.bless($mode, |%opts);
+        %opts<mode> = $mode if $mode;
+        self.bless(|%opts);
     }
 }
 
