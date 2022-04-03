@@ -7,7 +7,7 @@ method xbps-install(
     :@repository,
     Bool :$ignore-conf-repos,
     # ensure at least one package is given
-    *@pkg ($, *@)
+    *@pkg (Str:D $, *@)
     --> Nil
 )
 {
@@ -24,9 +24,9 @@ method xbps-install(
 }
 
 multi sub build-xbps-install-cmdline(
-    Str:D @pkg,
     :@repository! where .so,
-    Bool:D :ignore-conf-repos($)! where .so
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@pkg (Str:D $, *@)
     --> Str:D
 )
 {
@@ -41,9 +41,9 @@ multi sub build-xbps-install-cmdline(
 }
 
 multi sub build-xbps-install-cmdline(
-    Str:D @pkg,
     :@repository! where .so,
-    Bool :ignore-conf-repos($)
+    Bool :ignore-conf-repos($),
+    *@pkg (Str:D $, *@)
     --> Str:D
 )
 {
@@ -57,9 +57,9 @@ multi sub build-xbps-install-cmdline(
 }
 
 multi sub build-xbps-install-cmdline(
-    Str:D @,
     :repository(@),
-    Bool:D :ignore-conf-repos($)! where .so
+    Bool:D :ignore-conf-repos($)! where .so,
+    *@ (Str:D $, *@)
     --> Nil
 )
 {
@@ -67,9 +67,9 @@ multi sub build-xbps-install-cmdline(
 }
 
 multi sub build-xbps-install-cmdline(
-    Str:D @pkg,
     :repository(@),
-    Bool :ignore-conf-repos($)
+    Bool :ignore-conf-repos($),
+    *@pkg (Str:D $, *@)
     --> Str:D
 )
 {
