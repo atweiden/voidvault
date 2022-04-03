@@ -33,8 +33,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-modprobe;
     self.configure-modules-load;
     self.generate-initramfs;
-    self.configure-bootloader('default');
-    self.configure-bootloader('secure');
+    self.configure-bootloader;
     self.install-bootloader;
     self.configure-sysctl;
     self.configure-nftables;
@@ -753,6 +752,12 @@ method generate-initramfs(::?CLASS:D: --> Nil)
     Voidvault::Utils.void-chroot-xbps-reconfigure-linux(:$chroot-dir);
 }
 
+multi method configure-bootloader(::?CLASS:D: --> Nil)
+{
+    self.configure-bootloader('default');
+    self.configure-bootloader('secure');
+}
+
 # configure /etc/default/grub
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
@@ -775,12 +780,7 @@ multi method configure-bootloader(::?CLASS:D: 'secure' --> Nil)
     my UserName:D $user-name-grub = $.config.user-name-grub;
     my Str:D $user-pass-hash-grub = $.config.user-pass-hash-grub;
 
-    my Str:D $grub-unrestricted = q:to/EOF/;
-    #!/bin/sh
-    exec tail -n +3 $0
-    menuentry_id_option="--unrestricted $menuentry_id_option"
-    EOF
-    spurt("$chroot-dir/etc/grub.d/09_unrestricted", $grub-unrestricted);
+    self.replace($Voidvault::Constants::FILE-GRUB-LINUX);
 
     my Str:D $grub-superusers = qq:to/EOF/;
     set superusers="$user-name-grub"

@@ -7,6 +7,7 @@ constant $FILE-DNSCRYPT-PROXY = '/etc/dnscrypt-proxy.toml';
 constant $FILE-DRACUT = '/etc/dracut.conf.d';
 constant $FILE-FSTAB = '/etc/fstab';
 constant $FILE-GRUB-DEFAULT = '/etc/default/grub';
+constant $FILE-GRUB-LINUX = '/etc/grub.d/10_linux';
 constant $FILE-HOSTS = '/etc/hosts';
 constant $FILE-LOCALES = '/etc/default/libc-locales';
 constant $FILE-OPENRESOLV = '/etc/resolvconf.conf';
