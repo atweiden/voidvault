@@ -644,14 +644,6 @@ constant %locales = Map.new(
 );
 
 # end locales }}}
-# mode {{{
-
-constant @mode = qw<
-    BASE
-    1FA
->;
-
-# end mode }}}
 # processors {{{
 
 constant %processors = Map.new(
@@ -1135,7 +1127,7 @@ subset LibcFlavor of Str is export where { @libc.grep($_) };
 subset Locale of Str is export where { %locales.keys.grep($_) };
 
 # mode
-subset Mode of Str is export where { @mode.grep($_) };
+enum Mode is export <BASE 1FA>;
 
 # processor
 subset Processor of Str is export where { %processors.keys.grep($_) };

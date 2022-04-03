@@ -21,6 +21,7 @@ constant $VERSION = v1.16.0;
 # -----------------------------------------------------------------------------
 
 method new(
+    Str :$mode,
     *%opts (
         # list options pertinent to base Voidvault::Config only
         Str :admin-name($),
@@ -43,7 +44,6 @@ method new(
         Bool :$ignore-conf-repos,
         Str :keymap($),
         Str :locale($),
-        Str :mode($),
         Str :packages($),
         Str :processor($),
         :@repository,
@@ -74,7 +74,8 @@ method new(
     xbps-install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
 
     # instantiate voidvault config, prompting for user input as needed
-    my Voidvault::Config $config .= new(|%opts);
+    my Voidvault::ConfigArgs $config-args .= new(:$mode, |%opts);
+    my Voidvault::Config $config = Voidvault::Config($config-args);
 
     # bootstrap voidvault
     new(:$config);
