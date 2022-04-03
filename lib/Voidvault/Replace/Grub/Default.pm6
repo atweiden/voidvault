@@ -2,9 +2,9 @@ use v6;
 use Voidvault::Constants;
 use Voidvault::Replace::Grub::Utils;
 use Voidvault::Types;
-unit role Voidvault::Replace::Grub;
+unit role Voidvault::Replace::Grub::Default;
 
-my constant $FILE = $Voidvault::Constants::FILE-GRUB;
+my constant $FILE = $Voidvault::Constants::FILE-GRUB-DEFAULT;
 
 multi method replace(
     ::?CLASS:D:

@@ -3,7 +3,7 @@ use Voidvault::Constants;
 use Voidvault::Types;
 unit role Voidvault::Replace::Grub::Utils;
 
-my constant $FILE = $Voidvault::Constants::FILE-GRUB;
+my constant $FILE = $Voidvault::Constants::FILE-GRUB-DEFAULT;
 
 method set-log-level(Str:D $log-level, Str:D @grub-cmdline-linux --> Nil)
 {

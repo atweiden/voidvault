@@ -5,7 +5,7 @@ use Voidvault::Replace::Dhcpcd;
 use Voidvault::Replace::DnscryptProxy;
 use Voidvault::Replace::Dracut;
 use Voidvault::Replace::Fstab;
-use Voidvault::Replace::Grub;
+use Voidvault::Replace::Grub::Default;
 use Voidvault::Replace::Hosts;
 use Voidvault::Replace::Locales;
 use Voidvault::Replace::OpenResolv;
@@ -42,9 +42,9 @@ role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-FSTAB]
     also does Voidvault::Replace::Fstab;
 }
 
-role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-GRUB]
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-GRUB-DEFAULT]
 {
-    also does Voidvault::Replace::Grub;
+    also does Voidvault::Replace::Grub::Default;
 }
 
 role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-HOSTS]

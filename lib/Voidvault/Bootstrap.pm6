@@ -757,14 +757,13 @@ method generate-initramfs(::?CLASS:D: --> Nil)
 multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
 {
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
-    self.replace($Voidvault::Constants::FILE-GRUB,
-        'GRUB_CMDLINE_LINUX_DEFAULT');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_DISABLE_OS_PROBER');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_DISABLE_RECOVERY');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_ENABLE_CRYPTODISK');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_TERMINAL_INPUT');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_TERMINAL_OUTPUT');
-    self.replace($Voidvault::Constants::FILE-GRUB, 'GRUB_SERIAL_COMMAND')
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_CMDLINE_LINUX_DEFAULT');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_DISABLE_OS_PROBER');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_DISABLE_RECOVERY');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_ENABLE_CRYPTODISK');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_TERMINAL_INPUT');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_TERMINAL_OUTPUT');
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_SERIAL_COMMAND')
         if $enable-serial-console;
 }
 

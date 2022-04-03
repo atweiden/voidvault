@@ -10,7 +10,7 @@ also does Voidvault::Replace[$Voidvault::Constants::FILE-DHCPCD];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DNSCRYPT-PROXY];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DRACUT];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-FSTAB];
-also does Voidvault::Replace[$Voidvault::Constants::FILE-GRUB];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-GRUB-DEFAULT];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-HOSTS];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-LOCALES];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-OPENRESOLV];
