@@ -9,6 +9,7 @@ constant $VERSION = v1.16.0;
 
 # based on arch-install-scripts v24
 method voidstrap(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
     Str:D $chroot-dir,
     :@repository,
     Bool :$ignore-conf-repos,
@@ -163,6 +164,7 @@ sub chroot-add-host-keys(
 # --- sub voidstrap-install {{{
 
 multi sub voidstrap-install(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
     Str:D $chroot-dir,
     :@repository! where .so,
     Bool:D :ignore-conf-repos($)! where .so,
@@ -263,7 +265,12 @@ multi sub voidstrap-install(
 # end method voidstrap }}}
 # method void-chroot {{{
 
-method void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
+method void-chroot(
+    # C<$chroot-dir> here does not need to be C<AbsolutePath>
+    Str:D $chroot-dir,
+    *@cmdline ($, *@)
+    --> Nil
+)
 {
     void-chroot($chroot-dir, @cmdline);
 }
