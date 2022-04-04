@@ -150,12 +150,11 @@ method build-mount-subvolume-cmdline(
     Str:D :$subvolume! where .so,
     Str:D :@mount-option! where .so,
     Str:D :$vault-device-mapper! where .so,
-    Str:D :$chroot-dir! where .so
+    Str:D :$mount-dir! where .so
     --> Str:D
 )
 {
     my Str:D $mount-options = @mount-option.join(',');
-    my Str:D $mount-dir = gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
     my Str:D $mount-subvolume-cmdline =
         sprintf(
             Q{mount --types btrfs --options %s %s %s},
@@ -165,7 +164,7 @@ method build-mount-subvolume-cmdline(
         );
 }
 
-sub gen-subvolume-mount-dir(
+method gen-subvolume-mount-dir(
     Str:D :$subvolume! where .so,
     AbsolutePath:D :$chroot-dir! where .so
     --> Str:D

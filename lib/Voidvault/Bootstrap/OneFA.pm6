@@ -113,12 +113,14 @@ sub mount-subvolume(
     --> Nil
 )
 {
+    my Str:D $mount-dir =
+        Voidvault::Utils.gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
     my Str:D $mount-subvolume-cmdline =
         Voidvault::Utils.build-mount-subvolume-cmdline(
             :$subvolume,
             :@mount-option,
             :$vault-device-mapper,
-            :$chroot-dir
+            :$mount-dir
         );
     shell($mount-subvolume-cmdline);
 }

@@ -191,15 +191,17 @@ sub mount-subvolume(
 {
     my Str:D @mount-option =
         gen-subvolume-mount-options(:$subvolume, :mount-option(@mo));
+    my Str:D $mount-dir =
+        Voidvault::Utils.gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
     my Str:D $mount-subvolume-cmdline =
         Voidvault::Utils.build-mount-subvolume-cmdline(
             :$subvolume,
             :@mount-option,
             :$vault-device-mapper,
-            :$chroot-dir
+            :$mount-dir
         );
     shell($mount-subvolume-cmdline);
-    set-subvolume-mount-dir-permissions(:$subvolume);
+    set-subvolume-mount-dir-permissions(:$subvolume, :$mount-dir);
 }
 
 proto sub gen-subvolume-mount-options(
@@ -242,7 +244,8 @@ multi sub gen-subvolume-mount-options(
 {*}
 
 multi sub set-subvolume-mount-dir-permissions(
-    Str:D :$subvolume! where /'@var-lib-ex'|'@var-tmp'/
+    Str:D :subvolume($)! where /'@var-lib-ex'|'@var-tmp'/,
+    Str:D :$mount-dir! where .so
     --> Nil
 )
 {
@@ -252,7 +255,8 @@ multi sub set-subvolume-mount-dir-permissions(
 }
 
 multi sub set-subvolume-mount-dir-permissions(
-    Str:D :subvolume($)!
+    Str:D :subvolume($)!,
+    Str:D :mount-dir($)!
     --> Nil
 )
 {*}
