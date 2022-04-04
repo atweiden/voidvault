@@ -600,4 +600,83 @@ sub prompt-timezone(--> Timezone:D) is export
     my Timezone:D $timezone = @timezones.grep("$region/$subregion").first;
 }
 
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+# ensure C<$chroot-dir> is existing readable writeable dir, or create it
+multi sub ensure-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so && .IO.e
+    --> Nil
+) is export
+{
+    my Bool:D $is-readable = $chroot-dir.IO.r;
+    my Bool:D $is-directory = $chroot-dir.IO.d;
+    my Bool:D $is-writeable = $chroot-dir.IO.w;
+    [&&] $is-readable, $is-directory, $is-writeable
+        or die-chroot-dir(
+            $chroot-dir,
+            :$is-readable,
+            :$is-directory,
+            :$is-writeable
+        );
+}
+
+# C<$chroot-dir> does not exist, create it
+multi sub ensure-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so
+    --> Nil
+) is export
+{
+    mkdir($chroot-dir);
+}
+
+proto sub die-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so,
+    Bool:D :is-readable($)!,
+    Bool:D :is-directory($)!,
+    Bool:D :is-writeable($)!
+    --> Nil
+)
+{
+    my Str:D $*message =
+        "Sorry, requested chroot to directory $chroot-dir, but ";
+    {*}
+    die($*message);
+}
+
+multi sub die-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so,
+    Bool:D :is-readable($)! where .not,
+    Bool:D :is-directory($)!,
+    Bool:D :is-writeable($)!
+    --> Nil
+)
+{
+    $*message = 'path is not readable';
+}
+
+multi sub die-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so,
+    Bool:D :is-readable($)! where .so,
+    Bool:D :is-directory($)! where .not,
+    Bool:D :is-writeable($)!
+    --> Nil
+)
+{
+    $*message = 'this would overwrite existing non-directory';
+}
+
+multi sub die-chroot-dir(
+    AbsolutePath:D $chroot-dir where .so,
+    Bool:D :is-readable($)! where .so,
+    Bool:D :is-directory($)! where .so,
+    Bool:D :is-writeable($)! where .not
+    --> Nil
+)
+{
+    $*message = 'directory is not writeable';
+}
+
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

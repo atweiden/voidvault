@@ -192,6 +192,8 @@ has Bool:D $.enable-serial-console =
 # proto submethod to facilitate extending through role composition
 proto submethod TWEAK(--> Nil)
 {
+    ensure-chroot-dir($!chroot-dir);
+
     # map shortnames to user names for convenience
     my UserName:D %user-name{Str:D} =
         :admin($!user-name-admin),

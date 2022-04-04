@@ -70,6 +70,9 @@ method chroot-dir-rootvault(::?CLASS:D: --> AbsolutePath:D)
 
 multi submethod TWEAK(--> Nil)
 {
+    ensure-chroot-dir($!chroot-dir-bootvault);
+    ensure-chroot-dir($!chroot-dir-rootvault);
+
     # ensure boot vault name differs from vault name
     $!vault-name !eq $!bootvault-name
         or die("Sorry, Vault and Boot Vault names must differ");
