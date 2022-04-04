@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Bootstrap;
 use Voidvault::Constants;
+use Voidvault::Types;
 use Voidvault::Utils;
 unit class Voidvault::Bootstrap::OneFA;
 also does Voidvault::Bootstrap;
