@@ -989,6 +989,8 @@ sub mkkey(VaultKey:D :$vault-key! where .so --> Nil)
     my IO::Handle:D $fh = $src.IO.open(:bin);
     my Buf:D $buf = $fh.read($bytes);
     $fh.close;
+    my Str:D $base-path = $vault-key.IO.dirname;
+    mkdir($base-path, 0o700);
     spurt($vault-key, $buf);
 }
 
