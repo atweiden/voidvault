@@ -5,6 +5,11 @@ use Voidvault::Constants;
 use Voidvault::Types;
 unit class Voidvault::Utils;
 
+
+# -----------------------------------------------------------------------------
+# btrfs
+# -----------------------------------------------------------------------------
+
 # disable btrfs copy-on-write
 method disable-cow(
     *%opt (
@@ -84,212 +89,6 @@ multi sub disable-cow(
     $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
         or die('directory failed exists readable directory test');
     run(qqw<chattr +C $orig-dir>);
-}
-
-method groupadd(
-    AbsolutePath:D :$chroot-dir! where .so,
-    *@group-name (Str:D $, *@),
-    *%opts (
-        Bool :system($)
-    )
-    --> Nil
-)
-{
-    groupadd(@group-name, :$chroot-dir, |%opts);
-}
-
-multi sub groupadd(
-    AbsolutePath:D :$chroot-dir! where .so,
-    Bool:D :system($)! where .so,
-    *@group-name (Str:D $, *@)
-    --> Nil
-)
-{
-    @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
-    });
-}
-
-multi sub groupadd(
-    AbsolutePath:D :$chroot-dir! where .so,
-    *@group-name (Str:D $, *@)
-    --> Nil
-)
-{
-    @group-name.map(-> Str:D $group-name {
-        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
-    });
-}
-
-# execute shell process and re-attempt on failure
-method loop-cmdline-proc(
-    Str:D $message where .so,
-    Str:D $cmdline where .so
-    --> Nil
-)
-{
-    loop
-    {
-        say($message);
-        my Proc:D $proc = shell($cmdline);
-        last if $proc.exitcode == 0;
-    }
-}
-
-# list block devices
-method ls-devices(--> Array[Str:D])
-{
-    my Str:D @device =
-        qx<lsblk --noheadings --nodeps --raw --output NAME>
-        .trim
-        .split("\n")
-        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
-        .sort;
-}
-
-# list partitions on block device
-method ls-partitions(Str:D $device --> Array[Str:D])
-{
-    # run lsblk only once
-    state Str:D @partition =
-        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
-        .trim
-        .lines
-        # make sure we're not getting the master device partition
-        .grep(/part$/)
-        # return only the device name
-        .map({ .split(' ').first })
-        .sort;
-}
-
-# list keymaps
-method ls-keymaps(--> Array[Keymap:D])
-{
-    # equivalent to `localectl list-keymaps --no-pager`
-    # see: src/basic/def.h in systemd source code
-    my Keymap:D @keymaps = ls-keymaps();
-}
-
-sub ls-keymaps(--> Array[Str:D])
-{
-    my Str:D @keymap =
-        ls-keymap-tarballs()
-        .race
-        .map({ .split('/').tail.split('.').first })
-        .sort;
-}
-
-multi sub ls-keymap-tarballs(--> Array[Str:D])
-{
-    my Str:D $keymaps-dir = '/usr/share/kbd/keymaps';
-    my Str:D @tarball =
-        ls-keymap-tarballs(
-            Array[Str:D].new(dir($keymaps-dir).race.map({ .Str }))
-        )
-        .grep(/'.map.gz'$/);
-}
-
-multi sub ls-keymap-tarballs(Str:D @path --> Array[Str:D])
-{
-    my Str:D @tarball =
-        @path
-        .race
-        .map({ .Str })
-        .map(-> Str:D $path { ls-keymap-tarballs($path) })
-        .flat;
-}
-
-multi sub ls-keymap-tarballs(Str:D $path where .IO.d.so --> Array[Str:D])
-{
-    my Str:D @tarball =
-        ls-keymap-tarballs(
-            Array[Str:D].new(dir($path).race.map({ .Str }))
-        ).flat;
-}
-
-multi sub ls-keymap-tarballs(Str:D $path where .IO.f.so --> Array[Str:D])
-{
-    my Str:D @tarball = $path;
-}
-
-# list locales
-method ls-locales(--> Array[Locale:D])
-{
-    my Str:D $locale-dir = '/usr/share/i18n/locales';
-    my Locale:D @locale = ls-locales($locale-dir);
-}
-
-multi sub ls-locales(
-    Str:D $locale-dir where .IO.e.so && .IO.d.so
-    --> Array[Locale:D]
-)
-{
-    my Locale:D @locale =
-        dir($locale-dir).race.map({ .Str }).map({ .split('/').tail }).sort;
-}
-
-multi sub ls-locales(
-    Str:D $locale-dir
-    --> Array[Locale:D]
-)
-{
-    my Locale:D @locale;
-}
-
-# list timezones
-method ls-timezones(--> Array[Timezone:D])
-{
-    # equivalent to `timedatectl list-timezones --no-pager`
-    # see: src/basic/time-util.c in systemd source code
-    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone.tab';
-    my Str:D @zoneinfo =
-        $zoneinfo-file
-        .IO.lines
-        .grep(/^\w.*/)
-        .race
-        .map({ .split(/\h+/)[2] })
-        .sort;
-    my Timezone:D @timezones = |@zoneinfo, 'UTC';
-}
-
-# chroot into C<$chroot-dir> to then C<dracut>
-method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
-{
-    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
-    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
-}
-
-# chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
-method void-chroot-mkdir(
-    Str:D :$user! where .so,
-    Str:D :$group! where .so,
-    # permissions should be octal: https://docs.raku.org/routine/chmod
-    UInt:D :$permissions! where .so,
-    AbsolutePath:D :$chroot-dir! where .so,
-    *@dir (Str:D $, *@)
-    --> Nil
-)
-{
-    @dir.map(-> Str:D $dir {
-        mkdir("$chroot-dir/$dir", $permissions);
-        run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
-    });
-}
-
-# chroot into C<$chroot-dir> to then C<dracut>
-method void-chroot-xbps-reconfigure-linux(
-    AbsolutePath:D :$chroot-dir! where .so
-    --> Nil
-)
-{
-    my Str:D $xbps-linux = do {
-        my Str:D $xbps-linux-version-raw =
-            qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
-        my Str:D $xbps-linux-version =
-            $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
-        sprintf(Q{linux%s}, $xbps-linux-version);
-    };
-    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }
 
 
@@ -502,6 +301,217 @@ sub stprompt(Str:D $prompt-text --> Str:D)
     ENTER { run(qw<stty -echo>); }
     LEAVE { run(qw<stty echo>); say(''); }
     my Str:D $secret = prompt($prompt-text);
+}
+
+
+# -----------------------------------------------------------------------------
+# system
+# -----------------------------------------------------------------------------
+
+method groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@),
+    *%opts (
+        Bool :system($)
+    )
+    --> Nil
+)
+{
+    groupadd(@group-name, :$chroot-dir, |%opts);
+}
+
+multi sub groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    Bool:D :system($)! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd --system $group-name>);
+    });
+}
+
+multi sub groupadd(
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@group-name (Str:D $, *@)
+    --> Nil
+)
+{
+    @group-name.map(-> Str:D $group-name {
+        run(qqw<void-chroot $chroot-dir groupadd $group-name>);
+    });
+}
+
+# execute shell process and re-attempt on failure
+method loop-cmdline-proc(
+    Str:D $message where .so,
+    Str:D $cmdline where .so
+    --> Nil
+)
+{
+    loop
+    {
+        say($message);
+        my Proc:D $proc = shell($cmdline);
+        last if $proc.exitcode == 0;
+    }
+}
+
+# list block devices
+method ls-devices(--> Array[Str:D])
+{
+    my Str:D @device =
+        qx<lsblk --noheadings --nodeps --raw --output NAME>
+        .trim
+        .split("\n")
+        .map({ .subst(/(.*)/, -> $/ { "/dev/$0" }) })
+        .sort;
+}
+
+# list partitions on block device
+method ls-partitions(Str:D $device --> Array[Str:D])
+{
+    # run lsblk only once
+    state Str:D @partition =
+        qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
+        .trim
+        .lines
+        # make sure we're not getting the master device partition
+        .grep(/part$/)
+        # return only the device name
+        .map({ .split(' ').first })
+        .sort;
+}
+
+# list keymaps
+method ls-keymaps(--> Array[Keymap:D])
+{
+    # equivalent to `localectl list-keymaps --no-pager`
+    # see: src/basic/def.h in systemd source code
+    my Keymap:D @keymaps = ls-keymaps();
+}
+
+sub ls-keymaps(--> Array[Str:D])
+{
+    my Str:D @keymap =
+        ls-keymap-tarballs()
+        .race
+        .map({ .split('/').tail.split('.').first })
+        .sort;
+}
+
+multi sub ls-keymap-tarballs(--> Array[Str:D])
+{
+    my Str:D $keymaps-dir = '/usr/share/kbd/keymaps';
+    my Str:D @tarball =
+        ls-keymap-tarballs(
+            Array[Str:D].new(dir($keymaps-dir).race.map({ .Str }))
+        )
+        .grep(/'.map.gz'$/);
+}
+
+multi sub ls-keymap-tarballs(Str:D @path --> Array[Str:D])
+{
+    my Str:D @tarball =
+        @path
+        .race
+        .map({ .Str })
+        .map(-> Str:D $path { ls-keymap-tarballs($path) })
+        .flat;
+}
+
+multi sub ls-keymap-tarballs(Str:D $path where .IO.d.so --> Array[Str:D])
+{
+    my Str:D @tarball =
+        ls-keymap-tarballs(
+            Array[Str:D].new(dir($path).race.map({ .Str }))
+        ).flat;
+}
+
+multi sub ls-keymap-tarballs(Str:D $path where .IO.f.so --> Array[Str:D])
+{
+    my Str:D @tarball = $path;
+}
+
+# list locales
+method ls-locales(--> Array[Locale:D])
+{
+    my Str:D $locale-dir = '/usr/share/i18n/locales';
+    my Locale:D @locale = ls-locales($locale-dir);
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir where .IO.e.so && .IO.d.so
+    --> Array[Locale:D]
+)
+{
+    my Locale:D @locale =
+        dir($locale-dir).race.map({ .Str }).map({ .split('/').tail }).sort;
+}
+
+multi sub ls-locales(
+    Str:D $locale-dir
+    --> Array[Locale:D]
+)
+{
+    my Locale:D @locale;
+}
+
+# list timezones
+method ls-timezones(--> Array[Timezone:D])
+{
+    # equivalent to `timedatectl list-timezones --no-pager`
+    # see: src/basic/time-util.c in systemd source code
+    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone.tab';
+    my Str:D @zoneinfo =
+        $zoneinfo-file
+        .IO.lines
+        .grep(/^\w.*/)
+        .race
+        .map({ .split(/\h+/)[2] })
+        .sort;
+    my Timezone:D @timezones = |@zoneinfo, 'UTC';
+}
+
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
+{
+    my Str:D $linux-version = dir("$chroot-dir/usr/lib/modules").first.basename;
+    run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
+}
+
+# chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
+method void-chroot-mkdir(
+    Str:D :$user! where .so,
+    Str:D :$group! where .so,
+    # permissions should be octal: https://docs.raku.org/routine/chmod
+    UInt:D :$permissions! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
+    *@dir (Str:D $, *@)
+    --> Nil
+)
+{
+    @dir.map(-> Str:D $dir {
+        mkdir("$chroot-dir/$dir", $permissions);
+        run(qqw<void-chroot $chroot-dir chown $user:$group $dir>);
+    });
+}
+
+# chroot into C<$chroot-dir> to then C<dracut>
+method void-chroot-xbps-reconfigure-linux(
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
+{
+    my Str:D $xbps-linux = do {
+        my Str:D $xbps-linux-version-raw =
+            qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
+        my Str:D $xbps-linux-version =
+            $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
+        sprintf(Q{linux%s}, $xbps-linux-version);
+    };
+    run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }
 
 
