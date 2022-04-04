@@ -11,12 +11,10 @@ also does Voidvault::Config;
 # -----------------------------------------------------------------------------
 
 # vault detached header goes directly into pre-existing bootvault
-has AbsolutePath:D $.chroot-dir-bootvault =
-    sprintf(Q{%s/BOOT}, $!config.chroot-dir);
+has AbsolutePath:D $.chroot-dir-bootvault = sprintf(Q{%s/BOOT}, $!chroot-dir);
 
 # bootvault must be mounted separately at first
-has AbsolutePath:D $.chroot-dir-rootvault =
-    sprintf(Q{%s/ROOT}, $!config.chroot-dir);
+has AbsolutePath:D $.chroot-dir-rootvault = sprintf(Q{%s/ROOT}, $!chroot-dir);
 
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
