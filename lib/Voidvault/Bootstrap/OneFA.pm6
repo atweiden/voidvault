@@ -109,7 +109,7 @@ method mkbootbtrfs(::?CLASS:D: --> Nil)
 sub mount-subvolume(
     Str:D :$subvolume! where $Voidvault::Constants::SUBVOLUME-BOOT,
     Str:D :$vault-device-mapper! where .so,
-    Str:D :$chroot-dir! where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
     Str:D :@mount-option
     --> Nil
 )
