@@ -1,16 +1,8 @@
 use v6;
 use Voidvault::Bootstrap;
-use Voidvault::Config::OneFA;
 use Voidvault::Constants;
 unit class Voidvault::Bootstrap::OneFA;
 also does Voidvault::Bootstrap;
-
-
-# -----------------------------------------------------------------------------
-# attributes
-# -----------------------------------------------------------------------------
-
-has Voidvault::Config::OneFA:D $.config is required;
 
 
 # -----------------------------------------------------------------------------

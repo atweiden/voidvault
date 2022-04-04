@@ -1,6 +1,5 @@
 use v6;
 use Voidvault::Bootstrap;
-use Voidvault::Config::Base;
 use Voidvault::Constants;
 use Voidvault::Replace;
 unit class Voidvault::Bootstrap::Base;
@@ -22,12 +21,5 @@ also does Voidvault::Replace[$Voidvault::Constants::FILE-RC];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-SECURETTY];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-SUDOERS];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-SYSCTL];
-
-
-# -----------------------------------------------------------------------------
-# attributes
-# -----------------------------------------------------------------------------
-
-has Voidvault::Config::Base:D $.config is required;
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
