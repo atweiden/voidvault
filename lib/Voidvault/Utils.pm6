@@ -509,10 +509,13 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 # vault
 # -----------------------------------------------------------------------------
 
-# create vault with cryptsetup
-method mkvault(
+# create vault with cryptsetup, then open it if requested
+proto method mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    # pass C<:open> to open vault after creating it
+    Bool :open($),
     *%opts (
         VaultPass :vault-pass($)
     )
@@ -522,9 +525,45 @@ method mkvault(
     # load kernel modules for cryptsetup
     run(qw<modprobe dm_mod dm-crypt>);
 
-    # create vault
+    # create vault with password
     mkvault(:$vault-type, :$partition-vault, |%opts);
+
+    # open vault if requested
+    {*}
 }
+
+# open vault with password
+multi method mkvault(
+    Bool:D :open($)! where .so,
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    *%opts (
+        VaultPass :vault-pass($)
+    )
+    --> Nil
+)
+{
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        |%opts
+    );
+}
+
+# opening vault not requested
+multi method mkvault(
+    VaultType:D :vault-type($)!,
+    Str:D :partition-vault($)!,
+    VaultName:D :vault-name($)!,
+    Bool :open($),
+    *%opts (
+        VaultPass :vault-pass($)
+    )
+    --> Nil
+)
+{*}
 
 # LUKS encrypted volume password was given
 multi sub mkvault(
@@ -826,27 +865,6 @@ multi sub gen-cryptsetup-luks-open(
     >.join(' ');
     my Str:D $cryptsetup-luks-open-cmdline =
         "cryptsetup $opts luksOpen $partition-vault $vault-name";
-}
-
-# create vault then open it
-method mkvaultajar(
-    VaultType:D :$vault-type! where .so,
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    VaultPass :$vault-pass
-    --> Nil
-)
-{
-    # create vault with password
-    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
-
-    # open vault with password
-    Voidvault::Utils.open-vault(
-        :$vault-type,
-        :$partition-vault,
-        :$vault-name,
-        :$vault-pass
-    );
 }
 
 method install-vault-key(

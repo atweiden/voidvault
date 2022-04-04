@@ -121,7 +121,8 @@ method mkvault(::?CLASS:D: --> Nil)
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
-    Voidvault::Utils.mkvaultajar(
+    Voidvault::Utils.mkvault(
+        :open,
         :$vault-type,
         :$partition-vault,
         :$vault-name,
