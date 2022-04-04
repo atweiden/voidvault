@@ -384,9 +384,20 @@ sub loop-prompt-pass-hash(
 # user input prompt (secret text)
 sub stprompt(Str:D $prompt-text --> Str:D)
 {
-    ENTER { run(qw<stty -echo>); }
-    LEAVE { run(qw<stty echo>); say(''); }
+    ENTER disable-echo();
+    LEAVE enable-echo();
     my Str:D $secret = prompt($prompt-text);
+}
+
+sub disable-echo()
+{
+    run(qw<stty -echo>);
+}
+
+sub enable-echo()
+{
+    run(qw<stty echo>);
+    say('');
 }
 
 
