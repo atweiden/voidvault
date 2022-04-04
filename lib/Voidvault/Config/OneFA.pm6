@@ -2,8 +2,21 @@ use v6;
 use Voidvault::Config;
 use Voidvault::Config::Utils;
 use Voidvault::Types;
-unit role Voidvault::Config::OneFA;
+unit class Voidvault::Config::OneFA;
 also does Voidvault::Config;
+
+
+# -----------------------------------------------------------------------------
+# attributes
+# -----------------------------------------------------------------------------
+
+# vault detached header goes directly into pre-existing bootvault
+has AbsolutePath:D $.chroot-dir-bootvault =
+    sprintf(Q{%s/BOOT}, $!config.chroot-dir);
+
+# bootvault must be mounted separately at first
+has AbsolutePath:D $.chroot-dir-rootvault =
+    sprintf(Q{%s/ROOT}, $!config.chroot-dir);
 
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
@@ -22,6 +35,11 @@ has VaultKey:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! '/keys/bootvault.key';
+
+
+# -----------------------------------------------------------------------------
+# instantiation
+# -----------------------------------------------------------------------------
 
 multi submethod TWEAK(--> Nil)
 {*}

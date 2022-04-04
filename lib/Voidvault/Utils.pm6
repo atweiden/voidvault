@@ -91,6 +91,90 @@ multi sub disable-cow(
     run(qqw<chattr +C $orig-dir>);
 }
 
+method mkbtrfs(
+    AbsolutePath:D :$chroot-dir! where .so,
+    VaultName:D :$vault-name! where .so,
+    # names of btrfs subvolumes to create
+    Str:D :@subvolume!,
+    # function to be called for mounting subvolumes
+    :&mount-subvolume!,
+    # optional kernel modules to load prior to C<mkfs.btrfs>
+    Str:D :@kernel-module,
+    # optional options to pass to C<mkfs.btrfs>
+    Str:D :@mkfs-option,
+    # optional base options with which to mount main btrfs filesystem
+    Str:D :@mount-option
+    --> Nil
+)
+{
+    my Str:D $vault-device-mapper = sprintf(Q{/dev/mapper/%s}, $vault-name);
+    my Str:D $aux-dir = sprintf(Q{%s2}, $chroot-dir);
+    my Str:D $root-dir = '/';
+
+    # create btrfs filesystem on opened vault
+    run(qqw<modprobe $_>) for @kernel-module;
+    run('mkfs.btrfs', |@mkfs-option, $vault-device-mapper);
+
+    # mount main btrfs filesystem on open vault
+    mkdir($aux-dir);
+    my Str:D $mount-options = @mount-option.join(',');
+    run(qqw<
+        mount
+        --types btrfs
+        --options $mount-options
+        $vault-device-mapper
+        $aux-dir
+    >);
+
+    # create btrfs subvolumes
+    chdir($aux-dir);
+    run(qqw<btrfs subvolume create $_>) for @subvolume;
+    chdir($root-dir);
+
+    # mount btrfs subvolumes
+    @subvolume.map(-> Str:D $subvolume {
+        mount-subvolume(
+            :$subvolume,
+            :$vault-device-mapper,
+            :$chroot-dir,
+            :@mount-option
+        );
+    });
+
+    # unmount /mnt2 and remove
+    run(qqw<umount $aux-dir>);
+    rmdir($aux-dir);
+}
+
+method build-mount-subvolume-cmdline(
+    Str:D :$subvolume! where .so,
+    Str:D :@mount-option! where .so,
+    Str:D :$vault-device-mapper! where .so,
+    Str:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    my Str:D $mount-options = @mount-option.join(',');
+    my Str:D $mount-dir = gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
+    my Str:D $mount-subvolume-cmdline =
+        sprintf(
+            Q{mount --types btrfs --options %s %s %s},
+            $mount-options,
+            $vault-device-mapper,
+            $mount-dir
+        );
+}
+
+sub gen-subvolume-mount-dir(
+    Str:D :$subvolume! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    my Str:D $mount-dir = $subvolume.substr(1).subst('-', '/', :g);
+    sprintf(Q{%s/%s}, $chroot-dir, $mount-dir);
+}
+
 
 # -----------------------------------------------------------------------------
 # password hashes

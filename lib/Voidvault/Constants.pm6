@@ -181,4 +181,7 @@ constant %GRUB-SERIAL-PORT-PARITY =
 constant $GRUB-SERIAL-PORT-STOP-BITS = '1';
 constant $GRUB-SERIAL-PORT-WORD-LENGTH-BITS = '8';
 
+# for mkbtrfs-boot
+constant $SUBVOLUME-BOOT = '@boot';
+
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Bootstrap;
 use Voidvault::Constants;
+use Voidvault::Utils;
 unit class Voidvault::Bootstrap::OneFA;
 also does Voidvault::Bootstrap;
 
@@ -8,6 +9,34 @@ also does Voidvault::Bootstrap;
 # -----------------------------------------------------------------------------
 # worker functions
 # -----------------------------------------------------------------------------
+
+# secure disk configuration
+method mkdisk(::?CLASS:D: --> Nil)
+{
+    # partition device
+    self.sgdisk;
+
+    # create uefi partition
+    self.mkefi;
+
+    # create and open bootvault
+    self.mkbootvault;
+
+    # create and mount boot btrfs volume
+    self.mkbootbtrfs;
+
+    # create and open vault, placing detached header in bootvault
+    self.mkvault;
+
+    # create and mount btrfs volumes
+    self.mkbtrfs;
+
+    # mount efi boot
+    self.mount-efi;
+
+    # disable btrfs copy-on-write on select directories
+    self.disable-cow;
+}
 
 # partition device with gdisk
 method sgdisk(::?CLASS:D: --> Nil)
@@ -33,6 +62,80 @@ method sgdisk(::?CLASS:D: --> Nil)
         --new=4:0:0
         --typecode=4:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
     >, $device);
+}
+
+method mkbootvault(::?CLASS:D: --> Nil)
+{
+    my VaultType:D $bootvault-type = 'LUKS1';
+    my Str:D $partition-bootvault = self.gen-partition('boot');
+    my VaultName:D $bootvault-name = $.config.bootvault-name;
+    my VaultPass $bootvault-pass = $.config.bootvault-pass;
+    Voidvault::Utils.mkvault(
+        :open,
+        :vault-type($bootvault-type),
+        :partition-vault($partition-bootvault),
+        :vault-name($bootvault-name),
+        :vault-pass($bootvault-pass)
+    );
+}
+
+# create and mount btrfs filesystem on opened bootvault
+method mkbootbtrfs(::?CLASS:D: --> Nil)
+{
+    # TODO: 1fa mode chroot-dir requires special handling
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my DiskType:D $disk-type = $.config.disk-type;
+    my VaultName:D $vault-name = $.config.bootvault-name;
+
+    my Str:D @subvolume = '@boot';
+    my Str:D @kernel-module = qw<btrfs xxhash_generic>;
+    # btrfs manual recommends C<--mixed> for filesystems under 1 GiB
+    my Str:D @mkfs-option = qw<--csum xxhash --mixed>;
+    my Str:D @mount-option = qw<rw noatime>;
+    push(@mount-option, 'ssd') if $disk-type eq 'SSD';
+
+    Voidvault::Utils.mkbtrfs(
+        :$chroot-dir,
+        :$vault-name,
+        :@subvolume,
+        :&mount-subvolume,
+        :@kernel-module,
+        :@mkfs-option,
+        :@mount-option
+    );
+}
+
+sub mount-subvolume(
+    Str:D :$subvolume! where $Voidvault::Constants::SUBVOLUME-BOOT,
+    Str:D :$vault-device-mapper! where .so,
+    Str:D :$chroot-dir! where .so,
+    Str:D :@mount-option
+    --> Nil
+)
+{
+    my Str:D $mount-subvolume-cmdline =
+        Voidvault::Utils.build-mount-subvolume-cmdline(
+            :$subvolume,
+            :@mount-option,
+            :$vault-device-mapper,
+            :$chroot-dir
+        );
+    shell($mount-subvolume-cmdline);
+}
+
+method mkvault(::?CLASS:D: --> Nil)
+{
+    my VaultType:D $vault-type = 'LUKS2';
+    my Str:D $partition-vault = self.gen-partition('vault');
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    Voidvault::Utils.mkvault(
+        :open,
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass
+    );
 }
 
 

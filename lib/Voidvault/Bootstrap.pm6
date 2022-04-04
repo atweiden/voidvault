@@ -137,35 +137,8 @@ method mkbtrfs(::?CLASS:D: --> Nil)
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.vault-name;
 
-    my Str:D $aux-dir = sprintf(Q{%s2}, $chroot-dir);
-    my Str:D $root-dir = '/';
-
-    # create btrfs filesystem on opened vault
-    run(qw<modprobe btrfs xxhash_generic>);
-    run(qqw<mkfs.btrfs --csum xxhash /dev/mapper/$vault-name>);
-
-    # set mount options
-    my Str:D @mount-options = qw<
-        rw
-        noatime
-        compress-force=zstd
-        space_cache=v2
-    >;
-    push(@mount-options, 'ssd') if $disk-type eq 'SSD';
-    my Str:D $mount-options = @mount-options.join(',');
-
-    # mount main btrfs filesystem on open vault
-    mkdir($aux-dir);
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options
-        /dev/mapper/$vault-name
-        $aux-dir
-    >);
-
     # btrfs subvolumes, starting with root / ('')
-    my Str:D @btrfs-dir =
+    my Str:D @subvolume =
         '',
         'home',
         'opt',
@@ -178,183 +151,111 @@ method mkbtrfs(::?CLASS:D: --> Nil)
         'var-spool',
         'var-tmp';
 
-    # create btrfs subvolumes
-    chdir($aux-dir);
-    @btrfs-dir.map(-> Str:D $btrfs-dir {
-        run(qqw<btrfs subvolume create @$btrfs-dir>);
-    });
-    chdir($root-dir);
+    # prefix subvolumes with C<@>
+    @subvolume .= map({"@$^s"});
 
-    # mount btrfs subvolumes
-    @btrfs-dir.map(-> Str:D $btrfs-dir {
-        self.mount-btrfs-subvolume($btrfs-dir, $mount-options, $vault-name);
-    });
+    # missing C<xxhash_generic> seemingly breaks C<--csum xxhash>
+    my Str:D @kernel-module = qw<btrfs xxhash_generic>;
 
-    # unmount /mnt2 and remove
-    run(qqw<umount $aux-dir>);
-    rmdir($aux-dir);
+    # use xxhash checksum algorithm
+    my Str:D @mkfs-option = qw<--csum xxhash>;
+
+    # main btrfs filesystem mount options - also used with subvolumes
+    my Str:D @mount-option = qw<
+        rw
+        noatime
+        compress-force=zstd
+        space_cache=v2
+    >;
+    push(@mount-option, 'ssd') if $disk-type eq 'SSD';
+
+    Voidvault::Utils.mkbtrfs(
+        :$chroot-dir,
+        :$vault-name,
+        :@subvolume,
+        :&mount-subvolume,
+        :@kernel-module,
+        :@mkfs-option,
+        :@mount-option
+    );
 }
 
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'srv',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+sub mount-subvolume(
+    Str:D :$subvolume! where .so,
+    Str:D :$vault-device-mapper! where .so,
+    Str:D :$chroot-dir! where .so,
+    # for passing main btrfs filesystem mount options to subvolumes
+    Str:D :mount-option(@mo)
     --> Nil
 )
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'srv';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@$btrfs-dir
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
+    my Str:D @mount-option =
+        gen-subvolume-mount-options(:$subvolume, :mount-option(@mo));
+    my Str:D $mount-subvolume-cmdline =
+        Voidvault::Utils.build-mount-subvolume-cmdline(
+            :$subvolume,
+            :@mount-option,
+            :$vault-device-mapper,
+            :$chroot-dir
+        );
+    shell($mount-subvolume-cmdline);
+    set-subvolume-mount-dir-permissions(:$subvolume);
 }
 
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-cache-xbps',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+proto sub gen-subvolume-mount-options(
+    Str:D :$subvolume! where .so,
+    Str:D :@mount-option!
+    --> Array[Str:D]
+)
+{
+    # begin by duplicating mount options given to main btrfs filesystem
+    my Str:D @*mount-option = |@mount-option;
+
+    # gather subvolume-specific mount options, if any
+    {*}
+
+    # finish with mount option applicable to all subvolumes
+    push(@*mount-option, sprintf(Q{subvol=%s}, $subvolume));
+}
+
+# return target directory at which to mount subvolumes
+multi sub gen-subvolume-mount-options(
+    Str:D :subvolume($)! where /
+        | '@srv'
+        | '@var-lib-ex'
+        | '@var-log'
+        | '@var-spool'
+        | '@var-tmp'
+    /,
+    Str:D :mount-option(@)!
     --> Nil
 )
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/cache/xbps';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,subvol=@var-cache-xbps
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
+    push(@*mount-option, |qw<nodev noexec nosuid>);
 }
 
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-lib-ex',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub gen-subvolume-mount-options(
+    Str:D :subvolume($)!,
+    Str:D :mount-option(@)!
+    --> Nil
+)
+{*}
+
+multi sub set-subvolume-mount-dir-permissions(
+    Str:D :$subvolume! where /'@var-lib-ex'|'@var-tmp'/
     --> Nil
 )
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/lib/ex';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-lib-ex
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-    run(qqw<chmod 1777 $chroot-dir/$btrfs-dir>);
+    # these target directories normally appear with 1777 permissions
+    my Str:D $chmod-subvolume-cmdline = sprintf(Q{chmod 1777 %s}, $mount-dir);
+    shell($chmod-subvolume-cmdline);
 }
 
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-log',
-    Str:D $mount-options,
-    VaultName:D $vault-name
+multi sub set-subvolume-mount-dir-permissions(
+    Str:D :subvolume($)!
     --> Nil
 )
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/log';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-log
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-}
-
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-opt',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/opt';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,subvol=@var-opt
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-}
-
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-spool',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/spool';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-spool
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-}
-
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    'var-tmp',
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $btrfs-dir = 'var/tmp';
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,nodev,noexec,nosuid,subvol=@var-tmp
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-    run(qqw<chmod 1777 $chroot-dir/$btrfs-dir>);
-}
-
-multi method mount-btrfs-subvolume(
-    ::?CLASS:D:
-    Str:D $btrfs-dir,
-    Str:D $mount-options,
-    VaultName:D $vault-name
-    --> Nil
-)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    mkdir("$chroot-dir/$btrfs-dir");
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options,subvol=@$btrfs-dir
-        /dev/mapper/$vault-name
-        $chroot-dir/$btrfs-dir
-    >);
-}
+{*}
 
 method mount-efi(::?CLASS:D: --> Nil)
 {
