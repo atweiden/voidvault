@@ -386,6 +386,7 @@ sub stprompt(Str:D $prompt-text --> Str:D)
 {
     ENTER disable-echo();
     LEAVE enable-echo();
+    UNDO enable-echo();
     my Str:D $secret = prompt($prompt-text);
 }
 

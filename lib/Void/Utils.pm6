@@ -31,11 +31,12 @@ sub voidstrap(
 )
 {
     my Str:D @*chroot-active-mount;
+    LEAVE chroot-teardown();
+    UNDO chroot-teardown();
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
     voidstrap-install($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
-    LEAVE chroot-teardown();
 }
 
 # --- sub create-obligatory-dirs {{{
