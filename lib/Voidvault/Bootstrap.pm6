@@ -115,12 +115,12 @@ method mkefi(::?CLASS:D: --> Nil)
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
-method mkvault(::?CLASS:D: --> Nil)
+method mkvault(::?CLASS:D: VaultType :vault-type($vt) --> Nil)
 {
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     my VaultKey:D $vault-key = $.config.vault-key;
-    my VaultType:D $vault-type = 'LUKS1';
+    my VaultType:D $vault-type = $vt // 'LUKS1';
     my Str:D $partition-vault = self.gen-partition('vault');
 
     # create vault with password
