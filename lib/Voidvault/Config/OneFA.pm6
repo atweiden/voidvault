@@ -32,7 +32,7 @@ has VaultPass $.bootvault-pass =
 # intended path to LUKS encrypted boot volume key on bootstrapped system
 has BootvaultKey:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
-        ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
+        ?? gen-bootvault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! sprintf(
             Q{%s/keys/bootvault.key},
             $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX
@@ -68,7 +68,7 @@ multi submethod BUILD(
         if $bootvault-name;
     $!bootvault-pass = gen-vault-pass($bootvault-pass)
         if $bootvault-pass;
-    $!bootvault-key = gen-vault-key($bootvault-key)
+    $!bootvault-key = gen-bootvault-key($bootvault-key)
         if $bootvault-key;
     $!vault-header = gen-vault-header($vault-header)
         if $vault-header;
