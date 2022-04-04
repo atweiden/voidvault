@@ -59,7 +59,7 @@ multi submethod TWEAK(--> Nil)
         or die("Sorry, Vault and Boot Vault names must differ");
 
     # ensure vault header and vault key paths differ
-    $!vault-header !eq $vault-key
+    $!vault-header !eq $!vault-key
         or die("Sorry, Vault Key and Vault Header paths must differ");
 }
 
