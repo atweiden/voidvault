@@ -53,7 +53,15 @@ has VaultHeader:D $.vault-header =
 # -----------------------------------------------------------------------------
 
 multi submethod TWEAK(--> Nil)
-{*}
+{
+    # ensure boot vault name differs from vault name
+    $!vault-name !eq $!bootvault-name
+        or die("Sorry, Vault and Boot Vault names must differ");
+
+    # ensure vault header and vault key paths differ
+    $!vault-header !eq $vault-key
+        or die("Sorry, Vault Key and Vault Header paths must differ");
+}
 
 multi submethod BUILD(
     Str :$bootvault-name,
