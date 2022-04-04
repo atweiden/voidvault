@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Config::Utils;
+use Voidvault::Constants;
 use Voidvault::Types;
 use Voidvault::Utils;
 unit role Voidvault::Config;
@@ -119,7 +120,10 @@ has VaultPass $.vault-pass =
 has VaultKey:D $.vault-key =
     ?%*ENV<VOIDVAULT_VAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
-        !! '/boot/keys/vault.key';
+        !! sprintf(
+            Q{%s/keys/vault.key},
+            $Voidvault::Constants::VAULT-SECRET-PREFIX
+        );
 
 # name for host (default: vault)
 has HostName:D $.host-name =

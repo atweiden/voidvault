@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Config;
 use Voidvault::Config::Utils;
+use Voidvault::Constants;
 use Voidvault::Types;
 unit class Voidvault::Config::OneFA;
 also does Voidvault::Config;
@@ -29,16 +30,22 @@ has VaultPass $.bootvault-pass =
         !! Nil;
 
 # intended path to LUKS encrypted boot volume key on bootstrapped system
-has VaultKey:D $.bootvault-key =
+has BootvaultKey:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
-        !! '/keys/bootvault.key';
+        !! sprintf(
+            Q{%s/keys/bootvault.key},
+            $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX
+        );
 
 # intended path to LUKS encrypted volume header on bootstrapped system
 has VaultHeader:D $.vault-header =
     ?%*ENV<VOIDVAULT_VAULT_HEADER>
-        ?? gen-absolute-path(%*ENV<VOIDVAULT_VAULT_HEADER>)
-        !! '/boot/headers/vault.header';
+        ?? gen-vault-header(%*ENV<VOIDVAULT_VAULT_HEADER>)
+        !! sprintf(
+            Q{%s/headers/vault.header},
+            $Voidvault::Constants::VAULT-SECRET-PREFIX
+        );
 
 
 # -----------------------------------------------------------------------------

@@ -1142,13 +1142,26 @@ subset UserName of Str is export where
     Voidvault::Grammar.parse($_, :rule<user-name>);
 }
 
-# enforce LUKS encrypted vault detached header path is inside /boot
-subset VaultHeader of Str is export where { rootpart($_.IO) eq '/boot'.IO };
-multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D) { $path }
-multi sub rootpart(IO:D $path --> IO:D) { rootpart($path.parent) }
+# enforce LUKS encrypted vault secret material resides within /boot
+subset VaultSecretPrefix of AbsolutePath where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::VAULT-SECRET-PREFIX.IO;
+}
 
-# LUKS encrypted volume key must be absolute path
-subset VaultKey of AbsolutePath is export;
+# enforce LUKS encrypted boot vault secret material resides within /root
+subset BootvaultSecretPrefix of AbsolutePath where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX.IO;
+}
+
+# enforce LUKS encrypted vault detached header resides within /boot
+subset VaultHeader of VaultSecretPrefix is export;
+
+# enforce LUKS encrypted volume key resides within /boot
+subset VaultKey of VaultSecretPrefix is export;
+
+# enforce LUKS encrypted boot volume key resides within /root
+subset BootvaultKey of BootvaultSecretPrefix is export;
 
 # LUKS encrypted volume device mapper name
 subset VaultName of Str is export where
@@ -1161,5 +1174,20 @@ subset VaultPass of Str is export where { 0 < .chars <= 512 };
 
 # LUKS encrypted volume type
 subset VaultType of Str is export where { @vault-type.grep($_) };
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D)
+{
+    my IO:D $rootpart = $path;
+}
+
+multi sub rootpart(IO:D $path --> IO:D)
+{
+    my IO:D $rootpart = rootpart($path.parent);
+}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:

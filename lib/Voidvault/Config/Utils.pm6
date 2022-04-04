@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Constants;
 use Voidvault::Types;
 unit module Voidvault::Config::Utils;
 
@@ -62,25 +63,49 @@ sub gen-user-name(Str:D $u --> UserName:D) is export
     my UserName:D $user-name = $u or die("Sorry, invalid username 「$u」");
 }
 
+# confirm vault header $h is valid VaultHeader and return VaultHeader
+sub gen-vault-header(Str:D $h --> VaultHeader:D) is export
+{
+    my Str:D $prefix = $Voidvault::Constants::VAULT-SECRET-PREFIX;
+    my Str:D $message = qq:to/EOF/.trim;
+    Sorry, Vault Header must be absolute path inside $prefix. Path given: $h
+    EOF
+    my VaultHeader:D $vault-header = $h or die($message);
+}
+
 # confirm vault key $k is valid VaultKey and return VaultKey
 sub gen-vault-key(Str:D $k --> VaultKey:D) is export
 {
-    my VaultKey:D $vault-key = $k or die("Sorry, invalid vault key 「$k」");
+    my Str:D $prefix = $Voidvault::Constants::VAULT-SECRET-PREFIX;
+    my Str:D $message = qq:to/EOF/.trim;
+    Sorry, Vault Key must be absolute path inside $prefix. Path given: $k
+    EOF
+    my VaultKey:D $vault-key = $k or die($message);
 }
 
-# confirm vault name $v is valid VaultName and return VaultName
-sub gen-vault-name(Str:D $v --> VaultName:D) is export
+# confirm boot vault key $k is valid BootvaultKey and return BootvaultKey
+sub gen-bootvault-key(Str:D $k --> BootvaultKey:D) is export
 {
-    my VaultName:D $vault-name = $v or die("Sorry, invalid vault name 「$v」");
+    my Str:D $prefix = $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX;
+    my Str:D $message = qq:to/EOF/.trim;
+    Sorry, Bootvault Key must be absolute path inside $prefix. Path given: $k
+    EOF
+    my BootvaultKey:D $bootvault-key = $k or die($message);
 }
 
-# confirm vault pass $v is valid VaultPass and return VaultPass
-sub gen-vault-pass(Str:D $v --> VaultPass:D) is export
+# confirm vault name $n is valid VaultName and return VaultName
+sub gen-vault-name(Str:D $n --> VaultName:D) is export
+{
+    my VaultName:D $vault-name = $n or die("Sorry, invalid Vault Name 「$n」");
+}
+
+# confirm vault pass $p is valid VaultPass and return VaultPass
+sub gen-vault-pass(Str:D $p --> VaultPass:D) is export
 {
     my Str:D $message = qq:to/EOF/.trim;
-    Sorry, invalid vault pass. Length needed: 1-512. Length given: {$v.chars}
+    Sorry, invalid Vault Pass. Length needed: 1-512. Length given: {$p.chars}
     EOF
-    my VaultPass:D $vault-pass = $v or die($message);
+    my VaultPass:D $vault-pass = $p or die($message);
 }
 
 
