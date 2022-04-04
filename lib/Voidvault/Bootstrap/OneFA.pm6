@@ -20,13 +20,13 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create uefi partition
     self.mkefi;
 
-    # create and open bootvault
+    # create and open boot vault
     self.mkbootvault;
 
     # create and mount boot btrfs volume
     self.mkbootbtrfs;
 
-    # create and open vault, placing detached header in bootvault
+    # create and open vault, placing detached header in boot vault
     self.mkvault;
 
     # create and mount btrfs volumes
