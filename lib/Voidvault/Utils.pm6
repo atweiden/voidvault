@@ -828,6 +828,27 @@ multi sub gen-cryptsetup-luks-open(
         "cryptsetup $opts luksOpen $partition-vault $vault-name";
 }
 
+# create vault then open it
+method mkvaultajar(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$partition-vault! where .so,
+    VaultName:D :$vault-name! where .so,
+    VaultPass :$vault-pass
+    --> Nil
+)
+{
+    # create vault with password
+    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
+
+    # open vault with password
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass
+    );
+}
+
 method install-vault-key(
     Str:D :$partition-vault where .so,
     # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
