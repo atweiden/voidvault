@@ -59,6 +59,7 @@ multi submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
     Str :$bootvault-key,
+    Str :$vault-header,
     *%
     --> Nil
 )
@@ -69,6 +70,8 @@ multi submethod BUILD(
         if $bootvault-pass;
     $!bootvault-key = gen-vault-key($bootvault-key)
         if $bootvault-key;
+    $!vault-header = gen-vault-header($vault-header)
+        if $vault-header;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
