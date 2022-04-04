@@ -34,6 +34,12 @@ has VaultKey:D $.bootvault-key =
         ?? gen-vault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! '/keys/bootvault.key';
 
+# intended path to LUKS encrypted volume header on bootstrapped system
+has VaultHeader:D $.vault-header =
+    ?%*ENV<VOIDVAULT_VAULT_HEADER>
+        ?? gen-absolute-path(%*ENV<VOIDVAULT_VAULT_HEADER>)
+        !! '/boot/headers/vault.header';
+
 
 # -----------------------------------------------------------------------------
 # instantiation

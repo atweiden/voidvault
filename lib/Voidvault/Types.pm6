@@ -1142,6 +1142,11 @@ subset UserName of Str is export where
     Voidvault::Grammar.parse($_, :rule<user-name>);
 }
 
+# enforce LUKS encrypted vault detached header path is inside /boot
+subset VaultHeader of Str is export where { rootpart($_.IO) eq '/boot'.IO };
+multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D) { $path }
+multi sub rootpart(IO:D $path --> IO:D) { rootpart($path.parent) }
+
 # LUKS encrypted volume key must be absolute path
 subset VaultKey of AbsolutePath is export;
 
