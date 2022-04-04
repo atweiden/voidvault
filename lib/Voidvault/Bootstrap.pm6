@@ -115,6 +115,26 @@ method mkefi(::?CLASS:D: --> Nil)
     run(qqw<mkfs.vfat -F 32 $partition-efi>);
 }
 
+method mkvault(::?CLASS:D: --> Nil)
+{
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    my VaultKey:D $vault-key = $.config.vault-key;
+    my VaultType:D $vault-type = 'LUKS1';
+    my Str:D $partition-vault = self.gen-partition('vault');
+
+    # create vault with password
+    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
+
+    # open vault with password
+    Voidvault::Utils.open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        :$vault-pass
+    );
+}
+
 # create and mount btrfs filesystem on opened vault
 method mkbtrfs(::?CLASS:D: --> Nil)
 {
@@ -339,26 +359,6 @@ multi method mount-btrfs-subvolume(
         /dev/mapper/$vault-name
         $chroot-dir/$btrfs-dir
     >);
-}
-
-method mkvault(::?CLASS:D: --> Nil)
-{
-    my VaultName:D $vault-name = $.config.vault-name;
-    my VaultPass $vault-pass = $.config.vault-pass;
-    my VaultKey:D $vault-key = $.config.vault-key;
-    my VaultType:D $vault-type = 'LUKS1';
-    my Str:D $partition-vault = self.gen-partition('vault');
-
-    # create vault with password
-    Voidvault::Utils.mkvault(:$vault-type, :$partition-vault, :$vault-pass);
-
-    # open vault with password
-    Voidvault::Utils.open-vault(
-        :$vault-type,
-        :$partition-vault,
-        :$vault-name,
-        :$vault-pass
-    );
 }
 
 method mount-efi(::?CLASS:D: --> Nil)
