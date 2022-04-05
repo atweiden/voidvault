@@ -83,7 +83,7 @@ method mkbootvault(::?CLASS:D: --> Nil)
 # create and mount btrfs filesystem on opened bootvault
 method mkbootbtrfs(::?CLASS:D: --> Nil)
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir-bootvault;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir-boot;
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.bootvault-name;
 
@@ -148,7 +148,7 @@ method mkvault(::?CLASS:D: --> Nil)
 
 method unmount(::?CLASS:D: --> Nil)
 {
-    my AbsolutePath:D $chroot-dir-bootvault = $.config.chroot-dir-bootvault;
+    my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
     my AbsolutePath:D $chroot-dir-rootvault = $.config.chroot-dir-rootvault;
     my BootvaultName:D $bootvault-name = $.config.bootvault-name;
     my VaultName:D $vault-name = $.config.vault-name;
@@ -156,9 +156,9 @@ method unmount(::?CLASS:D: --> Nil)
     run(qqw<umount --recursive --verbose $chroot-dir-rootvault>);
     run(qqw<cryptsetup luksClose $vault-name>);
     rmdir($chroot-dir-rootvault);
-    run(qqw<umount --recursive --verbose $chroot-dir-bootvault>);
+    run(qqw<umount --recursive --verbose $chroot-dir-boot>);
     run(qqw<cryptsetup luksClose $bootvault-name>);
-    rmdir($chroot-dir-bootvault);
+    rmdir($chroot-dir-boot);
 }
 
 
