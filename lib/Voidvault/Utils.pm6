@@ -112,7 +112,6 @@ method mkbtrfs(
 {
     my Str:D $vault-device-mapper = sprintf(Q{/dev/mapper/%s}, $vault-name);
     my Str:D $aux-dir = sprintf(Q{%s2}, $chroot-dir);
-    my Str:D $root-dir = '/';
 
     # create btrfs filesystem on opened vault
     run(qqw<modprobe $_>) for @kernel-module;
@@ -130,9 +129,9 @@ method mkbtrfs(
     >);
 
     # create btrfs subvolumes
-    chdir($aux-dir);
-    run(qqw<btrfs subvolume create $_>) for @subvolume;
-    chdir($root-dir);
+    indir($aux-dir, {
+        run(qqw<btrfs subvolume create $_>) for @subvolume;
+    });
 
     # mount btrfs subvolumes
     @subvolume.map(-> Str:D $subvolume {
