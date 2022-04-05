@@ -26,8 +26,8 @@ New in ?.?.?
 ### Fixes
 
 - `voidvault --clean disable-cow` now recursively copies in files
-  from original directory where CoW was enabled using latest ArchWiki
-  recommendations
+  from original directory where CoW was enabled using latest [ArchWiki
+  recommendations](https://wiki.archlinux.org/title/Btrfs#Disabling_CoW)
 
 ### Internal
 
