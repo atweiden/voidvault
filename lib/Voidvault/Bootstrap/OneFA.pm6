@@ -155,8 +155,10 @@ method unmount(::?CLASS:D: --> Nil)
     CATCH { default { .resume } };
     run(qqw<umount --recursive --verbose $chroot-dir-rootvault>);
     run(qqw<cryptsetup luksClose $vault-name>);
+    rmdir($chroot-dir-rootvault);
     run(qqw<umount --recursive --verbose $chroot-dir-bootvault>);
     run(qqw<cryptsetup luksClose $bootvault-name>);
+    rmdir($chroot-dir-bootvault);
 }
 
 
