@@ -993,7 +993,7 @@ method install-vault-key(
     --> Nil
 )
 {
-    my VaultKey:D $vault-key =
+    my AbsolutePath:D $vault-key =
         sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
@@ -1001,7 +1001,11 @@ method install-vault-key(
 }
 
 # make vault key
-sub mkkey(VaultKey:D :$vault-key! where .so --> Nil)
+sub mkkey(
+    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so
+    --> Nil
+)
 {
     # source of entropy
     my Str:D $src = '/dev/random';
@@ -1018,7 +1022,8 @@ sub mkkey(VaultKey:D :$vault-key! where .so --> Nil)
 
 # LUKS encrypted volume password was given
 multi sub addkey(
-    VaultKey:D :$vault-key! where .so,
+    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Nil
@@ -1038,7 +1043,7 @@ multi sub addkey(
 
 # LUKS encrypted volume password not given
 multi sub addkey(
-    VaultKey:D :$vault-key! where .so,
+    AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($)
     --> Nil
@@ -1060,7 +1065,8 @@ multi sub addkey(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :interactive($)! where .so,
-    VaultKey:D :$vault-key! where .so,
+    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
 )
@@ -1092,7 +1098,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :non-interactive($)! where .so,
-    VaultKey:D :$vault-key! where .so,
+    AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
     --> Str:D
