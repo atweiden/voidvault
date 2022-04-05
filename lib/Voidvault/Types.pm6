@@ -1143,17 +1143,15 @@ subset UserName of Str is export where
 }
 
 # enforce LUKS encrypted vault secret material resides within /boot
-subset VaultSecretPrefix of AbsolutePath where
+subset VaultSecretPrefix of AbsolutePath is export where
 {
-    my IO:D $path = $_.IO;
-    rootpart($path) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
 }
 
 # enforce LUKS encrypted boot vault secret material resides within /root
-subset BootvaultSecretPrefix of AbsolutePath where
+subset BootvaultSecretPrefix of AbsolutePath is export where
 {
-    my IO:D $path = $_.IO;
-    rootpart($path) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
 }
 
 # enforce LUKS encrypted vault detached header resides within /boot
