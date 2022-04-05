@@ -136,7 +136,7 @@ constant @PACKAGE-BASE = qw<
     zstd
 >;
 
-# directories to receive btrfs nodatacow treatment
+# directories selected for btrfs nodatacow treatment
 constant @DIRECTORY-BTRFS-NODATACOW = qw<
     /srv
     /var/lib/ex
