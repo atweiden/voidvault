@@ -289,7 +289,7 @@ multi sub USAGE('disable-cow' --> Nil)
 {
     constant $HELP = qq:to/EOF/.trim;
     Usage:
-      voidvault [--clean]
+      voidvault [--clean] [--recursive]
                 [--permissions=<octal>]
                 [--user=<username>]
                 [--group=<groupname>]
@@ -298,9 +298,9 @@ multi sub USAGE('disable-cow' --> Nil)
 
     Options:
       -c, --clean
-        Remake directories with CoW disabled
+        Remake directories with CoW disabled, copying in files
       -r, --recursive
-        Recursively disable CoW on directories
+        Recursively disable CoW on directories, implied by --clean
       -p, --permissions=<octal>
         Octal file mode bits (defaults to "755")
       -u, --user=<username>

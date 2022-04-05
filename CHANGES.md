@@ -23,6 +23,12 @@ New in ?.?.?
   of globally replacing `${CLASS}` with `--unrestricted ${CLASS}` in
   `/etc/grub.d/10_linux`, but [accomplishes the same thing more simply](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Password_protection_of_GRUB_edit_and_console_options_only).
 
+### Fixes
+
+- `voidvault --clean disable-cow` now recursively copies in files
+  from original directory where CoW was enabled using latest ArchWiki
+  recommendations
+
 ### Internal
 
 - Heavily refactor codebase

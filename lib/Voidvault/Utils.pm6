@@ -27,8 +27,27 @@ method disable-cow(
     @directory.map(-> Str:D $directory { disable-cow($directory, |%opt) });
 }
 
-multi sub disable-cow(
+proto sub disable-cow(
     Str:D $directory,
+    Bool :clean($),
+    Bool :recursive($),
+    Str :permissions($),
+    Str :user($),
+    Str :group($)
+    --> Nil
+)
+{
+    my Str:D $*directory = ~$directory.IO.resolve;
+    with $*directory
+    {
+        [&&] .IO.e, .IO.r, .IO.d
+            or die('directory failed exists readable directory test');
+    }
+    {*}
+}
+
+multi sub disable-cow(
+    Str:D $,
     Bool:D :clean($)! where .so,
     # ignored, recursive is implied with :clean
     Bool :recursive($),
@@ -38,32 +57,20 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    with $orig-dir
-    {
-        [&&] .IO.e, .IO.r, .IO.d
-            or die('directory failed exists readable directory test');
-    }
-    my Str:D $backup-dir = sprintf(Q{%s-old}, $orig-dir);
-    rename($orig-dir, $backup-dir);
-    mkdir($orig-dir);
-    run(qqw<chmod $permissions $orig-dir>);
-    run(qqw<chown $user:$group $orig-dir>);
-    run(qqw<chattr -R +C $orig-dir>);
+    my Str:D $backup-dir = sprintf(Q{%s-old}, $*directory);
+    rename($*directory, $backup-dir);
+    mkdir($*directory);
+    run(qqw<chmod $permissions $*directory>);
+    run(qqw<chown $user:$group $*directory>);
+    run(qqw<chattr -R +C $*directory>);
     dir($backup-dir).map(-> IO::Path:D $file {
-        run(qqw<
-            cp
-            --no-dereference
-            --preserve=links,mode,ownership,timestamps
-            $file
-            $orig-dir
-        >);
+        run(qqw<cp --archive --reflink=never $file $*directory>);
     });
     run(qqw<rm --recursive --force $backup-dir>);
 }
 
 multi sub disable-cow(
-    Str:D $directory,
+    Str:D $,
     Bool :clean($),
     Bool:D :recursive($)! where .so,
     Str :permissions($),
@@ -72,14 +79,11 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
-        or die('directory failed exists readable directory test');
-    run(qqw<chattr -R +C $orig-dir>);
+    run(qqw<chattr -R +C $*directory>);
 }
 
 multi sub disable-cow(
-    Str:D $directory,
+    Str:D $,
     Bool :clean($),
     Bool :recursive($),
     Str :permissions($),
@@ -88,10 +92,7 @@ multi sub disable-cow(
     --> Nil
 )
 {
-    my Str:D $orig-dir = ~$directory.IO.resolve;
-    $orig-dir.IO.e && $orig-dir.IO.r && $orig-dir.IO.d
-        or die('directory failed exists readable directory test');
-    run(qqw<chattr +C $orig-dir>);
+    run(qqw<chattr +C $*directory>);
 }
 
 method mkbtrfs(
