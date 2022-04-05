@@ -118,8 +118,9 @@ sub mount-subvolume(
     --> Nil
 )
 {
-    my Str:D $mount-dir =
-        Voidvault::Utils.gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
+    # C<$mount-dir> is effectively C</> here, in anticipation of mounting
+    # C</mnt/BOOT> - a separate btrfs filesystem - at C</mnt/ROOT/boot>
+    my Str:D $mount-dir = $chroot-dir;
     mkdir($mount-dir);
     my Str:D $mount-subvolume-cmdline =
         Voidvault::Utils.build-mount-subvolume-cmdline(
