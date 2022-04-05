@@ -122,14 +122,13 @@ sub mount-subvolume(
     # C</mnt/BOOT> - a separate btrfs filesystem - at C</mnt/ROOT/boot>
     my Str:D $mount-dir = $chroot-dir;
     mkdir($mount-dir);
-    my Str:D $mount-subvolume-cmdline =
-        Voidvault::Utils.build-mount-subvolume-cmdline(
-            :$subvolume,
+    my Str:D $mount-btrfs-subvolume-cmdline =
+        Voidvault::Utils.build-mount-btrfs-cmdline(
             :@mount-option,
             :$vault-device-mapper,
             :$mount-dir
         );
-    shell($mount-subvolume-cmdline);
+    shell($mount-btrfs-subvolume-cmdline);
 }
 
 method mkvault(::?CLASS:D: --> Nil)

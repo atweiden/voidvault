@@ -112,25 +112,24 @@ method mkbtrfs(
 )
 {
     my Str:D $vault-device-mapper = sprintf(Q{/dev/mapper/%s}, $vault-name);
-    my Str:D $aux-dir = sprintf(Q{%s2}, $chroot-dir);
+    my Str:D $mount-dir = sprintf(Q{%s2}, $chroot-dir);
 
     # create btrfs filesystem on opened vault
     run(qqw<modprobe $_>) for @kernel-module;
     run('mkfs.btrfs', |@mkfs-option, $vault-device-mapper);
 
     # mount main btrfs filesystem on open vault
-    mkdir($aux-dir);
-    my Str:D $mount-options = @mount-option.join(',');
-    run(qqw<
-        mount
-        --types btrfs
-        --options $mount-options
-        $vault-device-mapper
-        $aux-dir
-    >);
+    mkdir($mount-dir);
+    my Str:D $mount-btrfs-cmdline =
+        Voidvault::Utils.build-mount-btrfs-cmdline(
+            :@mount-option,
+            :$vault-device-mapper,
+            :$mount-dir
+        );
+    shell($mount-btrfs-cmdline);
 
     # create btrfs subvolumes
-    indir($aux-dir, {
+    indir($mount-dir, {
         run(qqw<btrfs subvolume create $_>) for @subvolume;
     });
 
@@ -145,29 +144,47 @@ method mkbtrfs(
     });
 
     # unmount /mnt2 and remove
-    run(qqw<umount $aux-dir>);
-    rmdir($aux-dir);
+    run(qqw<umount $mount-dir>);
+    rmdir($mount-dir);
 }
 
-method build-mount-subvolume-cmdline(
-    Str:D :$subvolume! where .so,
+# prepend --options only when options are present
+method build-mount-options-cmdline(Str:D :@mount-option --> Str:D)
+{
+    my Str:D $mount-options-cmdline =
+        build-mount-options-cmdline(:@mount-option);
+}
+
+multi sub build-mount-options-cmdline(Str:D :@mount-option where .so --> Str:D)
+{
+    my Str:D @mount-options-cmdline = '--options', @mount-option.join(',');
+    my Str:D $mount-options-cmdline = @mount-options-cmdline.join(' ');
+}
+
+multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
+{
+    my Str:D @mount-options-cmdline = '';
+}
+
+method build-mount-btrfs-cmdline(
     Str:D :@mount-option! where .so,
     Str:D :$vault-device-mapper! where .so,
     Str:D :$mount-dir! where .so
     --> Str:D
 )
 {
-    my Str:D $mount-options = @mount-option.join(',');
-    my Str:D $mount-subvolume-cmdline =
-        sprintf(
-            Q{mount --types btrfs --options %s %s %s},
-            $mount-options,
-            $vault-device-mapper,
-            $mount-dir
-        );
+    my Str:D $mount-options-cmdline =
+        Voidvault::Utils.build-mount-options-cmdline(:@mount-option);
+    my Str:D $mount-subvolume-cmdline = qqw<
+        mount
+        --types btrfs
+        $mount-options-cmdline
+        $vault-device-mapper
+        $mount-dir
+    >.join(' ');
 }
 
-method gen-subvolume-mount-dir(
+method gen-btrfs-subvolume-mount-dir(
     Str:D :$subvolume! where .so,
     AbsolutePath:D :$chroot-dir! where .so
     --> Str:D

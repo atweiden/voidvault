@@ -136,6 +136,36 @@ constant @BASE-PACKAGE = qw<
     zstd
 >;
 
+# directories to receive btrfs nodatacow treatment
+constant @DIRECTORY-BTRFS-NODATACOW = qw<
+    /srv
+    /var/lib/ex
+    /var/log
+    /var/spool
+    /var/tmp
+>;
+
+# vault subvolumes selected for btrfs nodatacow treatment
+constant @SUBVOLUME-BTRFS-NODATACOW = qw<
+    @srv
+    @var-lib-ex
+    @var-log
+    @var-spool
+    @var-tmp
+>;
+
+# vault subvolumes with mount directory selected for chmod 1777 treatment
+constant @SUBVOLUME-STICKY-BIT-A-PLUS-RWX = qw<
+    @var-lib-ex
+    @var-tmp
+>;
+
+# sole subvolume created in btrfs filesystem made atop boot vault
+constant $SUBVOLUME-BOOT = '@boot';
+
+# intended mounting point of EFI System Partition on bootstrapped system
+constant $EFI-DIR = '/boot/efi';
+
 # runit services to enable
 constant @SERVICE = qw<
     dnscrypt-proxy
@@ -143,8 +173,6 @@ constant @SERVICE = qw<
     nftables
     socklog-unix
 >;
-
-constant $EFI-DIR = '/boot/efi';
 
 # libcrypt crypt encryption rounds
 constant $CRYPT-ROUNDS = 700_000;
@@ -186,8 +214,5 @@ constant %GRUB-SERIAL-PORT-PARITY =
     );
 constant $GRUB-SERIAL-PORT-STOP-BITS = '1';
 constant $GRUB-SERIAL-PORT-WORD-LENGTH-BITS = '8';
-
-# for mkbtrfs-boot
-constant $SUBVOLUME-BOOT = '@boot';
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

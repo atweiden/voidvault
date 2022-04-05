@@ -190,22 +190,24 @@ sub mount-subvolume(
 )
 {
     my Str:D @mount-option =
-        gen-subvolume-mount-options(:$subvolume, :mount-option(@mo));
+        gen-btrfs-subvolume-mount-options(:$subvolume, :mount-option(@mo));
     my Str:D $mount-dir =
-        Voidvault::Utils.gen-subvolume-mount-dir(:$subvolume, :$chroot-dir);
-    mkdir($mount-dir);
-    my Str:D $mount-subvolume-cmdline =
-        Voidvault::Utils.build-mount-subvolume-cmdline(
+        Voidvault::Utils.gen-btrfs-subvolume-mount-dir(
             :$subvolume,
+            :$chroot-dir
+        );
+    mkdir($mount-dir);
+    my Str:D $mount-btrfs-subvolume-cmdline =
+        Voidvault::Utils.build-mount-btrfs-cmdline(
             :@mount-option,
             :$vault-device-mapper,
             :$mount-dir
         );
-    shell($mount-subvolume-cmdline);
+    shell($mount-btrfs-subvolume-cmdline);
     set-subvolume-mount-dir-permissions(:$subvolume, :$mount-dir);
 }
 
-proto sub gen-subvolume-mount-options(
+proto sub gen-btrfs-subvolume-mount-options(
     Str:D :$subvolume! where .so,
     Str:D :@mount-option!
     --> Array[Str:D]
@@ -222,14 +224,10 @@ proto sub gen-subvolume-mount-options(
 }
 
 # return target directory at which to mount subvolumes
-multi sub gen-subvolume-mount-options(
-    Str:D :subvolume($)! where /
-        | '@srv'
-        | '@var-lib-ex'
-        | '@var-log'
-        | '@var-spool'
-        | '@var-tmp'
-    /,
+multi sub gen-btrfs-subvolume-mount-options(
+    Str:D :subvolume($)! where {
+        @Voidvault::Constants::SUBVOLUME-BTRFS-NODATACOW.grep($_)
+    },
     Str:D :mount-option(@)!
     --> Nil
 )
@@ -237,7 +235,7 @@ multi sub gen-subvolume-mount-options(
     push(@*mount-option, |qw<nodev noexec nosuid>);
 }
 
-multi sub gen-subvolume-mount-options(
+multi sub gen-btrfs-subvolume-mount-options(
     Str:D :subvolume($)!,
     Str:D :mount-option(@)!
     --> Nil
@@ -245,7 +243,9 @@ multi sub gen-subvolume-mount-options(
 {*}
 
 multi sub set-subvolume-mount-dir-permissions(
-    Str:D :subvolume($)! where /'@var-lib-ex'|'@var-tmp'/,
+    Str:D :subvolume($)! where {
+        @Voidvault::Constants::SUBVOLUME-STICKY-BIT-A-PLUS-RWX.grep($_)
+    },
     Str:D :$mount-dir! where .so
     --> Nil
 )
@@ -280,14 +280,11 @@ method mount-efi(::?CLASS:D: --> Nil)
 method disable-cow(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D @directory = qw<
-        srv
-        var/lib/ex
-        var/log
-        var/spool
-        var/tmp
-    >.map(-> Str:D $directory { sprintf(Q{%s/%s}, $chroot-dir, $directory) });
-    Voidvault::Utils.disable-cow(|@directory, :recursive);
+    my Str:D @dir =
+        @Voidvault::Constants::DIRECTORY-BTRFS-NODATACOW.map(-> Str:D $dir {
+            sprintf(Q{%s%s}, $chroot-dir, $dir)
+        });
+    Voidvault::Utils.disable-cow(|@dir, :recursive);
 }
 
 # bootstrap initial chroot with voidstrap
