@@ -131,7 +131,6 @@ multi sub MAIN('help', $? --> Nil)
 multi sub MAIN(
     'new',
     Str $mode?,
-    :@repository,
     *%opts (
         Str :admin-name($),
         Str :admin-pass($),
@@ -155,6 +154,7 @@ multi sub MAIN(
         Str :locale($),
         Str :packages($),
         Str :processor($),
+        :repository(@),
         Str :root-pass($),
         Str :root-pass-hash($),
         Str :sftp-name($),
@@ -169,52 +169,6 @@ multi sub MAIN(
 )
 {
     %opts<mode> = $mode if $mode;
-    %opts<repository> = @repository if @repository;
-    Voidvault.new(|%opts);
-}
-
-multi sub MAIN(
-    'new',
-    Str $mode?,
-    :$repository,
-    *%opts (
-        Str :admin-name($),
-        Str :admin-pass($),
-        Str :admin-pass-hash($),
-        Bool :augment($),
-        Str :chroot-dir($),
-        Str :device($),
-        Bool :disable-ipv6($),
-        Str :disk-type($),
-        Bool :enable-serial-console($),
-        Str :graphics($),
-        Str :grub-name($),
-        Str :grub-pass($),
-        Str :grub-pass-hash($),
-        Str :guest-name($),
-        Str :guest-pass($),
-        Str :guest-pass-hash($),
-        Str :hostname($),
-        Bool :ignore-conf-repos($),
-        Str :keymap($),
-        Str :locale($),
-        Str :packages($),
-        Str :processor($),
-        Str :root-pass($),
-        Str :root-pass-hash($),
-        Str :sftp-name($),
-        Str :sftp-pass($),
-        Str :sftp-pass-hash($),
-        Str :timezone($),
-        Str :vault-name($),
-        Str :vault-pass($),
-        Str :vault-key($)
-    )
-    --> Nil
-)
-{
-    %opts<mode> = $mode if $mode;
-    %opts<repository> = Array($repository) if $repository;
     Voidvault.new(|%opts);
 }
 
