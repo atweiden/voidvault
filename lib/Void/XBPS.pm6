@@ -4,19 +4,16 @@ use X::Void::XBPS;
 unit class Void::XBPS;
 
 method xbps-install(
-    :@repository,
-    Bool :$ignore-conf-repos,
     # ensure at least one package is given
-    *@pkg (Str:D $, *@)
+    *@pkg (Str:D $, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
     --> Nil
 )
 {
-    my Str:D $xbps-install-cmdline =
-        build-xbps-install-cmdline(
-            @pkg,
-            :@repository,
-            :$ignore-conf-repos
-        );
+    my Str:D $xbps-install-cmdline = build-xbps-install-cmdline(@pkg, |%opts);
     Voidvault::Utils.loop-cmdline-proc(
         "Installing packages...",
         $xbps-install-cmdline
