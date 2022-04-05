@@ -35,7 +35,7 @@ has BootvaultKey:D $.bootvault-key =
         ?? gen-bootvault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! sprintf(
             Q{%s/keys/bootvault.key},
-            $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX
+            $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
         );
 
 # intended path to LUKS encrypted volume detached header on bootstrapped system
@@ -44,7 +44,7 @@ has VaultHeader:D $.vault-header =
         ?? gen-vault-header(%*ENV<VOIDVAULT_VAULT_HEADER>)
         !! sprintf(
             Q{%s/headers/vault.header},
-            $Voidvault::Constants::VAULT-SECRET-PREFIX
+            $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
 
 

@@ -66,7 +66,7 @@ sub gen-user-name(Str:D $u --> UserName:D) is export
 # confirm vault header $h is valid VaultHeader and return VaultHeader
 sub gen-vault-header(Str:D $h --> VaultHeader:D) is export
 {
-    my Str:D $prefix = $Voidvault::Constants::VAULT-SECRET-PREFIX;
+    my Str:D $prefix = $Voidvault::Constants::SECRET-PREFIX-VAULT;
     my Str:D $message = qq:to/EOF/.trim;
     Sorry, Vault Header must be absolute path inside $prefix. Path given: $h
     EOF
@@ -76,7 +76,7 @@ sub gen-vault-header(Str:D $h --> VaultHeader:D) is export
 # confirm vault key $k is valid VaultKey and return VaultKey
 sub gen-vault-key(Str:D $k --> VaultKey:D) is export
 {
-    my Str:D $prefix = $Voidvault::Constants::VAULT-SECRET-PREFIX;
+    my Str:D $prefix = $Voidvault::Constants::SECRET-PREFIX-VAULT;
     my Str:D $message = qq:to/EOF/.trim;
     Sorry, Vault Key must be absolute path inside $prefix. Path given: $k
     EOF
@@ -86,7 +86,7 @@ sub gen-vault-key(Str:D $k --> VaultKey:D) is export
 # confirm boot vault key $k is valid BootvaultKey and return BootvaultKey
 sub gen-bootvault-key(Str:D $k --> BootvaultKey:D) is export
 {
-    my Str:D $prefix = $Voidvault::Constants::BOOTVAULT-SECRET-PREFIX;
+    my Str:D $prefix = $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT;
     my Str:D $message = qq:to/EOF/.trim;
     Sorry, Bootvault Key must be absolute path inside $prefix. Path given: $k
     EOF

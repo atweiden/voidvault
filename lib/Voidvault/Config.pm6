@@ -122,7 +122,7 @@ has VaultKey:D $.vault-key =
         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
         !! sprintf(
             Q{%s/keys/vault.key},
-            $Voidvault::Constants::VAULT-SECRET-PREFIX
+            $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
 
 # name for host (default: vault)

@@ -2,10 +2,10 @@ use v6;
 unit module Voidvault::Constants;
 
 # store vault keys and detached headers in this directory
-constant $VAULT-SECRET-PREFIX = '/boot';
+constant $SECRET-PREFIX-VAULT = '/boot';
 
 # store boot vault keys and detached headers in this directory
-constant $BOOTVAULT-SECRET-PREFIX = '/root';
+constant $SECRET-PREFIX-BOOTVAULT = '/root';
 
 constant $FILE-CRYPTTAB = '/etc/crypttab';
 constant $FILE-DHCPCD = '/etc/dhcpcd.conf';
