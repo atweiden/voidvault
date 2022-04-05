@@ -31,7 +31,7 @@ multi method replace(
         :$vault-name
     );
     $default-utils.enable-serial-console(@grub-cmdline-linux, $subject)
-        if $enable-serial-console.so;
+        if $enable-serial-console;
     $default-utils.enable-security-features(@grub-cmdline-linux);
     $default-utils.enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
     $default-utils.disable-ipv6(@grub-cmdline-linux) if $disable-ipv6.so;

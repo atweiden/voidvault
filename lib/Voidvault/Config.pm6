@@ -216,11 +216,10 @@ proto submethod TWEAK(--> Nil)
                 sprintf("%s user name '%s' is dupe of %s user name",
                         $k.key,
                         %user-name{$k.key},
-                        $k.value) if $v.so })
+                        $k.value) if $v })
             .join("\n");
 
-    die("Sorry, user names provided were not unique:\n\n$message")
-        if $message.so;
+    die("Sorry, user names provided were not unique:\n\n$message") if $message;
 
     # in case downstream user of C<Voidvault::Config> needs more tweaking
     {*}

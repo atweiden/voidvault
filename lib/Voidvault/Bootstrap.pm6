@@ -54,7 +54,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-rc-local;
     self.configure-rc-shutdown;
     self.enable-runit-services;
-    self.augment if $augment.so;
+    self.augment if $augment;
     self.unmount;
 }
 
@@ -943,7 +943,7 @@ method enable-runit-services(::?CLASS:D: --> Nil)
 
     # enable serial getty when using serial console, e.g. agetty-ttyS0
     push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::CONSOLE-SERIAL))
-        if $enable-serial-console.so;
+        if $enable-serial-console;
 
     @service.map(-> Str:D $service {
         run(qqw<
