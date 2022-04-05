@@ -961,7 +961,7 @@ method enable-runit-services(::?CLASS:D: --> Nil)
 # interactive console
 method augment(::?CLASS:D: --> Nil)
 {
-    # launch fully interactive Bash console, type 'exit' to exit
+    say('Spawning interactive Bash console, type `exit` to exit');
     shell('expect -c "spawn /bin/bash; interact"');
 }
 
