@@ -117,7 +117,7 @@ has VaultPass $.vault-pass =
         !! Nil;
 
 # intended path to LUKS encrypted volume key on bootstrapped system
-has AbsolutePath:D $.vault-key =
+has VaultKey:D $.vault-key =
     ?%*ENV<VOIDVAULT_VAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
         !! sprintf(

@@ -1151,7 +1151,8 @@ subset VaultSecretPrefix of AbsolutePath where
 # enforce LUKS encrypted boot vault secret material resides within /root
 subset BootvaultSecretPrefix of AbsolutePath where
 {
-    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
+    my IO:D $path = $_.IO;
+    rootpart($path) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
 }
 
 # enforce LUKS encrypted vault detached header resides within /boot
