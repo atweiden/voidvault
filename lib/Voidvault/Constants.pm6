@@ -136,6 +136,9 @@ constant @PACKAGE-BASE = qw<
     zstd
 >;
 
+# intended mounting point of EFI System Partition on bootstrapped system
+constant $DIRECTORY-EFI = '/boot/efi';
+
 # directories selected for btrfs nodatacow treatment
 constant @DIRECTORY-BTRFS-NODATACOW = qw<
     /srv
@@ -162,9 +165,6 @@ constant @SUBVOLUME-STICKY-BIT-A-PLUS-RWX = qw<
 
 # sole subvolume created in btrfs filesystem made atop boot vault
 constant $SUBVOLUME-BOOT = '@boot';
-
-# intended mounting point of EFI System Partition on bootstrapped system
-constant $DIRECTORY-EFI = '/boot/efi';
 
 # runit services to enable
 constant @SERVICE = qw<
