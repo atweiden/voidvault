@@ -4,7 +4,7 @@ unit module Void::Constants;
 
 
 # -----------------------------------------------------------------------------
-# helpers
+# helper functions
 # -----------------------------------------------------------------------------
 
 multi sub gen-libc-flavor(Str:D $arch where /musl/ --> LibcFlavor:D)
