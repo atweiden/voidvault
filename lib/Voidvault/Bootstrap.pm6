@@ -266,15 +266,15 @@ method mount-efi(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $partition-efi = self.gen-partition('efi');
-    my Str:D $efi-dir =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::EFI-DIR);
-    mkdir($efi-dir);
+    my Str:D $directory-efi =
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::DIRECTORY-EFI);
+    mkdir($directory-efi);
     my Str:D $mount-options = qw<
         nodev
         noexec
         nosuid
     >.join(',');
-    run(qqw<mount --options $mount-options $partition-efi $efi-dir>);
+    run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
 }
 
 method disable-cow(::?CLASS:D: --> Nil)
@@ -739,13 +739,15 @@ multi sub install-bootloader(
     --> Nil
 )
 {
+    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
+
     # uefi - i686
     run(qqw<
         void-chroot
         $chroot-dir
         grub-install
         --target=i386-efi
-        --efi-directory=/boot/efi
+        --efi-directory=$directory-efi
         --removable
     >, $device);
 
@@ -754,7 +756,8 @@ multi sub install-bootloader(
     fs0:
     \EFI\BOOT\BOOTIA32.EFI
     EOF
-    spurt("$chroot-dir/boot/efi/startup.nsh", $nsh, :append);
+    my Str:D $file = sprintf(Q{%s%s/startup.nsh}, $chroot-dir, $directory-efi);
+    spurt($file, $nsh, :append);
 }
 
 multi sub install-bootloader(
@@ -765,13 +768,15 @@ multi sub install-bootloader(
     --> Nil
 )
 {
+    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
+
     # uefi - x86_64
     run(qqw<
         void-chroot
         $chroot-dir
         grub-install
         --target=x86_64-efi
-        --efi-directory=/boot/efi
+        --efi-directory=$directory-efi
         --removable
     >, $device);
 
@@ -780,7 +785,8 @@ multi sub install-bootloader(
     fs0:
     \EFI\BOOT\BOOTX64.EFI
     EOF
-    spurt("$chroot-dir/boot/efi/startup.nsh", $nsh, :append);
+    my Str:D $file = sprintf(Q{%s%s/startup.nsh}, $chroot-dir, $directory-efi);
+    spurt($file, $nsh, :append);
 }
 
 method configure-sysctl(::?CLASS:D: --> Nil)

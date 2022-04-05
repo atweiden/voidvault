@@ -164,7 +164,7 @@ constant @SUBVOLUME-STICKY-BIT-A-PLUS-RWX = qw<
 constant $SUBVOLUME-BOOT = '@boot';
 
 # intended mounting point of EFI System Partition on bootstrapped system
-constant $EFI-DIR = '/boot/efi';
+constant $DIRECTORY-EFI = '/boot/efi';
 
 # runit services to enable
 constant @SERVICE = qw<
