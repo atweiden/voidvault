@@ -83,8 +83,7 @@ method mkbootvault(::?CLASS:D: --> Nil)
 # create and mount btrfs filesystem on opened bootvault
 method mkbootbtrfs(::?CLASS:D: --> Nil)
 {
-    # TODO: 1fa mode chroot-dir requires special handling
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir-bootvault;
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.bootvault-name;
 
