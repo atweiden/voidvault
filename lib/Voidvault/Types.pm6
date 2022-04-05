@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Constants;
 use Voidvault::Grammar;
 unit module Voidvault::Types;
 
