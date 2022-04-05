@@ -1102,21 +1102,6 @@ constant @vault-type = qw<
 
 
 # -----------------------------------------------------------------------------
-# helper functions
-# -----------------------------------------------------------------------------
-
-multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D)
-{
-    my IO:D $rootpart = $path;
-}
-
-multi sub rootpart(IO:D $path --> IO:D)
-{
-    my IO:D $rootpart = rootpart($path.parent);
-}
-
-
-# -----------------------------------------------------------------------------
 # types
 # -----------------------------------------------------------------------------
 
@@ -1190,5 +1175,20 @@ subset VaultPass of Str is export where { 0 < .chars <= 512 };
 
 # LUKS encrypted volume type
 subset VaultType of Str is export where { @vault-type.grep($_) };
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D)
+{
+    my IO:D $rootpart = $path;
+}
+
+multi sub rootpart(IO:D $path --> IO:D)
+{
+    my IO:D $rootpart = rootpart($path.parent);
+}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
