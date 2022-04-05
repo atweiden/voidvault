@@ -151,7 +151,7 @@ method unmount(::?CLASS:D: --> Nil)
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
     my VaultName:D $vault-name = $.config.vault-name;
-    my BootvaultName:D $bootvault-name = $.config.bootvault-name;
+    my VaultName:D $bootvault-name = $.config.bootvault-name;
     CATCH { default { .resume } };
     run(qqw<umount --recursive --verbose $chroot-dir>);
     run(qqw<cryptsetup luksClose $vault-name>);
