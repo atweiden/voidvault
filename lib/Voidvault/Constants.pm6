@@ -52,11 +52,11 @@ my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
 
 constant @DEPENDENCY = |@DEPENDENCY-PRE-CONFIG, |@DEPENDENCY-PRE-VOIDSTRAP;
 
-constant @CORE-PACKAGE = 'base-minimal';
+constant @PACKAGE-CORE = 'base-minimal';
 
 # base packages - void's C<base-minimal> with light additions
 # duplicates C<base-minimal>'s C<depends> for thoroughness
-constant @BASE-PACKAGE = qw<
+constant @PACKAGE-BASE = qw<
     acpi
     base-files
     bash

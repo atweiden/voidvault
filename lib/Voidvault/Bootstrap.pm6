@@ -298,7 +298,7 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
 
     # download and install core packages with voidstrap in chroot
-    my Str:D @core = @Voidvault::Constants::CORE-PACKAGE;
+    my Str:D @core = @Voidvault::Constants::PACKAGE-CORE;
     Void::Utils.voidstrap(
         $chroot-dir,
         :@repository,
@@ -308,7 +308,7 @@ method voidstrap-base(::?CLASS:D: --> Nil)
 
     # base packages - void's C<base-minimal> with light additions
     # duplicates C<base-minimal>'s C<depends> for thoroughness
-    my Str:D @base = @Voidvault::Constants::BASE-PACKAGE;
+    my Str:D @base = @Voidvault::Constants::PACKAGE-BASE;
     push(@base, 'glibc') if $libc-flavor eq 'GLIBC';
     push(@base, 'musl') if $libc-flavor eq 'MUSL';
     push(@base, 'grub-i386-efi') if $*KERNEL.bits == 32;
