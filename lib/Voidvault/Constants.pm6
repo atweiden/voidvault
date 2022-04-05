@@ -198,8 +198,8 @@ constant $GDISK-TYPECODE-EFI = 'EF00';
 constant $GDISK-TYPECODE-LINUX = '8300';
 
 # for C<--enable-serial-console>
-constant $VIRTUAL-CONSOLE = 'tty0';
-constant $SERIAL-CONSOLE = 'ttyS0';
+constant $CONSOLE-VIRTUAL = 'tty0';
+constant $CONSOLE-SERIAL = 'ttyS0';
 constant $GRUB-SERIAL-PORT-UNIT = '0';
 constant $GRUB-SERIAL-PORT-BAUD-RATE = '115200';
 constant $GRUB-SERIAL-PORT-PARITY = False;

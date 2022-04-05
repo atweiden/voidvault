@@ -951,7 +951,7 @@ method enable-runit-services(::?CLASS:D: --> Nil)
     my Str:D @service = @Voidvault::Constants::SERVICE;
 
     # enable serial getty when using serial console, e.g. agetty-ttyS0
-    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::SERIAL-CONSOLE))
+    push(@service, sprintf(Q{agetty-%s}, $Voidvault::Constants::CONSOLE-SERIAL))
         if $enable-serial-console.so;
 
     @service.map(-> Str:D $service {

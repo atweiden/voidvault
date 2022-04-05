@@ -59,7 +59,7 @@ multi sub gen-console('virtual' --> Str:D)
 {
     # e.g. console=tty0
     my Str:D $virtual =
-        sprintf('console=%s', $Voidvault::Constants::VIRTUAL-CONSOLE);
+        sprintf('console=%s', $Voidvault::Constants::CONSOLE-VIRTUAL);
 }
 
 multi sub gen-console('serial', Str:D $subject where .so --> Str:D)
@@ -67,7 +67,7 @@ multi sub gen-console('serial', Str:D $subject where .so --> Str:D)
     # e.g. console=ttyS0,115200n8
     my Str:D $serial = sprintf(
         'console=%s,%s%s%s',
-        $Voidvault::Constants::SERIAL-CONSOLE,
+        $Voidvault::Constants::CONSOLE-SERIAL,
         $Voidvault::Constants::GRUB-SERIAL-PORT-BAUD-RATE,
         %Voidvault::Constants::GRUB-SERIAL-PORT-PARITY{$Voidvault::Constants::GRUB-SERIAL-PORT-PARITY}{$subject},
         $Voidvault::Constants::GRUB-SERIAL-PORT-WORD-LENGTH-BITS

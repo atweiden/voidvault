@@ -23,8 +23,8 @@ multi sub replace(
 {
     my Str:D @line = $file.IO.lines;
     my UInt:D $index =
-        @line.first(/^'#'$Voidvault::Constants::SERIAL-CONSOLE/, :k);
-    @line[$index] = $Voidvault::Constants::SERIAL-CONSOLE;
+        @line.first(/^'#'$Voidvault::Constants::CONSOLE-SERIAL/, :k);
+    @line[$index] = $Voidvault::Constants::CONSOLE-SERIAL;
     my Str:D $replace = @line.join("\n");
     spurt($file, $replace ~ "\n");
 }
