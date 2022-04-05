@@ -12,21 +12,25 @@ constant $VERSION = v1.16.0;
 method voidstrap(
     # C<$chroot-dir> here does not need to be C<AbsolutePath>
     Str:D $chroot-dir,
-    :@repository,
-    Bool :$ignore-conf-repos,
     # ensure at least one package is given
-    *@pkg ($, *@)
+    *@pkg ($, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
     --> Nil
 )
 {
-    voidstrap($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
+    voidstrap($chroot-dir, @pkg, |%opts);
 }
 
 sub voidstrap(
     Str:D $chroot-dir,
-    :@repository,
-    Bool :$ignore-conf-repos,
-    *@pkg ($, *@)
+    *@pkg ($, *@),
+    *%opts (
+        :repository(@),
+        Bool :ignore-conf-repos($)
+    )
     --> Nil
 )
 {
@@ -36,7 +40,7 @@ sub voidstrap(
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-host-keys($chroot-dir);
-    voidstrap-install($chroot-dir, :@repository, :$ignore-conf-repos, @pkg);
+    voidstrap-install($chroot-dir, @pkg, |%opts);
 }
 
 # --- sub create-obligatory-dirs {{{
@@ -146,19 +150,13 @@ sub chroot-add-host-keys(
     --> Nil
 )
 {
-    my Str:D $host-keys-dir =
-        '/var/db/xbps/keys';
+    my Str:D $host-keys-dir = '/var/db/xbps/keys';
     my Str:D $host-keys-chroot-dir =
         sprintf(Q{%s%s}, $chroot-dir, $host-keys-dir);
     dir($host-keys-dir)
-        .map(-> IO::Path:D $path {
-            $path.basename
-        })
+        .map(-> IO::Path:D $path { $path.basename })
         .map(-> Str:D $basename {
-            copy(
-                "$host-keys-dir/$basename",
-                "$host-keys-chroot-dir/$basename"
-            );
+            copy("$host-keys-dir/$basename", "$host-keys-chroot-dir/$basename");
         });
 }
 
@@ -207,8 +205,8 @@ multi sub gen-repository-flags(
     my Str:D $repository = @repository.join(' --repository ');
     # omit official repos when passed C<--repository --ignore-conf-repos>
     my Str:D @gen-repository-flag = qqw<
-       --ignore-conf-repos
        --repository $repository
+       --ignore-conf-repos
     >;
 }
 
