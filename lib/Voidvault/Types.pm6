@@ -1101,6 +1101,25 @@ constant @vault-type = qw<
 
 
 # -----------------------------------------------------------------------------
+# helper regexes
+# -----------------------------------------------------------------------------
+
+my Regex:D $secret-prefix-vault = /
+    ^
+    $Voidvault::Constants::SECRET-PREFIX-VAULT
+    ['/'.*]?
+    $
+/;
+
+my Regex:D $secret-prefix-bootvault = /
+    ^
+    $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
+    ['/'.*]?
+    $
+/;
+
+
+# -----------------------------------------------------------------------------
 # types
 # -----------------------------------------------------------------------------
 
@@ -1168,24 +1187,5 @@ subset VaultPass of Str is export where { 0 < .chars <= 512 };
 
 # LUKS encrypted volume type
 subset VaultType of Str is export where { @vault-type.grep($_) };
-
-
-# -----------------------------------------------------------------------------
-# helper regexes
-# -----------------------------------------------------------------------------
-
-my Regex:D $secret-prefix-vault = /
-    ^
-    $Voidvault::Constants::SECRET-PREFIX-VAULT
-    ['/'.*]?
-    $
-/;
-
-my Regex:D $secret-prefix-bootvault = /
-    ^
-    $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
-    ['/'.*]?
-    $
-/;
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
