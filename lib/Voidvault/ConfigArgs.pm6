@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Config;
 use Voidvault::Config::Base;
 use Voidvault::Config::OneFA;
 use Voidvault::Types;
