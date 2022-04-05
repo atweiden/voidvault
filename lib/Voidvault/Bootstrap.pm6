@@ -136,23 +136,7 @@ method mkbtrfs(::?CLASS:D: --> Nil)
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.vault-name;
-
-    # btrfs subvolumes, starting with root / ('')
-    my Str:D @subvolume =
-        '',
-        'home',
-        'opt',
-        'srv',
-        'var',
-        'var-cache-xbps',
-        'var-lib-ex',
-        'var-log',
-        'var-opt',
-        'var-spool',
-        'var-tmp';
-
-    # prefix subvolumes with C<@>
-    @subvolume .= map({"@$^s"});
+    my Str:D @subvolume = @Voidvault::Constants::SUBVOLUME;
 
     # missing C<xxhash_generic> seemingly breaks C<--csum xxhash>
     my Str:D @kernel-module = qw<btrfs xxhash_generic>;

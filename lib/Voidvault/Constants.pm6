@@ -163,6 +163,21 @@ constant @SUBVOLUME-STICKY-BIT-A-PLUS-RWX = qw<
     @var-tmp
 >;
 
+# vault subvolumes, starting with root C</> (C<@>)
+constant @SUBVOLUME = qw<
+    @
+    @home
+    @opt
+    @srv
+    @var
+    @var-cache-xbps
+    @var-lib-ex
+    @var-log
+    @var-opt
+    @var-spool
+    @var-tmp
+>;
+
 # sole subvolume created in btrfs filesystem made atop boot vault
 constant $SUBVOLUME-BOOT = '@boot';
 
