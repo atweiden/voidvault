@@ -192,10 +192,7 @@ sub mount-subvolume(
     my Str:D @mount-option =
         gen-btrfs-subvolume-mount-options(:$subvolume, :mount-option(@mo));
     my Str:D $mount-dir =
-        Voidvault::Utils.gen-btrfs-subvolume-mount-dir(
-            :$subvolume,
-            :$chroot-dir
-        );
+        gen-btrfs-subvolume-mount-dir(:$subvolume, :$chroot-dir);
     mkdir($mount-dir);
     my Str:D $mount-btrfs-subvolume-cmdline =
         Voidvault::Utils.build-mount-btrfs-cmdline(
@@ -241,6 +238,16 @@ multi sub gen-btrfs-subvolume-mount-options(
     --> Nil
 )
 {*}
+
+sub gen-btrfs-subvolume-mount-dir(
+    Str:D :$subvolume! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    my Str:D $mount-dir = $subvolume.substr(1).subst('-', '/', :g);
+    sprintf(Q{%s/%s}, $chroot-dir, $mount-dir);
+}
 
 multi sub set-subvolume-mount-dir-permissions(
     Str:D :subvolume($)! where {

@@ -184,16 +184,6 @@ method build-mount-btrfs-cmdline(
     >.join(' ');
 }
 
-method gen-btrfs-subvolume-mount-dir(
-    Str:D :$subvolume! where .so,
-    AbsolutePath:D :$chroot-dir! where .so
-    --> Str:D
-)
-{
-    my Str:D $mount-dir = $subvolume.substr(1).subst('-', '/', :g);
-    sprintf(Q{%s/%s}, $chroot-dir, $mount-dir);
-}
-
 
 # -----------------------------------------------------------------------------
 # password hashes
