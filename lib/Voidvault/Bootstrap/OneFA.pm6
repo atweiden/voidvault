@@ -92,7 +92,12 @@ method mkbootbtrfs(::?CLASS:D: --> Nil)
     my Str:D @kernel-module = qw<btrfs xxhash_generic>;
     # btrfs manual recommends C<--mixed> for filesystems under 1 GiB
     my Str:D @mkfs-option = qw<--csum xxhash --mixed>;
-    my Str:D @mount-option = qw<rw noatime>;
+    my Str:D @mount-option = qw<
+        rw
+        noatime
+        compress-force=zstd
+        space_cache=v2
+    >;
     push(@mount-option, 'ssd') if $disk-type eq 'SSD';
 
     Voidvault::Utils.mkbtrfs(
