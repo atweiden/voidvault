@@ -11,11 +11,8 @@ also does Voidvault::Config;
 # attributes
 # -----------------------------------------------------------------------------
 
-# vault detached header goes directly into pre-existing boot vault
-has AbsolutePath:D $!chroot-dir-bootvault = sprintf(Q{%s/BOOT}, $!chroot-dir);
-
-# boot vault must be mounted separately at first
-has AbsolutePath:D $!chroot-dir-rootvault = sprintf(Q{%s/ROOT}, $!chroot-dir);
+# detached vault header is directly written to pre-existing boot vault
+has AbsolutePath:D $!chroot-dir-boot is required;
 
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
@@ -52,15 +49,10 @@ has VaultHeader:D $.vault-header =
 # accessor methods
 # -----------------------------------------------------------------------------
 
-# C<$!chroot-dir-[br]ootvault> are not configureable at instantiation
-method chroot-dir-bootvault(::?CLASS:D: --> AbsolutePath:D)
+# C<$!chroot-dir-boot> is not configurable at instantiation
+method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
 {
-    my AbsolutePath:D $chroot-dir-bootvault = $!chroot-dir-bootvault;
-}
-
-method chroot-dir-rootvault(::?CLASS:D: --> AbsolutePath:D)
-{
-    my AbsolutePath:D $chroot-dir-rootvault = $!chroot-dir-rootvault;
+    my AbsolutePath:D $chroot-dir-boot = $!chroot-dir-boot;
 }
 
 
@@ -70,8 +62,9 @@ method chroot-dir-rootvault(::?CLASS:D: --> AbsolutePath:D)
 
 multi submethod TWEAK(--> Nil)
 {
-    ensure-chroot-dir($!chroot-dir-bootvault);
-    ensure-chroot-dir($!chroot-dir-rootvault);
+    # run again on C<$!chroot-dir> because C<BUILD> alters it
+    ensure-chroot-dir($!chroot-dir);
+    ensure-chroot-dir($!chroot-dir-boot);
 
     # ensure boot vault name differs from vault name
     $!vault-name !eq $!bootvault-name
@@ -91,6 +84,9 @@ multi submethod BUILD(
     --> Nil
 )
 {
+    my AbsolutePath:D $chroot-dir = $!chroot-dir;
+    $!chroot-dir = sprintf(Q{%s/ROOT}, $chroot-dir);
+    $!chroot-dir-boot = sprintf(Q{%s/BOOT}, $chroot-dir);
     $!bootvault-name = gen-vault-name($bootvault-name)
         if $bootvault-name;
     $!bootvault-pass = gen-vault-pass($bootvault-pass)

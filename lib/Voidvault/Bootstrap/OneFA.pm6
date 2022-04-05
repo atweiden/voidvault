@@ -148,14 +148,14 @@ method mkvault(::?CLASS:D: --> Nil)
 
 method unmount(::?CLASS:D: --> Nil)
 {
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
-    my AbsolutePath:D $chroot-dir-rootvault = $.config.chroot-dir-rootvault;
-    my BootvaultName:D $bootvault-name = $.config.bootvault-name;
     my VaultName:D $vault-name = $.config.vault-name;
+    my BootvaultName:D $bootvault-name = $.config.bootvault-name;
     CATCH { default { .resume } };
-    run(qqw<umount --recursive --verbose $chroot-dir-rootvault>);
+    run(qqw<umount --recursive --verbose $chroot-dir>);
     run(qqw<cryptsetup luksClose $vault-name>);
-    rmdir($chroot-dir-rootvault);
+    rmdir($chroot-dir);
     run(qqw<umount --recursive --verbose $chroot-dir-boot>);
     run(qqw<cryptsetup luksClose $bootvault-name>);
     rmdir($chroot-dir-boot);
