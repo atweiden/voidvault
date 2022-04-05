@@ -204,7 +204,6 @@ proto sub gen-btrfs-subvolume-mount-options(
     push(@*mount-option, sprintf(Q{subvol=%s}, $subvolume));
 }
 
-# return target directory at which to mount subvolumes
 multi sub gen-btrfs-subvolume-mount-options(
     Str:D :subvolume($)! where {
         @Voidvault::Constants::SUBVOLUME-BTRFS-NODATACOW.grep($_)
@@ -223,6 +222,7 @@ multi sub gen-btrfs-subvolume-mount-options(
 )
 {*}
 
+# return target directory at which to mount subvolume
 sub gen-btrfs-subvolume-mount-dir(
     Str:D :$subvolume! where .so,
     AbsolutePath:D :$chroot-dir! where .so
