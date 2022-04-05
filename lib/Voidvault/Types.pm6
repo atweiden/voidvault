@@ -1144,10 +1144,16 @@ subset UserName of Str is export where
 }
 
 # enforce LUKS encrypted vault secret material resides within /boot
-subset VaultSecretPrefix of Str where $secret-prefix-vault;
+subset VaultSecretPrefix of AbsolutePath where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
+}
 
 # enforce LUKS encrypted boot vault secret material resides within /root
-subset BootvaultSecretPrefix of Str where $secret-prefix-bootvault;
+subset BootvaultSecretPrefix of AbsolutePath where
+{
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
+}
 
 # enforce LUKS encrypted vault detached header resides within /boot
 subset VaultHeader of VaultSecretPrefix is export;
@@ -1172,21 +1178,17 @@ subset VaultType of Str is export where { @vault-type.grep($_) };
 
 
 # -----------------------------------------------------------------------------
-# helper regexes
+# helper functions
 # -----------------------------------------------------------------------------
 
-my Regex:D $secret-prefix-vault = /
-    ^
-    $Voidvault::Constants::SECRET-PREFIX-VAULT
-    ['/'.*]?
-    $
-/;
+multi sub rootpart(IO:D $path where $path.parent eq '/'.IO --> IO:D)
+{
+    my IO:D $rootpart = $path;
+}
 
-my Regex:D $secret-prefix-bootvault = /
-    ^
-    $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
-    ['/'.*]?
-    $
-/;
+multi sub rootpart(IO:D $path --> IO:D)
+{
+    my IO:D $rootpart = rootpart($path.parent);
+}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
