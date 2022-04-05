@@ -76,8 +76,10 @@ method new(
     # fetch dependencies
     xbps-install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
 
-    # instantiate voidvault config, prompting for user input as needed
+    # ascertain mode from config args
     my Voidvault::ConfigArgs $config-args .= new(:$mode, |%opts);
+
+    # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config = Voidvault::Config($config-args);
 
     # bootstrap voidvault
