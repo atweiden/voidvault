@@ -1143,24 +1143,21 @@ subset UserName of Str is export where
 }
 
 # enforce LUKS encrypted vault detached header resides within /boot
-subset VaultHeader of Str is export where
+subset VaultHeader of AbsolutePath is export where
 {
-    $_.IO.is-absolute.so
-        && rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
 }
 
 # enforce LUKS encrypted volume key resides within /boot
-subset VaultKey of Str is export where
+subset VaultKey of AbsolutePath is export where
 {
-    $_.IO.is-absolute.so
-        && rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
 }
 
 # enforce LUKS encrypted boot volume key resides within /root
-subset BootvaultKey of Str is export where
+subset BootvaultKey of AbsolutePath is export where
 {
-    $_.IO.is-absolute.so
-        && rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
+    rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT.IO;
 }
 
 # LUKS encrypted volume device mapper name
