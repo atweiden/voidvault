@@ -117,13 +117,18 @@ has VaultPass $.vault-pass =
         !! Nil;
 
 # intended path to LUKS encrypted volume key on bootstrapped system
+# XXX rakubug?
+# has VaultKey:D $.vault-key =
+#     ?%*ENV<VOIDVAULT_VAULT_KEY>
+#         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
+#         !! sprintf(
+#             Q{%s/keys/vault.key},
+#             $Voidvault::Constants::SECRET-PREFIX-VAULT
+#         );
 has VaultKey:D $.vault-key =
     ?%*ENV<VOIDVAULT_VAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
-        !! sprintf(
-            Q{%s/keys/vault.key},
-            $Voidvault::Constants::SECRET-PREFIX-VAULT
-        );
+        !! '/boot/keys/vault.key';
 
 # name for host (default: vault)
 has HostName:D $.host-name =
