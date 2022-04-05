@@ -271,13 +271,14 @@ method void-chroot(
 sub void-chroot(Str:D $chroot-dir, *@cmdline ($, *@) --> Nil)
 {
     my Str:D @*chroot-active-mount;
+    LEAVE chroot-teardown();
+    UNDO chroot-teardown();
     create-obligatory-dirs($chroot-dir);
     chroot-setup($chroot-dir);
     chroot-add-resolv-conf($chroot-dir);
     my Str:D $cmdline =
         "SHELL=/bin/bash unshare --fork --pid chroot $chroot-dir @cmdline[]";
     shell($cmdline);
-    LEAVE chroot-teardown();
 }
 
 # --- sub chroot-add-resolv-conf {{{
