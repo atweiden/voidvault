@@ -109,7 +109,6 @@ multi sub ensure-requirements(
     --> Nil
 )
 {
-    # keymaps not supported on musl
     '/usr/share/kbd/keymaps'.IO.d.so
         or push(@*missing-dependency, 'kbd');
 }
