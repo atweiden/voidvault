@@ -192,34 +192,15 @@ has Bool:D $.enable-serial-console =
 # proto submethod to facilitate extending through role composition
 proto submethod TWEAK(--> Nil)
 {
+    # ensure C<$!chroot-dir> exists as rw dir or create it
     ensure-chroot-dir($!chroot-dir);
 
-    # map shortnames to user names for convenience
-    my UserName:D %user-name{Str:D} =
-        :admin($!user-name-admin),
-        :guest($!user-name-guest),
-        :sftp($!user-name-sftp);
-
     # ensure user names are unique
-    my Bool:D %matchup{Pair:D} =
-        Pair.new('admin', 'guest') =>
-            $!user-name-admin eq $!user-name-guest,
-        Pair.new('admin', 'sftp') =>
-            $!user-name-admin eq $!user-name-sftp,
-        Pair.new('guest', 'sftp') =>
-            $!user-name-guest eq $!user-name-sftp;
-
-    my Str $message =
-        %matchup
-            .kv
-            .map(-> Pair:D $k, Bool:D $v {
-                sprintf("%s user name '%s' is dupe of %s user name",
-                        $k.key,
-                        %user-name{$k.key},
-                        $k.value) if $v })
-            .join("\n");
-
-    die("Sorry, user names provided were not unique:\n\n$message") if $message;
+    ensure-unique-user-names(
+        :$!user-name-admin,
+        :$!user-name-guest,
+        :$!user-name-sftp
+    );
 
     # in case downstream user of C<Voidvault::Config> needs more tweaking
     {*}

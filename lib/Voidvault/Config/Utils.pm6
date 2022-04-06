@@ -679,4 +679,54 @@ multi sub die-chroot-dir(
     $*message = 'directory is not writeable';
 }
 
+sub ensure-unique-user-names(
+    UserName:D :$user-name-admin! where .so,
+    UserName:D :$user-name-guest! where .so,
+    UserName:D :$user-name-sftp! where .so
+    --> Nil
+) is export
+{
+    # map shortnames to user names for convenience
+    my UserName:D %*user-name{Str:D} =
+        :admin($user-name-admin),
+        :guest($user-name-guest),
+        :sftp($user-name-sftp);
+
+    my Bool:D %matchup{Pair:D} =
+        Pair.new('admin', 'guest') =>
+            $user-name-admin eq $user-name-guest,
+        Pair.new('admin', 'sftp') =>
+            $user-name-admin eq $user-name-sftp,
+        Pair.new('guest', 'sftp') =>
+            $user-name-guest eq $user-name-sftp;
+
+    my Pair:D @duplicate =
+        %matchup.kv.map(-> Pair:D $k, Bool:D $v { $k if $v.so });
+
+    if @duplicate
+    {
+        my Str:D $message = @duplicate.reduce(&gen-message);
+        die("Sorry, user names provided were not unique:\n\n$message");
+    }
+}
+
+multi sub gen-message(Pair:D $a, Pair:D $b --> Str:D)
+{
+    (gen-message($a), gen-message($b)).join("\n")
+}
+
+multi sub gen-message(Str:D $acc, Pair:D $pair --> Str:D)
+{
+    ($acc, gen-message($pair)).join("\n")
+}
+
+multi sub gen-message(Pair:D $pair --> Str:D)
+{
+    my Str:D $duplicatee = $pair.key;
+    my Str:D $duplicator = $pair.value;
+    my Str:D $duplicated-user-name = %*user-name{$duplicator};
+    qqw<$duplicator user name '$duplicated-user-name' is dupe of
+        $duplicatee user name>.join(' ');
+}
+
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
