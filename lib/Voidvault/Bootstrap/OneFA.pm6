@@ -14,7 +14,7 @@ also does Voidvault::Bootstrap;
 # secure disk configuration
 method mkdisk(::?CLASS:D: --> Nil)
 {
-    # partition device
+    # partition device with extra boot partition
     self.sgdisk;
 
     # create uefi partition
