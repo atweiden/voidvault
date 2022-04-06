@@ -632,6 +632,8 @@ proto method mkvault(
     # pass C<:open> to open vault after creating it
     Bool :open($),
     *%opts (
+        # prefixed <VaultHeader> path is <AbsolutePath>
+        AbsolutePath :vault-header($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -654,6 +656,7 @@ multi method mkvault(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
+        AbsolutePath :vault-header($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -674,6 +677,7 @@ multi method mkvault(
     VaultName:D :vault-name($)!,
     Bool :open($),
     *%opts (
+        AbsolutePath :vault-header($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -684,7 +688,10 @@ multi method mkvault(
 multi sub mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        AbsolutePath :vault-header($)
+    )
     --> Nil
 )
 {
@@ -693,7 +700,8 @@ multi sub mkvault(
             :non-interactive,
             :$vault-type,
             :$partition-vault,
-            :$vault-pass
+            :$vault-pass,
+            |%opts
         );
 
     # make LUKS encrypted volume without prompt for vault password
@@ -704,7 +712,10 @@ multi sub mkvault(
 multi sub mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass :vault-pass($)
+    VaultPass :vault-pass($),
+    *%opts (
+        AbsolutePath :vault-header($)
+    )
     --> Nil
 )
 {
@@ -712,7 +723,8 @@ multi sub mkvault(
         build-cryptsetup-luks-format-cmdline(
             :interactive,
             :$vault-type,
-            :$partition-vault
+            :$partition-vault,
+            |%opts
         );
 
     # create LUKS encrypted volume, prompt user for vault password
@@ -725,12 +737,19 @@ multi sub mkvault(
 multi sub build-cryptsetup-luks-format-cmdline(
     Bool:D :interactive($)! where .so,
     VaultType:D :$vault-type!,
-    Str:D :$partition-vault! where .so
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        AbsolutePath :vault-header($)
+    )
     --> Str:D
 )
 {
     my Str:D $spawn-cryptsetup-luks-format =
-        gen-spawn-cryptsetup-luks-format(:$vault-type, :$partition-vault);
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$partition-vault,
+            |%opts
+        );
     my Str:D $expect-are-you-sure-send-yes =
         'expect "Are you sure*" { send "YES\r" }';
     my Str:D $interact =
@@ -761,12 +780,19 @@ multi sub build-cryptsetup-luks-format-cmdline(
     Bool:D :non-interactive($)! where .so,
     VaultType:D :$vault-type!,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        AbsolutePath :vault-header($)
+    )
     --> Str:D
 )
 {
     my Str:D $spawn-cryptsetup-luks-format =
-        gen-spawn-cryptsetup-luks-format(:$vault-type, :$partition-vault);
+        gen-spawn-cryptsetup-luks-format(
+            :$vault-type,
+            :$partition-vault,
+            |%opts
+        );
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-are-you-sure-send-yes =
@@ -807,7 +833,11 @@ multi sub build-cryptsetup-luks-format-cmdline(
 
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS1',
-    Str:D :$partition-vault! where .so
+    Str:D :$partition-vault! where .so,
+    # LUKS1 variant is never called with optional C<$vault-header>
+    *% (
+        AbsolutePath :vault-header($)
+    )
     --> Str:D
 )
 {
@@ -827,7 +857,32 @@ multi sub gen-spawn-cryptsetup-luks-format(
 
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so
+    Str:D :$partition-vault! where .so,
+    AbsolutePath:D :$vault-header! where .so
+    --> Str:D
+)
+{
+    my Str:D $spawn-cryptsetup-luks-format = qqw<
+         spawn cryptsetup
+         --type luks2
+         --cipher aes-xts-plain64
+         --pbkdf argon2id
+         --key-slot 1
+         --key-size 512
+         --hash sha512
+         --iter-time 5000
+         --use-random
+         --verify-passphrase
+         --header $vault-header
+         luksFormat $partition-vault
+    >.join(' ');
+}
+
+# effectively dead code until GRUB ships reasonable support for LUKS2
+multi sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :vault-type($)! where 'LUKS2',
+    Str:D :$partition-vault! where .so,
+    AbsolutePath :vault-header
     --> Str:D
 )
 {
