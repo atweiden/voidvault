@@ -129,7 +129,6 @@ multi sub ensure-requirements(
     --> Nil
 )
 {
-    # locales not supported on musl
     '/usr/share/zoneinfo/zone.tab'.IO.f.so
         or push(@*missing-dependency, 'tzdata');
 }
