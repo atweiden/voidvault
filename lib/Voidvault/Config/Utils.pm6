@@ -654,7 +654,7 @@ multi sub die-chroot-dir(
     --> Nil
 )
 {
-    $*message = 'path is not readable';
+    $*message ~= 'path is not readable';
 }
 
 multi sub die-chroot-dir(
@@ -665,7 +665,7 @@ multi sub die-chroot-dir(
     --> Nil
 )
 {
-    $*message = 'this would overwrite existing non-directory';
+    $*message ~= 'this would overwrite existing non-directory';
 }
 
 multi sub die-chroot-dir(
@@ -676,7 +676,7 @@ multi sub die-chroot-dir(
     --> Nil
 )
 {
-    $*message = 'directory is not writeable';
+    $*message ~= 'directory is not writeable';
 }
 
 sub ensure-unique-user-names(
