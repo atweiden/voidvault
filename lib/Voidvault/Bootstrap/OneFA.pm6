@@ -133,16 +133,21 @@ sub mount-subvolume(
 
 method mkvault(::?CLASS:D: --> Nil)
 {
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my VaultType:D $vault-type = 'LUKS2';
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
+    my VaultHeader:D $vault-header-unprefixed = $.config.vault-header;
+    my AbsolutePath:D $vault-header =
+        sprintf(Q{%s%s}, $chroot-dir, $vault-header-unprefixed);
     Voidvault::Utils.mkvault(
         :open,
         :$vault-type,
         :$partition-vault,
         :$vault-name,
-        :$vault-pass
+        :$vault-pass,
+        :$vault-header
     );
 }
 
