@@ -865,6 +865,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
     my Str:D $spawn-cryptsetup-luks-format = qqw<
         spawn cryptsetup
         --type luks2
+        --header $vault-header
         --cipher aes-xts-plain64
         --pbkdf argon2id
         --key-slot 1
@@ -873,7 +874,6 @@ multi sub gen-spawn-cryptsetup-luks-format(
         --iter-time 5000
         --use-random
         --verify-passphrase
-        --header $vault-header
         luksFormat $partition-vault
     >.join(' ');
 }
@@ -1059,9 +1059,9 @@ multi sub gen-cryptsetup-luks-open(
 )
 {
     my Str:D $opts = qqw<
+        --header $vault-header
         --perf-no_read_workqueue
         --persistent
-        --header $vault-header
     >.join(' ');
     my Str:D $cryptsetup-luks-open-cmdline =
         "cryptsetup $opts luksOpen $partition-vault $vault-name";
