@@ -1,22 +1,9 @@
 #!/usr/bin/env raku
 use v6;
-use Void::Constants;
 use Voidvault;
+use Voidvault::ConfigArgs::Constants;
+use Voidvault::ConfigArgs::Utils;
 use Voidvault::Utils;
-
-
-# -----------------------------------------------------------------------------
-# constants
-# -----------------------------------------------------------------------------
-
-# for checking non-bootstrap command requirements not otherwise checked
-my constant $SUBJECT-DISABLE-COW = 'voidvault disable-cow';
-my constant $SUBJECT-GEN-PASS-HASH = 'voidvault gen-pass-hash';
-my constant $SUBJECT-GEN-PASS-HASH-GRUB = 'voidvault -g|--grub gen-pass-hash';
-my constant $SUBJECT-LS-DEVICES = 'voidvault ls devices';
-my constant $SUBJECT-LS-KEYMAPS = 'voidvault ls keymaps';
-my constant $SUBJECT-LS-LOCALES = 'voidvault ls locales';
-my constant $SUBJECT-LS-TIMEZONES = 'voidvault ls timezones';
 
 
 # -----------------------------------------------------------------------------
@@ -30,11 +17,11 @@ multi sub MAIN(
     Str :p(:$permissions),
     Bool :r(:$recursive),
     Str :u(:$user),
-    *@directory
+    *@directory ($, *@)
     --> Nil
 )
 {
-    ensure-requirements($SUBJECT-DISABLE-COW);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-DISABLE-COW);
     my %opts;
     %opts<clean> = $clean if $clean;
     %opts<group> = $group if $group;
@@ -56,7 +43,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    ensure-requirements($SUBJECT-GEN-PASS-HASH-GRUB);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH-GRUB);
     say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
 }
 
@@ -67,7 +54,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    ensure-requirements($SUBJECT-GEN-PASS-HASH);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH);
     say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
 }
 
@@ -78,7 +65,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    ensure-requirements($SUBJECT-GEN-PASS-HASH-GRUB);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH-GRUB);
     say(Voidvault::Utils.prompt-pass-hash(:$grub));
 }
 
@@ -89,7 +76,7 @@ multi sub MAIN(
     --> Nil
 )
 {
-    ensure-requirements($SUBJECT-GEN-PASS-HASH);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH);
     say(Voidvault::Utils.prompt-pass-hash);
 }
 
@@ -98,24 +85,24 @@ multi sub MAIN(
 # help
 # -----------------------------------------------------------------------------
 
-multi sub MAIN('help', 'disable-cow' --> Nil)
+multi sub MAIN('help', Str:D $subject where 'disable-cow' --> Nil)
 {
-    USAGE('disable-cow');
+    USAGE($subject);
 }
 
-multi sub MAIN('help', 'gen-pass-hash' --> Nil)
+multi sub MAIN('help', Str:D $subject where 'gen-pass-hash' --> Nil)
 {
-    USAGE('gen-pass-hash');
+    USAGE($subject);
 }
 
-multi sub MAIN('help', 'ls' --> Nil)
+multi sub MAIN('help', Str:D $subject where 'ls' --> Nil)
 {
-    USAGE('ls');
+    USAGE($subject);
 }
 
-multi sub MAIN('help', 'new' --> Nil)
+multi sub MAIN('help', Str:D $subject where 'new' --> Nil)
 {
-    USAGE('new');
+    USAGE($subject);
 }
 
 multi sub MAIN('help', $? --> Nil)
@@ -128,51 +115,7 @@ multi sub MAIN('help', $? --> Nil)
 # new
 # -----------------------------------------------------------------------------
 
-multi sub MAIN(
-    'new',
-    Str $mode?,
-    *%opts (
-        # base mode
-        Str :admin-name($),
-        Str :admin-pass($),
-        Str :admin-pass-hash($),
-        Bool :augment($),
-        Str :chroot-dir($),
-        Str :device($),
-        Bool :disable-ipv6($),
-        Str :disk-type($),
-        Bool :enable-serial-console($),
-        Str :graphics($),
-        Str :grub-name($),
-        Str :grub-pass($),
-        Str :grub-pass-hash($),
-        Str :guest-name($),
-        Str :guest-pass($),
-        Str :guest-pass-hash($),
-        Str :hostname($),
-        Bool :ignore-conf-repos($),
-        Str :keymap($),
-        Str :locale($),
-        Str :packages($),
-        Str :processor($),
-        :repository(@),
-        Str :root-pass($),
-        Str :root-pass-hash($),
-        Str :sftp-name($),
-        Str :sftp-pass($),
-        Str :sftp-pass-hash($),
-        Str :timezone($),
-        Str :vault-name($),
-        Str :vault-pass($),
-        Str :vault-key($),
-        # 1fa mode
-        Str :bootvault-name($),
-        Str :bootvault-pass($),
-        Str :bootvault-key($),
-        Str :vault-header($)
-    )
-    --> Nil
-)
+multi sub MAIN('new', Str $mode?, *%opts --> Nil)
 {
     %opts<mode> = $mode if $mode;
     Voidvault.new(|%opts);
@@ -185,25 +128,25 @@ multi sub MAIN(
 
 multi sub MAIN('ls', 'devices' --> Nil)
 {
-    ensure-requirements($SUBJECT-LS-DEVICES);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-LS-DEVICES);
     Voidvault::Utils.ls-devices.map({ .say });
 }
 
 multi sub MAIN('ls', 'keymaps' --> Nil)
 {
-    ensure-requirements($SUBJECT-LS-KEYMAPS);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-LS-KEYMAPS);
     Voidvault::Utils.ls-keymaps.map({ .say });
 }
 
 multi sub MAIN('ls', 'locales' --> Nil)
 {
-    ensure-requirements($SUBJECT-LS-LOCALES);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-LS-LOCALES);
     Voidvault::Utils.ls-locales.map({ .say });
 }
 
 multi sub MAIN('ls', 'timezones' --> Nil)
 {
-    ensure-requirements($SUBJECT-LS-TIMEZONES);
+    Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-LS-TIMEZONES);
     Voidvault::Utils.ls-timezones.map({ .say });
 }
 
@@ -225,311 +168,27 @@ multi sub MAIN(Bool:D :version($)! where .so --> Nil)
 
 multi sub USAGE(--> Nil)
 {
-    constant $HELP = q:to/EOF/.trim;
-    Usage:
-      voidvault <command>
-
-    Commands:
-      disable-cow          Disable copy-on-write on directories
-      gen-pass-hash        Generate password hash
-      help                 Show help for subcommands
-      ls                   List devices, keymaps, locales, timezones
-      new                  Bootstrap Void system with FDE
-
-    Options:
-      -h, --help
-        Print this help message
-      --version
-        Print version and exit
-    EOF
-    say($HELP);
+    Voidvault::ConfigArgs::Utils.USAGE();
 }
 
-multi sub USAGE('disable-cow' --> Nil)
+multi sub USAGE(Str:D $subject where 'disable-cow' --> Nil)
 {
-    constant $HELP = qq:to/EOF/.trim;
-    Usage:
-      voidvault [--clean] [--recursive]
-                [--permissions=<octal>]
-                [--user=<username>]
-                [--group=<groupname>]
-                disable-cow <directory> [<directory> <directory>..]
-      voidvault [-r] disable-cow <directory> [<directory> <directory>..]
-
-    Options:
-      -c, --clean
-        Remake directories with CoW disabled, copying in files
-      -r, --recursive
-        Recursively disable CoW on directories, implied by --clean
-      -p, --permissions=<octal>
-        Octal file mode bits (defaults to "755")
-      -u, --user=<username>
-        Named user to own file (defaults to "$*USER")
-      -g, --group=<groupname>
-        Named group to own file (defaults to "$*GROUP")
-
-    Positionals:
-      <directory>        Path to directory
-    EOF
-    say($HELP);
+    Voidvault::ConfigArgs::Utils.USAGE(:$subject);
 }
 
-multi sub USAGE('gen-pass-hash' --> Nil)
+multi sub USAGE(Str:D $subject where 'gen-pass-hash' --> Nil)
 {
-    constant $HELP = q:to/EOF/.trim;
-    Usage:
-      voidvault [-g|--grub] [-p|--pass=<password>] gen-pass-hash
-
-    Options:
-      -g, --grub
-        Generate PBKDF2 password hash for GRUB
-      -p, --pass=<password>
-        Plaintext password to generate hash from
-    EOF
-    say($HELP);
+    Voidvault::ConfigArgs::Utils.USAGE(:$subject);
 }
 
-multi sub USAGE('ls' --> Nil)
+multi sub USAGE(Str:D $subject where 'ls' --> Nil)
 {
-    constant $HELP = q:to/EOF/.trim;
-    Usage:
-      voidvault ls <positional>
-
-    Positionals
-      devices           List available block devices
-      keymaps           List available keyboard table descriptions
-      locales           List available sets of language/cultural rules
-      timezones         List available geographic regions
-    EOF
-    say($HELP);
+    Voidvault::ConfigArgs::Utils.USAGE(:$subject);
 }
 
-multi sub USAGE('new' --> Nil)
+multi sub USAGE(Str:D $subject where 'new' --> Nil)
 {
-    constant $HELP = q:to/EOF/.trim;
-    Usage:
-      voidvault [options] new [mode]
-
-      voidvault [--admin-name=<username>] [--admin-pass=<password>]
-                [--guest-name=<username>] [--guest-pass=<password>]
-                [--sftp-name=<username>] [--sftp-pass=<password>]
-                [--grub-name=<username>] [--grub-pass=<password>]
-                [--root-pass=<password>]
-                [--vault-name=<vaultname>] [--vault-pass=<password>]
-                [--vault-key=<path>]
-                [--device=<device>] [--hostname=<hostname>]
-                [--processor=<processor>] [--graphics=<graphics>]
-                [--disk-type=<disktype>] [--locale=<locale>]
-                [--keymap=<keymap>] [--timezone=<timezone>]
-                [--repository=<repository>] [--ignore-conf-repos]
-                [--packages=<packages>]
-                [--augment]
-                [--disable-ipv6] [--enable-serial-console]
-                [--chroot-dir=<path>]
-                new
-
-      voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
-                [--bootvault-key=<path>] [--vault-header=<path>]
-                new 1fa
-
-    Options:
-      --admin-name=<username>
-        User name for admin account
-      --admin-pass=<password>
-        Password for admin account
-      --admin-pass-hash=<passhash>
-        Encrypted password hash for admin account
-      --augment
-        Drop to Bash console mid-execution
-      --chroot-dir=<path>
-        Path to directory within which to mount system for bootstrap
-      --device=<device>
-        Target block device for install
-      --disable-ipv6
-        Disable IPv6
-      --disk-type=<disktype>
-        Hard drive type
-      --enable-serial-console
-        Enable serial console
-      --graphics=<graphics>
-        Graphics card type
-      --grub-name=<username>
-        User name for GRUB
-      --grub-pass=<password>
-        Password for GRUB
-      --grub-pass-hash=<passhash>
-        Password hash for GRUB
-      --guest-name=<username>
-        User name for guest account
-      --guest-pass=<password>
-        Password for guest account
-      --guest-pass-hash=<passhash>
-        Encrypted password hash for guest account
-      --hostname=<hostname>
-        Hostname
-      --ignore-conf-repos
-        Only honor repositories specified on cmdline
-      --keymap=<keymap>
-        Keymap
-      --locale=<locale>
-        Locale
-      --packages=<packages>
-        List of additional packages to install
-      --processor=<processor>
-        Processor type
-      --repository=<repository>
-        Location of Void package repository (prioritized)
-      --root-pass=<password>
-        Password for root account
-      --root-pass-hash=<passhash>
-        Encrypted password hash for root account
-      --sftp-name=<username>
-        User name for SFTP account
-      --sftp-pass=<password>
-        Password for SFTP account
-      --sftp-pass-hash=<passhash>
-        Encrypted password hash for SFTP account
-      --timezone=<timezone>
-        Timezone
-      --vault-name=<vaultname>
-        Name for LUKS encrypted volume
-      --vault-pass=<password>
-        Password for LUKS encrypted volume
-      --vault-key=<path>
-        Path to LUKS encrypted volume key
-
-    Options (1FA):
-      --bootvault-name=<vaultname>
-        Name for LUKS encrypted boot volume
-      --bootvault-pass=<password>
-        Password for LUKS encrypted boot volume
-      --bootvault-key=<path>
-        Path to LUKS encrypted boot volume key
-      --vault-header=<path>
-        Path to LUKS encrypted volume detached header
-
-    Arguments:
-      mode      Activate mode
-
-    Mode
-      base      Make LUKS1 vault with encrypted /boot (Default)
-
-      1fa       Make LUKS2 vault with detached header inside LUKS1 boot partition
-
-                Make LUKS1 boot partition on same device as LUKS2 vault
-    EOF
-    say($HELP);
+    Voidvault::ConfigArgs::Utils.USAGE(:$subject);
 }
-
-
-# -----------------------------------------------------------------------------
-# helper functions
-# -----------------------------------------------------------------------------
-
-proto sub ensure-requirements(
-    Str:D $subject where .so
-    --> Nil
-)
-{
-    my Str:D @*missing-dependency;
-    {*}
-    exit-unless-requirements-satisfied($subject, @*missing-dependency);
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-DISABLE-COW
-    --> Nil
-)
-{
-    my Str:D @bin = qw<
-        chmod
-        chown
-        cp
-        rm
-    >.map(-> Str:D $bin { sprintf(Q{/usr/bin/%s}, $bin) });
-    so(@bin.all.IO.x)
-        or push(@*missing-dependency, 'coreutils');
-    '/usr/bin/chattr'.IO.x.so
-        or push(@*missing-dependency, 'e2fsprogs');
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-GEN-PASS-HASH
-    --> Nil
-)
-{
-    '/usr/bin/openssl'.IO.x.so
-        or push(@*missing-dependency, 'openssl');
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-GEN-PASS-HASH-GRUB
-    --> Nil
-)
-{
-    '/usr/bin/grub-mkpasswd-pbkdf2'.IO.x.so
-        or push(@*missing-dependency, 'grub');
-    '/usr/bin/expect'.IO.x.so
-        or push(@*missing-dependency, 'expect');
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-LS-DEVICES
-    --> Nil
-)
-{
-    '/usr/bin/lsblk'.IO.x.so
-        or push(@*missing-dependency, 'util-linux');
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-LS-KEYMAPS
-    --> Nil
-)
-{
-    # keymaps not supported on musl
-    '/usr/share/kbd/keymaps'.IO.d.so
-        or push(@*missing-dependency, 'kbd');
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-LS-LOCALES
-    --> Nil
-)
-{
-    # locales not supported on musl
-    '/usr/share/i18n/locales'.IO.d.so
-        or push(@*missing-dependency, 'glibc')
-            if $Void::Constants::LIBC-FLAVOR eq 'GLIBC';
-}
-
-multi sub ensure-requirements(
-    Str:D $subject where $SUBJECT-LS-TIMEZONES
-    --> Nil
-)
-{
-    # locales not supported on musl
-    '/usr/share/zoneinfo/zone.tab'.IO.f.so
-        or push(@*missing-dependency, 'tzdata');
-}
-
-multi sub exit-unless-requirements-satisfied(
-    Str:D $subject where .so,
-    Str:D @missing-dependency where .so
-    --> Nil
-)
-{
-    my Str:D $message = "Sorry, `$subject` requires installing";
-    $message = sprintf("%s: %s", $message, @missing-dependency.join(', '));
-    note($message);
-    exit(1);
-}
-
-multi sub exit-unless-requirements-satisfied(
-    Str:D $subject where .so,
-    Str:D @
-    --> Nil
-)
-{*}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

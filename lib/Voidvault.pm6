@@ -25,43 +25,7 @@ constant $VERSION = v1.16.0;
 
 method new(
     Str :$mode,
-    *%opts (
-        # list options pertinent to base Voidvault::Config only
-        Str :admin-name($),
-        Str :admin-pass($),
-        Str :admin-pass-hash($),
-        Bool :augment($),
-        Str :chroot-dir($),
-        Str :device($),
-        Bool :disable-ipv6($),
-        Str :disk-type($),
-        Bool :enable-serial-console($),
-        Str :graphics($),
-        Str :grub-name($),
-        Str :grub-pass($),
-        Str :grub-pass-hash($),
-        Str :guest-name($),
-        Str :guest-pass($),
-        Str :guest-pass-hash($),
-        Str :hostname($),
-        Bool :$ignore-conf-repos,
-        Str :keymap($),
-        Str :locale($),
-        Str :packages($),
-        Str :processor($),
-        :@repository,
-        Str :root-pass($),
-        Str :root-pass-hash($),
-        Str :sftp-name($),
-        Str :sftp-pass($),
-        Str :sftp-pass-hash($),
-        Str :timezone($),
-        Str :vault-name($),
-        Str :vault-pass($),
-        Str :vault-key($),
-        # facilitate passing additional options to non-base mode
-        *%
-    )
+    *%opts (Bool :$ignore-conf-repos, :@repository, *%)
     --> Nil
 )
 {
@@ -70,14 +34,14 @@ method new(
     # verify root permissions
     $*USER == 0 or die('root privileges required');
 
+    # verify cmdline arguments
+    my Voidvault::ConfigArgs $config-args .= new(:$mode, |%opts);
+
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });
 
     # fetch dependencies
     xbps-install-dependencies($libc-flavor, :@repository, :$ignore-conf-repos);
-
-    # ascertain mode from config args
-    my Voidvault::ConfigArgs $config-args .= new(:$mode, |%opts);
 
     # instantiate voidvault config, prompting for user input as needed
     my Voidvault::Config $config = Voidvault::Config($config-args);
