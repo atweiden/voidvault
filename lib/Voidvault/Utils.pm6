@@ -842,16 +842,16 @@ multi sub gen-spawn-cryptsetup-luks-format(
 )
 {
     my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks1
-         --cipher aes-xts-plain64
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         luksFormat $partition-vault
+        spawn cryptsetup
+        --type luks1
+        --cipher aes-xts-plain64
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        luksFormat $partition-vault
     >.join(' ');
 }
 
@@ -863,18 +863,18 @@ multi sub gen-spawn-cryptsetup-luks-format(
 )
 {
     my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks2
-         --cipher aes-xts-plain64
-         --pbkdf argon2id
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         --header $vault-header
-         luksFormat $partition-vault
+        spawn cryptsetup
+        --type luks2
+        --cipher aes-xts-plain64
+        --pbkdf argon2id
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        --header $vault-header
+        luksFormat $partition-vault
     >.join(' ');
 }
 
@@ -887,17 +887,17 @@ multi sub gen-spawn-cryptsetup-luks-format(
 )
 {
     my Str:D $spawn-cryptsetup-luks-format = qqw<
-         spawn cryptsetup
-         --type luks2
-         --cipher aes-xts-plain64
-         --pbkdf argon2id
-         --key-slot 1
-         --key-size 512
-         --hash sha512
-         --iter-time 5000
-         --use-random
-         --verify-passphrase
-         luksFormat $partition-vault
+        spawn cryptsetup
+        --type luks2
+        --cipher aes-xts-plain64
+        --pbkdf argon2id
+        --key-slot 1
+        --key-size 512
+        --hash sha512
+        --iter-time 5000
+        --use-random
+        --verify-passphrase
+        luksFormat $partition-vault
     >.join(' ');
 }
 
