@@ -373,7 +373,7 @@ sub loop-prompt-pass-hash(
     {
         say($context) if $context;
         my Str:D $pass = stprompt($enter);
-        $pass !eqv '' or do {
+        $pass ne '' or do {
             say($blank);
             next;
         }

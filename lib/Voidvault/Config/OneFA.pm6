@@ -67,11 +67,11 @@ multi submethod TWEAK(--> Nil)
     ensure-chroot-dir($!chroot-dir-boot);
 
     # ensure boot vault name differs from vault name
-    $!vault-name !eq $!bootvault-name
+    $!vault-name ne $!bootvault-name
         or die("Sorry, Vault and Boot Vault names must differ");
 
     # ensure vault header and vault key paths differ
-    $!vault-header !eq $!vault-key
+    $!vault-header ne $!vault-key
         or die("Sorry, Vault Key and Vault Header paths must differ");
 }
 
