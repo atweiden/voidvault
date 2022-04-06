@@ -323,7 +323,7 @@ multi sub USAGE('new' --> Nil)
                 new
 
       voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
-                [--bootvault-key=<path>]
+                [--bootvault-key=<path>] [--vault-header=<path>]
                 new 1fa
 
     Options:
@@ -399,6 +399,8 @@ multi sub USAGE('new' --> Nil)
         Password for LUKS encrypted boot volume
       --bootvault-key=<path>
         Path to LUKS encrypted boot volume key
+      --vault-header=<path>
+        Path to LUKS encrypted volume detached header
 
     Arguments:
       mode      Activate mode
