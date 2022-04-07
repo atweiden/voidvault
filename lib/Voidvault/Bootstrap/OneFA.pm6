@@ -111,27 +111,6 @@ method mkbootbtrfs(::?CLASS:D: --> Nil)
     );
 }
 
-sub mount-subvolume(
-    Str:D :$subvolume! where $Voidvault::Constants::SUBVOLUME-BOOT,
-    Str:D :$vault-device-mapper! where .so,
-    AbsolutePath:D :$chroot-dir! where .so,
-    Str:D :@mount-option
-    --> Nil
-)
-{
-    # C<$mount-dir> is effectively C</> here, in anticipation of mounting
-    # C</mnt/BOOT> - a separate btrfs filesystem - at C</mnt/ROOT/boot>
-    my Str:D $mount-dir = $chroot-dir;
-    mkdir($mount-dir);
-    my Str:D $mount-btrfs-subvolume-cmdline =
-        Voidvault::Utils.build-mount-btrfs-cmdline(
-            :@mount-option,
-            :$vault-device-mapper,
-            :$mount-dir
-        );
-    shell($mount-btrfs-subvolume-cmdline);
-}
-
 method mkvault(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
