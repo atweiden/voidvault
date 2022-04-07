@@ -24,8 +24,8 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create and open boot vault
     self.mkbootvault;
 
-    # create and mount boot btrfs volume
-    self.mkbootbtrfs;
+    # format boot vault ext4 and mount it
+    self.mkbootext4;
 
     # create and open vault, placing detached header in boot vault
     self.mkvault;
@@ -84,31 +84,25 @@ method mkbootvault(::?CLASS:D: --> Nil)
     );
 }
 
-# create and mount btrfs filesystem on opened bootvault
-method mkbootbtrfs(::?CLASS:D: --> Nil)
+# format opened bootvault ext4 and mount
+method mkbootext4(::?CLASS:D: --> Nil)
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir-boot;
-    my DiskType:D $disk-type = $.config.disk-type;
-    my VaultName:D $vault-name = $.config.bootvault-name;
+    my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
+    my VaultName:D $bootvault-name = $.config.bootvault-name;
+    my Str:D $bootvault-device-mapper =
+        sprintf(Q{/dev/mapper/%s}, $bootvault-name);
 
-    my Str:D @kernel-module = qw<btrfs xxhash_generic>;
-    # btrfs manual recommends C<--mixed> for filesystems under 1 GiB
-    my Str:D @mkfs-option = qw<--csum xxhash --mixed>;
-    my Str:D @mount-option = qw<
-        rw
-        noatime
-        compress-force=zstd
-        space_cache=v2
-    >;
-    push(@mount-option, 'ssd') if $disk-type eq 'SSD';
+    # enable fscrypt for no particular reason
+    run(qqw<mkfs.ext4 -O encrypt $bootvault-device-mapper>);
 
-    Voidvault::Utils.mkbtrfs(
-        :$chroot-dir,
-        :$vault-name,
-        :@kernel-module,
-        :@mkfs-option,
-        :@mount-option
-    );
+    my Str:D $mount-ext4-cmdline = qqw<
+        mount
+        --types ext4
+        $bootvault-device-mapper
+        $chroot-dir-boot
+    >.join(' ');
+
+    shell($mount-ext4-cmdline);
 }
 
 method mkvault(::?CLASS:D: --> Nil)
