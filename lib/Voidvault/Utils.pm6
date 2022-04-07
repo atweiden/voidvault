@@ -1154,7 +1154,10 @@ multi sub addkey(
     # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
     AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
     --> Nil
 )
 {
@@ -1163,7 +1166,8 @@ multi sub addkey(
             :non-interactive,
             :$vault-key,
             :$partition-vault,
-            :$vault-pass
+            :$vault-pass,
+            |%opts
         );
 
     # add key to LUKS encrypted volume without prompt for vault password
@@ -1174,7 +1178,10 @@ multi sub addkey(
 multi sub addkey(
     AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass :vault-pass($)
+    VaultPass :vault-pass($),
+    *%opts (
+        Str :vault-header($)
+    )
     --> Nil
 )
 {
@@ -1182,7 +1189,8 @@ multi sub addkey(
         build-cryptsetup-luks-add-key-cmdline(
             :interactive,
             :$vault-key,
-            :$partition-vault
+            :$partition-vault,
+            |%opts
         );
 
     # add key to LUKS encrypted volume, prompt user for vault password
@@ -1196,13 +1204,19 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :interactive($)! where .so,
     # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
     AbsolutePath:D :$vault-key! where .so,
-    Str:D :$partition-vault! where .so
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
     --> Str:D
 )
 {
-    my Str:D $opts = '--iter-time 1';
     my Str:D $spawn-cryptsetup-luks-add-key =
-        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
+        gen-spawn-cryptsetup-luks-add-key(
+            :$vault-key,
+            :$partition-vault,
+            |%opts
+        );
     my Str:D $interact =
         'interact';
     my Str:D $catch-wait-result =
@@ -1229,13 +1243,19 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :non-interactive($)! where .so,
     AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
-    VaultPass:D :$vault-pass! where .so
+    VaultPass:D :$vault-pass! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
     --> Str:D
 )
 {
-    my Str:D $opts = '--iter-time 1';
     my Str:D $spawn-cryptsetup-luks-add-key =
-                "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
+        gen-spawn-cryptsetup-luks-add-key(
+            :$vault-key,
+            :$partition-vault,
+            |%opts
+        );
     my Str:D $sleep =
                 'sleep 0.33';
     my Str:D $expect-enter-send-vault-pass =
@@ -1260,6 +1280,36 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
           %s
         EOS
         EOF
+}
+
+sub gen-spawn-cryptsetup-luks-add-key(
+    AbsolutePath:D :$vault-key! where .so,
+    Str:D :$partition-vault! where .so,
+    *%opts (
+        Str :vault-header($)
+    )
+    --> Str:D
+)
+{
+    my Str:D $opts = build-cryptsetup-luks-add-key-options-cmdline(|%opts);
+    my Str:D $spawn-cryptsetup-luks-add-key =
+        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
+}
+
+multi sub build-cryptsetup-luks-add-key-options-cmdline(
+    AbsolutePath:D :$vault-header! where .so
+    --> Str:D
+)
+{
+    my Str:D $opts = qqw<--header $vault-header --iter-time 1 >.join(' ');
+}
+
+multi sub build-cryptsetup-luks-add-key-options-cmdline(
+    Str :vault-header($)
+    --> Str:D
+)
+{
+    my Str:D $opts = '--iter-time 1';
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
