@@ -121,7 +121,7 @@ has VaultKey:D $.vault-key =
     ?%*ENV<VOIDVAULT_VAULT_KEY>
         ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
         !! sprintf(
-            Q{%s/keys/vault.key},
+            Q{%s/keys/root.key},
             $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
 

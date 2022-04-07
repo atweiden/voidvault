@@ -31,7 +31,7 @@ has BootvaultKey:D $.bootvault-key =
     ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
         ?? gen-bootvault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
         !! sprintf(
-            Q{%s/keys/bootvault.key},
+            Q{%s/keys/boot.key},
             $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
         );
 
@@ -40,7 +40,7 @@ has VaultHeader:D $.vault-header =
     ?%*ENV<VOIDVAULT_VAULT_HEADER>
         ?? gen-vault-header(%*ENV<VOIDVAULT_VAULT_HEADER>)
         !! sprintf(
-            Q{%s/headers/vault.header},
+            Q{%s/headers/root.header},
             $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
 
