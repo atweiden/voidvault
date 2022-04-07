@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Types;
+use Voidvault::Utils;
 unit role Voidvault::Replace::OpenResolv;
 
 my constant $FILE = $Voidvault::Constants::FILE-OPENRESOLV;
@@ -9,9 +10,9 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
-    my Str:D $path = $FILE.substr(1);
+    my RelativePath:D $resource = $FILE.substr(1);
     my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
-    copy(%?RESOURCES{$path}, $file);
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
     replace($file, $disable-ipv6);
 }
 

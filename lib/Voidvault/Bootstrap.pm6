@@ -518,13 +518,13 @@ method genfstab(::?CLASS:D: --> Nil)
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file =
         sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::FILE-FSTAB);
-    my Str:D $path = 'usr/bin/genfstab';
+    my RelativePath:D $resource = 'usr/bin/genfstab';
 
     # install genfstab
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 
     # generate /etc/fstab
-    shell("%?RESOURCES{$path} -U -p $chroot-dir >> $file");
+    shell("%?RESOURCES{$resource} -U -p $chroot-dir >> $file");
 
     # customize /etc/fstab
     self.replace($Voidvault::Constants::FILE-FSTAB);
@@ -618,15 +618,15 @@ method set-hwclock(::?CLASS:D: --> Nil)
 method configure-modprobe(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'etc/modprobe.d/modprobe.conf';
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/modprobe.d/modprobe.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 method configure-modules-load(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'etc/modules-load.d/bbr.conf';
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/modules-load.d/bbr.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 method generate-initramfs(::?CLASS:D: --> Nil)
@@ -790,15 +790,13 @@ method configure-sysctl(::?CLASS:D: --> Nil)
 method configure-nftables(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D @path =
+    my RelativePath:D @resource =
         'etc/nftables.conf',
         'etc/nftables/wireguard/table/inet/filter/forward/wireguard.nft',
         'etc/nftables/wireguard/table/inet/filter/input/wireguard.nft',
         'etc/nftables/wireguard/table/wireguard.nft';
-    @path.map(-> Str:D $path {
-        my Str:D $base-path = $path.IO.dirname;
-        mkdir("$chroot-dir/$base-path");
-        copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    @resource.map(-> RelativePath:D $resource {
+        Voidvault::Utils.install-resource($resource, :$chroot-dir);
     });
 }
 
@@ -812,8 +810,8 @@ multi method configure-openssh(::?CLASS:D: --> Nil)
 multi method configure-openssh(::?CLASS:D: 'ssh_config' --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'etc/ssh/ssh_config';
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/ssh/ssh_config';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 multi method configure-openssh(::?CLASS:D: 'sshd_config' --> Nil)
@@ -830,10 +828,8 @@ multi method configure-openssh(::?CLASS:D: 'moduli' --> Nil)
 method configure-udev(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'etc/udev/rules.d/60-io-schedulers.rules';
-    my Str:D $base-path = $path.IO.dirname;
-    mkdir("$chroot-dir/$base-path");
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/udev/rules.d/60-io-schedulers.rules';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 method configure-hidepid(::?CLASS:D: --> Nil)
@@ -857,8 +853,8 @@ method configure-securetty(::?CLASS:D: --> Nil)
 method configure-shell-timeout(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $path = 'etc/profile.d/shell-timeout.sh';
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/profile.d/shell-timeout.sh';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 method configure-pamd(::?CLASS:D: --> Nil)
@@ -881,10 +877,8 @@ multi sub configure-xorg(
     --> Nil
 )
 {
-    my Str:D $path = 'etc/X11/Xwrapper.config';
-    my Str:D $base-path = $path.IO.dirname;
-    mkdir("$chroot-dir/$base-path");
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/X11/Xwrapper.config';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 multi sub configure-xorg(
@@ -893,10 +887,8 @@ multi sub configure-xorg(
     --> Nil
 )
 {
-    my Str:D $path = 'etc/X11/xorg.conf.d/10-synaptics.conf';
-    my Str:D $base-path = $path.IO.dirname;
-    mkdir("$chroot-dir/$base-path");
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/X11/xorg.conf.d/10-synaptics.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 multi sub configure-xorg(
@@ -905,10 +897,8 @@ multi sub configure-xorg(
     --> Nil
 )
 {
-    my Str:D $path = 'etc/X11/xorg.conf.d/99-security.conf';
-    my Str:D $base-path = $path.IO.dirname;
-    mkdir("$chroot-dir/$base-path");
-    copy(%?RESOURCES{$path}, "$chroot-dir/$path");
+    my RelativePath:D $resource = 'etc/X11/xorg.conf.d/99-security.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
 method configure-rc-local(::?CLASS:D: --> Nil)
