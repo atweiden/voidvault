@@ -11,8 +11,8 @@ also does Voidvault::Config;
 # attributes
 # -----------------------------------------------------------------------------
 
-# original C<$.chroot-dir> before altering
-has AbsolutePath:D $!chroot-dir-orig = $!chroot-dir;
+# C<$.chroot-dir> before altering, becomes C<AbsolutePath:D> upon C<TWEAK>
+has Str $!chroot-dir-orig;
 
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
@@ -63,8 +63,8 @@ method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
 
 multi submethod TWEAK(--> Nil)
 {
-    my AbsolutePath:D $chroot-dir = $!chroot-dir;
-    $!chroot-dir = sprintf(Q{%s/ROOT}, $chroot-dir);
+    $!chroot-dir-orig = $!chroot-dir;
+    $!chroot-dir = sprintf(Q{%s/ROOT}, $!chroot-dir-orig);
 
     # run again on C<$!chroot-dir> for above alteration
     ensure-chroot-dir($!chroot-dir);
