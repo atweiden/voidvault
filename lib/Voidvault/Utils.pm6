@@ -1115,7 +1115,8 @@ multi sub gen-cryptsetup-luks-open(
 method install-vault-key(
     Str:D :$partition-vault where .so,
     # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
-    VaultKey:D :vault-key($vault-key-unprefixed) where .so,
+    # it would be typed as <VaultKey:D> if not for C<BootvaultKey> usage
+    AbsolutePath:D :vault-key($vault-key-unprefixed) where .so,
     AbsolutePath:D :$chroot-dir! where .so,
     *%opts (
         VaultPass :vault-pass($),
