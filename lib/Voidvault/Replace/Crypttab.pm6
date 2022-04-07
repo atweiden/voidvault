@@ -18,7 +18,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
     my Str:D $vault-partuuid =
         qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
 
-    my BootvaultName:D $bootvault-name = $.config.bootvault-name;
+    my VaultName:D $bootvault-name = $.config.bootvault-name;
     my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
     my Str:D $partition-bootvault = self.gen-partition('boot');
     my Str:D $bootvault-uuid =
