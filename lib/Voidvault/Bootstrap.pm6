@@ -648,48 +648,189 @@ method configure-modules-load(::?CLASS:D: --> Nil)
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
-method generate-initramfs(::?CLASS:D: --> Nil)
+multi method generate-initramfs(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
 
     # dracut
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'add_dracutmodules');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'add_drivers');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'compress');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'hostonly');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'install_items');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'omit_dracutmodules');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'persistent_policy');
-    self.replace($Voidvault::Constants::FILE-DRACUT, 'tmpdir');
+    self.generate-initramfs('add_dracutmodules');
+    self.generate-initramfs('add_drivers');
+    self.generate-initramfs('compress');
+    self.generate-initramfs('hostonly');
+    self.generate-initramfs('install_items');
+    self.generate-initramfs('omit_dracutmodules');
+    self.generate-initramfs('persistent_policy');
+    self.generate-initramfs('tmpdir');
     Voidvault::Utils.void-chroot-dracut(:$chroot-dir);
 
     # xbps-reconfigure
     Voidvault::Utils.void-chroot-xbps-reconfigure-linux(:$chroot-dir);
 }
 
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'add_dracutmodules'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'add_drivers'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'compress'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'hostonly'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'install_items'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'omit_dracutmodules'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'persistent_policy'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'tmpdir'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject);
+}
+
 multi method configure-bootloader(::?CLASS:D: --> Nil)
 {
-    self.configure-bootloader('default');
+    my Bool:D $enable-serial-console = $.config.enable-serial-console;
+    self.configure-bootloader('default', 'GRUB_CMDLINE_LINUX_DEFAULT');
+    self.configure-bootloader('default', 'GRUB_DISABLE_OS_PROBER');
+    self.configure-bootloader('default', 'GRUB_DISABLE_RECOVERY');
+    self.configure-bootloader('default', 'GRUB_ENABLE_CRYPTODISK');
+    self.configure-bootloader('default', 'GRUB_TERMINAL_INPUT');
+    self.configure-bootloader('default', 'GRUB_TERMINAL_OUTPUT');
+    self.configure-bootloader('default', 'GRUB_SERIAL_COMMAND')
+        if $enable-serial-console;
     self.configure-bootloader('secure');
 }
 
-# configure /etc/default/grub
-multi method configure-bootloader(::?CLASS:D: 'default' --> Nil)
+multi method configure-bootloader(
+    ::?CLASS:D:
+    # named as such for its role in configuring C</etc/default/grub>
+    'default',
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
+    --> Nil
+)
 {
-    my Bool:D $enable-serial-console = $.config.enable-serial-console;
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_CMDLINE_LINUX_DEFAULT');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_DISABLE_OS_PROBER');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_DISABLE_RECOVERY');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_ENABLE_CRYPTODISK');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_TERMINAL_INPUT');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_TERMINAL_OUTPUT');
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, 'GRUB_SERIAL_COMMAND')
-        if $enable-serial-console;
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_DISABLE_OS_PROBER'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_DISABLE_RECOVERY'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_ENABLE_CRYPTODISK'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_TERMINAL_INPUT'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_TERMINAL_OUTPUT'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_SERIAL_COMMAND'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject);
 }
 
 # allow any user to boot os, but only allow superuser to edit boot
 # entries or access grub command console
-multi method configure-bootloader(::?CLASS:D: 'secure' --> Nil)
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'secure'
+    --> Nil
+)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my UserName:D $user-name-grub = $.config.user-name-grub;
