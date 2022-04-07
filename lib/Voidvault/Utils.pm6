@@ -582,7 +582,7 @@ method ls-timezones(--> Array[Timezone:D])
 # make parent directory of C<$path> with (octal) C<$permissions>
 method mkdir-parent(
     AbsolutePath:D $path where .so,
-    UInt:D $permissions where .so
+    UInt:D $permissions = 0o755
     --> Nil
 )
 {
