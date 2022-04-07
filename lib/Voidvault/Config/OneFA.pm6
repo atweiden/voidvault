@@ -11,6 +11,9 @@ also does Voidvault::Config;
 # attributes
 # -----------------------------------------------------------------------------
 
+# original C<$.chroot-dir> before altering
+has AbsolutePath:D $!chroot-dir-orig = $!chroot-dir;
+
 # name for LUKS encrypted boot volume (default: bootvault)
 has VaultName:D $.bootvault-name =
     %*ENV<VOIDVAULT_BOOTVAULT_NAME>
@@ -49,9 +52,8 @@ has VaultHeader:D $.vault-header =
 # C<$!chroot-dir-boot> is not configurable at instantiation
 method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
 {
-    my AbsolutePath:D $chroot-dir = $.chroot-dir;
     # detached vault header is directly written to pre-existing boot vault
-    my AbsolutePath:D $chroot-dir-boot = sprintf(Q{%s/BOOT}, $chroot-dir);
+    my AbsolutePath:D $chroot-dir-boot = sprintf(Q{%s/BOOT}, $!chroot-dir-orig);
 }
 
 
