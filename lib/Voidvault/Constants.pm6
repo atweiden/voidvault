@@ -137,7 +137,7 @@ constant @PACKAGE-BASE = qw<
 >;
 
 # intended mounting point of EFI System Partition on bootstrapped system
-constant $DIRECTORY-EFI = '/boot/efi';
+constant $DIRECTORY-EFI = '/efi';
 
 # directories selected for btrfs nodatacow treatment
 constant @DIRECTORY-BTRFS-NODATACOW = qw<
