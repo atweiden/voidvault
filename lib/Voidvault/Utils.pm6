@@ -656,8 +656,9 @@ proto method mkvault(
     # pass C<:open> to open vault after creating it
     Bool :open($),
     *%opts (
-        # prefixed C<VaultHeader> path is C<AbsolutePath>
-        AbsolutePath :$vault-header,
+        # prefixed C<VaultHeader> path is C<AbsolutePath>, but
+        # C<$vault-header> is optional here, hence C<Str>
+        Str :$vault-header,
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -683,7 +684,7 @@ multi method mkvault(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
-        AbsolutePath :vault-header($),
+        Str :vault-header($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -704,7 +705,7 @@ multi method mkvault(
     VaultName:D :vault-name($)!,
     Bool :open($),
     *%opts (
-        AbsolutePath :vault-header($),
+        Str :vault-header($),
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -717,7 +718,7 @@ multi sub mkvault(
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Nil
 )
@@ -741,7 +742,7 @@ multi sub mkvault(
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($),
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Nil
 )
@@ -766,7 +767,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
     VaultType:D :$vault-type!,
     Str:D :$partition-vault! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Str:D
 )
@@ -809,7 +810,7 @@ multi sub build-cryptsetup-luks-format-cmdline(
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Str:D
 )
@@ -863,7 +864,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
     Str:D :$partition-vault! where .so,
     # LUKS1 variant is never called with optional C<$vault-header>
     *% (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Str:D
 )
@@ -909,7 +910,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS2',
     Str:D :$partition-vault! where .so,
-    AbsolutePath :vault-header($)
+    Str :vault-header($)
     --> Str:D
 )
 {
@@ -935,7 +936,7 @@ method open-vault(
     VaultName:D :$vault-name! where .so,
     *%opts (
         # prefixed C<VaultHeader> path is C<AbsolutePath>
-        AbsolutePath :vault-header($),
+        Str :vault-header($),
         VaultPass :vault-pass($)
     )
 )
@@ -950,7 +951,7 @@ multi sub open-vault(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Nil
 )
@@ -976,7 +977,7 @@ multi sub open-vault(
     VaultName:D :$vault-name! where .so,
     VaultPass :vault-pass($),
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Nil
 )
@@ -1003,7 +1004,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Str:D
 )
@@ -1024,7 +1025,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        AbsolutePath :vault-header($)
+        Str :vault-header($)
     )
     --> Str:D
 )
@@ -1069,7 +1070,7 @@ multi sub gen-cryptsetup-luks-open(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     # LUKS1 variant is never called with optional C<$vault-header>
-    AbsolutePath :vault-header($)
+    Str :vault-header($)
     --> Str:D
 )
 {
@@ -1099,7 +1100,7 @@ multi sub gen-cryptsetup-luks-open(
     VaultType:D :vault-type($)! where 'LUKS2',
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
-    AbsolutePath :vault-header($)
+    Str :vault-header($)
     --> Str:D
 )
 {
