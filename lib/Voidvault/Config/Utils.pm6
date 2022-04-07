@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Types;
-unit module Voidvault::Config::Utils;
+unit class Voidvault::Config::Utils;
 
 
 # -----------------------------------------------------------------------------
