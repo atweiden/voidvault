@@ -32,6 +32,9 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create and mount btrfs volumes
     self.mkbtrfs;
 
+    # mount boot btrfs volume on root
+    self.mount-rbind-bootbtrfs;
+
     # mount efi boot
     self.mount-efi;
 
@@ -150,6 +153,15 @@ method mkvault(::?CLASS:D: --> Nil)
         :$vault-pass,
         :$vault-header
     );
+}
+
+method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
+    my Str:D $mount-dir = sprintf(Q{%s/boot}, $chroot-dir);
+    mkdir($mount-dir);
+    run(qqw<mount --rbind $chroot-dir-boot $mount-dir>);
 }
 
 method unmount(::?CLASS:D: --> Nil)
