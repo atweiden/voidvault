@@ -13,7 +13,6 @@ New in ?.?.?
 
 - The previous `--partition` cmdline option has become `--device`
 - The previous `ls partitions` command has become `ls devices`
-- The EFI System Partition is now mounted at `/efi`
 - Exit with a helpful error message upon attempting to run `ls devices`,
   `ls keymaps`, `ls locales`, or `ls timezones` with missing requirements
 - To facilitate allowing any user to boot any given GRUB menu entry while only
