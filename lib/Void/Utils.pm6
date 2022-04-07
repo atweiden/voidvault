@@ -86,7 +86,7 @@ sub chroot-setup(Str:D $chroot-dir --> Nil)
         $chroot-dir/sys/firmware/efi/efivars
         --types efivarfs
         --options nodev,noexec,nosuid
-    >) if "$chroot-dir/sys/firmware/efi/efivars".IO.d;
+    >) if "$chroot-dir/sys/firmware/efi/efivars".IO.d.so;
     chroot-add-mount(|qqw<
         udev
         $chroot-dir/dev

@@ -40,7 +40,7 @@ proto sub disable-cow(
     my Str:D $*directory = ~$directory.IO.resolve;
     with $*directory
     {
-        [&&] .IO.e, .IO.r, .IO.d
+        [&&] .IO.e.so, .IO.r.so, .IO.d.so
             or die('directory failed exists readable directory test');
     }
     {*}
@@ -586,7 +586,7 @@ method install-resource(
 )
 {
     my AbsolutePath:D $path = sprintf(Q{%s/%s}, $chroot-dir, $resource);
-    my Bool:D $parent-exists = $path.IO.dirname.IO.d;
+    my Bool:D $parent-exists = $path.IO.dirname.IO.d.so;
     # only attempt to make parent directory if does not exist
     Voidvault::Utils.mkdir-parent($path) unless $parent-exists;
     copy(%?RESOURCES{$resource}, $path);

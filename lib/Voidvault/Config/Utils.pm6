@@ -607,13 +607,13 @@ sub prompt-timezone(--> Timezone:D) is export
 
 # ensure C<$chroot-dir> is existing readable writeable dir, or create it
 multi sub ensure-chroot-dir(
-    AbsolutePath:D $chroot-dir where .so && .IO.e
+    AbsolutePath:D $chroot-dir where .so && .IO.e.so
     --> Nil
 ) is export
 {
-    my Bool:D $is-readable = $chroot-dir.IO.r;
-    my Bool:D $is-directory = $chroot-dir.IO.d;
-    my Bool:D $is-writeable = $chroot-dir.IO.w;
+    my Bool:D $is-readable = $chroot-dir.IO.r.so;
+    my Bool:D $is-directory = $chroot-dir.IO.d.so;
+    my Bool:D $is-writeable = $chroot-dir.IO.w.so;
     [&&] $is-readable, $is-directory, $is-writeable
         or die-chroot-dir(
             $chroot-dir,
