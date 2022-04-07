@@ -1105,8 +1105,8 @@ constant @vault-type = qw<
 # types
 # -----------------------------------------------------------------------------
 
-subset AbsolutePath of Str is export where .IO.is-absolute.so;
-subset RelativePath of Str is export where .IO.is-relative.so;
+subset AbsolutePath of Str is export where .defined && .IO.is-absolute.so;
+subset RelativePath of Str is export where .defined && .IO.is-relative.so;
 
 # hard disk type
 subset DiskType of Str is export where { %disktypes.keys.grep($_) };
