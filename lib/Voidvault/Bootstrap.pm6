@@ -54,6 +54,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-rc-local;
     self.configure-rc-shutdown;
     self.enable-runit-services;
+    self.secure-secret-prefix;
     self.augment if $augment;
     self.unmount;
 }
@@ -946,6 +947,14 @@ method enable-runit-services(::?CLASS:D: --> Nil)
             /etc/runit/runsvdir/default/$service
         >);
     });
+}
+
+method secure-secret-prefix(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $secret-prefix-vault = $Voidvault::Constants::SECRET-PREFIX-VAULT;
+    # remove RWX permissions from group and other classes
+    run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx $secret-prefix-vault>);
 }
 
 # interactive console

@@ -1127,7 +1127,7 @@ method install-vault-key(
     Voidvault::Utils.mkdir-parent($vault-key, 0o700);
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
-    seckey(:vault-key($vault-key-unprefixed), :$chroot-dir);
+    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key-unprefixed>);
 }
 
 # make vault key
@@ -1259,18 +1259,6 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
           %s
         EOS
         EOF
-}
-
-# secure vault key
-sub seckey(
-    # C<$vault-key> must be passed unprefixed
-    VaultKey:D :$vault-key! where .so,
-    AbsolutePath:D :$chroot-dir! where .so
-    --> Nil
-)
-{
-    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key>);
-    run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx /boot>);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
