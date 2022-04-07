@@ -27,7 +27,7 @@ method mkdisk(::?CLASS:D: --> Nil)
     self.mkbootbtrfs;
 
     # mount boot btrfs volume on root
-    self.mount-bind-bootbtrfs;
+    self.mount-rbind-bootbtrfs;
 
     # create and open vault, placing detached header in boot vault
     self.mkvault;
@@ -156,13 +156,13 @@ method mkvault(::?CLASS:D: --> Nil)
     );
 }
 
-method mount-bind-bootbtrfs(::?CLASS:D: --> Nil)
+method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
     my Str:D $mount-dir = sprintf(Q{%s/boot}, $chroot-dir);
     mkdir($mount-dir);
-    run(qqw<mount --bind $chroot-dir-boot $mount-dir>);
+    run(qqw<mount --rbind $chroot-dir-boot $mount-dir>);
 }
 
 method install-vault-key(::?CLASS:D: --> Nil)
