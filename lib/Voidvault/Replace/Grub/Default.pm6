@@ -9,7 +9,9 @@ my constant $FILE = $Voidvault::Constants::FILE-GRUB-DEFAULT;
 multi method replace(
     ::?CLASS:D:
     Str:D $ where $FILE,
-    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
+    # refer to vault by UUID as opposed to PARTUUID
+    Str:D $enable-luks = 'UUID'
     --> Nil
 )
 {
@@ -25,7 +27,7 @@ multi method replace(
     my Str:D @grub-cmdline-linux;
     $default-utils.set-log-level('informational', @grub-cmdline-linux);
     $default-utils.enable-luks(
-        'UUID',
+        $enable-luks,
         @grub-cmdline-linux,
         :$partition-vault,
         :$vault-name

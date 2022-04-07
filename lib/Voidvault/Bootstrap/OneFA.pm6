@@ -164,6 +164,63 @@ method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
     run(qqw<mount --rbind $chroot-dir-boot $mount-dir>);
 }
 
+method install-vault-key(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my VaultPass $vault-pass = $.config.vault-pass;
+    my VaultKey:D $vault-key = $.config.vault-key;
+    my Str:D $partition-vault = self.gen-partition('vault');
+    my VaultPass $bootvault-pass = $.config.bootvault-pass;
+    my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
+    my Str:D $partition-bootvault = self.gen-partition('boot');
+
+    # add key to vault
+    Voidvault::Utils.install-vault-key(
+        :$partition-vault,
+        :$vault-key,
+        :$vault-pass,
+        :$chroot-dir
+    );
+
+    # add key to boot vault
+    Voidvault::Utils.install-vault-key(
+        :partition-vault($partition-bootvault),
+        :vault-key($bootvault-key),
+        :vault-pass($bootvault-pass),
+        :$chroot-dir
+    );
+
+    # configure /etc/crypttab for vault and bootvault keys
+    self.replace($Voidvault::Constants::FILE-CRYPTTAB, '1fa');
+}
+
+multi method generate-initramfs(
+    ::?CLASS:D:
+    Str:D $subject where 'install_items'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-DRACUT, $subject, '1fa');
+}
+
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'default',
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject, 'PARTUUID');
+}
+
+method secure-secret-prefix(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $vault = $Voidvault::Constants::SECRET-PREFIX-VAULT;
+    my Str:D $bootvault = $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT;
+    run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx $vault $bootvault>);
+}
+
 method unmount(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;

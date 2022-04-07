@@ -80,6 +80,27 @@ multi method replace(
 multi method replace(
     ::?CLASS:D:
     Str:D $ where $FILE,
+    Str:D $subject where 'install_items',
+    '1fa'
+    --> Nil
+)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my VaultKey:D $vault-key = $.config.vault-key;
+    my VaultHeader:D $vault-header = $.config.vault-header;
+    my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
+    my Str:D @item = qqw<
+        $vault-key
+        $vault-header
+        /etc/crypttab
+    >;
+    my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @item.join(' '));
+    spurt($file, $replace ~ "\n");
+}
+
+multi method replace(
+    ::?CLASS:D:
+    Str:D $ where $FILE,
     Str:D $subject where 'install_items'
     --> Nil
 )

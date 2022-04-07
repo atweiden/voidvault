@@ -40,6 +40,24 @@ multi method enable-luks(
     push(@grub-cmdline-linux, $_) for @enable-luks;
 }
 
+multi method enable-luks(
+    'PARTUUID',
+    Str:D @grub-cmdline-linux,
+    Str:D :$partition-vault! where .so,
+    Str:D :$vault-name! where .so
+    --> Nil
+)
+{
+    my Str:D $vault-partuuid =
+        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
+    my Str:D @enable-luks = qqw<
+        rd.luks=1
+        rd.luks.partuuid=$vault-partuuid
+        rd.luks.name=$vault-partuuid=$vault-name
+    >;
+    push(@grub-cmdline-linux, $_) for @enable-luks;
+}
+
 method enable-serial-console(
     Str:D @grub-cmdline-linux,
     Str:D $subject where .so
