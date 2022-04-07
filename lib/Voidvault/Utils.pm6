@@ -178,7 +178,7 @@ method build-mount-btrfs-cmdline(
 {
     my Str:D $mount-options-cmdline =
         Voidvault::Utils.build-mount-options-cmdline(:@mount-option);
-    my Str:D $mount-subvolume-cmdline = qqw<
+    my Str:D $mount-btrfs-cmdline = qqw<
         mount
         --types btrfs
         $mount-options-cmdline
