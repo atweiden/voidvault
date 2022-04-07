@@ -66,7 +66,7 @@ multi submethod TWEAK(--> Nil)
 
     # run again on C<$!chroot-dir> for above alteration
     ensure-chroot-dir($!chroot-dir);
-    ensure-chroot-dir($!chroot-dir-boot);
+    ensure-chroot-dir(self.chroot-dir-boot);
 
     # ensure boot vault name differs from vault name
     $!vault-name ne $!bootvault-name
