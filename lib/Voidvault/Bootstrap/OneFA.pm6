@@ -142,10 +142,6 @@ method mkvault(::?CLASS:D: --> Nil)
     my AbsolutePath:D $vault-header =
         sprintf(Q{%s%s}, $chroot-dir, $vault-header-unprefixed);
 
-    # create base directory for vault header
-    my Str:D $base-path = $vault-header.IO.dirname;
-    mkdir($base-path, 0o700);
-
     Voidvault::Utils.mkvault(
         :open,
         :$vault-type,

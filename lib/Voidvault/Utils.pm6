@@ -579,6 +579,17 @@ method ls-timezones(--> Array[Timezone:D])
     my Timezone:D @timezones = |@zoneinfo, 'UTC';
 }
 
+# make parent directory of C<$path> with (octal) C<$permissions>
+method mkdir-parent(
+    AbsolutePath:D $path where .so,
+    UInt:D $permissions where .so
+    --> Nil
+)
+{
+    my Str:D $base-path = $path.IO.dirname;
+    mkdir($base-path, $permissions);
+}
+
 # chroot into C<$chroot-dir> to then C<dracut>
 method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
 {
@@ -632,8 +643,8 @@ proto method mkvault(
     # pass C<:open> to open vault after creating it
     Bool :open($),
     *%opts (
-        # prefixed <VaultHeader> path is <AbsolutePath>
-        AbsolutePath :vault-header($),
+        # prefixed C<VaultHeader> path is C<AbsolutePath>
+        AbsolutePath :$vault-header,
         VaultPass :vault-pass($)
     )
     --> Nil
@@ -641,6 +652,9 @@ proto method mkvault(
 {
     # load kernel modules for cryptsetup
     run(qw<modprobe dm_mod dm-crypt>);
+
+    # create base directory for vault header if necessary
+    Voidvault::Utils.mkdir-parent($vault-header, 0o700) if $vault-header;
 
     # create vault with password
     mkvault(:$vault-type, :$partition-vault, |%opts);
@@ -907,7 +921,7 @@ method open-vault(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
-        # prefixed <VaultHeader> path is <AbsolutePath>
+        # prefixed C<VaultHeader> path is C<AbsolutePath>
         AbsolutePath :vault-header($),
         VaultPass :vault-pass($)
     )
@@ -1097,6 +1111,7 @@ method install-vault-key(
 {
     my AbsolutePath:D $vault-key =
         sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
+    Voidvault::Utils.mkdir-parent($vault-key, 0o700);
     mkkey(:$vault-key);
     addkey(:$vault-key, :$partition-vault, |%opts);
     seckey(:vault-key($vault-key-unprefixed), :$chroot-dir);
@@ -1104,7 +1119,7 @@ method install-vault-key(
 
 # make vault key
 sub mkkey(
-    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
     AbsolutePath:D :$vault-key! where .so
     --> Nil
 )
@@ -1117,14 +1132,12 @@ sub mkkey(
     my IO::Handle:D $fh = $src.IO.open(:bin);
     my Buf:D $buf = $fh.read($bytes);
     $fh.close;
-    my Str:D $base-path = $vault-key.IO.dirname;
-    mkdir($base-path, 0o700);
     spurt($vault-key, $buf);
 }
 
 # LUKS encrypted volume password was given
 multi sub addkey(
-    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
     AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so
@@ -1167,7 +1180,7 @@ multi sub addkey(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :interactive($)! where .so,
-    # requires passing prefixed <VaultKey> path, hence <AbsolutePath>
+    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
     AbsolutePath:D :$vault-key! where .so,
     Str:D :$partition-vault! where .so
     --> Str:D
