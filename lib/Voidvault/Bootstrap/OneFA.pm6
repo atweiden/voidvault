@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Bootstrap;
+use Voidvault::Config::Utils;
 use Voidvault::Constants;
 use Voidvault::Types;
 use Voidvault::Utils;
@@ -32,11 +33,11 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create and mount btrfs volumes
     self.mkbtrfs;
 
-    # mount boot btrfs volume on root
-    self.mount-rbind-bootbtrfs;
-
     # mount efi boot
     self.mount-efi;
+
+    # mount boot btrfs volume on root
+    self.mount-rbind-bootbtrfs;
 
     # disable btrfs copy-on-write on select directories
     self.disable-cow;
@@ -154,6 +155,27 @@ method mkvault(::?CLASS:D: --> Nil)
         :$vault-pass,
         :$vault-header
     );
+}
+
+method mount-efi(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
+    my Str:D $partition-efi = self.gen-partition('efi');
+    my Str:D $directory-efi = do {
+        my Str:D $directory-efi =
+            Voidvault::Config::Utils.chomp-secret-prefix(
+                :vault,
+                $Voidvault::Constants::DIRECTORY-EFI
+            );
+        sprintf(Q{%s%s}, $chroot-dir-boot, $directory-efi);
+    };
+    mkdir($directory-efi);
+    my Str:D $mount-options = qw<
+        nodev
+        noexec
+        nosuid
+    >.join(',');
+    run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
 }
 
 method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
