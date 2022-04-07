@@ -1145,7 +1145,7 @@ subset UserName of Str is export where
 }
 
 # enforce LUKS encrypted vault secret material resides within /boot
-subset VaultSecretPrefix of AbsolutePath where
+subset VaultSecretPrefix of AbsolutePath is export where
 {
     rootpart($_.IO) eq $Voidvault::Constants::SECRET-PREFIX-VAULT.IO;
 }

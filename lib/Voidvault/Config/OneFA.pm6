@@ -62,7 +62,7 @@ method vault-header-chomped(::?CLASS:D: --> AbsolutePath:D)
     # take advantage of the fact <$.vault-header> is typed C<VaultHeader>
     my AbsolutePath:D $vault-header-unprefixed =
         # C<VaultHeader> type validity hinges upon C<SECRET-PREFIX-VAULT>
-        $!vault-header.subst($Voidvault::Constants::SECRET-PREFIX-VAULT, '');
+        Voidvault::Config::Utils.chomp-secret-prefix(:vault, $!vault-header);
 }
 
 

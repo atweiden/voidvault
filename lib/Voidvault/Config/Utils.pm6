@@ -605,6 +605,16 @@ sub prompt-timezone(--> Timezone:D) is export
 # helper functions
 # -----------------------------------------------------------------------------
 
+method chomp-secret-prefix(
+    VaultSecretPrefix:D $prefixed where .so,
+    Bool:D :vault($)! where .so
+    --> AbsolutePath:D
+)
+{
+    my AbsolutePath:D $chomp-secret-prefix =
+        $prefixed.subst($Voidvault::Constants::SECRET-PREFIX-VAULT, '');
+}
+
 # ensure C<$chroot-dir> is existing readable writeable dir, or create it
 multi sub ensure-chroot-dir(
     AbsolutePath:D $chroot-dir where .so && .IO.e.so
