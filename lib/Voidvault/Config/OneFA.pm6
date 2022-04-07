@@ -56,6 +56,15 @@ method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
     my AbsolutePath:D $chroot-dir-boot = sprintf(Q{%s/BOOT}, $!chroot-dir-orig);
 }
 
+# needed before bind mounting boot atop root filesystem
+method vault-header-chomped(::?CLASS:D: --> AbsolutePath:D)
+{
+    # take advantage of the fact <$.vault-header> is typed C<VaultHeader>
+    my AbsolutePath:D $vault-header-unprefixed =
+        # C<VaultHeader> type validity hinges upon C<SECRET-PREFIX-VAULT>
+        $!vault-header.subst($Voidvault::Constants::SECRET-PREFIX-VAULT, '');
+}
+
 
 # -----------------------------------------------------------------------------
 # instantiation

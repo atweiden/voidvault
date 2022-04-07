@@ -26,14 +26,14 @@ method mkdisk(::?CLASS:D: --> Nil)
     # create and mount boot btrfs volume
     self.mkbootbtrfs;
 
-    # mount boot btrfs volume on root
-    self.mount-rbind-bootbtrfs;
-
     # create and open vault, placing detached header in boot vault
     self.mkvault;
 
     # create and mount btrfs volumes
     self.mkbtrfs;
+
+    # mount boot btrfs volume on root
+    self.mount-rbind-bootbtrfs;
 
     # mount efi boot
     self.mount-efi;
@@ -136,14 +136,14 @@ sub mount-subvolume(
 
 method mkvault(::?CLASS:D: --> Nil)
 {
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
     my VaultType:D $vault-type = 'LUKS2';
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
     my AbsolutePath:D $vault-header = do {
-        my VaultHeader:D $vault-header = $.config.vault-header;
-        sprintf(Q{%s%s}, $chroot-dir, $vault-header);
+        my AbsolutePath:D $vault-header-chomped = $.config.vault-header-chomped;
+        sprintf(Q{%s%s}, $chroot-dir-boot, $vault-header-chomped);
     };
 
     Voidvault::Utils.mkvault(
