@@ -909,7 +909,7 @@ multi sub gen-spawn-cryptsetup-luks-format(
 multi sub gen-spawn-cryptsetup-luks-format(
     VaultType:D :vault-type($)! where 'LUKS2',
     Str:D :$partition-vault! where .so,
-    AbsolutePath :vault-header
+    AbsolutePath :vault-header($)
     --> Str:D
 )
 {
