@@ -91,7 +91,6 @@ method mkbootbtrfs(::?CLASS:D: --> Nil)
     my DiskType:D $disk-type = $.config.disk-type;
     my VaultName:D $vault-name = $.config.bootvault-name;
 
-    my Str:D @subvolume = '@boot';
     my Str:D @kernel-module = qw<btrfs xxhash_generic>;
     # btrfs manual recommends C<--mixed> for filesystems under 1 GiB
     my Str:D @mkfs-option = qw<--csum xxhash --mixed>;
@@ -106,8 +105,6 @@ method mkbootbtrfs(::?CLASS:D: --> Nil)
     Voidvault::Utils.mkbtrfs(
         :$chroot-dir,
         :$vault-name,
-        :@subvolume,
-        :&mount-subvolume,
         :@kernel-module,
         :@mkfs-option,
         :@mount-option

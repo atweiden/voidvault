@@ -98,10 +98,13 @@ multi sub disable-cow(
 method mkbtrfs(
     AbsolutePath:D :$chroot-dir! where .so,
     VaultName:D :$vault-name! where .so,
-    # names of btrfs subvolumes to create
-    Str:D :@subvolume!,
-    # function to be called for mounting subvolumes
-    :&mount-subvolume!,
+    # function to be called for mounting optional subvolumes
+    :&mount-subvolume,
+    # names of optional btrfs subvolumes to create
+    Str:D :@subvolume where {
+        # C<&mount-subvolume> must be present with C<@subvolume>
+        .not or &mount-subvolume.so
+    },
     # optional kernel modules to load prior to C<mkfs.btrfs>
     Str:D :@kernel-module,
     # optional options to pass to C<mkfs.btrfs>
@@ -131,7 +134,7 @@ method mkbtrfs(
     # create btrfs subvolumes
     indir($mount-dir, {
         run(qqw<btrfs subvolume create $_>) for @subvolume;
-    });
+    }) if @subvolume;
 
     # mount btrfs subvolumes
     @subvolume.map(-> Str:D $subvolume {
