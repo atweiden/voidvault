@@ -141,9 +141,10 @@ method mkvault(::?CLASS:D: --> Nil)
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
-    my VaultHeader:D $vault-header-unprefixed = $.config.vault-header;
-    my AbsolutePath:D $vault-header =
-        sprintf(Q{%s%s}, $chroot-dir, $vault-header-unprefixed);
+    my AbsolutePath:D $vault-header = do {
+        my VaultHeader:D $vault-header = $.config.vault-header;
+        sprintf(Q{%s%s}, $chroot-dir, $vault-header);
+    };
 
     Voidvault::Utils.mkvault(
         :open,
@@ -167,9 +168,15 @@ method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
 method install-vault-key(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+
     my VaultPass $vault-pass = $.config.vault-pass;
     my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
+    my AbsolutePath:D $vault-header = do {
+        my VaultHeader:D $vault-header = $.config.vault-header;
+        sprintf(Q{%s%s}, $chroot-dir, $vault-header);
+    };
+
     my VaultPass $bootvault-pass = $.config.bootvault-pass;
     my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
     my Str:D $partition-bootvault = self.gen-partition('boot');
@@ -179,7 +186,8 @@ method install-vault-key(::?CLASS:D: --> Nil)
         :$partition-vault,
         :$vault-key,
         :$vault-pass,
-        :$chroot-dir
+        :$chroot-dir,
+        :$vault-header
     );
 
     # add key to boot vault

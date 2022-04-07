@@ -1118,7 +1118,8 @@ method install-vault-key(
     VaultKey:D :vault-key($vault-key-unprefixed) where .so,
     AbsolutePath:D :$chroot-dir! where .so,
     *%opts (
-        VaultPass :vault-pass($)
+        VaultPass :vault-pass($),
+        Str :vault-header($)
     )
     --> Nil
 )
