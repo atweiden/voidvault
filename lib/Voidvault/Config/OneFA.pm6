@@ -62,7 +62,11 @@ method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
 
 multi submethod TWEAK(--> Nil)
 {
-    # run again on C<$!chroot-dir> because C<BUILD> alters it
+    my AbsolutePath:D $chroot-dir = $!chroot-dir;
+    $!chroot-dir = sprintf(Q{%s/ROOT}, $chroot-dir);
+    $!chroot-dir-boot = sprintf(Q{%s/BOOT}, $chroot-dir);
+
+    # run again on C<$!chroot-dir> for above alteration
     ensure-chroot-dir($!chroot-dir);
     ensure-chroot-dir($!chroot-dir-boot);
 
@@ -84,9 +88,6 @@ multi submethod BUILD(
     --> Nil
 )
 {
-    my AbsolutePath:D $chroot-dir = $!chroot-dir;
-    $!chroot-dir = sprintf(Q{%s/ROOT}, $chroot-dir);
-    $!chroot-dir-boot = sprintf(Q{%s/BOOT}, $chroot-dir);
     $!bootvault-name = gen-vault-name($bootvault-name)
         if $bootvault-name;
     $!bootvault-pass = gen-vault-pass($bootvault-pass)
