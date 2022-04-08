@@ -1,5 +1,6 @@
 use v6;
 use Crypt::Libcrypt:auth<atweiden>;
+use Void::Constants;
 use Voidvault::Constants;
 use Voidvault::Types;
 unit module Voidvault::Config::Utils;
