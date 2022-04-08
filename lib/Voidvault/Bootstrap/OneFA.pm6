@@ -184,7 +184,10 @@ method install-vault-key(::?CLASS:D: --> Nil)
         :vault-pass($bootvault-pass),
         :$chroot-dir
     );
+}
 
+multi method configure-crypttab(::?CLASS:D: --> Nil)
+{
     # configure /etc/crypttab for vault and bootvault keys
     self.replace($Voidvault::Constants::FILE-CRYPTTAB, '1fa');
 }

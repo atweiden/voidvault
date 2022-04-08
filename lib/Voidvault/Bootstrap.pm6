@@ -43,6 +43,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.mkdisk;
     self.voidstrap-base;
     self.install-vault-key;
+    self.configure-crypttab;
     self.configure-users;
     self.configure-sudoers;
     self.genfstab;
@@ -350,7 +351,10 @@ method install-vault-key(::?CLASS:D: --> Nil)
         :$vault-pass,
         :$chroot-dir
     );
+}
 
+multi method configure-crypttab(::?CLASS:D: --> Nil)
+{
     # configure /etc/crypttab for vault key
     self.replace($Voidvault::Constants::FILE-CRYPTTAB);
 }

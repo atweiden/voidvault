@@ -92,6 +92,9 @@ Usage:
             [--bootvault-key=<path>] [--vault-header=<path>]
             new 1fa
 
+  voidvault [--bootvault-device=<device>]
+            new 2fa
+
 Options:
   --admin-name=<username>
     User name for admin account
@@ -158,7 +161,7 @@ Options:
   --vault-key=<path>
     Path to LUKS encrypted volume key
 
-Options (1FA):
+Options (1FA/2FA):
   --bootvault-name=<vaultname>
     Name for LUKS encrypted boot volume
   --bootvault-pass=<password>
@@ -167,6 +170,10 @@ Options (1FA):
     Path to LUKS encrypted boot volume key
   --vault-header=<path>
     Path to LUKS encrypted volume detached header
+
+Options (2FA):
+  --bootvault-device=<device>
+    Target block device for encrypted boot volume
 
 Arguments:
   mode      Activate mode
@@ -177,6 +184,10 @@ Mode
   1fa       Make LUKS2 vault with detached header inside LUKS1 boot partition
 
             Make LUKS1 boot partition on same device as LUKS2 vault
+
+  2fa       Make LUKS2 vault with detached header inside LUKS1 boot partition
+
+            Make LUKS1 boot partition on separate device from LUKS2 vault
 EOF
 
 # for checking non-bootstrap command requirements not otherwise checked

@@ -50,9 +50,15 @@ my role Args[Mode:D $ where Mode::<1FA>]
     has Str $.vault-header;
 }
 
+my role Args[Mode:D $ where Mode::<2FA>]
+{
+    also does Args[Mode::<2FA>];
+    has Str $.bootvault-device;
+}
+
 my role Opts
 {
-    # alternative to duplicating code in C<Mode::<1FA>>
+    # alternative to duplicating code in C<Mode::<1FA>>, C<Mode::<2FA>>
     method opts(::?CLASS:D: --> Hash:D)
     {
         # list all attributes (think: C<Voidvault::ConfigArgs::Parser>)
@@ -140,6 +146,14 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
     }
 }
 
+my role ToConfig[Mode:D $ where Mode::<2FA>]
+{
+    method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
+    {
+        Voidvault::Config::TwoFA.new(|self.opts);
+    }
+}
+
 my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::BASE]
 {
     also does Args[Mode::BASE];
@@ -154,6 +168,14 @@ my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<1FA>]
     also does Opts;
     also does Strict;
     also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<2FA>]
+{
+    also does Args[Mode::<2FA>];
+    also does Opts;
+    also does Strict;
+    also does ToConfig[Mode::<2FA>];
 }
 
 class Voidvault::ConfigArgs

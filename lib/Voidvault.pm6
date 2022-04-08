@@ -2,6 +2,7 @@ use v6;
 use Voidvault::Config;
 use Voidvault::Config::Base;
 use Voidvault::Config::OneFA;
+use Voidvault::Config::TwoFA;
 use Voidvault::ConfigArgs;
 use Voidvault::Constants;
 use Voidvault::Types;
@@ -78,6 +79,12 @@ multi sub new(Voidvault::Config::OneFA:D :$config! --> Nil)
 {
     use Voidvault::Bootstrap::OneFA;
     Voidvault::Bootstrap::OneFA.new(:$config).bootstrap;
+}
+
+multi sub new(Voidvault::Config::TwoFA:D :$config! --> Nil)
+{
+    use Voidvault::Bootstrap::TwoFA;
+    Voidvault::Bootstrap::TwoFA.new(:$config).bootstrap;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

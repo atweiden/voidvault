@@ -167,6 +167,11 @@ multi sub gen-mode(Str:D :mode($)! where '1fa' --> Mode:D)
     my Mode:D $mode = Mode::<1FA>;
 }
 
+multi sub gen-mode(Str:D :mode($)! where '2fa' --> Mode:D)
+{
+    my Mode:D $mode = Mode::<2FA>;
+}
+
 multi sub gen-mode(Str:D :$mode! where .so --> Mode:D)
 {
     die("Sorry, invalid mode 「$mode」");
