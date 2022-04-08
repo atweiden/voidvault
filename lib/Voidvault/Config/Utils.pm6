@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Types;
-unit class Voidvault::Config::Utils;
+unit module Voidvault::Config::Utils;
 
 
 # -----------------------------------------------------------------------------
@@ -820,11 +820,11 @@ sub prompt-timezone(--> Timezone:D) is export
 # helper functions
 # -----------------------------------------------------------------------------
 
-method chomp-secret-prefix(
+sub chomp-secret-prefix(
     VaultSecretPrefix:D $prefixed where .so,
     Bool:D :vault($)! where .so
     --> AbsolutePath:D
-)
+) is export
 {
     my AbsolutePath:D $chomp-secret-prefix =
         $prefixed.subst($Voidvault::Constants::SECRET-PREFIX-VAULT, '');

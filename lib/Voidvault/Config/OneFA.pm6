@@ -57,12 +57,19 @@ method chroot-dir-boot(::?CLASS:D: --> AbsolutePath:D)
 }
 
 # needed before bind mounting boot atop root filesystem
+method directory-efi-chomped(::?CLASS:D: --> AbsolutePath:D)
+{
+    my AbsolutePath:D $directory-efi-chomped =
+        chomp-secret-prefix(:vault, $Voidvault::Constants::DIRECTORY-EFI);
+}
+
+# needed before bind mounting boot atop root filesystem
 method vault-header-chomped(::?CLASS:D: --> AbsolutePath:D)
 {
     # take advantage of the fact <$.vault-header> is typed C<VaultHeader>
-    my AbsolutePath:D $vault-header-unprefixed =
+    my AbsolutePath:D $vault-header-chomped =
         # C<VaultHeader> type validity hinges upon C<SECRET-PREFIX-VAULT>
-        Voidvault::Config::Utils.chomp-secret-prefix(:vault, $!vault-header);
+        chomp-secret-prefix(:vault, $!vault-header);
 }
 
 

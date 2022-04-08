@@ -131,12 +131,8 @@ method mount-efi(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
     my Str:D $partition-efi = self.gen-partition('efi');
-    my Str:D $directory-efi = do {
-        my Str:D $directory-efi =
-            Voidvault::Config::Utils.chomp-secret-prefix(
-                :vault,
-                $Voidvault::Constants::DIRECTORY-EFI
-            );
+    my AbsolutePath:D $directory-efi = do {
+        my AbsolutePath:D $directory-efi = $.config.directory-efi-chomped;
         sprintf(Q{%s%s}, $chroot-dir-boot, $directory-efi);
     };
     mkdir($directory-efi);
