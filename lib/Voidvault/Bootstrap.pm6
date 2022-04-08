@@ -866,26 +866,6 @@ multi method configure-bootloader(
     );
 }
 
-method install-bootloader(::?CLASS:D: --> Nil)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $device = $.config.device;
-    install-bootloader(:legacy, $device, :$chroot-dir);
-    install-bootloader(:uefi, 32, $device, :$chroot-dir) if $*KERNEL.bits == 32;
-    install-bootloader(:uefi, 64, $device, :$chroot-dir) if $*KERNEL.bits == 64;
-    mkdir("$chroot-dir/boot/grub/locale");
-    copy(
-        "$chroot-dir/usr/share/locale/en@quot/LC_MESSAGES/grub.mo",
-        "$chroot-dir/boot/grub/locale/en.mo"
-    );
-    run(qqw<
-        void-chroot
-        $chroot-dir
-        grub-mkconfig
-        --output=/boot/grub/grub.cfg
-    >);
-}
-
 multi method install-bootloader(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
