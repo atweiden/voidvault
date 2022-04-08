@@ -88,10 +88,12 @@ multi method replace(
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my VaultKey:D $vault-key = $.config.vault-key;
     my VaultHeader:D $vault-header = $.config.vault-header;
+    my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @item = qqw<
         $vault-key
         $vault-header
+        $bootvault-key
         /etc/crypttab
         /usr/bin/cryptsetup
     >;
