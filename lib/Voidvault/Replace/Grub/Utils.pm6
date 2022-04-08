@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Types;
+use Voidvault::Utils;
 unit role Voidvault::Replace::Grub::Utils;
 
 my constant $FILE = $Voidvault::Constants::FILE-GRUB-DEFAULT;
