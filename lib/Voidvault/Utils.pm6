@@ -451,6 +451,19 @@ multi sub groupadd(
     });
 }
 
+method install-resource(
+    # unprefixed, relative path to resource for copy
+    RelativePath:D $resource where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+)
+{
+    my AbsolutePath:D $path = sprintf(Q{%s/%s}, $chroot-dir, $resource);
+    my Bool:D $parent-exists = $path.IO.dirname.IO.d.so;
+    # only attempt to make parent directory if does not exist
+    Voidvault::Utils.mkdir-parent($path) unless $parent-exists;
+    copy(%?RESOURCES{$resource}, $path);
+}
+
 # execute shell process and re-attempt on failure
 method loop-cmdline-proc(
     Str:D $message where .so,
@@ -580,19 +593,6 @@ method ls-timezones(--> Array[Timezone:D])
         .map({ .split(/\h+/)[2] })
         .sort;
     my Timezone:D @timezones = |@zoneinfo, 'UTC';
-}
-
-method install-resource(
-    # unprefixed, relative path to resource for copy
-    RelativePath:D $resource where .so,
-    AbsolutePath:D :$chroot-dir! where .so
-)
-{
-    my AbsolutePath:D $path = sprintf(Q{%s/%s}, $chroot-dir, $resource);
-    my Bool:D $parent-exists = $path.IO.dirname.IO.d.so;
-    # only attempt to make parent directory if does not exist
-    Voidvault::Utils.mkdir-parent($path) unless $parent-exists;
-    copy(%?RESOURCES{$resource}, $path);
 }
 
 # make parent directory of C<$path> with (octal) C<$permissions>
