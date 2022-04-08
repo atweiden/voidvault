@@ -30,8 +30,7 @@ multi method enable-luks(
     --> Nil
 )
 {
-    my Str:D $vault-uuid =
-        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
+    my Str:D $vault-uuid = Voidvault::Utils.uuid($partition-vault);
     my Str:D @enable-luks = qqw<
         rd.luks=1
         rd.luks.uuid=$vault-uuid
@@ -48,8 +47,7 @@ multi method enable-luks(
     --> Nil
 )
 {
-    my Str:D $vault-partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
+    my Str:D $vault-partuuid = Voidvault::Utils.partuuid($partition-vault);
     my Str:D @enable-luks = qqw<
         rd.luks=1
         rd.luks.partuuid=$vault-partuuid

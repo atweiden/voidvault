@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Types;
+use Voidvault::Utils;
 unit role Voidvault::Replace::Crypttab;
 
 my constant $FILE = $Voidvault::Constants::FILE-CRYPTTAB;
@@ -15,14 +16,12 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
     my VaultKey:D $vault-key = $.config.vault-key;
     my VaultHeader:D $vault-header = $.config.vault-header;
     my Str:D $partition-vault = self.gen-partition('vault');
-    my Str:D $vault-partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
+    my Str:D $vault-partuuid = Voidvault::Utils.partuuid($partition-vault);
 
     my VaultName:D $bootvault-name = $.config.bootvault-name;
     my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
     my Str:D $partition-bootvault = self.gen-partition('boot');
-    my Str:D $bootvault-uuid =
-        qqx<blkid --match-tag UUID --output value $partition-bootvault>.trim;
+    my Str:D $bootvault-uuid = Voidvault::Utils.uuid($partition-bootvault);
 
     my Str:D $key = qq:to/EOF/;
     $vault-name   PARTUUID=$vault-partuuid   $vault-key   luks,force,header=$vault-header
@@ -39,8 +38,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultKey:D $vault-key = $.config.vault-key;
     my Str:D $partition-vault = self.gen-partition('vault');
-    my Str:D $vault-uuid =
-        qqx<blkid --match-tag UUID --output value $partition-vault>.trim;
+    my Str:D $vault-uuid = Voidvault::Utils.uuid($partition-vault);
 
     my Str:D $key = qq:to/EOF/;
     $vault-name   UUID=$vault-uuid   $vault-key   luks

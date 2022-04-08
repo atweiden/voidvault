@@ -380,6 +380,18 @@ method mkdir-parent(
     mkdir($parent, $permissions);
 }
 
+method partuuid(Str:D $partition --> Str:D)
+{
+    my Str:D $partuuid =
+        qqx<blkid --match-tag PARTUUID --output value $partition>.trim;
+}
+
+method uuid(Str:D $partition --> Str:D)
+{
+    my Str:D $uuid =
+        qqx<blkid --match-tag UUID --output value $partition>.trim;
+}
+
 # chroot into C<$chroot-dir> to then C<dracut>
 method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
 {
