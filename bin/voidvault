@@ -1,6 +1,7 @@
 #!/usr/bin/env raku
 use v6;
 use Voidvault;
+use Voidvault::Config::Utils;
 use Voidvault::ConfigArgs::Constants;
 use Voidvault::ConfigArgs::Utils;
 use Voidvault::Utils;
@@ -44,7 +45,7 @@ multi sub MAIN(
 )
 {
     Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH-GRUB);
-    say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
+    say(gen-pass-hash($pass, :$grub));
 }
 
 multi sub MAIN(
@@ -55,7 +56,7 @@ multi sub MAIN(
 )
 {
     Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH);
-    say(Voidvault::Utils.gen-pass-hash($pass, :$grub));
+    say(gen-pass-hash($pass, :$grub));
 }
 
 multi sub MAIN(
@@ -66,7 +67,7 @@ multi sub MAIN(
 )
 {
     Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH-GRUB);
-    say(Voidvault::Utils.prompt-pass-hash(:$grub));
+    say(prompt-pass-hash(:$grub));
 }
 
 multi sub MAIN(
@@ -77,7 +78,7 @@ multi sub MAIN(
 )
 {
     Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH);
-    say(Voidvault::Utils.prompt-pass-hash);
+    say(prompt-pass-hash);
 }
 
 

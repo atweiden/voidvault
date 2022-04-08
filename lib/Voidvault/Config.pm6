@@ -46,8 +46,8 @@ has Str:D $.user-pass-hash-admin =
     %*ENV<VOIDVAULT_ADMIN_PASS_HASH>
         ?? %*ENV<VOIDVAULT_ADMIN_PASS_HASH>
         !! %*ENV<VOIDVAULT_ADMIN_PASS>
-            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_ADMIN_PASS>)
-            !! Voidvault::Utils.prompt-pass-hash($!user-name-admin);
+            ?? gen-pass-hash(%*ENV<VOIDVAULT_ADMIN_PASS>)
+            !! prompt-pass-hash($!user-name-admin);
 
 # name for guest user (default: guest)
 has UserName:D $.user-name-guest =
@@ -60,8 +60,8 @@ has Str:D $.user-pass-hash-guest =
     %*ENV<VOIDVAULT_GUEST_PASS_HASH>
         ?? %*ENV<VOIDVAULT_GUEST_PASS_HASH>
         !! %*ENV<VOIDVAULT_GUEST_PASS>
-            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_GUEST_PASS>)
-            !! Voidvault::Utils.prompt-pass-hash($!user-name-guest);
+            ?? gen-pass-hash(%*ENV<VOIDVAULT_GUEST_PASS>)
+            !! prompt-pass-hash($!user-name-guest);
 
 # name for sftp user (default: variable)
 has UserName:D $.user-name-sftp =
@@ -74,16 +74,16 @@ has Str:D $.user-pass-hash-sftp =
     %*ENV<VOIDVAULT_SFTP_PASS_HASH>
         ?? %*ENV<VOIDVAULT_SFTP_PASS_HASH>
         !! %*ENV<VOIDVAULT_SFTP_PASS>
-            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_SFTP_PASS>)
-            !! Voidvault::Utils.prompt-pass-hash($!user-name-sftp);
+            ?? gen-pass-hash(%*ENV<VOIDVAULT_SFTP_PASS>)
+            !! prompt-pass-hash($!user-name-sftp);
 
 # sha512 password hash for root user
 has Str:D $.user-pass-hash-root =
     %*ENV<VOIDVAULT_ROOT_PASS_HASH>
         ?? %*ENV<VOIDVAULT_ROOT_PASS_HASH>
         !! %*ENV<VOIDVAULT_ROOT_PASS>
-            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_ROOT_PASS>)
-            !! Voidvault::Utils.prompt-pass-hash('root');
+            ?? gen-pass-hash(%*ENV<VOIDVAULT_ROOT_PASS>)
+            !! prompt-pass-hash('root');
 
 # name for grub user (default: grub)
 has UserName:D $.user-name-grub =
@@ -96,8 +96,8 @@ has Str:D $.user-pass-hash-grub =
     %*ENV<VOIDVAULT_GRUB_PASS_HASH>
         ?? %*ENV<VOIDVAULT_GRUB_PASS_HASH>
         !! %*ENV<VOIDVAULT_GRUB_PASS>
-            ?? Voidvault::Utils.gen-pass-hash(%*ENV<VOIDVAULT_GRUB_PASS>, :grub)
-            !! Voidvault::Utils.prompt-pass-hash(
+            ?? gen-pass-hash(%*ENV<VOIDVAULT_GRUB_PASS>, :grub)
+            !! prompt-pass-hash(
                 $!user-name-grub,
                 :grub,
                 :@!repository,
@@ -282,23 +282,23 @@ proto submethod BUILD(
         if $guest-name;
     $!user-name-sftp = gen-user-name($sftp-name)
         if $sftp-name;
-    $!user-pass-hash-admin = Voidvault::Utils.gen-pass-hash($admin-pass)
+    $!user-pass-hash-admin = gen-pass-hash($admin-pass)
         if $admin-pass;
     $!user-pass-hash-admin = $admin-pass-hash
         if $admin-pass-hash;
-    $!user-pass-hash-grub =
-        Voidvault::Utils.gen-pass-hash($grub-pass, :grub) if $grub-pass;
+    $!user-pass-hash-grub = gen-pass-hash($grub-pass, :grub)
+        if $grub-pass;
     $!user-pass-hash-grub = $grub-pass-hash
         if $grub-pass-hash;
-    $!user-pass-hash-guest = Voidvault::Utils.gen-pass-hash($guest-pass)
+    $!user-pass-hash-guest = gen-pass-hash($guest-pass)
         if $guest-pass;
     $!user-pass-hash-guest = $guest-pass-hash
         if $guest-pass-hash;
-    $!user-pass-hash-root = Voidvault::Utils.gen-pass-hash($root-pass)
+    $!user-pass-hash-root = gen-pass-hash($root-pass)
         if $root-pass;
     $!user-pass-hash-root = $root-pass-hash
         if $root-pass-hash;
-    $!user-pass-hash-sftp = Voidvault::Utils.gen-pass-hash($sftp-pass)
+    $!user-pass-hash-sftp = gen-pass-hash($sftp-pass)
         if $sftp-pass;
     $!user-pass-hash-sftp = $sftp-pass-hash
         if $sftp-pass-hash;
