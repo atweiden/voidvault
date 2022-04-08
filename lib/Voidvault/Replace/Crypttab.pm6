@@ -15,8 +15,6 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
     my VaultKey:D $vault-key = $.config.vault-key;
     my VaultHeader:D $vault-header = $.config.vault-header;
     my Str:D $partition-vault = self.gen-partition('vault');
-    my Str:D $vault-partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition-vault>.trim;
 
     my VaultName:D $bootvault-name = $.config.bootvault-name;
     my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
@@ -25,7 +23,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
         qqx<blkid --match-tag UUID --output value $partition-bootvault>.trim;
 
     my Str:D $key = qq:to/EOF/;
-    $vault-name   PARTUUID=$vault-partuuid   $vault-key   luks,force,header=$vault-header
+    $vault-name   $partition-vault   $vault-key   luks,force,header=$vault-header
     $bootvault-name   UUID=$bootvault-uuid   $bootvault-key   luks
     EOF
     spurt($file, "\n" ~ $key, :append);
