@@ -93,6 +93,7 @@ multi method replace(
         $vault-key
         $vault-header
         /etc/crypttab
+        /usr/bin/cryptsetup
     >;
     my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @item.join(' '));
     spurt($file, $replace ~ "\n");
