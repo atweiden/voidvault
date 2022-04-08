@@ -851,6 +851,21 @@ multi method configure-bootloader(
     spurt("$chroot-dir/etc/grub.d/40_custom", $grub-superusers, :append);
 }
 
+# set locale for grub
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'locale'
+    --> Nil
+)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    mkdir("$chroot-dir/boot/grub/locale");
+    copy(
+        "$chroot-dir/usr/share/locale/en@quot/LC_MESSAGES/grub.mo",
+        "$chroot-dir/boot/grub/locale/en.mo"
+    );
+}
+
 method install-bootloader(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
@@ -869,21 +884,6 @@ method install-bootloader(::?CLASS:D: --> Nil)
         grub-mkconfig
         --output=/boot/grub/grub.cfg
     >);
-}
-
-# set locale for grub
-multi method configure-bootloader(
-    ::?CLASS:D:
-    'locale'
-    --> Nil
-)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    mkdir("$chroot-dir/boot/grub/locale");
-    copy(
-        "$chroot-dir/usr/share/locale/en@quot/LC_MESSAGES/grub.mo",
-        "$chroot-dir/boot/grub/locale/en.mo"
-    );
 }
 
 multi method install-bootloader(::?CLASS:D: --> Nil)
