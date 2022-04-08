@@ -46,6 +46,38 @@ method sgdisk(::?CLASS:D: --> Nil)
     >, $device);
 }
 
+multi method install-bootloader(
+    ::?CLASS:D:
+    Bool:D :legacy($)! where .so
+    --> Nil
+)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $bootvault-device = $.config.bootvault-device;
+    Voidvault::Utils.void-chroot-grub-install(
+        :legacy,
+        :device($bootvault-device),
+        :$chroot-dir
+    );
+}
+
+multi method install-bootloader(
+    ::?CLASS:D:
+    Int:D $kernel-bits,
+    Bool:D :uefi($)! where .so
+    --> Nil
+)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $bootvault-device = $.config.bootvault-device;
+    Voidvault::Utils.void-chroot-grub-install(
+        :uefi,
+        :device($bootvault-device),
+        :$chroot-dir,
+        $kernel-bits
+    );
+}
+
 
 # -----------------------------------------------------------------------------
 # helper functions

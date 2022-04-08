@@ -38,6 +38,7 @@
         "Voidvault::Replace::Dhcpcd"          : "lib/Voidvault/Replace/Dhcpcd.pm6",
         "Voidvault::Replace::DnscryptProxy"   : "lib/Voidvault/Replace/DnscryptProxy.pm6",
         "Voidvault::Replace::Dracut"          : "lib/Voidvault/Replace/Dracut.pm6",
+        "Voidvault::Replace::EFI::Startup"    : "lib/Voidvault/Replace/EFI/Startup.pm6",
         "Voidvault::Replace::Fstab"           : "lib/Voidvault/Replace/Fstab.pm6",
         "Voidvault::Replace::Grub::Default"   : "lib/Voidvault/Replace/Grub/Default.pm6",
         "Voidvault::Replace::Grub::Linux"     : "lib/Voidvault/Replace/Grub/Linux.pm6",

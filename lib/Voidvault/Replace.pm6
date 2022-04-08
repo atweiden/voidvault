@@ -4,6 +4,7 @@ use Voidvault::Replace::Crypttab;
 use Voidvault::Replace::Dhcpcd;
 use Voidvault::Replace::DnscryptProxy;
 use Voidvault::Replace::Dracut;
+use Voidvault::Replace::EFI::Startup;
 use Voidvault::Replace::Fstab;
 use Voidvault::Replace::Grub::Default;
 use Voidvault::Replace::Grub::Linux;
@@ -36,6 +37,11 @@ role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-DNSCRYPT-PROXY
 role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-DRACUT]
 {
     also does Voidvault::Replace::Dracut;
+}
+
+role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-EFI-STARTUP]
+{
+    also does Voidvault::Replace::EFI::Startup;
 }
 
 role Voidvault::Replace[Str:D $ where $Voidvault::Constants::FILE-FSTAB]

@@ -399,6 +399,58 @@ method void-chroot-dracut(AbsolutePath:D :$chroot-dir! where .so --> Nil)
     run(qqw<void-chroot $chroot-dir dracut --force --kver $linux-version>);
 }
 
+# chroot into C<$chroot-dir> to then C<grub-install>
+multi method void-chroot-grub-install(
+    # legacy bios
+    Bool:D :legacy($)! where .so,
+    Str:D :$device! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
+{
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-install
+        --target=i386-pc
+        --recheck
+    >, $device);
+}
+
+multi method void-chroot-grub-install(
+    Int:D $kernel-bits,
+    Bool:D :uefi($)! where .so,
+    Str:D :$device! where .so,
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Nil
+)
+{
+    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
+    my Str:D $uefi-target = gen-grub-install-uefi-target($kernel-bits);
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-install
+        --target=$uefi-target
+        --efi-directory=$directory-efi
+        --removable
+    >, $device);
+}
+
+multi sub gen-grub-install-uefi-target(32 --> Str:D) { 'i386-efi' }
+multi sub gen-grub-install-uefi-target(64 --> Str:D) { 'x86_64-efi' }
+
+# chroot into C<$chroot-dir> to then C<grub-mkconfig>
+method void-chroot-grub-mkconfig(AbsolutePath:D :$chroot-dir! where .so --> Nil)
+{
+    run(qqw<
+        void-chroot
+        $chroot-dir
+        grub-mkconfig
+        --output=/boot/grub/grub.cfg
+    >);
+}
+
 # chroot into C<$chroot-dir> to then C<mkdir> there with C<$permissions>
 method void-chroot-mkdir(
     Str:D :$user! where .so,

@@ -7,10 +7,14 @@ constant $SECRET-PREFIX-VAULT = '/boot';
 # store boot vault keys and detached headers in this directory
 constant $SECRET-PREFIX-BOOTVAULT = '/root';
 
+# intended mounting point of EFI System Partition on bootstrapped system
+constant $DIRECTORY-EFI = '/boot/efi';
+
 constant $FILE-CRYPTTAB = '/etc/crypttab';
 constant $FILE-DHCPCD = '/etc/dhcpcd.conf';
 constant $FILE-DNSCRYPT-PROXY = '/etc/dnscrypt-proxy.toml';
 constant $FILE-DRACUT = '/etc/dracut.conf.d';
+constant $FILE-EFI-STARTUP = sprintf(Q{%s/startup.nsh}, $DIRECTORY-EFI);
 constant $FILE-FSTAB = '/etc/fstab';
 constant $FILE-GRUB-DEFAULT = '/etc/default/grub';
 constant $FILE-GRUB-LINUX = '/etc/grub.d/10_linux';
@@ -135,9 +139,6 @@ constant @PACKAGE-BASE = qw<
     zramen
     zstd
 >;
-
-# intended mounting point of EFI System Partition on bootstrapped system
-constant $DIRECTORY-EFI = '/boot/efi';
 
 # directories selected for btrfs nodatacow treatment
 constant @DIRECTORY-BTRFS-NODATACOW = qw<

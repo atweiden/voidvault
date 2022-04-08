@@ -11,6 +11,7 @@ also does Voidvault::Replace[$Voidvault::Constants::FILE-CRYPTTAB];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DHCPCD];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DNSCRYPT-PROXY];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DRACUT];
+also does Voidvault::Replace[$Voidvault::Constants::FILE-EFI-STARTUP];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-FSTAB];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-GRUB-DEFAULT];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-GRUB-LINUX];
@@ -755,6 +756,7 @@ multi method configure-bootloader(::?CLASS:D: --> Nil)
     self.configure-bootloader('default', 'GRUB_SERIAL_COMMAND')
         if $enable-serial-console;
     self.configure-bootloader('secure');
+    self.configure-bootloader('locale');
 }
 
 multi method configure-bootloader(
@@ -869,79 +871,58 @@ method install-bootloader(::?CLASS:D: --> Nil)
     >);
 }
 
-multi sub install-bootloader(
-    Str:D $device,
-    AbsolutePath:D :$chroot-dir! where .so,
+# set locale for grub
+multi method configure-bootloader(
+    ::?CLASS:D:
+    'locale'
+    --> Nil
+)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    mkdir("$chroot-dir/boot/grub/locale");
+    copy(
+        "$chroot-dir/usr/share/locale/en@quot/LC_MESSAGES/grub.mo",
+        "$chroot-dir/boot/grub/locale/en.mo"
+    );
+}
+
+multi method install-bootloader(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Int:D $kernel-bits = $*KERNEL.bits;
+    self.install-bootloader(:legacy);
+    self.install-bootloader(:uefi, $kernel-bits);
+    Voidvault::Utils.void-chroot-grub-mkconfig(:$chroot-dir);
+    # fix virtualbox uefi
+    self.replace($Voidvault::Constants::FILE-EFI-STARTUP, $kernel-bits);
+}
+
+multi method install-bootloader(
+    ::?CLASS:D:
     Bool:D :legacy($)! where .so
     --> Nil
 )
 {
-    # legacy bios
-    run(qqw<
-        void-chroot
-        $chroot-dir
-        grub-install
-        --target=i386-pc
-        --recheck
-    >, $device);
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $device = $.config.device;
+    Voidvault::Utils.void-chroot-grub-install(:legacy, :$device, :$chroot-dir);
 }
 
-multi sub install-bootloader(
-    32,
-    Str:D $device,
-    AbsolutePath:D :$chroot-dir! where .so,
+multi method install-bootloader(
+    ::?CLASS:D:
+    Int:D $kernel-bits,
     Bool:D :uefi($)! where .so
     --> Nil
 )
 {
-    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
-
-    # uefi - i686
-    run(qqw<
-        void-chroot
-        $chroot-dir
-        grub-install
-        --target=i386-efi
-        --efi-directory=$directory-efi
-        --removable
-    >, $device);
-
-    # fix virtualbox uefi
-    my Str:D $nsh = q:to/EOF/;
-    fs0:
-    \EFI\BOOT\BOOTIA32.EFI
-    EOF
-    my Str:D $file = sprintf(Q{%s%s/startup.nsh}, $chroot-dir, $directory-efi);
-    spurt($file, $nsh, :append);
-}
-
-multi sub install-bootloader(
-    64,
-    Str:D $device,
-    AbsolutePath:D :$chroot-dir! where .so,
-    Bool:D :uefi($)! where .so
-    --> Nil
-)
-{
-    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
-
-    # uefi - x86_64
-    run(qqw<
-        void-chroot
-        $chroot-dir
-        grub-install
-        --target=x86_64-efi
-        --efi-directory=$directory-efi
-        --removable
-    >, $device);
-
-    # fix virtualbox uefi
-    my Str:D $nsh = q:to/EOF/;
-    fs0:
-    \EFI\BOOT\BOOTX64.EFI
-    EOF
-    my Str:D $file = sprintf(Q{%s%s/startup.nsh}, $chroot-dir, $directory-efi);
-    spurt($file, $nsh, :append);
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $device = $.config.device;
+    Voidvault::Utils.void-chroot-grub-install(
+        :uefi,
+        :$device,
+        :$chroot-dir,
+        $kernel-bits
+    );
 }
 
 method configure-sysctl(::?CLASS:D: --> Nil)
