@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Config::OneFA;
-unit class Voidvault::Config::TwoFA;
-also is Voidvault::Config::OneFA;
+unit role Voidvault::Config::TwoFA;
+also does Voidvault::Config::OneFA;
 
 
 # -----------------------------------------------------------------------------

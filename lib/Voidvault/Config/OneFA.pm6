@@ -3,7 +3,7 @@ use Voidvault::Config;
 use Voidvault::Config::Utils;
 use Voidvault::Constants;
 use Voidvault::Types;
-unit class Voidvault::Config::OneFA;
+unit role Voidvault::Config::OneFA;
 also does Voidvault::Config;
 
 

@@ -3,8 +3,8 @@ use Voidvault::Bootstrap::OneFA;
 use Voidvault::Constants;
 use Voidvault::Types;
 use Voidvault::Utils;
-unit class Voidvault::Bootstrap::TwoFA;
-also is Voidvault::Bootstrap::OneFA;
+unit role Voidvault::Bootstrap::TwoFA;
+also does Voidvault::Bootstrap::OneFA;
 
 
 # -----------------------------------------------------------------------------
