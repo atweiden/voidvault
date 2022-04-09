@@ -46,6 +46,7 @@ multi submethod BUILD(
     Str :$bootvault-pass,
     Str :$bootvault-key,
     Str :$vault-header,
+    Str :$bootvault-device,
     *%
     --> Nil
 )
