@@ -40,7 +40,7 @@ my role Args[Mode:D $ where Mode::BASE]
     has Str $.vault-key;
 }
 
-my role Args[Mode:D $ where Mode::<1FA>]
+my role Args[Mode:D $ where Mode::ONEFA]
 {
     also does Args[Mode::BASE];
     has Str $.bootvault-name;
@@ -49,15 +49,15 @@ my role Args[Mode:D $ where Mode::<1FA>]
     has Str $.vault-header;
 }
 
-my role Args[Mode:D $ where Mode::<2FA>]
+my role Args[Mode:D $ where Mode::TWOFA]
 {
-    also does Args[Mode::<2FA>];
+    also does Args[Mode::TWOFA];
     has Str $.bootvault-device;
 }
 
 my role Opts
 {
-    # alternative to duplicating code in C<Mode::<1FA>>, C<Mode::<2FA>>
+    # alternative to duplicating code in C<Mode::ONEFA>, C<Mode::TWOFA>
     method opts(::?CLASS:D: --> Hash:D)
     {
         # list all attributes (think: C<Voidvault::ConfigArgs::Parser>)
@@ -137,7 +137,7 @@ my role ToConfig[Mode:D $ where Mode::BASE]
     }
 }
 
-my role ToConfig[Mode:D $ where Mode::<1FA>]
+my role ToConfig[Mode:D $ where Mode::ONEFA]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
@@ -145,7 +145,7 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
     }
 }
 
-my role ToConfig[Mode:D $ where Mode::<2FA>]
+my role ToConfig[Mode:D $ where Mode::TWOFA]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
@@ -161,20 +161,20 @@ my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::BASE]
     also does ToConfig[Mode::BASE];
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<1FA>]
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::ONEFA]
 {
-    also does Args[Mode::<1FA>];
+    also does Args[Mode::ONEFA];
     also does Opts;
     also does Strict;
-    also does ToConfig[Mode::<1FA>];
+    also does ToConfig[Mode::ONEFA];
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<2FA>]
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::TWOFA]
 {
-    also does Args[Mode::<2FA>];
+    also does Args[Mode::TWOFA];
     also does Opts;
     also does Strict;
-    also does ToConfig[Mode::<2FA>];
+    also does ToConfig[Mode::TWOFA];
 }
 
 class Voidvault::ConfigArgs

@@ -1130,7 +1130,7 @@ subset LibcFlavor of Str is export where { @libc.grep($_) };
 subset Locale of Str is export where { %locales.keys.grep($_) };
 
 # mode
-enum Mode is export <BASE 1FA 2FA>;
+enum Mode is export <BASE ONEFA TWOFA>;
 
 # processor
 subset Processor of Str is export where { %processors.keys.grep($_) };
