@@ -3,9 +3,9 @@ use Voidvault::Config::Utils;
 use Voidvault::Constants;
 use Voidvault::Types;
 use Voidvault::Utils;
-unit role Voidvault::Config;
 
-
+role Voidvault::Config
+{
 # -----------------------------------------------------------------------------
 # attributes
 # -----------------------------------------------------------------------------
@@ -183,14 +183,17 @@ has Bool:D $.disable-ipv6 =
 # enable serial
 has Bool:D $.enable-serial-console =
     ?%*ENV<VOIDVAULT_ENABLE_SERIAL_CONSOLE>;
+}
 
+class Voidvault::Config::Base
+{
+also does Voidvault::Config;
 
 # -----------------------------------------------------------------------------
 # instantiation
 # -----------------------------------------------------------------------------
 
-# proto submethod to facilitate extending through role composition
-proto submethod TWEAK(--> Nil)
+submethod TWEAK(--> Nil)
 {
     # ensure C<$!chroot-dir> exists as rw dir or create it
     ensure-chroot-dir($!chroot-dir);
@@ -201,13 +204,9 @@ proto submethod TWEAK(--> Nil)
         :$!user-name-guest,
         :$!user-name-sftp
     );
-
-    # in case downstream user of C<Voidvault::Config> needs more tweaking
-    {*}
 }
 
-# proto submethod to facilitate extending through role composition
-proto submethod BUILD(
+submethod BUILD(
     Str :$admin-name,
     Str :$admin-pass,
     Str :$admin-pass-hash,
@@ -308,9 +307,7 @@ proto submethod BUILD(
         if $vault-pass;
     $!vault-key = gen-vault-key($vault-key)
         if $vault-key;
-
-    # in case downstream user of C<Voidvault::Config> needs more building
-    {*}
+}
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
