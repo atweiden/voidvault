@@ -34,11 +34,7 @@ submethod TWEAK(--> Nil)
         or die("Sorry, Vault and Boot Vault devices must differ");
 }
 
-submethod BUILD(
-    Str :$bootvault-device,
-    *%
-    --> Nil
-)
+submethod BUILD(Str :$bootvault-device --> Nil)
 {
     $!bootvault-device = $bootvault-device
         if $bootvault-device;

@@ -238,8 +238,7 @@ submethod BUILD(
     Str :$timezone,
     Str :$vault-name,
     Str :$vault-pass,
-    Str :$vault-key,
-    *%
+    Str :$vault-key
     --> Nil
 )
 {

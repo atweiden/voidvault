@@ -107,8 +107,7 @@ submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
     Str :$bootvault-key,
-    Str :$vault-header,
-    *%
+    Str :$vault-header
     --> Nil
 )
 {
