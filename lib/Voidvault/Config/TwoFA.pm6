@@ -1,9 +1,8 @@
 use v6;
 use Voidvault::Config::OneFA;
-use Voidvault::Config::Utils;
+use Voidvault::Config::OneFA::Shared;
 unit class Voidvault::Config::TwoFA;
-also is Voidvault::Config::OneFA;
-also does Voidvault::Config;
+also does Voidvault::Config::OneFA::Shared;
 
 
 # -----------------------------------------------------------------------------
