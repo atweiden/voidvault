@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Config::OneFA;
+use Voidvault::Config::Utils;
 
 role Voidvault::Config::Roles::TwoFA
 {
