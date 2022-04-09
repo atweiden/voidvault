@@ -52,7 +52,7 @@ my role Args[Mode:D $ where Mode::<1FA>]
 
 my role Args[Mode:D $ where Mode::<2FA>]
 {
-    also does Args[Mode::<2FA>];
+    also does Args[Mode::<1FA>];
     has Str $.bootvault-device;
 }
 
