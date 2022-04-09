@@ -4,7 +4,7 @@ use Voidvault::Config::OneFA;
 use Voidvault::ConfigArgs::Utils;
 use Voidvault::Types;
 
-my role Args[Mode::BASE]
+my role Args[Mode:D $ where Mode::BASE]
 {
     has Str $.admin-name;
     has Str $.admin-pass;
@@ -40,7 +40,7 @@ my role Args[Mode::BASE]
     has Str $.vault-key;
 }
 
-my role Args[Mode::ONEFA]
+my role Args[Mode:D $ where Mode::ONEFA]
 {
     also does Args[Mode::BASE];
     has Str $.bootvault-name;
@@ -49,7 +49,7 @@ my role Args[Mode::ONEFA]
     has Str $.vault-header;
 }
 
-my role Args[Mode::TWOFA]
+my role Args[Mode:D $ where Mode::TWOFA]
 {
     also does Args[Mode::TWOFA];
     has Str $.bootvault-device;
@@ -129,7 +129,7 @@ my role Strict
     }
 }
 
-my role ToConfig[Mode::BASE]
+my role ToConfig[Mode:D $ where Mode::BASE]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
@@ -137,7 +137,7 @@ my role ToConfig[Mode::BASE]
     }
 }
 
-my role ToConfig[Mode::ONEFA]
+my role ToConfig[Mode:D $ where Mode::ONEFA]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
@@ -145,7 +145,7 @@ my role ToConfig[Mode::ONEFA]
     }
 }
 
-my role ToConfig[Mode::TWOFA]
+my role ToConfig[Mode:D $ where Mode::TWOFA]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
@@ -153,7 +153,7 @@ my role ToConfig[Mode::TWOFA]
     }
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode::BASE]
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::BASE]
 {
     also does Args[Mode::BASE];
     also does Opts;
@@ -161,7 +161,7 @@ my role Voidvault::ConfigArgs::Parser[Mode::BASE]
     also does ToConfig[Mode::BASE];
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode::ONEFA]
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::ONEFA]
 {
     also does Args[Mode::ONEFA];
     also does Opts;
@@ -169,7 +169,7 @@ my role Voidvault::ConfigArgs::Parser[Mode::ONEFA]
     also does ToConfig[Mode::ONEFA];
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode::TWOFA]
+my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::TWOFA]
 {
     also does Args[Mode::TWOFA];
     also does Opts;
