@@ -1,7 +1,9 @@
 use v6;
 use Voidvault::Config::OneFA;
-unit class Voidvault::Config::TwoFA;
-also is Voidvault::Config::OneFA;
+
+role Voidvault::Config::Roles::TwoFA
+{
+also does Voidvault::Config::Roles::OneFA;
 
 
 # -----------------------------------------------------------------------------
@@ -12,20 +14,26 @@ also is Voidvault::Config::OneFA;
 has Str:D $.bootvault-device =
     %*ENV<VOIDVAULT_BOOTVAULT_DEVICE>
         || prompt-device(Voidvault::Utils.ls-devices);
+}
+
+class Voidvault::Config::TwoFA
+{
+also is Voidvault::Config::OneFA;
+also does Voidvault::Config::Roles::TwoFA;
 
 
 # -----------------------------------------------------------------------------
 # instantiation
 # -----------------------------------------------------------------------------
 
-multi submethod TWEAK(--> Nil)
+submethod TWEAK(--> Nil)
 {
     # ensure boot vault device differs from vault device
     $!device ne $!bootvault-device
         or die("Sorry, Vault and Boot Vault devices must differ");
 }
 
-multi submethod BUILD(
+submethod BUILD(
     Str :$bootvault-device,
     *%
     --> Nil
@@ -33,6 +41,7 @@ multi submethod BUILD(
 {
     $!bootvault-device = $bootvault-device
         if $bootvault-device;
+}
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
