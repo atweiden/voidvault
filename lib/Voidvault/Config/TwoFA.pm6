@@ -19,6 +19,7 @@ has Str:D $.bootvault-device =
 # instantiation
 # -----------------------------------------------------------------------------
 
+# XXX: keep in sync with C<Voidvault::Config::OneFA>
 multi submethod TWEAK(--> Nil)
 {
     $!chroot-dir-orig = $!chroot-dir;
@@ -41,6 +42,7 @@ multi submethod TWEAK(--> Nil)
         or die("Sorry, Vault and Boot Vault devices must differ");
 }
 
+# XXX: keep in sync with C<Voidvault::Config::OneFA>
 multi submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
