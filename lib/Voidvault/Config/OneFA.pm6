@@ -3,7 +3,9 @@ use Voidvault::Config;
 use Voidvault::Config::Utils;
 use Voidvault::Constants;
 use Voidvault::Types;
-unit class Voidvault::Config::OneFA;
+
+role Voidvault::Config::Roles::OneFA
+{
 also does Voidvault::Config;
 
 
@@ -43,6 +45,12 @@ has VaultHeader:D $.vault-header =
             Q{%s/headers/root.header},
             $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
+}
+
+class Voidvault::Config::OneFA
+{
+also is Voidvault::Config::Base;
+also does Voidvault::Config::Roles::OneFA;
 
 
 # -----------------------------------------------------------------------------
@@ -77,7 +85,7 @@ method vault-header-chomped(::?CLASS:D: --> AbsolutePath:D)
 # instantiation
 # -----------------------------------------------------------------------------
 
-multi submethod TWEAK(--> Nil)
+submethod TWEAK(--> Nil)
 {
     $!chroot-dir-orig = $!chroot-dir;
     $!chroot-dir = sprintf(Q{%s/ROOT}, $!chroot-dir-orig);
@@ -95,7 +103,7 @@ multi submethod TWEAK(--> Nil)
         or die("Sorry, Vault Key and Vault Header paths must differ");
 }
 
-multi submethod BUILD(
+submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
     Str :$bootvault-key,
@@ -112,6 +120,7 @@ multi submethod BUILD(
         if $bootvault-key;
     $!vault-header = gen-vault-header($vault-header)
         if $vault-header;
+}
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
