@@ -164,12 +164,12 @@ multi sub gen-mode(Str:D :mode($)! where 'base' --> Mode:D)
 
 multi sub gen-mode(Str:D :mode($)! where '1fa' --> Mode:D)
 {
-    my Mode:D $mode = Mode::ONEFA;
+    my Mode:D $mode = Mode::<1FA>;
 }
 
 multi sub gen-mode(Str:D :mode($)! where '2fa' --> Mode:D)
 {
-    my Mode:D $mode = Mode::TWOFA;
+    my Mode:D $mode = Mode::<2FA>;
 }
 
 multi sub gen-mode(Str:D :$mode! where .so --> Mode:D)
