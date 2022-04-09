@@ -267,8 +267,7 @@ method ls-devices(--> Array[Str:D])
 # list partitions on block device
 method ls-partitions(Str:D $device --> Array[Str:D])
 {
-    # run lsblk only once
-    state Str:D @partition =
+    my Str:D @partition =
         qqx<lsblk $device --noheadings --paths --raw --output NAME,TYPE>
         .trim
         .lines
