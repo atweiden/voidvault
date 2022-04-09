@@ -39,7 +39,13 @@ my role Args[Mode:D $ where Mode::BASE]
     has Str $.timezone;
     has Str $.vault-name;
     has Str $.vault-pass;
-    has Str $.vault-key;
+    has Str $.vault-key-file;
+    has Str $.vault-cipher;
+    has Str $.vault-hash;
+    has Str $.vault-iter-time;
+    has Str $.vault-key-size;
+    has Str $.vault-offset;
+    has Str $.vault-sector-size;
 }
 
 my role Args[Mode:D $ where Mode::<1FA>]
@@ -47,8 +53,14 @@ my role Args[Mode:D $ where Mode::<1FA>]
     also does Args[Mode::BASE];
     has Str $.bootvault-name;
     has Str $.bootvault-pass;
-    has Str $.bootvault-key;
+    has Str $.bootvault-key-file;
     has Str $.vault-header;
+    has Str $.bootvault-cipher;
+    has Str $.bootvault-hash;
+    has Str $.bootvault-iter-time;
+    has Str $.bootvault-key-size;
+    has Str $.bootvault-offset;
+    has Str $.bootvault-sector-size;
 }
 
 my role Args[Mode:D $ where Mode::<2FA>]

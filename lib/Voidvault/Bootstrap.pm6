@@ -43,7 +43,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     my Bool:D $augment = $.config.augment;
     self.mkdisk;
     self.voidstrap-base;
-    self.install-vault-key;
+    self.install-vault-key-file;
     self.configure-crypttab;
     self.configure-users;
     self.configure-sudoers;
@@ -142,12 +142,24 @@ method mkvault(::?CLASS:D: --> Nil)
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
     my VaultPass $vault-pass = $.config.vault-pass;
+    my Str:D $vault-cipher = $.config.vault-cipher;
+    my Str:D $vault-hash = $.config.vault-hash;
+    my Str:D $vault-iter-time = $.config.vault-iter-time;
+    my Str:D $vault-key-size = $.config.vault-key-size;
+    my Str $vault-offset = $.config.vault-offset;
+    my Str $vault-sector-size = $.config.vault-sector-size;
     Voidvault::Utils.mkvault(
         :open,
         :$vault-type,
         :$partition-vault,
         :$vault-name,
-        :$vault-pass
+        :$vault-pass,
+        :$vault-cipher,
+        :$vault-hash,
+        :$vault-iter-time,
+        :$vault-key-size,
+        :$vault-offset,
+        :$vault-sector-size
     );
 }
 
@@ -338,17 +350,17 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     );
 }
 
-method install-vault-key(::?CLASS:D: --> Nil)
+method install-vault-key-file(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my VaultPass $vault-pass = $.config.vault-pass;
-    my VaultKey:D $vault-key = $.config.vault-key;
+    my VaultKeyFile:D $vault-key-file = $.config.vault-key-file;
     my Str:D $partition-vault = self.gen-partition('vault');
 
     # add key to vault
-    Voidvault::Utils.install-vault-key(
+    Voidvault::Utils.install-vault-key-file(
         :$partition-vault,
-        :$vault-key,
+        :$vault-key-file,
         :$vault-pass,
         :$chroot-dir
     );
@@ -356,7 +368,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
 
 multi method configure-crypttab(::?CLASS:D: --> Nil)
 {
-    # configure /etc/crypttab for vault key
+    # configure /etc/crypttab for vault key file
     self.replace($Voidvault::Constants::FILE-CRYPTTAB);
 }
 

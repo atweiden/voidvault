@@ -76,7 +76,10 @@ Usage:
             [--grub-name=<username>] [--grub-pass=<password>]
             [--root-pass=<password>]
             [--vault-name=<vaultname>] [--vault-pass=<password>]
-            [--vault-key=<path>]
+            [--vault-key-file=<path>]
+            [--vault-cipher=<cipher>] [--vault-hash=<hash>]
+            [--vault-iter-time=<ms>] [--vault-key-size=<bits>]
+            [--vault-offset=<offset>] [--vault-sector-size=<bytes>]
             [--device=<device>] [--hostname=<hostname>]
             [--processor=<processor>] [--graphics=<graphics>]
             [--disk-type=<disktype>] [--locale=<locale>]
@@ -89,7 +92,11 @@ Usage:
             new
 
   voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
-            [--bootvault-key=<path>] [--vault-header=<path>]
+            [--bootvault-key-file=<path>]
+            [--bootvault-cipher=<cipher>] [--bootvault-hash=<hash>]
+            [--bootvault-iter-time=<ms>] [--bootvault-key-size=<bits>]
+            [--bootvault-offset=<offset>] [--bootvault-sector-size=<bytes>]
+            [--vault-header=<path>]
             new 1fa
 
   voidvault [--bootvault-device=<device>]
@@ -158,18 +165,42 @@ Options:
     Name for LUKS encrypted volume
   --vault-pass=<password>
     Password for LUKS encrypted volume
-  --vault-key=<path>
-    Path to LUKS encrypted volume key
+  --vault-key-file=<path>
+    Path to LUKS encrypted volume key file
+  --vault-cipher=<cipher>
+    Cipher specification for LUKS encrypted volume
+  --vault-hash=<hash>
+    Passphrase hash used in LUKS key setup scheme and volume key digest
+  --vault-iter-time=<ms>
+    Time to spend with PBKDF passphrase processing on LUKS encrypted volume
+  --vault-key-size=<bits>
+    Key size in bits for LUKS encrypted volume
+  --vault-offset=<offset>
+    Start offset in LUKS encrypted volume backend device
+  --vault-sector-size=<bytes>
+    Sector size for use with LUKS encrypted volume
 
 Options (1FA/2FA):
   --bootvault-name=<vaultname>
     Name for LUKS encrypted boot volume
   --bootvault-pass=<password>
     Password for LUKS encrypted boot volume
-  --bootvault-key=<path>
-    Path to LUKS encrypted boot volume key
+  --bootvault-key-file=<path>
+    Path to LUKS encrypted boot volume key file
   --vault-header=<path>
     Path to LUKS encrypted volume detached header
+  --bootvault-cipher=<cipher>
+    Cipher specification for LUKS encrypted boot volume
+  --bootvault-hash=<hash>
+    Passphrase hash used in LUKS key setup scheme and boot volume key digest
+  --bootvault-iter-time=<ms>
+    Time to spend with PBKDF passphrase processing on LUKS encrypted boot volume
+  --bootvault-key-size=<bits>
+    Key size in bits for LUKS encrypted boot volume
+  --bootvault-offset=<offset>
+    Start offset in LUKS encrypted boot volume backend device
+  --bootvault-sector-size=<bytes>
+    Sector size for use with LUKS encrypted boot volume
 
 Options (2FA):
   --bootvault-device=<device>

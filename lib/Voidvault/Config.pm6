@@ -116,14 +116,44 @@ has VaultPass $.vault-pass =
         ?? gen-vault-pass(%*ENV<VOIDVAULT_VAULT_PASS>)
         !! Nil;
 
-# intended path to LUKS encrypted volume key on bootstrapped system
-has VaultKey:D $.vault-key =
-    ?%*ENV<VOIDVAULT_VAULT_KEY>
-        ?? gen-vault-key(%*ENV<VOIDVAULT_VAULT_KEY>)
+# intended path to LUKS encrypted volume key file on bootstrapped system
+has VaultKeyFile:D $.vault-key-file =
+    ?%*ENV<VOIDVAULT_VAULT_KEY_FILE>
+        ?? gen-vault-key-file(%*ENV<VOIDVAULT_VAULT_KEY_FILE>)
         !! sprintf(
             Q{%s/keys/root.key},
             $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
+
+has Str:D $.vault-cipher =
+    ?%*ENV<VOIDVAULT_VAULT_CIPHER>
+        ?? %*ENV<VOIDVAULT_VAULT_CIPHER>
+        !! 'aes-xts-plain64';
+
+has Str:D $.vault-hash =
+    ?%*ENV<VOIDVAULT_VAULT_HASH>
+        ?? %*ENV<VOIDVAULT_VAULT_HASH>
+        !! 'sha512';
+
+has Str:D $.vault-iter-time =
+    ?%*ENV<VOIDVAULT_VAULT_ITER_TIME>
+        ?? %*ENV<VOIDVAULT_VAULT_ITER_TIME>
+        !! '5000';
+
+has Str:D $.vault-key-size =
+    ?%*ENV<VOIDVAULT_VAULT_KEY_SIZE>
+        ?? %*ENV<VOIDVAULT_VAULT_KEY_SIZE>
+        !! '512';
+
+has Str $.vault-offset =
+    ?%*ENV<VOIDVAULT_VAULT_OFFSET>
+        ?? gen-vault-offset(%*ENV<VOIDVAULT_VAULT_OFFSET>)
+        !! Nil;
+
+has Str $.vault-sector-size =
+    ?%*ENV<VOIDVAULT_VAULT_SECTOR_SIZE>
+        ?? %*ENV<VOIDVAULT_VAULT_SECTOR_SIZE>
+        !! Nil;
 
 # name for host (default: vault)
 has HostName:D $.host-name =
@@ -239,7 +269,13 @@ proto submethod BUILD(
     Str :$timezone,
     Str :$vault-name,
     Str :$vault-pass,
-    Str :$vault-key,
+    Str :$vault-key-file,
+    Str :$vault-cipher,
+    Str :$vault-hash,
+    Str :$vault-iter-time,
+    Str :$vault-key-size,
+    Str :$vault-offset,
+    Str :$vault-sector-size,
     *%
     --> Nil
 )
@@ -306,8 +342,20 @@ proto submethod BUILD(
         if $vault-name;
     $!vault-pass = gen-vault-pass($vault-pass)
         if $vault-pass;
-    $!vault-key = gen-vault-key($vault-key)
-        if $vault-key;
+    $!vault-key-file = gen-vault-key-file($vault-key-file)
+        if $vault-key-file;
+    $!vault-cipher = $vault-cipher
+        if $vault-cipher;
+    $!vault-hash = $vault-hash
+        if $vault-hash;
+    $!vault-iter-time = $vault-iter-time
+        if $vault-iter-time;
+    $!vault-key-size = $vault-key-size
+        if $vault-key-size;
+    $!vault-offset = gen-vault-offset($vault-offset)
+        if $vault-offset;
+    $!vault-sector-size = $vault-sector-size
+        if $vault-sector-size;
 
     # in case downstream user of C<Voidvault::Config> needs more building
     {*}

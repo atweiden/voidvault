@@ -24,16 +24,22 @@ multi submethod TWEAK(--> Nil)
     $!vault-name ne $!bootvault-name
         or die("Sorry, Vault and Boot Vault names must differ");
 
-    # ensure vault header and vault key paths differ
-    $!vault-header ne $!vault-key
-        or die("Sorry, Vault Key and Vault Header paths must differ");
+    # ensure vault header and vault key file paths differ
+    $!vault-header ne $!vault-key-file
+        or die("Sorry, Vault Key File and Vault Header paths must differ");
 }
 
 multi submethod BUILD(
     Str :$bootvault-name,
     Str :$bootvault-pass,
-    Str :$bootvault-key,
+    Str :$bootvault-key-file,
     Str :$vault-header,
+    Str :$bootvault-cipher,
+    Str :$bootvault-hash,
+    Str :$bootvault-iter-time,
+    Str :$bootvault-key-size,
+    Str :$bootvault-offset,
+    Str :$bootvault-sector-size,
     *%
     --> Nil
 )
@@ -42,10 +48,22 @@ multi submethod BUILD(
         if $bootvault-name;
     $!bootvault-pass = gen-vault-pass($bootvault-pass)
         if $bootvault-pass;
-    $!bootvault-key = gen-bootvault-key($bootvault-key)
-        if $bootvault-key;
+    $!bootvault-key-file = gen-bootvault-key-file($bootvault-key-file)
+        if $bootvault-key-file;
     $!vault-header = gen-vault-header($vault-header)
         if $vault-header;
+    $!bootvault-cipher = $bootvault-cipher
+        if $bootvault-cipher;
+    $!bootvault-hash = $bootvault-hash
+        if $bootvault-hash;
+    $!bootvault-iter-time = $bootvault-iter-time
+        if $bootvault-iter-time;
+    $!bootvault-key-size = $bootvault-key-size
+        if $bootvault-key-size;
+    $!bootvault-offset = $bootvault-offset
+        if $bootvault-offset;
+    $!bootvault-sector-size = $bootvault-sector-size
+        if $bootvault-sector-size;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

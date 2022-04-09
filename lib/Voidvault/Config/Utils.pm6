@@ -2,6 +2,7 @@ use v6;
 use Crypt::Libcrypt:auth<atweiden>;
 use Void::Constants;
 use Voidvault::Constants;
+use Voidvault::Parser::VaultOffset;
 use Voidvault::Types;
 unit module Voidvault::Config::Utils;
 
@@ -290,24 +291,25 @@ sub gen-vault-header(Str:D $h --> VaultHeader:D) is export
     my VaultHeader:D $vault-header = $h or die($message);
 }
 
-# confirm vault key $k is valid VaultKey and return VaultKey
-sub gen-vault-key(Str:D $k --> VaultKey:D) is export
+# confirm vault key file $k is valid VaultKeyFile and return VaultKeyFile
+sub gen-vault-key-file(Str:D $k --> VaultKeyFile:D) is export
 {
     my Str:D $prefix = $Voidvault::Constants::SECRET-PREFIX-VAULT;
     my Str:D $message = qq:to/EOF/.trim;
-    Sorry, Vault Key must be absolute path inside $prefix. Path given: $k
+    Sorry, Vault Key File must be absolute path inside $prefix. Path given: $k
     EOF
-    my VaultKey:D $vault-key = $k or die($message);
+    my VaultKeyFile:D $vault-key-file = $k or die($message);
 }
 
-# confirm boot vault key $k is valid BootvaultKey and return BootvaultKey
-sub gen-bootvault-key(Str:D $k --> BootvaultKey:D) is export
+# confirm boot vault key file $k is valid BootvaultKeyFile and return
+# BootvaultKeyFile
+sub gen-bootvault-key-file(Str:D $k --> BootvaultKeyFile:D) is export
 {
     my Str:D $prefix = $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT;
     my Str:D $message = qq:to/EOF/.trim;
-    Sorry, Bootvault Key must be absolute path inside $prefix. Path given: $k
+    Sorry, Bootvault Key File must be absolute path inside $prefix. Path given: $k
     EOF
-    my BootvaultKey:D $bootvault-key = $k or die($message);
+    my BootvaultKeyFile:D $bootvault-key-file = $k or die($message);
 }
 
 # confirm vault name $n is valid VaultName and return VaultName
@@ -323,6 +325,13 @@ sub gen-vault-pass(Str:D $p --> VaultPass:D) is export
     Sorry, invalid Vault Pass. Length needed: 1-512. Length given: {$p.chars}
     EOF
     my VaultPass:D $vault-pass = $p or die($message);
+}
+
+# convert human-readable offset $o into valid form for cryptsetup luksFormat
+sub gen-vault-offset(Str:D $o --> Str:D) is export
+{
+    # C<Rat> inevitably must be converted into C<Str> for shell execution
+    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset($o).parse;
 }
 
 

@@ -1,10 +1,10 @@
 use v6;
 unit module Voidvault::Constants;
 
-# store vault keys and detached headers in this directory
+# store vault key files and detached headers in this directory
 constant $SECRET-PREFIX-VAULT = '/boot';
 
-# store boot vault keys and detached headers in this directory
+# store boot vault key files and detached headers in this directory
 constant $SECRET-PREFIX-BOOTVAULT = '/root';
 
 # intended mounting point of EFI System Partition on bootstrapped system
@@ -212,6 +212,9 @@ constant $GDISK-SIZE-BOOT = '1024M';
 constant $GDISK-TYPECODE-BIOS = 'EF02';
 constant $GDISK-TYPECODE-EFI = 'EF00';
 constant $GDISK-TYPECODE-LINUX = '8300';
+
+# for C<--vault-offset> and C<--bootvault-offset>
+constant $CRYPTSETUP-LUKS-BYTES-PER-SECTOR = 512;
 
 # for C<--enable-serial-console>
 constant $CONSOLE-VIRTUAL = 'tty0';

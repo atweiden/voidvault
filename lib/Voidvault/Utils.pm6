@@ -493,13 +493,19 @@ proto method mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     # pass C<:open> to open vault after creating it
     Bool :open($),
     *%opts (
         # prefixed C<VaultHeader> path is C<AbsolutePath>, but
         # C<$vault-header> is optional here, hence C<Str>
         Str :$vault-header,
-        VaultPass :vault-pass($)
+        VaultPass :vault-pass($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -511,7 +517,15 @@ proto method mkvault(
     Voidvault::Utils.mkdir-parent($vault-header, 0o700) if $vault-header;
 
     # create vault with password
-    mkvault(:$vault-type, :$partition-vault, |%opts);
+    mkvault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-cipher,
+        :$vault-hash,
+        :$vault-iter-time,
+        :$vault-key-size,
+        |%opts
+    );
 
     # open vault if requested
     {*}
@@ -523,9 +537,15 @@ multi method mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     *%opts (
         Str :vault-header($),
-        VaultPass :vault-pass($)
+        VaultPass :vault-pass($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -534,19 +554,29 @@ multi method mkvault(
         :$vault-type,
         :$partition-vault,
         :$vault-name,
+        :$vault-cipher,
+        :$vault-hash,
+        :$vault-iter-time,
+        :$vault-key-size,
         |%opts
     );
 }
 
 # opening vault not requested
 multi method mkvault(
-    VaultType:D :vault-type($)!,
-    Str:D :partition-vault($)!,
-    VaultName:D :vault-name($)!,
+    VaultType:D :vault-type($)! where .so,
+    Str:D :partition-vault($)! where .so,
+    VaultName:D :vault-name($)! where .so,
+    Str:D :vault-cipher($)! where .so,
+    Str:D :vault-hash($)! where .so,
+    Str:D :vault-iter-time($)! where .so,
+    Str:D :vault-key-size($)! where .so,
     Bool :open($),
     *%opts (
         Str :vault-header($),
-        VaultPass :vault-pass($)
+        VaultPass :vault-pass($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -557,8 +587,14 @@ multi sub mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -569,6 +605,10 @@ multi sub mkvault(
             :$vault-type,
             :$partition-vault,
             :$vault-pass,
+            :$vault-cipher,
+            :$vault-hash,
+            :$vault-iter-time,
+            :$vault-key-size,
             |%opts
         );
 
@@ -580,9 +620,15 @@ multi sub mkvault(
 multi sub mkvault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     VaultPass :vault-pass($),
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -592,6 +638,10 @@ multi sub mkvault(
             :interactive,
             :$vault-type,
             :$partition-vault,
+            :$vault-cipher,
+            :$vault-hash,
+            :$vault-iter-time,
+            :$vault-key-size,
             |%opts
         );
 
@@ -606,8 +656,14 @@ multi sub build-cryptsetup-luks-format-cmdline(
     Bool:D :interactive($)! where .so,
     VaultType:D :$vault-type!,
     Str:D :$partition-vault! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Str:D
 )
@@ -616,6 +672,10 @@ multi sub build-cryptsetup-luks-format-cmdline(
         gen-spawn-cryptsetup-luks-format(
             :$vault-type,
             :$partition-vault,
+            :$vault-cipher,
+            :$vault-hash,
+            :$vault-iter-time,
+            :$vault-key-size,
             |%opts
         );
     my Str:D $expect-are-you-sure-send-yes =
@@ -649,8 +709,14 @@ multi sub build-cryptsetup-luks-format-cmdline(
     VaultType:D :$vault-type!,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Str:D
 )
@@ -659,6 +725,10 @@ multi sub build-cryptsetup-luks-format-cmdline(
         gen-spawn-cryptsetup-luks-format(
             :$vault-type,
             :$partition-vault,
+            :$vault-cipher,
+            :$vault-hash,
+            :$vault-iter-time,
+            :$vault-key-size,
             |%opts
         );
     my Str:D $sleep =
@@ -699,74 +769,62 @@ multi sub build-cryptsetup-luks-format-cmdline(
         EOF
 }
 
-multi sub gen-spawn-cryptsetup-luks-format(
-    VaultType:D :vault-type($)! where 'LUKS1',
+sub gen-spawn-cryptsetup-luks-format(
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
-    # LUKS1 variant is never called with optional C<$vault-header>
-    *% (
-        Str :vault-header($)
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
+    *%opts (
+        Str :vault-header($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-        spawn cryptsetup
-        --type luks1
-        --cipher aes-xts-plain64
-        --key-slot 1
-        --key-size 512
-        --hash sha512
-        --iter-time 5000
-        --use-random
-        --verify-passphrase
-        luksFormat $partition-vault
-    >.join(' ');
+    my Str:D $opts =
+        build-cryptsetup-luks-format-options-cmdline(
+            :$vault-type,
+            :$vault-cipher,
+            :$vault-hash,
+            :$vault-iter-time,
+            :$vault-key-size,
+            |%opts
+        );
+    my Str:D $spawn-cryptsetup-luks-format =
+        "spawn cryptsetup $opts luksFormat $partition-vault";
 }
 
-multi sub gen-spawn-cryptsetup-luks-format(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so,
-    AbsolutePath:D :$vault-header! where .so
+sub build-cryptsetup-luks-format-options-cmdline(
+    VaultType:D :$vault-type! where .so,
+    Str:D :$vault-cipher! where .so,
+    Str:D :$vault-hash! where .so,
+    Str:D :$vault-iter-time! where .so,
+    Str:D :$vault-key-size! where .so,
+    Str :$vault-header,
+    Str :$vault-offset,
+    Str :$vault-sector-size
     --> Str:D
 )
 {
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-        spawn cryptsetup
-        --type luks2
-        --header $vault-header
-        --cipher aes-xts-plain64
-        --pbkdf argon2id
+    my Str:D @opt = qw<
         --key-slot 1
-        --key-size 512
-        --hash sha512
-        --iter-time 5000
         --use-random
         --verify-passphrase
-        luksFormat $partition-vault
-    >.join(' ');
-}
-
-# effectively dead code until GRUB ships reasonable support for LUKS2
-multi sub gen-spawn-cryptsetup-luks-format(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so,
-    Str :vault-header($)
-    --> Str:D
-)
-{
-    my Str:D $spawn-cryptsetup-luks-format = qqw<
-        spawn cryptsetup
-        --type luks2
-        --cipher aes-xts-plain64
-        --pbkdf argon2id
-        --key-slot 1
-        --key-size 512
-        --hash sha512
-        --iter-time 5000
-        --use-random
-        --verify-passphrase
-        luksFormat $partition-vault
-    >.join(' ');
+    >;
+    push(@opt, '--type', 'luks1') if $vault-type eq 'LUKS1';
+    push(@opt, '--type', 'luks2') if $vault-type eq 'LUKS2';
+    push(@opt, '--cipher', $vault-cipher);
+    push(@opt, '--key-size', $vault-key-size);
+    push(@opt, '--hash', $vault-hash);
+    push(@opt, '--iter-time', $vault-iter-time);
+    push(@opt, '--pbkdf', 'argon2id') if $vault-type eq 'LUKS2';
+    push(@opt, '--header', $vault-header) if $vault-header;
+    push(@opt, '--offset', $vault-offset) if $vault-offset;
+    push(@opt, '--sector-size', $vault-sector-size) if $vault-sector-size;
+    my Str:D $opts = @opt.join(' ');
 }
 
 method open-vault(
@@ -777,7 +835,15 @@ method open-vault(
     *%opts (
         # prefixed C<VaultHeader> path is C<AbsolutePath>
         Str :vault-header($),
-        VaultPass :vault-pass($)
+        VaultPass :vault-pass($),
+        # will be needed for plain mode encryption support
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        # C<--iter-time> is only relevant for LUKS passphrase operations
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
 )
 {
@@ -791,7 +857,13 @@ multi sub open-vault(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -817,7 +889,13 @@ multi sub open-vault(
     VaultName:D :$vault-name! where .so,
     VaultPass :vault-pass($),
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Nil
 )
@@ -844,7 +922,13 @@ multi sub build-cryptsetup-luks-open-cmdline(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Str:D
 )
@@ -865,7 +949,13 @@ multi sub build-cryptsetup-luks-open-cmdline(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
-        Str :vault-header($)
+        Str :vault-header($),
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
     )
     --> Str:D
 )
@@ -905,59 +995,72 @@ multi sub build-cryptsetup-luks-open-cmdline(
         EOF
 }
 
-multi sub gen-cryptsetup-luks-open(
-    VaultType:D :vault-type($)! where 'LUKS1',
+sub gen-cryptsetup-luks-open(
+    VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
-    # LUKS1 variant is never called with optional C<$vault-header>
-    Str :vault-header($)
+    *%opts (
+        Str :vault-header($),
+        Str :vault-cipher($),
+        Str :vault-hash($),
+        Str :vault-iter-time($),
+        Str :vault-key-size($),
+        Str :vault-offset($),
+        Str :vault-sector-size($)
+    )
     --> Str:D
 )
 {
-    my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup luksOpen $partition-vault $vault-name";
-}
-
-multi sub gen-cryptsetup-luks-open(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    AbsolutePath:D :$vault-header! where .so
-    --> Str:D
-)
-{
-    my Str:D $opts = qqw<
-        --header $vault-header
-        --perf-no_read_workqueue
-        --persistent
-    >.join(' ');
+    my Str:D $opts =
+        build-cryptsetup-luks-open-options-cmdline(:$vault-type, |%opts);
     my Str:D $cryptsetup-luks-open-cmdline =
         "cryptsetup $opts luksOpen $partition-vault $vault-name";
 }
 
-# effectively dead code until GRUB ships reasonable support for LUKS2
-multi sub gen-cryptsetup-luks-open(
-    VaultType:D :vault-type($)! where 'LUKS2',
-    Str:D :$partition-vault! where .so,
-    VaultName:D :$vault-name! where .so,
-    Str :vault-header($)
+sub build-cryptsetup-luks-open-options-cmdline(
+    VaultType:D :$vault-type! where .so,
+    Str :$vault-header,
+    Str :$vault-cipher,
+    Str :$vault-hash,
+    # C<--iter-time> is only relevant for LUKS passphrase operations
+    Str :vault-iter-time($),
+    Str :$vault-key-size,
+    Str :$vault-offset,
+    Str :$vault-sector-size
     --> Str:D
 )
 {
-    my Str:D $opts = qqw<
-        --perf-no_read_workqueue
-        --persistent
-    >.join(' ');
-    my Str:D $cryptsetup-luks-open-cmdline =
-        "cryptsetup $opts luksOpen $partition-vault $vault-name";
+    my Str:D @opt;
+    push(@opt, '--header', $vault-header) if $vault-header;
+    push(@opt, '--perf-no_read_workqueue', '--persistent')
+        if $vault-type eq 'LUKS2';
+    push(@opt, '--cipher', $vault-cipher)
+        if $vault-type eq 'PLAIN' && $vault-cipher;
+    push(@opt, '--hash', $vault-hash)
+        if $vault-type eq 'PLAIN' && $vault-hash;
+    push(@opt, '--key-size', $vault-key-size)
+        if $vault-type eq 'PLAIN' && $vault-key-size;
+    push(@opt, '--offset', $vault-offset)
+        if $vault-type eq 'PLAIN' && $vault-offset;
+    push(@opt, '--sector-size', $vault-sector-size)
+        if $vault-type eq 'PLAIN' && $vault-sector-size;
+    my Str:D $opts = @opt.join(' ');
 }
 
-method install-vault-key(
+method install-vault-key-file(
     Str:D :$partition-vault where .so,
-    # C<$vault-key-unprefixed> contains path absent C<$chroot-dir> prefix
-    # it would be typed as <VaultKey:D> if not for C<BootvaultKey> usage
-    AbsolutePath:D :vault-key($vault-key-unprefixed) where .so,
+    # C<$vault-key-file-unprefixed> contains path absent C<$chroot-dir>
+    # prefix - C<VaultKeyFile:D> if not for C<BootvaultKeyFile> usage
+    AbsolutePath:D :vault-key-file($vault-key-file-unprefixed) where .so,
     AbsolutePath:D :$chroot-dir! where .so,
+    # named args not in C<%*opts> are unused and only present to ease api
+    Str :vault-cipher($),
+    Str :vault-hash($),
+    # C<--iter-time> is only relevant for LUKS passphrase operations
+    Str :vault-iter-time($),
+    Str :vault-key-size($),
+    Str :vault-offset($),
+    Str :vault-sector-size($),
     *%opts (
         VaultPass :vault-pass($),
         Str :vault-header($)
@@ -965,18 +1068,18 @@ method install-vault-key(
     --> Nil
 )
 {
-    my AbsolutePath:D $vault-key =
-        sprintf(Q{%s%s}, $chroot-dir, $vault-key-unprefixed);
-    Voidvault::Utils.mkdir-parent($vault-key, 0o700);
-    mkkey(:$vault-key);
-    addkey(:$vault-key, :$partition-vault, |%opts);
-    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key-unprefixed>);
+    my AbsolutePath:D $vault-key-file =
+        sprintf(Q{%s%s}, $chroot-dir, $vault-key-file-unprefixed);
+    Voidvault::Utils.mkdir-parent($vault-key-file, 0o700);
+    mkkeyfile(:$vault-key-file);
+    addkeyfile(:$vault-key-file, :$partition-vault, |%opts);
+    run(qqw<void-chroot $chroot-dir chmod 000 $vault-key-file-unprefixed>);
 }
 
-# make vault key
-sub mkkey(
-    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
-    AbsolutePath:D :$vault-key! where .so
+# make vault key file
+sub mkkeyfile(
+    # requires passing prefixed C<VaultKeyFile>, ergo C<AbsolutePath>
+    AbsolutePath:D :$vault-key-file! where .so
     --> Nil
 )
 {
@@ -984,17 +1087,17 @@ sub mkkey(
     my Str:D $src = '/dev/random';
     # bytes to read from C<$src>
     my UInt:D $bytes = 64;
-    # exec idiomatic version of C<head -c 64 /dev/random > $vault-key>
+    # exec idiomatic version of C<head -c 64 /dev/random > key>
     my IO::Handle:D $fh = $src.IO.open(:bin);
     my Buf:D $buf = $fh.read($bytes);
     $fh.close;
-    spurt($vault-key, $buf);
+    spurt($vault-key-file, $buf);
 }
 
 # LUKS encrypted volume password was given
-multi sub addkey(
-    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
-    AbsolutePath:D :$vault-key! where .so,
+multi sub addkeyfile(
+    # requires passing prefixed C<VaultKeyFile>, ergo C<AbsolutePath>
+    AbsolutePath:D :$vault-key-file! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
@@ -1006,7 +1109,7 @@ multi sub addkey(
     my Str:D $cryptsetup-luks-add-key-cmdline =
         build-cryptsetup-luks-add-key-cmdline(
             :non-interactive,
-            :$vault-key,
+            :$vault-key-file,
             :$partition-vault,
             :$vault-pass,
             |%opts
@@ -1017,8 +1120,8 @@ multi sub addkey(
 }
 
 # LUKS encrypted volume password not given
-multi sub addkey(
-    AbsolutePath:D :$vault-key! where .so,
+multi sub addkeyfile(
+    AbsolutePath:D :$vault-key-file! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass :vault-pass($),
     *%opts (
@@ -1030,7 +1133,7 @@ multi sub addkey(
     my Str:D $cryptsetup-luks-add-key-cmdline =
         build-cryptsetup-luks-add-key-cmdline(
             :interactive,
-            :$vault-key,
+            :$vault-key-file,
             :$partition-vault,
             |%opts
         );
@@ -1044,8 +1147,8 @@ multi sub addkey(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :interactive($)! where .so,
-    # requires passing prefixed C<VaultKey> path, hence C<AbsolutePath>
-    AbsolutePath:D :$vault-key! where .so,
+    # requires passing prefixed C<VaultKeyFile>, ergo C<AbsolutePath>
+    AbsolutePath:D :$vault-key-file! where .so,
     Str:D :$partition-vault! where .so,
     *%opts (
         Str :vault-header($)
@@ -1055,7 +1158,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 {
     my Str:D $spawn-cryptsetup-luks-add-key =
         gen-spawn-cryptsetup-luks-add-key(
-            :$vault-key,
+            :$vault-key-file,
             :$partition-vault,
             |%opts
         );
@@ -1083,7 +1186,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 
 multi sub build-cryptsetup-luks-add-key-cmdline(
     Bool:D :non-interactive($)! where .so,
-    AbsolutePath:D :$vault-key! where .so,
+    AbsolutePath:D :$vault-key-file! where .so,
     Str:D :$partition-vault! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
@@ -1094,7 +1197,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 {
     my Str:D $spawn-cryptsetup-luks-add-key =
         gen-spawn-cryptsetup-luks-add-key(
-            :$vault-key,
+            :$vault-key-file,
             :$partition-vault,
             |%opts
         );
@@ -1125,7 +1228,7 @@ multi sub build-cryptsetup-luks-add-key-cmdline(
 }
 
 sub gen-spawn-cryptsetup-luks-add-key(
-    AbsolutePath:D :$vault-key! where .so,
+    AbsolutePath:D :$vault-key-file! where .so,
     Str:D :$partition-vault! where .so,
     *%opts (
         Str :vault-header($)
@@ -1135,23 +1238,15 @@ sub gen-spawn-cryptsetup-luks-add-key(
 {
     my Str:D $opts = build-cryptsetup-luks-add-key-options-cmdline(|%opts);
     my Str:D $spawn-cryptsetup-luks-add-key =
-        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key";
+        "spawn cryptsetup $opts luksAddKey $partition-vault $vault-key-file";
 }
 
-multi sub build-cryptsetup-luks-add-key-options-cmdline(
-    AbsolutePath:D :$vault-header! where .so
-    --> Str:D
-)
+sub build-cryptsetup-luks-add-key-options-cmdline(Str :$vault-header --> Str:D)
 {
-    my Str:D $opts = qqw<--header $vault-header --iter-time 1 >.join(' ');
-}
-
-multi sub build-cryptsetup-luks-add-key-options-cmdline(
-    Str :vault-header($)
-    --> Str:D
-)
-{
-    my Str:D $opts = '--iter-time 1';
+    # <--iter-time> irrelevant to key file addition
+    my Str:D @opt = qw<--iter-time 1>;
+    push(@opt, '--header', $vault-header) if $vault-header;
+    my Str:D $opts = @opt.join(' ');
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

@@ -74,12 +74,24 @@ method mkbootvault(::?CLASS:D: --> Nil)
     my Str:D $partition-bootvault = self.gen-partition('boot');
     my VaultName:D $bootvault-name = $.config.bootvault-name;
     my VaultPass $bootvault-pass = $.config.bootvault-pass;
+    my Str:D $bootvault-cipher = $.config.bootvault-cipher;
+    my Str:D $bootvault-hash = $.config.bootvault-hash;
+    my Str:D $bootvault-iter-time = $.config.bootvault-iter-time;
+    my Str:D $bootvault-key-size = $.config.bootvault-key-size;
+    my Str $bootvault-offset = $.config.bootvault-offset;
+    my Str $bootvault-sector-size = $.config.bootvault-sector-size;
     Voidvault::Utils.mkvault(
         :open,
         :vault-type($bootvault-type),
         :partition-vault($partition-bootvault),
         :vault-name($bootvault-name),
         :vault-pass($bootvault-pass)
+        :vault-cipher($bootvault-cipher),
+        :vault-hash($bootvault-hash),
+        :vault-iter-time($bootvault-iter-time),
+        :vault-key-size($bootvault-key-size),
+        :vault-offset($bootvault-offset),
+        :vault-sector-size($bootvault-sector-size)
     );
 }
 
@@ -115,6 +127,12 @@ method mkvault(::?CLASS:D: --> Nil)
         my AbsolutePath:D $vault-header-chomped = $.config.vault-header-chomped;
         sprintf(Q{%s%s}, $chroot-dir-boot, $vault-header-chomped);
     };
+    my Str:D $vault-cipher = $.config.vault-cipher;
+    my Str:D $vault-hash = $.config.vault-hash;
+    my Str:D $vault-iter-time = $.config.vault-iter-time;
+    my Str:D $vault-key-size = $.config.vault-key-size;
+    my Str $vault-offset = $.config.vault-offset;
+    my Str $vault-sector-size = $.config.vault-sector-size;
 
     Voidvault::Utils.mkvault(
         :open,
@@ -122,7 +140,13 @@ method mkvault(::?CLASS:D: --> Nil)
         :$partition-vault,
         :$vault-name,
         :$vault-pass,
-        :$vault-header
+        :$vault-header,
+        :$vault-cipher,
+        :$vault-hash,
+        :$vault-iter-time,
+        :$vault-key-size,
+        :$vault-offset,
+        :$vault-sector-size
     );
 }
 
@@ -152,12 +176,12 @@ method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
     run(qqw<mount --rbind $chroot-dir-boot $mount-dir>);
 }
 
-method install-vault-key(::?CLASS:D: --> Nil)
+method install-vault-key-file(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
 
     my VaultPass $vault-pass = $.config.vault-pass;
-    my VaultKey:D $vault-key = $.config.vault-key;
+    my VaultKeyFile:D $vault-key-file = $.config.vault-key-file;
     my Str:D $partition-vault = self.gen-partition('vault');
     my AbsolutePath:D $vault-header = do {
         my VaultHeader:D $vault-header = $.config.vault-header;
@@ -165,22 +189,22 @@ method install-vault-key(::?CLASS:D: --> Nil)
     };
 
     my VaultPass $bootvault-pass = $.config.bootvault-pass;
-    my BootvaultKey:D $bootvault-key = $.config.bootvault-key;
+    my BootvaultKeyFile:D $bootvault-key-file = $.config.bootvault-key-file;
     my Str:D $partition-bootvault = self.gen-partition('boot');
 
     # add key to vault
-    Voidvault::Utils.install-vault-key(
+    Voidvault::Utils.install-vault-key-file(
         :$partition-vault,
-        :$vault-key,
+        :$vault-key-file,
         :$vault-pass,
         :$chroot-dir,
         :$vault-header
     );
 
     # add key to boot vault
-    Voidvault::Utils.install-vault-key(
+    Voidvault::Utils.install-vault-key-file(
         :partition-vault($partition-bootvault),
-        :vault-key($bootvault-key),
+        :vault-key-file($bootvault-key-file),
         :vault-pass($bootvault-pass),
         :$chroot-dir
     );
@@ -188,7 +212,7 @@ method install-vault-key(::?CLASS:D: --> Nil)
 
 multi method configure-crypttab(::?CLASS:D: --> Nil)
 {
-    # configure /etc/crypttab for vault and bootvault keys
+    # configure /etc/crypttab for vault and bootvault key files
     self.replace($Voidvault::Constants::FILE-CRYPTTAB, '1fa');
 }
 

@@ -26,10 +26,10 @@ has VaultPass $.bootvault-pass =
         ?? gen-vault-pass(%*ENV<VOIDVAULT_BOOTVAULT_PASS>)
         !! Nil;
 
-# intended path to LUKS encrypted boot volume key on bootstrapped system
-has BootvaultKey:D $.bootvault-key =
-    ?%*ENV<VOIDVAULT_BOOTVAULT_KEY>
-        ?? gen-bootvault-key(%*ENV<VOIDVAULT_BOOTVAULT_KEY>)
+# intended path to LUKS encrypted boot volume key file on bootstrapped system
+has BootvaultKeyFile:D $.bootvault-key-file =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_KEY_FILE>
+        ?? gen-bootvault-key-file(%*ENV<VOIDVAULT_BOOTVAULT_KEY_FILE>)
         !! sprintf(
             Q{%s/keys/boot.key},
             $Voidvault::Constants::SECRET-PREFIX-BOOTVAULT
@@ -43,6 +43,36 @@ has VaultHeader:D $.vault-header =
             Q{%s/headers/root.header},
             $Voidvault::Constants::SECRET-PREFIX-VAULT
         );
+
+has Str:D $.bootvault-cipher =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_CIPHER>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_CIPHER>
+        !! 'aes-xts-plain64';
+
+has Str:D $.bootvault-hash =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_HASH>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_HASH>
+        !! 'sha512';
+
+has Str:D $.bootvault-iter-time =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_ITER_TIME>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_ITER_TIME>
+        !! '5000';
+
+has Str:D $.bootvault-key-size =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_KEY_SIZE>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_KEY_SIZE>
+        !! '512';
+
+has Str $.bootvault-offset =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_OFFSET>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_OFFSET>
+        !! Nil;
+
+has Str $.bootvault-sector-size =
+    ?%*ENV<VOIDVAULT_BOOTVAULT_SECTOR_SIZE>
+        ?? %*ENV<VOIDVAULT_BOOTVAULT_SECTOR_SIZE>
+        !! Nil;
 
 
 # -----------------------------------------------------------------------------

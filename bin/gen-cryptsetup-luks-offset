@@ -1,0 +1,48 @@
+#!/usr/bin/env raku
+use v6;
+use Voidvault::Parser::VaultOffset;
+use X::Voidvault::Parser::VaultOffset;
+
+constant $HELP = q:to/EOF/.trim;
+Usage:
+  gen-cryptsetup-luks-offset <offset>
+  gen-cryptsetup-luks-offset 5G
+  cryptsetup --offset $(gen-cryptsetup-luks-offset 5GiB) luksFormat /dev/sda
+
+Options:
+  -h, --help
+    Print this help message
+
+Offset
+  K,KiB     kibibytes
+  M,MiB     mebibytes
+  G,GiB     gibibtes
+  T,TiB     tebibytes
+EOF
+
+sub MAIN(Str:D $content --> Nil)
+{
+    my $offset = try Voidvault::Parser::VaultOffset.parse($content);
+    bail($!.message) if $!;
+    say($offset);
+}
+
+sub bail(Str:D $message)
+{
+    note($message);
+    note('');
+    USAGE(:error);
+    exit(1);
+}
+
+multi sub USAGE(Bool:D :error($)! where .so --> Nil)
+{
+    note($HELP);
+}
+
+multi sub USAGE(--> Nil)
+{
+    say($HELP);
+}
+
+# vim: set filetype=raku foldmethod=marker foldlevel=0:

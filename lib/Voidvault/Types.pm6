@@ -1159,11 +1159,11 @@ subset BootvaultSecretPrefix of AbsolutePath where
 # enforce LUKS encrypted vault detached header resides within /boot
 subset VaultHeader of VaultSecretPrefix is export;
 
-# enforce LUKS encrypted volume key resides within /boot
-subset VaultKey of VaultSecretPrefix is export;
+# enforce LUKS encrypted volume key file resides within /boot
+subset VaultKeyFile of VaultSecretPrefix is export;
 
-# enforce LUKS encrypted boot volume key resides within /root
-subset BootvaultKey of BootvaultSecretPrefix is export;
+# enforce LUKS encrypted boot volume key file resides within /root
+subset BootvaultKeyFile of BootvaultSecretPrefix is export;
 
 # LUKS encrypted volume device mapper name
 subset VaultName of Str is export where
