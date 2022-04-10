@@ -205,6 +205,8 @@ Options (1FA/2FA):
 Options (2FA):
   --bootvault-device=<device>
     Target block device for encrypted boot volume
+  --partitionless=<bool>
+    Do not partition vault
 
 Arguments:
   mode      Activate mode

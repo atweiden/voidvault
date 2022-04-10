@@ -1091,6 +1091,15 @@ constant @timezones = qw<
 >;
 
 # end timezones }}}
+# udev-property {{{
+
+# there are many more than this, but we only care about these two
+constant @udev-property = qw<
+    DEVLINKS
+    ID_SERIAL_SHORT
+>;
+
+# end udev-property }}}
 # vault-type {{{
 
 constant @vault-type = qw<
@@ -1137,6 +1146,9 @@ subset Processor of Str is export where { %processors.keys.grep($_) };
 
 # timezone
 subset Timezone of Str is export where { @timezones.grep($_) };
+
+# device information stored in udev database
+subset UdevProperty of Str is export where { @udev-property.grep($_) };
 
 # linux username
 subset UserName of Str is export where

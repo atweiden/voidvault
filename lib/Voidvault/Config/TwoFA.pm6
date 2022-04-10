@@ -14,6 +14,12 @@ has Str:D $.bootvault-device =
     %*ENV<VOIDVAULT_BOOTVAULT_DEVICE>
         || prompt-device(Voidvault::Utils.ls-devices);
 
+# whether to I<not> partition vault
+has Bool:D $.partitionless =
+    %*ENV<VOIDVAULT_PARTITIONLESS>
+        ?? ?%*ENV<VOIDVAULT_PARTITIONLESS>
+        !! True;
+
 
 # -----------------------------------------------------------------------------
 # instantiation
@@ -55,6 +61,7 @@ multi submethod BUILD(
     Str :$bootvault-offset,
     Str :$bootvault-sector-size,
     Str :$bootvault-device,
+    Bool :$partitionless,
     *%
     --> Nil
 )
@@ -65,6 +72,8 @@ multi submethod BUILD(
         if $bootvault-pass;
     $!bootvault-key-file = gen-bootvault-key-file($bootvault-key-file)
         if $bootvault-key-file;
+    $!vault-header = gen-vault-header($vault-header)
+        if $vault-header;
     $!bootvault-cipher = $bootvault-cipher
         if $bootvault-cipher;
     $!bootvault-hash = $bootvault-hash
@@ -79,8 +88,8 @@ multi submethod BUILD(
         if $bootvault-sector-size;
     $!bootvault-device = $bootvault-device
         if $bootvault-device;
-    $!vault-header = gen-vault-header($vault-header)
-        if $vault-header;
+    $!partitionless = $partitionless
+        if $partitionless.defined;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

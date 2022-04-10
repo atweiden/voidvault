@@ -57,6 +57,24 @@ multi method enable-luks(
     push(@grub-cmdline-linux, $_) for @enable-luks;
 }
 
+multi method enable-luks(
+    'ID',
+    Str:D @grub-cmdline-linux,
+    Str:D :$partition-vault! where .so,
+    Str:D :$vault-name! where .so
+    --> Nil
+)
+{
+    my Str:D $vault-id =
+        Voidvault::Utils.udevadm('ID_SERIAL_SHORT', :device($partition-vault));
+    my Str:D @enable-luks = qqw<
+        rd.luks=1
+        rd.luks.serial=$vault-id
+        rd.luks.name=$vault-id=$vault-name
+    >;
+    push(@grub-cmdline-linux, $_) for @enable-luks;
+}
+
 method enable-serial-console(
     Str:D @grub-cmdline-linux,
     Str:D $subject where .so

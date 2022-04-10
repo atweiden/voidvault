@@ -67,6 +67,7 @@ my role Args[Mode:D $ where Mode::<2FA>]
 {
     also does Args[Mode::<1FA>];
     has Str $.bootvault-device;
+    has Bool $.partitionless;
 }
 
 my role Opts

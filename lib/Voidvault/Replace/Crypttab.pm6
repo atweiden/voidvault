@@ -30,6 +30,32 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
     spurt($file, "\n" ~ $key, :append);
 }
 
+multi method replace(::?CLASS:D: Str:D $ where $FILE, '2fa' --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $file = sprintf(Q{%s%s}, $chroot-dir, $FILE);
+
+    my Str:D $device = $.config.device;
+    my VaultName:D $vault-name = $.config.vault-name;
+    my VaultKeyFile:D $vault-key-file = $.config.vault-key-file;
+    my VaultHeader:D $vault-header = $.config.vault-header;
+
+    # find vault via /dev/disk/by-id
+    my AbsolutePath:D $vault-devlinks =
+        Voidvault::Utils.udevadm('DEVLINKS', :$device);
+
+    my VaultName:D $bootvault-name = $.config.bootvault-name;
+    my BootvaultKeyFile:D $bootvault-key-file = $.config.bootvault-key-file;
+    my Str:D $partition-bootvault = self.gen-partition('boot');
+    my Str:D $bootvault-uuid = Voidvault::Utils.uuid($partition-bootvault);
+
+    my Str:D $key = qq:to/EOF/;
+    $vault-name   $vault-devlinks   $vault-key-file   luks,force,header=$vault-header
+    $bootvault-name   UUID=$bootvault-uuid   $bootvault-key-file   luks
+    EOF
+    spurt($file, "\n" ~ $key, :append);
+}
+
 multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;

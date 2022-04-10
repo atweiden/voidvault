@@ -385,6 +385,14 @@ method partuuid(Str:D $partition --> Str:D)
         qqx<blkid --match-tag PARTUUID --output value $partition>.trim;
 }
 
+method udevadm(UdevProperty:D $property, Str:D :$device! where .so --> Str:D)
+{
+    my Str:D $device-information =
+        qqx<udevadm info --query=all --name=$device>.trim;
+    my Str:D $result =
+        $device-information.lines.grep(/$property'='/).first.split('=').tail;
+}
+
 method uuid(Str:D $partition --> Str:D)
 {
     my Str:D $uuid =
