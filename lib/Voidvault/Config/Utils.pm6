@@ -331,7 +331,7 @@ sub gen-vault-pass(Str:D $p --> VaultPass:D) is export
 sub gen-vault-offset(Str:D $o --> Str:D) is export
 {
     # C<Rat> inevitably must be converted into C<Str> for shell execution
-    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset($o).parse;
+    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset.parse($o);
 }
 
 
