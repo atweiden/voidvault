@@ -99,7 +99,7 @@ method vault-header-chomped(::?CLASS:D: --> AbsolutePath:D)
     # take advantage of the fact <$.vault-header> is typed C<VaultHeader>
     my AbsolutePath:D $vault-header-chomped =
         # C<VaultHeader> type validity hinges upon C<SECRET-PREFIX-VAULT>
-        chomp-secret-prefix(:vault, $!vault-header);
+        chomp-secret-prefix(:vault, $.vault-header);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
