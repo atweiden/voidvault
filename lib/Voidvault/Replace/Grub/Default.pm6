@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Constants;
+use Voidvault::DeviceInfo;
 use Voidvault::Replace::Grub::Utils;
 use Voidvault::Types;
 unit role Voidvault::Replace::Grub::Default;
@@ -9,37 +10,33 @@ my constant $FILE = $Voidvault::Constants::FILE-GRUB-DEFAULT;
 multi method replace(
     ::?CLASS:D:
     Str:D $ where $FILE,
-    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
-    # refer to vault by UUID as opposed to PARTUUID
-    Str:D $enable-luks = 'UUID'
+    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
     --> Nil
 )
 {
+    my $utils = Voidvault::Replace::Grub::Utils;
+
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
-    my $default-utils = Voidvault::Replace::Grub::Utils;
 
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
     my Str:D @grub-cmdline-linux;
-    $default-utils.set-log-level('informational', @grub-cmdline-linux);
-    $default-utils.enable-luks(
-        $enable-luks,
-        @grub-cmdline-linux,
-        :$partition-vault,
-        :$vault-name
-    );
-    $default-utils.enable-serial-console(@grub-cmdline-linux, $subject)
+    $utils.set-log-level('informational', @grub-cmdline-linux);
+    $utils.enable-luks(@grub-cmdline-linux, :$partition-vault, :$vault-name);
+    $utils.enable-serial-console(@grub-cmdline-linux, $subject)
         if $enable-serial-console;
-    $default-utils.enable-security-features(@grub-cmdline-linux);
-    $default-utils.enable-radeon(@grub-cmdline-linux) if $graphics eq 'RADEON';
-    $default-utils.disable-ipv6(@grub-cmdline-linux) if $disable-ipv6.so;
+    $utils.enable-security-features(@grub-cmdline-linux);
+    $utils.enable-radeon(@grub-cmdline-linux)
+        if $graphics eq 'RADEON';
+    $utils.disable-ipv6(@grub-cmdline-linux)
+        if $disable-ipv6.so;
 
     # replace GRUB_CMDLINE_LINUX_DEFAULT
-    $default-utils.finalize($subject, @grub-cmdline-linux, :$chroot-dir);
+    $utils.finalize($subject, @grub-cmdline-linux, :$chroot-dir);
 }
 
 multi method replace(

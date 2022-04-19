@@ -45,7 +45,7 @@ Todo
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
   [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
-- document eudev requirement for partitionless 2fa mode
+- document eudev requirement for 2fa mode
 - validate configurable cryptsetup options
   - `--vault-cipher`
 - use typestate pattern

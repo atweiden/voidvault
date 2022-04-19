@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Constants;
+use Voidvault::DeviceInfo;
 use Voidvault::Types;
 unit class Voidvault::Utils;
 
@@ -190,6 +191,48 @@ method build-mount-btrfs-cmdline(
 # system
 # -----------------------------------------------------------------------------
 
+method blkid(Str:D $device, Str:D :$tag = 'none' --> Str:D)
+{
+    my Str:D $value = qqx<blkid --match-tag $tag --output value $device>.trim;
+}
+
+method device-info(Str:D $device --> DeviceInfo:D)
+{
+    my $uuid = Voidvault::Utils.blkid($device, :tag<UUID>);
+    my DeviceInfo:D $device-info = device-info($device, :$uuid);
+}
+
+# device UUID found
+multi sub device-info(Str:D $, :$uuid! where .so --> DeviceInfo:D)
+{
+    my DeviceInfo:D $device-info = DeviceInfo[DeviceLocator::UUID].new(:$uuid);
+}
+
+# device UUID not found - look for device PARTUUID
+multi sub device-info(Str:D $device, :uuid($)! --> DeviceInfo:D)
+{
+    my $partuuid = Voidvault::Utils.blkid($device, :tag<PARTUUID>);
+    my DeviceInfo:D $device-info = device-info($device, :$partuuid);
+}
+
+# device PARTUUID found
+multi sub device-info(Str:D $, :$partuuid! where .so --> DeviceInfo:D)
+{
+    my DeviceInfo:D $device-info =
+        DeviceInfo[DeviceLocator::PARTUUID].new(:$partuuid);
+}
+
+# device PARTUUID not found - look for device ID
+multi sub device-info(Str:D $device, :partuuid($)! --> DeviceInfo:D)
+{
+    my AbsolutePath:D $devlinks =
+        Voidvault::Utils.udevadm('DEVLINKS', :$device);
+    my Str:D $id-serial-short =
+        Voidvault::Utils.udevadm('ID_SERIAL_SHORT', :$device);
+    my DeviceInfo:D $device-info =
+        DeviceInfo[DeviceLocator::ID].new(:$devlinks, :$id-serial-short);
+}
+
 method groupadd(
     AbsolutePath:D :$chroot-dir! where .so,
     *@group-name (Str:D $, *@),
@@ -379,24 +422,12 @@ method mkdir-parent(
     mkdir($parent, $permissions);
 }
 
-method partuuid(Str:D $partition --> Str:D)
-{
-    my Str:D $partuuid =
-        qqx<blkid --match-tag PARTUUID --output value $partition>.trim;
-}
-
 method udevadm(UdevProperty:D $property, Str:D :$device! where .so --> Str:D)
 {
     my Str:D $device-information =
         qqx<udevadm info --query=all --name=$device>.trim;
     my Str:D $result =
         $device-information.lines.grep(/$property'='/).first.split('=').tail;
-}
-
-method uuid(Str:D $partition --> Str:D)
-{
-    my Str:D $uuid =
-        qqx<blkid --match-tag UUID --output value $partition>.trim;
 }
 
 # chroot into C<$chroot-dir> to then C<dracut>

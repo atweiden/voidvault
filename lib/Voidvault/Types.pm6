@@ -1117,6 +1117,9 @@ constant @vault-type = qw<
 subset AbsolutePath of Str is export where .defined && .IO.is-absolute.so;
 subset RelativePath of Str is export where .defined && .IO.is-relative.so;
 
+# locator for target device
+enum DeviceLocator is export <ID PARTUUID UUID>;
+
 # hard disk type
 subset DiskType of Str is export where { %disktypes.keys.grep($_) };
 

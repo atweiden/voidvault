@@ -225,16 +225,6 @@ multi method generate-initramfs(
     self.replace($Voidvault::Constants::FILE-DRACUT, $subject, '1fa');
 }
 
-multi method configure-bootloader(
-    ::?CLASS:D:
-    'default',
-    Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT'
-    --> Nil
-)
-{
-    self.replace($Voidvault::Constants::FILE-GRUB-DEFAULT, $subject, 'PARTUUID');
-}
-
 method secure-secret-prefix(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;

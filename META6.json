@@ -33,6 +33,7 @@
         "Voidvault::ConfigArgs::Constants"        : "lib/Voidvault/ConfigArgs/Constants.pm6",
         "Voidvault::ConfigArgs::Utils"            : "lib/Voidvault/ConfigArgs/Utils.pm6",
         "Voidvault::Constants"                    : "lib/Voidvault/Constants.pm6",
+        "Voidvault::DeviceInfo"                   : "lib/Voidvault/DeviceInfo.pm6",
         "Voidvault::Grammar"                      : "lib/Voidvault/Grammar.pm6",
         "Voidvault::Parser::VaultOffset"          : "lib/Voidvault/Parser/VaultOffset.pm6",
         "Voidvault::Parser::VaultOffset::Actions" : "lib/Voidvault/Parser/VaultOffset/Actions.pm6",

@@ -1,5 +1,6 @@
 use v6;
 use Voidvault::Constants;
+use Voidvault::DeviceInfo;
 use Voidvault::Types;
 use Voidvault::Utils;
 unit role Voidvault::Replace::Grub::Utils;
@@ -23,56 +24,53 @@ multi sub gen-log-level('notice' --> Str:D)        { '5' }
 multi sub gen-log-level('informational' --> Str:D) { '6' }
 multi sub gen-log-level('debug' --> Str:D)         { '7' }
 
-multi method enable-luks(
-    'UUID',
+method enable-luks(
     Str:D @grub-cmdline-linux,
     Str:D :$partition-vault! where .so,
     Str:D :$vault-name! where .so
     --> Nil
 )
 {
-    my Str:D $vault-uuid = Voidvault::Utils.uuid($partition-vault);
-    my Str:D @enable-luks = qqw<
-        rd.luks=1
-        rd.luks.uuid=$vault-uuid
-        rd.luks.name=$vault-uuid=$vault-name
-    >;
-    push(@grub-cmdline-linux, $_) for @enable-luks;
+    push(@grub-cmdline-linux, 'rd.luks=1');
+    my DeviceInfo:D $device-info =
+        Voidvault::Utils.device-info($partition-vault);
+    enable-luks(@grub-cmdline-linux, :$device-info, :$vault-name);
 }
 
-multi method enable-luks(
-    'PARTUUID',
+multi sub enable-luks(
     Str:D @grub-cmdline-linux,
-    Str:D :$partition-vault! where .so,
+    DeviceInfo[DeviceLocator::UUID] :$device-info! where .so,
     Str:D :$vault-name! where .so
     --> Nil
 )
 {
-    my Str:D $vault-partuuid = Voidvault::Utils.partuuid($partition-vault);
-    my Str:D @enable-luks = qqw<
-        rd.luks=1
-        rd.luks.partuuid=$vault-partuuid
-        rd.luks.name=$vault-partuuid=$vault-name
-    >;
-    push(@grub-cmdline-linux, $_) for @enable-luks;
+    my Str:D $vault-uuid = $device-info.uuid;
+    push(@grub-cmdline-linux, "rd.luks.uuid=$vault-uuid");
+    push(@grub-cmdline-linux, "rd.luks.name=$vault-uuid=$vault-name");
 }
 
-multi method enable-luks(
-    'ID',
+multi sub enable-luks(
     Str:D @grub-cmdline-linux,
-    Str:D :$partition-vault! where .so,
+    DeviceInfo[DeviceLocator::PARTUUID] :$device-info! where .so,
     Str:D :$vault-name! where .so
     --> Nil
 )
 {
-    my Str:D $vault-id =
-        Voidvault::Utils.udevadm('ID_SERIAL_SHORT', :device($partition-vault));
-    my Str:D @enable-luks = qqw<
-        rd.luks=1
-        rd.luks.serial=$vault-id
-        rd.luks.name=$vault-id=$vault-name
-    >;
-    push(@grub-cmdline-linux, $_) for @enable-luks;
+    my Str:D $vault-partuuid = $device-info.partuuid;
+    push(@grub-cmdline-linux, "rd.luks.partuuid=$vault-partuuid");
+    push(@grub-cmdline-linux, "rd.luks.name=$vault-partuuid=$vault-name");
+}
+
+multi sub enable-luks(
+    Str:D @grub-cmdline-linux,
+    DeviceInfo[DeviceLocator::ID] :$device-info! where .so,
+    Str:D :$vault-name! where .so
+    --> Nil
+)
+{
+    my Str:D $vault-id = $device-info.id-serial-short;
+    push(@grub-cmdline-linux, "rd.luks.serial=$vault-id");
+    push(@grub-cmdline-linux, "rd.luks.name=$vault-id=$vault-name");
 }
 
 method enable-serial-console(
