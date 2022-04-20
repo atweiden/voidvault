@@ -15,7 +15,7 @@ class X::Voidvault::Parser::VaultOffset::Alignment
     }
 }
 
-# end X::Voidvault::Parser::VaultOffset::Alignment  }}}
+# end X::Voidvault::Parser::VaultOffset::Alignment }}}
 # X::Voidvault::Parser::VaultOffset::Invalid {{{
 
 class X::Voidvault::Parser::VaultOffset::Invalid
@@ -31,6 +31,6 @@ class X::Voidvault::Parser::VaultOffset::Invalid
     }
 }
 
-# end X::Voidvault::Parser::VaultOffset::Invalid  }}}
+# end X::Voidvault::Parser::VaultOffset::Invalid }}}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
