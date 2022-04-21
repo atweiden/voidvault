@@ -3,6 +3,7 @@ Todo
 
 - add `random.trust_bootloader=0` to unprivilege bootloader [once
   available in kernel][random.trust_bootloader]
+- add hardening measures from [plague][plague] where appropriate
 - enable [jitterentropy-rngd][jitterentropy-rngd i]
   ([i][jitterentropy-rngd ii])
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
@@ -59,6 +60,7 @@ Todo
   - see: https://github.com/atweiden/voidvault/issues/7
 
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
+[plague]: https://git.arrr.cloud/whichdoc/plagueos
 [jitterentropy-rngd i]: https://github.com/void-linux/void-packages/pull/36401
 [jitterentropy-rngd ii]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
