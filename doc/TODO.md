@@ -5,7 +5,6 @@ Todo
   i][2][RDRAND ii][3][RDRAND iii][4][RDRAND iv][5])
 - add `random.trust_bootloader=0` to unprivilege bootloader [once
   available in kernel][random.trust_bootloader]
-- add [modprobe settings from whonix][modprobe settings from whonix]
 - add [grub settings from whonix][grub settings from whonix]
 - add [grub settings from tails][grub settings from tails]
 - add [modules-load.d settings from whonix][modules-load.d settings from whonix]
@@ -67,7 +66,6 @@ Todo
 [RDRAND iii]: https://forums.whonix.org/t/use-kernel-command-line-as-a-source-of-randomness/8945/15
 [RDRAND iv]: https://daniel-lange.com/archives/152-hello-buster.html
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
-[modprobe settings from whonix]: https://github.com/Whonix/security-misc/blob/master/etc/modprobe.d/30_security-misc.conf
 [grub settings from whonix]: https://github.com/Whonix/security-misc/tree/master/etc/default/grub.d
 [grub settings from tails]: https://tails.boum.org/contribute/design/kernel_hardening/
 [modules-load.d settings from whonix]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
