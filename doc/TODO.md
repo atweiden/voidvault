@@ -1,13 +1,10 @@
 Todo
 ====
 
-- add `random.trust_cpu=0` to unprivilege RDRAND ([1][RDRAND
-  i][2][RDRAND ii][3][RDRAND iii][4][RDRAND iv][5])
 - add `random.trust_bootloader=0` to unprivilege bootloader [once
   available in kernel][random.trust_bootloader]
-- add [grub settings from whonix][grub settings from whonix]
-- add [grub settings from tails][grub settings from tails]
-- add [modules-load.d settings from whonix][modules-load.d settings from whonix]
+- enable [jitterentropy-rngd][jitterentropy-rngd i]
+  ([i][jitterentropy-rngd ii])
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
   - likely grub-2.06
@@ -61,14 +58,9 @@ Todo
 - test voidvault installation to hdd in secondary drive bay
   - see: https://github.com/atweiden/voidvault/issues/7
 
-[RDRAND i]: https://github.com/QubesOS/qubes-issues/issues/6941
-[RDRAND ii]: https://forums.whonix.org/t/rdrand-entropy-config-random-trust-cpu-yes-or-no-rng-core-default-quality/8566
-[RDRAND iii]: https://forums.whonix.org/t/use-kernel-command-line-as-a-source-of-randomness/8945/15
-[RDRAND iv]: https://daniel-lange.com/archives/152-hello-buster.html
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
-[grub settings from whonix]: https://github.com/Whonix/security-misc/tree/master/etc/default/grub.d
-[grub settings from tails]: https://tails.boum.org/contribute/design/kernel_hardening/
-[modules-load.d settings from whonix]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
+[jitterentropy-rngd i]: https://github.com/void-linux/void-packages/pull/36401
+[jitterentropy-rngd ii]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html

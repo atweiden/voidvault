@@ -118,6 +118,42 @@ method enable-security-features(Str:D @grub-cmdline-linux --> Nil)
     push(@grub-cmdline-linux, 'slab_nomerge=1');
     # always enable Kernel Page Table Isolation (to be safe from Meltdown)
     push(@grub-cmdline-linux, 'pti=on');
+    # unprivilege RDRAND (distrusts CPU for initial entropy at boot)
+    push(@grub-cmdline-linux, 'random.trust_cpu=off');
+    # zero memory at allocation and free time
+    push(@grub-cmdline-linux, 'init_on_alloc=1');
+    push(@grub-cmdline-linux, 'init_on_free=1');
+    # enable page allocator freelist randomization
+    push(@grub-cmdline-linux, 'page_alloc.shuffle=1');
+    # disable vsyscalls (inhibits return oriented programming)
+    push(@grub-cmdline-linux, 'vsyscall=none');
+    # restrict access to debugfs
+    push(@grub-cmdline-linux, 'debugfs=off');
+    # enable all mitigations for spectre variant 2
+    push(@grub-cmdline-linux, 'spectre_v2=on');
+    # disable speculative store bypass
+    push(@grub-cmdline-linux, 'spec_store_bypass_disable=on');
+    # disable TSX, enable all mitigations for TSX Async Abort
+    # vulnerability, and disable SMT
+    push(@grub-cmdline-linux, 'tsx=off');
+    push(@grub-cmdline-linux, 'tsx_async_abort=full,nosmt');
+    # enable all mitigations for MDS vulnerability and disable SMT
+    push(@grub-cmdline-linux, 'mds=full,nosmt');
+    # enable all mitigations for L1TF vulnerability, and disable SMT
+    # and L1D flush runtime control
+    push(@grub-cmdline-linux, 'l1tf=full,force');
+    # force disable SMT
+    push(@grub-cmdline-linux, 'nosmt=force');
+    # mark all huge pages in EPT non-executable (mitigates iTLB multihit)
+    push(@grub-cmdline-linux, 'kvm.nx_huge_pages=force');
+    # enable IOMMU (prevents DMA attacks)
+    push(@grub-cmdline-linux, 'intel_iommu=on');
+    push(@grub-cmdline-linux, 'amd_iommu=on');
+    push(@grub-cmdline-linux, 'amd_iommu=force_isolation');
+    push(@grub-cmdline-linux, 'iommu=force');
+    push(@grub-cmdline-linux, 'iommu.strict=1');
+    # disable busmaster bit on all PCI bridges (avoids holes in IOMMU)
+    push(@grub-cmdline-linux, 'efi=disable_early_pci_dma');
     # always panic on uncorrected errors, log corrected errors
     push(@grub-cmdline-linux, 'mce=0');
     push(@grub-cmdline-linux, 'printk.time=1');

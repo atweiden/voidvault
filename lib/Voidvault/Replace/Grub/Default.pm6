@@ -24,8 +24,8 @@ multi method replace(
     my VaultName:D $vault-name = $.config.vault-name;
 
     # prepare GRUB_CMDLINE_LINUX_DEFAULT
-    my Str:D @grub-cmdline-linux;
-    $utils.set-log-level('informational', @grub-cmdline-linux);
+    my Str:D @grub-cmdline-linux = 'quiet';
+    $utils.set-log-level('emergency', @grub-cmdline-linux);
     $utils.enable-luks(@grub-cmdline-linux, :$partition-vault, :$vault-name);
     $utils.enable-serial-console(@grub-cmdline-linux, $subject)
         if $enable-serial-console;
