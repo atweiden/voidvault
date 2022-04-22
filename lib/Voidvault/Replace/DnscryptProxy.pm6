@@ -25,6 +25,8 @@ multi sub replace(
         ==> replace('listen_addresses')
         # server must support DNS security extensions (DNSSEC)
         ==> replace('require_dnssec')
+        # disable undesireable resolvers
+        ==> replace('disabled_server_names')
         # always use TCP to connect to upstream servers
         ==> replace('force_tcp')
         # create new, unique key for each DNS query
@@ -35,8 +37,12 @@ multi sub replace(
         ==> replace('ignore_system_dns')
         # wait for network connectivity before initializing
         ==> replace('netprobe_timeout')
+        # immediately respond to IPv6 queries with empty response
+        ==> replace('block_ipv6')
         # disable DNS cache
-        ==> replace('cache');
+        ==> replace('cache')
+        # skip resolvers incompatible with anonymization
+        ==> replace('skip_incompatible');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
@@ -51,6 +57,8 @@ multi sub replace(
         $file.IO.lines
         # server must support DNS security extensions (DNSSEC)
         ==> replace('require_dnssec')
+        # disable undesireable resolvers
+        ==> replace('disabled_server_names')
         # always use TCP to connect to upstream servers
         ==> replace('force_tcp')
         # create new, unique key for each DNS query
@@ -62,7 +70,9 @@ multi sub replace(
         # wait for network connectivity before initializing
         ==> replace('netprobe_timeout')
         # disable DNS cache
-        ==> replace('cache');
+        ==> replace('cache')
+        # skip resolvers incompatible with anonymization
+        ==> replace('skip_incompatible');
     my Str:D $replace = @replace.join("\n");
     spurt($file, $replace ~ "\n");
 }
@@ -87,6 +97,18 @@ multi sub replace(
 {
     my UInt:D $index = @line.first(/^$subject/, :k);
     my Str:D $replace = sprintf(Q{%s = true}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    Str:D $subject where 'disabled_server_names',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject/, :k);
+    my Str:D $replace = sprintf(Q{%s = ['cloudflare-ipv6']}, $subject);
     @line[$index] = $replace;
     @line;
 }
@@ -152,6 +174,18 @@ multi sub replace(
 }
 
 multi sub replace(
+    Str:D $subject where 'block_ipv6',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject\h/, :k);
+    my Str:D $replace = sprintf(Q{%s = true}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
     Str:D $subject where 'cache',
     Str:D @line
     --> Array[Str:D]
@@ -159,6 +193,18 @@ multi sub replace(
 {
     my UInt:D $index = @line.first(/^$subject\h/, :k);
     my Str:D $replace = sprintf(Q{%s = false}, $subject);
+    @line[$index] = $replace;
+    @line;
+}
+
+multi sub replace(
+    Str:D $subject where 'skip_incompatible',
+    Str:D @line
+    --> Array[Str:D]
+)
+{
+    my UInt:D $index = @line.first(/^$subject\h/, :k);
+    my Str:D $replace = sprintf(Q{%s = true}, $subject);
     @line[$index] = $replace;
     @line;
 }

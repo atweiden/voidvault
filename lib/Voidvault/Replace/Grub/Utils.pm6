@@ -146,6 +146,9 @@ method enable-security-features(Str:D @grub-cmdline-linux --> Nil)
     push(@grub-cmdline-linux, 'nosmt=force');
     # mark all huge pages in EPT non-executable (mitigates iTLB multihit)
     push(@grub-cmdline-linux, 'kvm.nx_huge_pages=force');
+    # always perform cache flush when entering guest vm (limits unintended
+    # memory exposure to malicious guests)
+    push(@grub-cmdline-linux, 'kvm-intel.vmentry_l1d_flush=always');
     # enable IOMMU (prevents DMA attacks)
     push(@grub-cmdline-linux, 'intel_iommu=on');
     push(@grub-cmdline-linux, 'amd_iommu=on');

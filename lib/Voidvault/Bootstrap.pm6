@@ -68,8 +68,10 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-udev;
     self.configure-hidepid;
     self.configure-securetty;
+    self.configure-security-limits;
     self.configure-shell-timeout;
     self.configure-pamd;
+    self.configure-shadow;
     self.configure-xorg;
     self.configure-rc-local;
     self.configure-rc-shutdown;
@@ -987,6 +989,13 @@ method configure-securetty(::?CLASS:D: --> Nil)
 }
 
 
+method configure-security-limits(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my RelativePath:D $resource = 'etc/security/limits.d/30_security-misc.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
+}
+
 method configure-shell-timeout(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
@@ -998,6 +1007,25 @@ method configure-pamd(::?CLASS:D: --> Nil)
 {
     # raise number of passphrase hashing rounds C<passwd> employs
     self.replace($Voidvault::Constants::FILE-PAM);
+}
+
+method configure-shadow(--> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $crypt-rounds = ~$Voidvault::Constants::CRYPT-ROUNDS;
+    my Str:D $crypt-scheme = $Voidvault::Constants::CRYPT-SCHEME;
+
+    # set C<shadow> (group) passphrase encryption method and hashing
+    # rounds in line with pam
+    my Str:D $replace = qq:to/EOF/;
+    #
+    # Encrypt group passwords with {$crypt-scheme}-based algorithm ($crypt-rounds SHA rounds)
+    #
+    ENCRYPT_METHOD $crypt-scheme
+    SHA_CRYPT_MIN_ROUNDS $crypt-rounds
+    SHA_CRYPT_MAX_ROUNDS $crypt-rounds
+    EOF
+    spurt("$chroot-dir/etc/login.defs", "\n" ~ $replace, :append);
 }
 
 method configure-xorg(::?CLASS:D: --> Nil)
