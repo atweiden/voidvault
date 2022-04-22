@@ -992,7 +992,7 @@ method configure-securetty(::?CLASS:D: --> Nil)
 method configure-security-limits(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my RelativePath:D $resource = 'etc/security/limits.d/30_security-misc.conf';
+    my RelativePath:D $resource = 'etc/security/limits.d/coredump.conf';
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 

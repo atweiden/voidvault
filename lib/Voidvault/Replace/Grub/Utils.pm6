@@ -125,6 +125,8 @@ method enable-security-features(Str:D @grub-cmdline-linux --> Nil)
     push(@grub-cmdline-linux, 'init_on_free=1');
     # enable page allocator freelist randomization
     push(@grub-cmdline-linux, 'page_alloc.shuffle=1');
+    # randomize kernel stack offset on syscall entry
+    push(@grub-cmdline-linux, 'randomize_kstack_offset=on');
     # disable vsyscalls (inhibits return oriented programming)
     push(@grub-cmdline-linux, 'vsyscall=none');
     # restrict access to debugfs
@@ -154,9 +156,13 @@ method enable-security-features(Str:D @grub-cmdline-linux --> Nil)
     push(@grub-cmdline-linux, 'amd_iommu=on');
     push(@grub-cmdline-linux, 'amd_iommu=force_isolation');
     push(@grub-cmdline-linux, 'iommu=force');
+    # force IOMMU TLB invalidation (avoids access to stale data contents)
+    push(@grub-cmdline-linux, 'iommu.passthrough=0');
     push(@grub-cmdline-linux, 'iommu.strict=1');
     # disable busmaster bit on all PCI bridges (avoids holes in IOMMU)
     push(@grub-cmdline-linux, 'efi=disable_early_pci_dma');
+    # enable kernel lockdown (avoids userspace escalation to kernel mode)
+    push(@grub-cmdline-linux, 'lockdown=confidentiality');
     # always panic on uncorrected errors, log corrected errors
     push(@grub-cmdline-linux, 'mce=0');
     push(@grub-cmdline-linux, 'printk.time=1');

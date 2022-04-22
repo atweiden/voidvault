@@ -77,7 +77,7 @@
         "etc/profile.d/shell-timeout.sh",
         "etc/resolvconf.conf",
         "etc/securetty",
-        "etc/security/limits.d/30_security-misc.conf",
+        "etc/security/limits.d/coredump.conf",
         "etc/ssh/ssh_config",
         "etc/ssh/sshd_config",
         "etc/sysctl.d/99-sysctl.conf",
