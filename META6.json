@@ -82,6 +82,7 @@
         "etc/ssh/sshd_config",
         "etc/sysctl.d/99-sysctl.conf",
         "etc/udev/rules.d/60-io-schedulers.rules",
-        "usr/bin/genfstab"
+        "usr/bin/genfstab",
+        "var/lib/dbus/machine-id"
     ]
 }

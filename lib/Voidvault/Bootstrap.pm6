@@ -73,6 +73,7 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-pamd;
     self.configure-shadow;
     self.configure-xorg;
+    self.configure-dbus;
     self.configure-rc-local;
     self.configure-rc-shutdown;
     self.enable-runit-services;
@@ -1063,6 +1064,13 @@ multi sub configure-xorg(
 )
 {
     my RelativePath:D $resource = 'etc/X11/xorg.conf.d/99-security.conf';
+    Voidvault::Utils.install-resource($resource, :$chroot-dir);
+}
+
+method configure-dbus(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my RelativePath:D $resource = 'var/lib/dbus/machine-id';
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
