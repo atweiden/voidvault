@@ -104,6 +104,8 @@ Voidvault [disables Btrfs CoW][disables Btrfs CoW] on `/srv`,
 Voidvault mounts directories `/srv`, `/tmp`, `/var/lib/ex`, `/var/log`,
 `/var/spool` and `/var/tmp` with options `nodev,noexec,nosuid`.
 
+Voidvault mounts directory `/home` with options `nodev,nosuid`.
+
 
 Synopsis
 --------

@@ -252,6 +252,17 @@ multi sub gen-btrfs-subvolume-mount-options(
 }
 
 multi sub gen-btrfs-subvolume-mount-options(
+    Str:D :subvolume($)! where {
+        @Voidvault::Constants::SUBVOLUME-NODEV-NOSUID.grep($_)
+    },
+    Str:D :mount-option(@)!
+    --> Nil
+)
+{
+    push(@*mount-option, |qw<nodev nosuid>);
+}
+
+multi sub gen-btrfs-subvolume-mount-options(
     Str:D :subvolume($)!,
     Str:D :mount-option(@)!
     --> Nil

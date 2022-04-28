@@ -158,6 +158,11 @@ constant @SUBVOLUME-NODEV-NOEXEC-NOSUID = qw<
     @var-tmp
 >;
 
+# vault subvolumes selected for nodev,nosuid mount options
+constant @SUBVOLUME-NODEV-NOSUID = qw<
+    @home
+>;
+
 # vault subvolumes with mount directory selected for chmod 1777 treatment
 constant @SUBVOLUME-STICKY-BIT-A-PLUS-RWX = qw<
     @var-lib-ex
