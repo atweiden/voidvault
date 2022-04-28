@@ -36,7 +36,7 @@ method mkdisk(::?CLASS:D: --> Nil)
     self.mount-efi;
 
     # mount boot btrfs volume on root
-    self.mount-rbind-bootbtrfs;
+    self.mount-rbind-bootext4;
 
     # disable btrfs copy-on-write on select directories
     self.disable-cow;
@@ -167,7 +167,7 @@ method mount-efi(::?CLASS:D: --> Nil)
     run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
 }
 
-method mount-rbind-bootbtrfs(::?CLASS:D: --> Nil)
+method mount-rbind-bootext4(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
