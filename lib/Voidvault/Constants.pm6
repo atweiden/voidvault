@@ -179,9 +179,6 @@ constant @SUBVOLUME = qw<
     @var-tmp
 >;
 
-# sole subvolume created in btrfs filesystem made atop boot vault
-constant $SUBVOLUME-BOOT = '@boot';
-
 # runit services to enable
 constant @SERVICE = qw<
     dnscrypt-proxy
