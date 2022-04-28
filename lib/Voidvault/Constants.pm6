@@ -149,8 +149,8 @@ constant @DIRECTORY-BTRFS-NODATACOW = qw<
     /var/tmp
 >;
 
-# vault subvolumes selected for btrfs nodatacow treatment
-constant @SUBVOLUME-BTRFS-NODATACOW = qw<
+# vault subvolumes selected for nodev,noexec,nosuid mount options
+constant @SUBVOLUME-NODEV-NOEXEC-NOSUID = qw<
     @srv
     @var-lib-ex
     @var-log

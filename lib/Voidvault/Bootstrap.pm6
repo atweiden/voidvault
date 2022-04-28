@@ -242,7 +242,7 @@ proto sub gen-btrfs-subvolume-mount-options(
 
 multi sub gen-btrfs-subvolume-mount-options(
     Str:D :subvolume($)! where {
-        @Voidvault::Constants::SUBVOLUME-BTRFS-NODATACOW.grep($_)
+        @Voidvault::Constants::SUBVOLUME-NODEV-NOEXEC-NOSUID.grep($_)
     },
     Str:D :mount-option(@)!
     --> Nil
