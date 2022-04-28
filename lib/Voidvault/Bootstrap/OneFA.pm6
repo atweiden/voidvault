@@ -35,7 +35,7 @@ method mkdisk(::?CLASS:D: --> Nil)
     # mount efi boot
     self.mount-efi;
 
-    # mount boot btrfs volume on root
+    # mount boot ext4 volume on root
     self.mount-rbind-bootext4;
 
     # disable btrfs copy-on-write on select directories
