@@ -140,6 +140,17 @@ constant @PACKAGE-BASE = qw<
     zstd
 >;
 
+# directories selected for bind mounting in order of being mounted
+constant @DIRECTORY-BIND-MOUNTED = qw<
+    /boot
+    /etc
+    /mnt
+    /root
+    /usr
+    /usr/lib
+    /usr/lib32
+>;
+
 # directories selected for btrfs nodatacow treatment
 constant @DIRECTORY-BTRFS-NODATACOW = qw<
     /srv
@@ -152,8 +163,11 @@ constant @DIRECTORY-BTRFS-NODATACOW = qw<
 # vault subvolumes selected for nodev,noexec,nosuid mount options
 constant @SUBVOLUME-NODEV-NOEXEC-NOSUID = qw<
     @srv
+    @var
+    @var-cache-xbps
     @var-lib-ex
     @var-log
+    @var-opt
     @var-spool
     @var-tmp
 >;
@@ -161,6 +175,11 @@ constant @SUBVOLUME-NODEV-NOEXEC-NOSUID = qw<
 # vault subvolumes selected for nodev,nosuid mount options
 constant @SUBVOLUME-NODEV-NOSUID = qw<
     @home
+>;
+
+# vault subvolumes selected for nodev mount option
+constant @SUBVOLUME-NODEV = qw<
+    @opt
 >;
 
 # vault subvolumes with mount directory selected for chmod 1777 treatment

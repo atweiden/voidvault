@@ -422,6 +422,46 @@ method mkdir-parent(
     mkdir($parent, $permissions);
 }
 
+method secure-mount(
+    Str:D $path where .so,
+    AbsolutePath:D :$chroot-dir! where .so,
+    # default to C<--bind> mounting prior to remount
+    Bool:D :$bind = True,
+    Bool :$nodev,
+    Bool :$noexec,
+    Bool :$nosuid
+    --> Str:D
+)
+{
+    my Str:D $mount-dir = sprintf(Q{%s%s}, $chroot-dir, $path);
+    run(qqw<mount --bind $mount-dir $mount-dir>) if $bind;
+
+    my Str:D @mount-options = 'remount';
+    push(@mount-options, 'nodev') if $nodev;
+    push(@mount-options, 'noexec') if $noexec;
+    push(@mount-options, 'nosuid') if $nosuid;
+
+    my Str:D $mount-options = @mount-options.join(',');
+
+    run(qqw<mount --options $mount-options $mount-dir>);
+
+    $mount-dir;
+}
+
+method secure-mount-efi(
+    Str:D :$partition-efi! where .so,
+    AbsolutePath:D :$directory-efi! where .so
+    --> Nil
+)
+{
+    mkdir($directory-efi);
+    my Str:D $mount-options = qw<
+        nodev
+        nosuid
+    >.join(',');
+    run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
+}
+
 method udevadm(UdevProperty:D $property, Str:D :$device! where .so --> Str:D)
 {
     my Str:D $device-information =

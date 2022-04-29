@@ -63,8 +63,7 @@ could cause catastrophic data loss and system instability.
 - ten minute shell timeout, your current shell or user
   session will end after ten minutes of inactivity (see:
   [resources/etc/profile.d/shell-timeout.sh](resources/etc/profile.d/shell-timeout.sh))
-- [hides process information][hides process information] from all other
-  users besides admin
+- [hides process information][hidepid] from all other users besides admin
 - [denies console login as root][denies console login as root]
 - disables GRUB recovery mode
 - uses mq-deadline I/O scheduler for SSDs, BFQ for HDDs (see:
@@ -84,27 +83,37 @@ could cause catastrophic data loss and system instability.
 Voidvault creates the following Btrfs subvolumes with a [flat layout][flat
 layout]:
 
-Subvolume name       | Mounting point
----                  | ---
-`@`                  | `/`
-`@home`              | `/home`
-`@opt`               | `/opt`
-`@srv`               | `/srv`
-`@var`               | `/var`
-`@var-cache-xbps`    | `/var/cache/xbps`
-`@var-lib-ex`        | `/var/lib/ex`
-`@var-log`           | `/var/log`
-`@var-opt`           | `/var/opt`
-`@var-spool`         | `/var/spool`
-`@var-tmp`           | `/var/tmp`
+Subvolume name    | Mounting point    | Mount options
+---               | ---               | ---
+`@`               | `/`               |
+`@home`           | `/home`           | `nodev,nosuid`
+`@opt`            | `/opt`            | `nodev`
+`@srv`            | `/srv`            | `nodev,noexec,nosuid` + [nodatacow][nodatacow]¹
+`@var`            | `/var`            | `nodev,noexec,nosuid`
+`@var-cache-xbps` | `/var/cache/xbps` | `nodev,noexec,nosuid`
+`@var-lib-ex`     | `/var/lib/ex`     | `nodev,noexec,nosuid` + nodatacow
+`@var-log`        | `/var/log`        | `nodev,noexec,nosuid` + nodatacow
+`@var-opt`        | `/var/opt`        | `nodev,noexec,nosuid`
+`@var-spool`      | `/var/spool`      | `nodev,noexec,nosuid` + nodatacow
+`@var-tmp`        | `/var/tmp`        | `nodev,noexec,nosuid` + nodatacow
 
-Voidvault [disables Btrfs CoW][disables Btrfs CoW] on `/srv`,
-`/var/lib/ex`, `/var/log`, `/var/spool` and `/var/tmp`.
+¹: via `chattr -R +C`, not mount options
 
-Voidvault mounts directories `/srv`, `/tmp`, `/var/lib/ex`, `/var/log`,
-`/var/spool` and `/var/tmp` with options `nodev,noexec,nosuid`.
+Additionally, Voidvault mounts the following directories with [protective
+mount options][protective mount options]:
 
-Voidvault mounts directory `/home` with options `nodev,nosuid`.
+Directory    | Mount options
+---          | ---
+`/boot`      | `nodev,noexec,nosuid`
+`/boot/efi`  | `nodev,nosuid`
+`/etc`       | `nodev,nosuid`
+`/mnt`       | `nodev`
+`/proc`      | `nodev,noexec,nosuid` + [hidepid][hidepid]
+`/root`      | `nodev`
+`/tmp`       | `nodev,noexec,nosuid`
+`/usr`       | `nodev`
+`/usr/lib`   | `nodev,nosuid`
+`/usr/lib32` | `nodev,nosuid`
 
 
 Synopsis
@@ -265,31 +274,31 @@ See: [INSTALL.md](INSTALL.md).
 Dependencies
 ------------
 
-Name                 | Provides                                                 | Included in Void ISO¹?
----                  | ---                                                      | ---
-btrfs-progs          | Btrfs support                                            | Y
-coreutils            | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
-cryptsetup           | FDE with LUKS                                            | Y
-dosfstools           | create VFAT filesystem for UEFI with `mkfs.vfat`         | Y
-e2fsprogs            | `chattr`                                                 | Y
-efibootmgr           | UEFI support                                             | Y
-expect               | interactive command prompt automation                    | N
-glibc²               | libcrypt, locale data in `/usr/share/i18n/locales`       | Y
-gptfdisk             | GPT disk partitioning with `sgdisk`                      | N
-grub                 | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                   | Y
-kbd                  | keymap data in `/usr/share/kbd/keymaps`, `setfont`       | Y
-kmod                 | `modprobe`                                               | Y
-musl²                | libcrypt                                                 | Y
-openssl              | user password salts                                      | Y
-procps-ng            | `pkill`                                                  | Y
-rakudo               | `voidvault` Raku runtime                                 | N
-tzdata               | timezone data in `/usr/share/zoneinfo/zone.tab`          | Y
-util-linux           | `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`, `unshare` | Y
-xbps                 | `xbps-install`, `xbps-query`, `xbps-reconfigure`         | Y
+Name        | Provides                                                 | Included in Void ISO²?
+---         | ---                                                      | ---
+btrfs-progs | Btrfs support                                            | Y
+coreutils   | `chmod`, `chown`, `chroot`, `cp`, `rm`                   | Y
+cryptsetup  | FDE with LUKS                                            | Y
+dosfstools  | create VFAT filesystem for UEFI with `mkfs.vfat`         | Y
+e2fsprogs   | `chattr`                                                 | Y
+efibootmgr  | UEFI support                                             | Y
+expect      | interactive command prompt automation                    | N
+glibc³      | libcrypt, locale data in `/usr/share/i18n/locales`       | Y
+gptfdisk    | GPT disk partitioning with `sgdisk`                      | N
+grub        | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                   | Y
+kbd         | keymap data in `/usr/share/kbd/keymaps`, `setfont`       | Y
+kmod        | `modprobe`                                               | Y
+musl³       | libcrypt                                                 | Y
+openssl     | user password salts                                      | Y
+procps-ng   | `pkill`                                                  | Y
+rakudo      | `voidvault` Raku runtime                                 | N
+tzdata      | timezone data in `/usr/share/zoneinfo/zone.tab`          | Y
+util-linux  | `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`, `unshare` | Y
+xbps        | `xbps-install`, `xbps-query`, `xbps-reconfigure`         | Y
 
-¹: the [official installation medium](https://voidlinux.org/download/)
+²: the [official installation medium](https://voidlinux.org/download/)
 
-²: glibc or musl
+³: glibc or musl
 
 
 Optional Dependencies
@@ -370,15 +379,16 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 
 [550M]: https://wiki.archlinux.org/index.php/EFI_system_partition#Create_the_partition
 [denies console login as root]: https://wiki.archlinux.org/index.php/Security#Denying_console_login_as_root
-[disables Btrfs CoW]: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
 [dnscrypt-proxy]: https://wiki.archlinux.org/index.php/DNSCrypt
 [double password entry avoidance]: https://wiki.archlinux.org/index.php/Dm-crypt/Encrypting_an_entire_system#Avoiding_having_to_enter_the_passphrase_twice
 [flat layout]: https://btrfs.wiki.kernel.org/index.php/SysadminGuide#Layout
 [GPT]: https://wiki.archlinux.org/index.php/Partitioning#GUID_Partition_Table
 [GRUB]: https://wiki.archlinux.org/index.php/GRUB
-[hides process information]: https://wiki.archlinux.org/index.php/Security#hidepid
+[hidepid]: https://wiki.archlinux.org/index.php/Security#hidepid
 [nftables]: https://wiki.archlinux.org/index.php/nftables
+[nodatacow]: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
+[protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
 [void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20210930.iso

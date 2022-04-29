@@ -33,12 +33,14 @@ also does Voidvault::Replace[$Voidvault::Constants::FILE-SYSCTL];
 
 has Voidvault::Config:D $.config is required;
 
+# C<--bind> mounted directories in order of being mounted, for C<umount>
+has Str:D @!secure-mount;
 
 # -----------------------------------------------------------------------------
 # bootstrap
 # -----------------------------------------------------------------------------
 
-method bootstrap(::?CLASS:D: --> Nil)
+multi method bootstrap(::?CLASS:D: --> Nil)
 {
     my Bool:D $augment = $.config.augment;
     self.mkdisk;
@@ -47,6 +49,9 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-crypttab;
     self.configure-users;
     self.configure-sudoers;
+    self.secure-mount;
+    # mounting efi partition isn't done here in all modes
+    self.bootstrap('mount-efi');
     self.genfstab;
     self.set-hostname;
     self.configure-hosts;
@@ -66,7 +71,6 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.configure-nftables;
     self.configure-openssh;
     self.configure-udev;
-    self.configure-hidepid;
     self.configure-securetty;
     self.configure-security-limits;
     self.configure-shell-timeout;
@@ -81,6 +85,13 @@ method bootstrap(::?CLASS:D: --> Nil)
     self.augment if $augment;
     self.unmount;
 }
+
+# prevents having to reimplement method C<bootstrap> in other modes
+multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
+{
+    self.mount-efi;
+}
+
 
 
 # -----------------------------------------------------------------------------
@@ -101,9 +112,6 @@ method mkdisk(::?CLASS:D: --> Nil)
 
     # create and mount btrfs volumes
     self.mkbtrfs;
-
-    # mount efi boot
-    self.mount-efi;
 
     # disable btrfs copy-on-write on select directories
     self.disable-cow;
@@ -263,6 +271,17 @@ multi sub gen-btrfs-subvolume-mount-options(
 }
 
 multi sub gen-btrfs-subvolume-mount-options(
+    Str:D :subvolume($)! where {
+        @Voidvault::Constants::SUBVOLUME-NODEV.grep($_)
+    },
+    Str:D :mount-option(@)!
+    --> Nil
+)
+{
+    push(@*mount-option, |qw<nodev>);
+}
+
+multi sub gen-btrfs-subvolume-mount-options(
     Str:D :subvolume($)!,
     Str:D :mount-option(@)!
     --> Nil
@@ -300,24 +319,10 @@ multi sub set-subvolume-mount-dir-permissions(
 )
 {*}
 
-method mount-efi(::?CLASS:D: --> Nil)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $partition-efi = self.gen-partition('efi');
-    my Str:D $directory-efi =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::DIRECTORY-EFI);
-    mkdir($directory-efi);
-    my Str:D $mount-options = qw<
-        nodev
-        noexec
-        nosuid
-    >.join(',');
-    run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
-}
-
 method disable-cow(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    # these directories were previously made during C<self.mkbtrfs>
     my Str:D @dir =
         @Voidvault::Constants::DIRECTORY-BTRFS-NODATACOW.map(-> Str:D $dir {
             sprintf(Q{%s%s}, $chroot-dir, $dir)
@@ -563,6 +568,106 @@ method configure-sudoers(::?CLASS:D: --> Nil)
     self.replace($Voidvault::Constants::FILE-SUDOERS);
 }
 
+# add protective mount options to select directories
+proto method secure-mount(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+
+    my Str:D @*directory-bind-mounted =
+        @Voidvault::Constants::DIRECTORY-BIND-MOUNTED;
+
+    maybe-grep-multilib(@*directory-bind-mounted);
+
+    # facilitate cross-mode modification of C<@*directory-bind-mounted>
+    {*}
+
+    push(@!secure-mount, secure-mount($_, :$chroot-dir))
+        for @*directory-bind-mounted;
+}
+
+# no further modification to C<@*directory-bind-mounted> needed
+multi method secure-mount(::?CLASS:D: --> Nil)
+{*}
+
+multi sub secure-mount(
+    Str:D $path where '/boot',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount(
+        $path,
+        :$chroot-dir,
+        :nodev,
+        :noexec,
+        :nosuid
+    );
+}
+
+multi sub secure-mount(
+    Str:D $path where '/etc',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev, :nosuid);
+}
+
+multi sub secure-mount(
+    Str:D $path where '/mnt',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev);
+}
+
+multi sub secure-mount(
+    Str:D $path where '/root',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev);
+}
+
+multi sub secure-mount(
+    Str:D $path where '/usr',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev);
+}
+
+multi sub secure-mount(
+    Str:D $path where '/usr/lib',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev, :nosuid);
+}
+
+multi sub secure-mount(
+    Str:D $path where '/usr/lib32',
+    AbsolutePath:D :$chroot-dir! where .so
+    --> Str:D
+)
+{
+    Voidvault::Utils.secure-mount($path, :$chroot-dir, :nodev, :nosuid);
+}
+
+method mount-efi(::?CLASS:D: --> Nil)
+{
+    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $partition-efi = self.gen-partition('efi');
+    my Str:D $directory-efi =
+        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::DIRECTORY-EFI);
+    Voidvault::Utils.secure-mount-efi(:$partition-efi, :$directory-efi);
+    push(@!secure-mount, $directory-efi);
+}
+
 method genfstab(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
@@ -576,8 +681,44 @@ method genfstab(::?CLASS:D: --> Nil)
     # generate /etc/fstab
     shell("%?RESOURCES{$resource} -U -p $chroot-dir >> $file");
 
-    # customize /etc/fstab
+    # configure /etc/fstab
+    self.configure-fstab;
+}
+
+multi method configure-fstab(::?CLASS:D: --> Nil)
+{
+    my Str:D @directory-bind-mounted =
+        @Voidvault::Constants::DIRECTORY-BIND-MOUNTED;
+    my Str:D $directory-efi = $Voidvault::Constants::DIRECTORY-EFI;
+
+    # configure C</proc> and C</tmp> fstab entries
     self.replace($Voidvault::Constants::FILE-FSTAB);
+
+    # fix C<genfstab>-generated C<--bind> mounted directories
+    maybe-grep-multilib(@directory-bind-mounted);
+    self.configure-fstab(:@directory-bind-mounted);
+
+    # reposition C</boot/efi> below C<--bind> mounted C</boot> fstab entry
+    self.configure-fstab(:$directory-efi);
+}
+
+multi method configure-fstab(
+    ::?CLASS:D:
+    Str:D :@directory-bind-mounted!
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-FSTAB, $_)
+        for @directory-bind-mounted;
+}
+
+multi method configure-fstab(
+    ::?CLASS:D:
+    Str:D :$directory-efi! where .so
+    --> Nil
+)
+{
+    self.replace($Voidvault::Constants::FILE-FSTAB, $directory-efi);
 }
 
 method set-hostname(::?CLASS:D: --> Nil)
@@ -983,18 +1124,6 @@ method configure-udev(::?CLASS:D: --> Nil)
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 }
 
-method configure-hidepid(::?CLASS:D: --> Nil)
-{
-    my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
-    my Str:D $file =
-        sprintf(Q{%s%s}, $chroot-dir, $Voidvault::Constants::FILE-FSTAB);
-    my Str:D $fstab-hidepid = q:to/EOF/;
-    # /proc with hidepid (https://wiki.archlinux.org/index.php/Security#hidepid)
-    proc                                      /proc       proc        nodev,noexec,nosuid,hidepid=2,gid=proc 0 0
-    EOF
-    spurt($file, "\n" ~ $fstab-hidepid, :append);
-}
-
 method configure-securetty(::?CLASS:D: --> Nil)
 {
     self.replace($Voidvault::Constants::FILE-SECURETTY);
@@ -1147,13 +1276,27 @@ method augment(::?CLASS:D: --> Nil)
     shell('expect -c "spawn /bin/bash; interact"');
 }
 
-method unmount(::?CLASS:D: --> Nil)
+proto method unmount(::?CLASS:D: --> Nil)
+{
+    # unmount C<--bind> mounted directories in reverse order
+    @!secure-mount.reverse.map(-> Str:D $secure-mount {
+        run(qqw<umount --verbose $secure-mount>);
+    });
+    {*}
+}
+
+multi method unmount(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my VaultName:D $vault-name = $.config.vault-name;
+
     # resume after error with C<umount -R>, obsolete but harmless
     CATCH { default { .resume } };
+
+    # unmount remaining directories
     run(qqw<umount --recursive --verbose $chroot-dir>);
+
+    # close vault
     run(qqw<cryptsetup luksClose $vault-name>);
 }
 
@@ -1181,6 +1324,13 @@ multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
     # e.g. /dev/sda3
     my UInt:D $index = 2;
     my Str:D $partition = @*partition[$index];
+}
+
+sub maybe-grep-multilib(Str:D @directory-bind-mounted --> Nil)
+{
+    # C</usr/lib32> only appears on 64-bit systems, for multilib
+    @directory-bind-mounted .=
+        grep(none '/usr/lib32') unless $*KERNEL.bits == 64;
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

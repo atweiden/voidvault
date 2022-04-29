@@ -11,6 +11,10 @@ also does Voidvault::Bootstrap;
 # worker functions
 # -----------------------------------------------------------------------------
 
+# 1fa mode requires running C<mount-efi> earlier than base mode
+multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
+{*}
+
 # secure disk configuration
 method mkdisk(::?CLASS:D: --> Nil)
 {
@@ -106,9 +110,16 @@ method mkbootext4(::?CLASS:D: --> Nil)
     # enable fscrypt for no particular reason
     run(qqw<mkfs.ext4 -O encrypt $bootvault-device-mapper>);
 
+    my Str:D $mount-options = qw<
+        nodev
+        noexec
+        nosuid
+    >.join(',');
+
     my Str:D $mount-ext4-cmdline = qqw<
         mount
         --types ext4
+        --options $mount-options
         $bootvault-device-mapper
         $chroot-dir-boot
     >.join(' ');
@@ -158,13 +169,7 @@ method mount-efi(::?CLASS:D: --> Nil)
         my AbsolutePath:D $directory-efi = $.config.directory-efi-chomped;
         sprintf(Q{%s%s}, $chroot-dir-boot, $directory-efi);
     };
-    mkdir($directory-efi);
-    my Str:D $mount-options = qw<
-        nodev
-        noexec
-        nosuid
-    >.join(',');
-    run(qqw<mount --options $mount-options $partition-efi $directory-efi>);
+    Voidvault::Utils.secure-mount-efi(:$partition-efi, :$directory-efi);
 }
 
 method mount-rbind-bootext4(::?CLASS:D: --> Nil)
@@ -210,6 +215,32 @@ method install-vault-key-file(::?CLASS:D: --> Nil)
     );
 }
 
+multi method secure-mount(::?CLASS:D: --> Nil)
+{
+    # 1fa mode already mounts C</boot> partition nodev,noexec,nosuid
+    grep-boot(@*directory-bind-mounted);
+}
+
+multi method configure-fstab(
+    ::?CLASS:D:
+    Str:D :@directory-bind-mounted!
+    --> Nil
+)
+{
+    # omit C</boot> fstab entry modification, C</boot> was unmodified
+    grep-boot(@directory-bind-mounted);
+    self.replace($Voidvault::Constants::FILE-FSTAB, $_)
+        for @directory-bind-mounted;
+}
+
+# omit repositioning C</boot/efi> fstab entry, C</boot> was unmodified
+multi method configure-fstab(
+    ::?CLASS:D:
+    Str:D :directory-efi($)! where .so
+    --> Nil
+)
+{*}
+
 multi method configure-crypttab(::?CLASS:D: --> Nil)
 {
     # configure /etc/crypttab for vault and bootvault key files
@@ -233,7 +264,7 @@ method secure-secret-prefix(::?CLASS:D: --> Nil)
     run(qqw<void-chroot $chroot-dir chmod -R g-rwx,o-rwx $vault $bootvault>);
 }
 
-method unmount(::?CLASS:D: --> Nil)
+multi method unmount(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my AbsolutePath:D $chroot-dir-boot = $.config.chroot-dir-boot;
@@ -265,6 +296,11 @@ multi method gen-partition(::?CLASS:D: 'vault' --> Str:D)
     # e.g. /dev/sda4
     my UInt:D $index = 3;
     my Str:D $partition = @*partition[$index];
+}
+
+sub grep-boot(Str:D @directory-bind-mounted --> Nil)
+{
+    @directory-bind-mounted .= grep(none '/boot');
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0 nowrap:
