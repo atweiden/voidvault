@@ -36,6 +36,7 @@ has Voidvault::Config:D $.config is required;
 # C<--bind> mounted directories in order of being mounted, for C<umount>
 has Str:D @!secure-mount;
 
+
 # -----------------------------------------------------------------------------
 # bootstrap
 # -----------------------------------------------------------------------------
@@ -91,7 +92,6 @@ multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
 {
     self.mount-efi;
 }
-
 
 
 # -----------------------------------------------------------------------------
