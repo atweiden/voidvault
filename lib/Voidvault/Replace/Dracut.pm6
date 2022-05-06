@@ -133,6 +133,7 @@ multi method replace(
         plymouth
         systemd
         systemd-initrd
+        systemd-networkd
         usrmount
     >;
     my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @module.join(' '));
