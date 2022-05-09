@@ -132,8 +132,28 @@ multi method replace(
         dracut-systemd
         plymouth
         systemd
+        systemd-ac-power
+        systemd-ask-password
+        systemd-coredump
+        systemd-hostnamed
         systemd-initrd
+        systemd-integritysetup
+        systemd-journald
+        systemd-ldconfig
+        systemd-modules-load
         systemd-networkd
+        systemd-network-management
+        systemd-repart
+        systemd-resolved
+        systemd-rfkill
+        systemd-sysctl
+        systemd-sysext
+        systemd-sysusers
+        systemd-timedated
+        systemd-timesyncd
+        systemd-tmpfiles
+        systemd-udevd
+        systemd-veritysetup
         usrmount
     >;
     my Str:D $replace = sprintf(Q{%s+=" %s "}, $subject, @module.join(' '));
