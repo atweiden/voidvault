@@ -1,4 +1,7 @@
 use v6;
+use Void::Constants;
+use Void::Utils;
+use Void::XBPS;
 use Voidvault::Config;
 use Voidvault::Config::Base;
 use Voidvault::Config::OneFA;
@@ -7,9 +10,6 @@ use Voidvault::ConfigArgs;
 use Voidvault::Constants;
 use Voidvault::Types;
 use Voidvault::Utils;
-use Void::Constants;
-use Void::Utils;
-use Void::XBPS;
 unit class Voidvault;
 
 

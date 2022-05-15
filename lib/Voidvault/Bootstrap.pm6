@@ -1,11 +1,11 @@
 use v6;
+use Void::Constants;
+use Void::Utils;
 use Voidvault::Config;
 use Voidvault::Constants;
 use Voidvault::Replace;
 use Voidvault::Types;
 use Voidvault::Utils;
-use Void::Constants;
-use Void::Utils;
 unit role Voidvault::Bootstrap;
 also does Voidvault::Replace[$Voidvault::Constants::FILE-CRYPTTAB];
 also does Voidvault::Replace[$Voidvault::Constants::FILE-DHCPCD];
@@ -1128,7 +1128,6 @@ method configure-securetty(::?CLASS:D: --> Nil)
 {
     self.replace($Voidvault::Constants::FILE-SECURETTY);
 }
-
 
 method configure-security-limits(::?CLASS:D: --> Nil)
 {
