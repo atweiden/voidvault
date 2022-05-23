@@ -58,6 +58,7 @@ could cause catastrophic data loss and system instability.
   - disable DNS cache
   - modify `/etc/resolv.conf` (see:
     [resources/etc/resolvconf.conf](resources/etc/resolvconf.conf))
+  - skip resolvers incompatible with anonymization
 - forces password entry with every `sudo`
   - passwordless `sudo reboot` and `sudo shutdown`
 - ten minute shell timeout, your current shell or user
