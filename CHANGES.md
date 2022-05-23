@@ -10,7 +10,7 @@ New in 2.0.0
 
 The v2 release series introduces three separate bootstrap modes:
 
-**Base Mode**
+*Base Mode*
 
 ```bash
 voidvault new
@@ -23,7 +23,7 @@ series.
 
 Makes LUKS1 volume with encrypted `/boot`.
 
-**1FA Mode**
+*1FA Mode*
 
 ```bash
 voidvault new 1fa
@@ -41,7 +41,7 @@ Bootvault.
 
 Creates root filesystem in The Vault.
 
-**2FA Mode**
+*2FA Mode*
 
 ```bash
 voidvault new 2fa
@@ -84,16 +84,16 @@ https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
 #### New cmdline options
 
-**Specify custom chroot directory**
+*Specify custom chroot directory*
 
 Use the newly added `--chroot-dir` cmdline option to specify a custom
 chroot directory.
 
-**Specify custom `cryptsetup` options**
+*Specify custom `cryptsetup` options*
 
 Use these new cmdline options to configure `cryptsetup luksFormat`:
 
-*All modes*
+All modes
 
 - `--vault-cipher`
 - `--vault-hash`
@@ -102,7 +102,7 @@ Use these new cmdline options to configure `cryptsetup luksFormat`:
 - `--vault-offset`
 - `--vault-sector-size`
 
-*1FA/2FA mode only*
+1FA/2FA mode only
 
 - `--bootvault-cipher`
 - `--bootvault-hash`
@@ -146,13 +146,15 @@ Offset
 - The previous `ls partitions` command has become `ls devices`
 - Exit with a helpful error message upon attempting to run `ls devices`,
   `ls keymaps`, `ls locales`, or `ls timezones` with missing requirements
-- To facilitate allowing any user to boot any given GRUB menu entry while only
-  allowing the "GRUB superuser" to *edit* menu entries or access the GRUB
-  command console, we now append ` --unrestricted` to the `CLASS` variable in
-  `/etc/grub.d/10_linux` directly. This differs from the [previous
+- To facilitate allowing any user to boot any given GRUB
+  menu entry while only allowing the "GRUB superuser" to
+  *edit* menu entries or access the GRUB command console,
+  we now append ` --unrestricted` to the `CLASS` variable
+  in `/etc/grub.d/10_linux` directly. This differs from the [previous
   approach](https://github.com/atweiden/voidvault/blob/7b159fa237ae4d7e612e6733a84b07cbf84d76b6/lib/Voidvault/Bootstrap.pm6#L2584)
-  of globally replacing `${CLASS}` with `--unrestricted ${CLASS}` in
-  `/etc/grub.d/10_linux`, but [accomplishes the same thing more simply](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Password_protection_of_GRUB_edit_and_console_options_only).
+  of globally replacing `${CLASS}` with `--unrestricted ${CLASS}`
+  in `/etc/grub.d/10_linux`, but [accomplishes the same thing more
+  simply](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Password_protection_of_GRUB_edit_and_console_options_only)
 - Make alterations to bootstrap ordering, e.g. perform adding randomized
   key to LUKS volume step earlier during bootstrap
 
