@@ -283,13 +283,14 @@ cryptsetup  | FDE with LUKS                                                     
 dosfstools  | create VFAT filesystem for UEFI with `mkfs.vfat`                  | Y
 e2fsprogs   | `chattr`                                                          | Y
 efibootmgr  | UEFI support                                                      | Y
+eudev³      | `udevadm`                                                         | Y
 expect      | interactive command prompt automation                             | N
-glibc³      | libcrypt, locale data in `/usr/share/i18n/locales`                | Y
+glibc⁴      | libcrypt, locale data in `/usr/share/i18n/locales`                | Y
 gptfdisk    | GPT disk partitioning with `sgdisk`                               | N
 grub        | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                            | Y
 kbd         | keymap data in `/usr/share/kbd/keymaps`, `setfont`                | Y
 kmod        | `modprobe`                                                        | Y
-musl³       | libcrypt                                                          | Y
+musl⁴       | libcrypt                                                          | Y
 openssl     | user password salts                                               | Y
 procps-ng   | `pkill`                                                           | Y
 rakudo      | `voidvault` Raku runtime                                          | N
@@ -299,7 +300,9 @@ xbps        | `xbps-install`, `xbps-query`, `xbps-reconfigure`                  
 
 ²: the [official installation medium](https://voidlinux.org/download/)
 
-³: glibc or musl
+³: 1FA/2FA modes only
+
+⁴: glibc or musl
 
 
 Optional Dependencies
