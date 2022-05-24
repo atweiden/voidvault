@@ -110,7 +110,7 @@ Options:
   --admin-pass-hash=<passhash>
     Encrypted password hash for admin account
   --augment
-    Drop to Bash console mid-execution
+    Launch interactive Bash shell before unmounting system
   --chroot-dir=<path>
     Path to directory within which to mount system for bootstrap
   --device=<device>
