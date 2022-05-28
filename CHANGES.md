@@ -18,10 +18,10 @@ voidvault new
 voidvault new base
 ```
 
-The default bootstrap mode, identical to `voidvault new` in v1 release
-series.
-
 Makes LUKS1 volume with encrypted `/boot`.
+
+The default bootstrap mode. Identical to `voidvault new` in v1 release
+series.
 
 *1FA Mode*
 
@@ -35,11 +35,9 @@ Makes LUKS1 volume for boot partition ("The Bootvault").
 
 Makes LUKS2 volume with detached header for root partition ("The Vault").
 
-Stores The Vault's detached header, a randomized Vault keyfile - for
-double password entry avoidance on boot - and the kernel inside The
-Bootvault.
+Stores Vault detached header, randomized keyfile and kernel in Bootvault.
 
-Creates root filesystem in The Vault.
+Creates root filesystem in Vault.
 
 *2FA Mode*
 
@@ -47,10 +45,10 @@ Creates root filesystem in The Vault.
 voidvault new 2fa
 ```
 
-Similar to 1FA Mode, but assumes the existence of two distinct devices:
-one for The Bootvault, and the other for The Vault.
+Similar to 1FA Mode, but requires two separate devices: one for Bootvault,
+one for Vault.
 
-The presence of both devices is required to boot the resulting system.
+Booting is only possible when both devices are present.
 
 #### Security settings
 
