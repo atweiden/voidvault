@@ -19,7 +19,7 @@ multi sub gen-libc-flavor(Str:D $ --> LibcFlavor:D)
 
 proto sub gen-repository-official(LibcFlavor:D --> Str:D)
 {
-    my Str:D $*repository = 'https://alpha.de.repo.voidlinux.org/current';
+    my Str:D $*repository = 'https://repo-default.voidlinux.org/current';
     {*}
 }
 

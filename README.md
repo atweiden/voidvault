@@ -395,9 +395,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-i686-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-i686-20210930.iso
-[void-live-iso-x86_64-glibc]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20210930.iso
-[void-live-iso-x86_64-musl]: https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-musl-20210930.iso
+[void-live-iso-i686-glibc]: https://repo-default.voidlinux.org/live/current/void-live-i686-20210930.iso
+[void-live-iso-x86_64-glibc]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-20210930.iso
+[void-live-iso-x86_64-musl]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-musl-20210930.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen

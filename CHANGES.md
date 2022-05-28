@@ -157,6 +157,8 @@ Offset
   simply](https://wiki.archlinux.org/title/GRUB/Tips_and_tricks#Password_protection_of_GRUB_edit_and_console_options_only)
 - Make alterations to bootstrap ordering, e.g. perform adding randomized
   key to LUKS volume step earlier during bootstrap
+- [Change default repo](https://github.com/void-linux/void-packages/commit/3a5377265a48f07e8d8f3073a7d73a5a067a8e1b)
+  from alpha.de.repo.voidlinux.org to repo-default.voidlinux.org
 
 ### Fixes
 
