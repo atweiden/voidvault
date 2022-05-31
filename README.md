@@ -300,7 +300,7 @@ xbps        | `xbps-install`, `xbps-query`, `xbps-reconfigure`                  
 
 ²: the [official installation medium](https://voidlinux.org/download/)
 
-³: 1FA/2FA modes only
+³: 2FA mode only
 
 ⁴: glibc or musl
 
