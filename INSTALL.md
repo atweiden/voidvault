@@ -54,6 +54,4 @@ voidvault --help
 ```
 
 
-[overlayfs]: https://github.com/atweiden/voidvault/pull/3
 [rakudo]: https://github.com/rakudo/rakudo
-[voidiso]: https://github.com/atweiden/voidiso/releases
