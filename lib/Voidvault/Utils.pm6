@@ -150,24 +150,6 @@ method mkbtrfs(
     rmdir($mount-dir);
 }
 
-# prepend --options only when options are present
-method build-mount-options-cmdline(Str:D :@mount-option --> Str:D)
-{
-    my Str:D $mount-options-cmdline =
-        build-mount-options-cmdline(:@mount-option);
-}
-
-multi sub build-mount-options-cmdline(Str:D :@mount-option where .so --> Str:D)
-{
-    my Str:D @mount-options-cmdline = '--options', @mount-option.join(',');
-    my Str:D $mount-options-cmdline = @mount-options-cmdline.join(' ');
-}
-
-multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
-{
-    my Str:D @mount-options-cmdline = '';
-}
-
 method build-mount-btrfs-cmdline(
     Str:D :@mount-option! where .so,
     Str:D :$vault-device-mapper! where .so,
@@ -184,6 +166,24 @@ method build-mount-btrfs-cmdline(
         $vault-device-mapper
         $mount-dir
     >.join(' ');
+}
+
+# prepend --options only when options are present
+method build-mount-options-cmdline(Str:D :@mount-option --> Str:D)
+{
+    my Str:D $mount-options-cmdline =
+        build-mount-options-cmdline(:@mount-option);
+}
+
+multi sub build-mount-options-cmdline(Str:D :@mount-option where .so --> Str:D)
+{
+    my Str:D @mount-options-cmdline = '--options', @mount-option.join(',');
+    my Str:D $mount-options-cmdline = @mount-options-cmdline.join(' ');
+}
+
+multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
+{
+    my Str:D @mount-options-cmdline = '';
 }
 
 
