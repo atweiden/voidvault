@@ -1,13 +1,17 @@
 Todo
 ====
 
+### Security
+
 - add `random.trust_bootloader=0` to unprivilege bootloader [once
   available in kernel][random.trust_bootloader]
 - enable [jitterentropy-rngd][jitterentropy-rngd i]
   ([i][jitterentropy-rngd ii])
+
+### `cryptsetup`
+
 - switch from `luks1` to `luks2` cryptsetup format once [GRUB luks2
   support][GRUB luks2 support] ships in a stable release of GRUB
-  - likely grub-2.06
 - switch `luks2` cryptsetup format from `pbkdf2` to `argon2id` key derival
   function once [libgcrypt argon2 support][libgcrypt argon2 support] ships
   in a stable release of libgcrypt, and [GRUB luks2 argon2 support][GRUB
@@ -24,36 +28,38 @@ Todo
     [parted][parted], [alignment validator][alignment validator]
 - load [kernel crypto modules][kernel crypto modules] for performance
   if applicable
-  - `--with-cryptsetup-cipher=xchacha20,aes-adiantum
-    --with-cryptsetup-key-size=256` => `modprobe ...`
+  - `--vault-cipher=xchacha20,aes-adiantum --vault-key-size=256` => `modprobe ...`
 - pass [`--perf-no_read_workqueue`][--perf-no_read_workqueue
   i] flag to `luksOpen` ([[1]][--perf-no_read_workqueue ii]
   [[2]][--perf-no_read_workqueue iii] [[3]][--perf-no_read_workqueue iv])
   once switched to luks2 (thereby enabling passing the `--persistent`
   flag alongside it), or once [void-runit][void-runit] supports parsing
   `--perf-no_read_workqueue` from `/etc/crypttab`
-- replace sudo with [doas][doas]
-  - put doas behind cmdline flag
-    - `--with-sudo=doas`
+- validate configurable cryptsetup options
+  - `--vault-cipher`
+
+### General
+
+- enable specifying kernel
+  - `--with-kernel=linux-lts`
+- enable replacing sudo with [doas][doas]
+  - `--with-sudo=doas`
 - enable opting out of [predictable network interface names][predictable
   network interface names]
   - `--disable-predictable-inames`
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
   [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
-- validate configurable cryptsetup options
-  - `--vault-cipher`
+
+### Internal
+
 - use typestate pattern
   - to gate available methods by state of installer
     - `install-vault-key-file`
   - to resume installer after crashing or exiting
-- implement dracut-sshd-nonet
-  - new profile: `headless-nonet`
-    - disable grub boot encryption
-    - pkg https://github.com/atweiden/dracut-sshd-nonet
-    - add `ip link set dev eth0 up` to `/etc/rc.local`
-    - modify `sshd_config` to `AllowUsers admin`
-    - have runit launch sshd on startup
+
+### Maintenance
+
 - test voidvault installation to hdd in secondary drive bay
   - see: https://github.com/atweiden/voidvault/issues/7
 
