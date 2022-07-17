@@ -78,7 +78,7 @@ multi sub MAIN(
 )
 {
     Voidvault::ConfigArgs::Utils.ensure-requirements($Voidvault::ConfigArgs::Constants::SUBJECT-GEN-PASS-HASH);
-    say(prompt-pass-hash);
+    say(prompt-pass-hash());
 }
 
 
