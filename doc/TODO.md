@@ -7,6 +7,9 @@ Todo
   available in kernel][random.trust_bootloader]
 - enable [jitterentropy-rngd][jitterentropy-rngd i]
   ([i][jitterentropy-rngd ii])
+- replace [ntp][chrony] with [something][Kicksecure/sdwdate]
+  [better][madaidan/secure-time-sync] (see also:
+  [i][Kicksecure/bootclockrandomization], [ii][time attacks])
 
 ### `cryptsetup`
 
@@ -66,6 +69,11 @@ Todo
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
 [jitterentropy-rngd i]: https://github.com/void-linux/void-packages/pull/36401
 [jitterentropy-rngd ii]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
+[chrony]: https://chrony.tuxfamily.org/
+[Kicksecure/sdwdate]: https://github.com/Kicksecure/sdwdate
+[madaidan/secure-time-sync]: https://gitlab.com/madaidan/secure-time-sync
+[Kicksecure/bootclockrandomization]: https://github.com/Kicksecure/bootclockrandomization
+[time attacks]: https://www.whonix.org/wiki/Time_Attacks
 [GRUB luks2 support]: https://savannah.gnu.org/bugs/?55093
 [libgcrypt argon2 support]: https://git.savannah.gnu.org/cgit/grub.git/commit/?id=365e0cc3e7e44151c14dd29514c2f870b49f9755
 [GRUB luks2 argon2 support]: https://www.mail-archive.com/grub-devel@gnu.org/msg29535.html
