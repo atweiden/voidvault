@@ -8,8 +8,8 @@ Todo
 - enable [jitterentropy-rngd][jitterentropy-rngd i]
   ([i][jitterentropy-rngd ii])
 - replace [ntp][chrony] with [something][Kicksecure/sdwdate]
-  [better][madaidan/secure-time-sync] (see also:
-  [i][Kicksecure/bootclockrandomization], [ii][time attacks])
+  [more][konstruktoid/tymely] [secure][madaidan/secure-time-sync]
+  (see also: [i][Kicksecure/bootclockrandomization], [ii][time attacks])
 
 ### `cryptsetup`
 
@@ -71,6 +71,7 @@ Todo
 [jitterentropy-rngd ii]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
 [chrony]: https://chrony.tuxfamily.org/
 [Kicksecure/sdwdate]: https://github.com/Kicksecure/sdwdate
+[konstruktoid/tymely]: https://github.com/konstruktoid/tymely
 [madaidan/secure-time-sync]: https://gitlab.com/madaidan/secure-time-sync
 [Kicksecure/bootclockrandomization]: https://github.com/Kicksecure/bootclockrandomization
 [time attacks]: https://www.whonix.org/wiki/Time_Attacks
