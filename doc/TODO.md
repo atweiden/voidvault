@@ -49,7 +49,7 @@ Todo
   - `--with-sudo=doas`
 - enable opting out of [predictable network interface names][predictable
   network interface names]
-  - `--disable-predictable-inames`
+  - `--enable-classic-inames`
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
   [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
