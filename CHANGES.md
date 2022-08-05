@@ -90,8 +90,8 @@ chroot directory.
 *Enable classic naming scheme for network interfaces*
 
 Use the newly added `--enable-classic-ifnames` cmdline option to enable
-classic (pre-[systemd][predictable network interface names]) names for
-network interfaces, e.g. `eth0`, `wlan0`.
+classic (pre-[systemd][predictable network interface names]) network
+interface names, e.g. `eth0`, `wlan0`.
 
 *Specify custom `cryptsetup` options*
 
