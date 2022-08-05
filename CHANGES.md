@@ -87,6 +87,12 @@ https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 Use the newly added `--chroot-dir` cmdline option to specify a custom
 chroot directory.
 
+*Enable classic naming scheme for network interfaces*
+
+Use the newly added `--enable-classic-ifnames` cmdline option to enable
+classic (pre-[systemd][predictable network interface names]) names for
+network interfaces, e.g. `eth0`, `wlan0`.
+
 *Specify custom `cryptsetup` options*
 
 Use these new cmdline options to configure `cryptsetup luksFormat`:
@@ -163,12 +169,14 @@ Offset
 - `voidvault --clean disable-cow` now recursively copies in files
   from original directory where CoW was enabled using latest [ArchWiki
   recommendations](https://wiki.archlinux.org/title/Btrfs#Disabling_CoW)
+- Install `linux-firmware-intel` on Intel CPUs, previously omitted
 
 ### Internal
 
 - Heavily refactor codebase
 
 
+[predictable network interface names]: https://systemd.io/PREDICTABLE_INTERFACE_NAMES/
 [protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [Tails kernel hardening]: https://tails.boum.org/contribute/design/kernel_hardening/
 [whichdoc/plagueos]: https://git.arrr.cloud/whichdoc/plagueos
