@@ -18,6 +18,7 @@ multi method replace(
 
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Bool:D $disable-ipv6 = $.config.disable-ipv6;
+    my Bool:D $enable-classic-ifnames = $.config.enable-classic-ifnames;
     my Bool:D $enable-serial-console = $.config.enable-serial-console;
     my Graphics:D $graphics = $.config.graphics;
     my Str:D $partition-vault = self.gen-partition('vault');
@@ -27,6 +28,8 @@ multi method replace(
     my Str:D @grub-cmdline-linux = 'quiet';
     $utils.set-log-level('emergency', @grub-cmdline-linux);
     $utils.enable-luks(@grub-cmdline-linux, :$partition-vault, :$vault-name);
+    $utils.enable-classic-ifnames(@grub-cmdline-linux)
+        if $enable-classic-ifnames;
     $utils.enable-serial-console(@grub-cmdline-linux, $subject)
         if $enable-serial-console;
     $utils.enable-security-features(@grub-cmdline-linux);

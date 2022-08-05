@@ -47,9 +47,6 @@ Todo
   - `--with-kernel=linux-lts`
 - enable replacing sudo with [doas][doas]
   - `--with-sudo=doas`
-- enable opting out of [predictable network interface names][predictable
-  network interface names]
-  - `--enable-classic-inames`
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with
   [fscrypt support][fscrypt support]
   - `mkfs.{ext4,f2fs} -O encrypt`
@@ -94,6 +91,5 @@ Todo
 [--perf-no_read_workqueue iv]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.9-rc1&id=39d42fa96ba1b7d2544db3f8ed5da8fb0d5cb877
 [void-runit]: https://github.com/void-linux/void-runit/blob/master/crypt.awk
 [doas]: https://momi.ca/2020/03/20/doas.html
-[predictable network interface names]: https://systemd.io/PREDICTABLE_INTERFACE_NAMES/
 [F2FS]: https://savannah.gnu.org/bugs/?59976
 [fscrypt support]: https://wiki.archlinux.org/title/Fscrypt#File_system

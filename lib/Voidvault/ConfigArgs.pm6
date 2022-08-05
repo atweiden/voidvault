@@ -16,6 +16,7 @@ my role Args[Mode:D $ where Mode::BASE]
     has Str $.device;
     has Bool $.disable-ipv6;
     has Str $.disk-type;
+    has Bool $.enable-classic-ifnames;
     has Bool $.enable-serial-console;
     has Str $.graphics;
     has Str $.grub-name;

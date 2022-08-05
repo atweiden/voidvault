@@ -74,6 +74,8 @@ could cause catastrophic data loss and system instability.
   [resources/etc/X11](resources/etc/X11))
 - optionally disables IPv6, and makes IPv4-only adjustments to dhcpcd,
   dnscrypt-proxy, openresolv, OpenSSH
+- optionally enables classic (pre-[systemd][predictable network interface
+  names]) naming scheme for network interfaces, e.g. `eth0`, `wlan0`
 
 ### Filesystem
 
@@ -169,9 +171,10 @@ VOIDVAULT_REPOSITORY="/path/to/void/repository"
 VOIDVAULT_IGNORE_CONF_REPOS=1
 VOIDVAULT_PACKAGES="space separated list of packages"
 VOIDVAULT_AUGMENT=1
-VOIDVAULT_DISABLE_IPV6=1
-VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
 VOIDVAULT_CHROOT_DIR="/mnt"
+VOIDVAULT_DISABLE_IPV6=1
+VOIDVAULT_ENABLE_CLASSIC_IFNAMES=1
+VOIDVAULT_ENABLE_SERIAL_CONSOLE=1
 ```
 
 **Supply options via cmdline flags**:
@@ -321,6 +324,7 @@ variable values for all configuration options aside from:
 - `--augment`
 - `--chroot-dir`
 - `--disable-ipv6`
+- `--enable-classic-ifnames`
 - `--enable-serial-console`
 - `--grub-name`
 - `--grub-pass-hash`
@@ -356,6 +360,7 @@ No console input is read for configuration options:
 - `--augment`
 - `--chroot-dir`
 - `--disable-ipv6`
+- `--enable-classic-ifnames`
 - `--enable-serial-console`
 - `--grub-pass-hash`
 - `--guest-pass-hash`
@@ -392,6 +397,7 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [nftables]: https://wiki.archlinux.org/index.php/nftables
 [nodatacow]: https://wiki.archlinux.org/index.php/Btrfs#Disabling_CoW
 [OpenSSH]: https://wiki.archlinux.org/index.php/Secure_Shell
+[predictable network interface names]: https://systemd.io/PREDICTABLE_INTERFACE_NAMES/
 [protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl

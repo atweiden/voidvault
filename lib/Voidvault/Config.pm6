@@ -210,6 +210,10 @@ has Bool:D $.augment =
 has Bool:D $.disable-ipv6 =
     ?%*ENV<VOIDVAULT_DISABLE_IPV6>;
 
+# enable classic naming scheme for network interfaces
+has Bool:D $.enable-classic-ifnames =
+    ?%*ENV<VOIDVAULT_ENABLE_CLASSIC_IFNAMES>;
+
 # enable serial
 has Bool:D $.enable-serial-console =
     ?%*ENV<VOIDVAULT_ENABLE_SERIAL_CONSOLE>;
@@ -246,6 +250,7 @@ proto submethod BUILD(
     Str :$device,
     Bool :$disable-ipv6,
     Str :$disk-type,
+    Bool :$enable-classic-ifnames,
     Bool :$enable-serial-console,
     Str :$graphics,
     Str :$grub-name,
@@ -290,6 +295,8 @@ proto submethod BUILD(
         if $disable-ipv6;
     $!disk-type = gen-disk-type($disk-type)
         if $disk-type;
+    $!enable-classic-ifnames = $enable-classic-ifnames
+        if $enable-classic-ifnames;
     $!enable-serial-console = $enable-serial-console
         if $enable-serial-console;
     $!graphics = gen-graphics($graphics)

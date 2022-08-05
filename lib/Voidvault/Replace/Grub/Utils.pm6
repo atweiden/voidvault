@@ -73,6 +73,11 @@ multi sub enable-luks(
     push(@grub-cmdline-linux, "rd.luks.name=$vault-id=$vault-name");
 }
 
+method enable-classic-ifnames(Str:D @grub-cmdline-linux --> Nil)
+{
+    push(@grub-cmdline-linux, 'net.ifnames=0');
+}
+
 method enable-serial-console(
     Str:D @grub-cmdline-linux,
     Str:D $subject where .so

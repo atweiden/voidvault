@@ -87,8 +87,9 @@ Usage:
             [--repository=<repository>] [--ignore-conf-repos]
             [--packages=<packages>]
             [--augment]
-            [--disable-ipv6] [--enable-serial-console]
             [--chroot-dir=<path>]
+            [--disable-ipv6]
+            [--enable-classic-ifnames] [--enable-serial-console]
             new
 
   voidvault [--bootvault-name=<vaultname>] [--bootvault-pass=<password>]
@@ -119,6 +120,8 @@ Options:
     Disable IPv6
   --disk-type=<disktype>
     Hard drive type
+  --enable-classic-ifnames
+    Enable classic naming scheme for network interfaces (eth0, eth1, wlan0, ...)
   --enable-serial-console
     Enable serial console
   --graphics=<graphics>
