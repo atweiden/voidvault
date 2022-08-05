@@ -356,6 +356,7 @@ method voidstrap-base(::?CLASS:D: --> Nil)
     push(@base, 'musl') if $libc-flavor eq 'MUSL';
     push(@base, 'grub-i386-efi') if $*KERNEL.bits == 32;
     push(@base, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
+    push(@base, 'linux-firmware-intel') if $processor eq 'INTEL';
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
     push(@base, 'intel-ucode') if $processor eq 'INTEL';
     push(@base, $_) for @package;
