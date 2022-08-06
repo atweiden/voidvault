@@ -218,6 +218,12 @@ has Bool:D $.enable-classic-ifnames =
 has Bool:D $.enable-serial-console =
     ?%*ENV<VOIDVAULT_ENABLE_SERIAL_CONSOLE>;
 
+# specify kernel
+has Str:D $.kernel =
+    ?%*ENV<VOIDVAULT_KERNEL>
+        ?? %*ENV<VOIDVAULT_KERNEL>
+        !! 'linux';
+
 
 # -----------------------------------------------------------------------------
 # instantiation
@@ -261,6 +267,7 @@ proto submethod BUILD(
     Str :$guest-pass-hash,
     Str :$hostname,
     Bool :$ignore-conf-repos,
+    Str :$kernel,
     Str :$keymap,
     Str :$locale,
     Str :$packages,
@@ -305,6 +312,8 @@ proto submethod BUILD(
         if $hostname;
     $!ignore-conf-repos = $ignore-conf-repos
         if $ignore-conf-repos;
+    $!kernel = $kernel
+        if $kernel;
     $!keymap = gen-keymap($keymap)
         if $keymap;
     $!locale = gen-locale($locale)

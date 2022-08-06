@@ -334,8 +334,10 @@ method disable-cow(::?CLASS:D: --> Nil)
 method voidstrap-base(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Graphics:D $graphics = $.config.graphics;
     my Str:D @repository = $.config.repository;
     my Bool:D $ignore-conf-repos = $.config.ignore-conf-repos;
+    my Str:D $kernel = $.config.kernel;
     my Str:D @package = $.config.package;
     my Processor:D $processor = $.config.processor;
     my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
@@ -349,16 +351,27 @@ method voidstrap-base(::?CLASS:D: --> Nil)
         @core
     );
 
-    # base packages - void's C<base-minimal> with light additions
-    # duplicates C<base-minimal>'s C<depends> for thoroughness
+    # download and install base packages
     my Str:D @base = @Voidvault::Constants::PACKAGE-BASE;
-    push(@base, 'glibc') if $libc-flavor eq 'GLIBC';
-    push(@base, 'musl') if $libc-flavor eq 'MUSL';
-    push(@base, 'grub-i386-efi') if $*KERNEL.bits == 32;
-    push(@base, 'grub-x86_64-efi') if $*KERNEL.bits == 64;
-    push(@base, 'linux-firmware-intel') if $processor eq 'INTEL';
+    push(@base, $kernel);
+    # duplicate C<linux-base> to facilitate C<--kernel> cmdline option
+    push(@base, 'linux-firmware-intel')
+        if $processor eq 'INTEL' || $graphics eq 'INTEL';
     # https://www.archlinux.org/news/changes-to-intel-microcodeupdates/
-    push(@base, 'intel-ucode') if $processor eq 'INTEL';
+    push(@base, 'intel-ucode')
+        if $processor eq 'INTEL';
+    push(@base, 'linux-firmware-amd')
+        if $processor eq 'OTHER' || $graphics eq 'RADEON';
+    push(@base, 'linux-firmware-nvidia')
+        if $graphics eq 'NVIDIA';
+    push(@base, 'glibc')
+        if $libc-flavor eq 'GLIBC';
+    push(@base, 'musl')
+        if $libc-flavor eq 'MUSL';
+    push(@base, 'grub-i386-efi')
+        if $*KERNEL.bits == 32;
+    push(@base, 'grub-x86_64-efi')
+        if $*KERNEL.bits == 64;
     push(@base, $_) for @package;
 
     # download and install base packages with voidstrap in chroot
@@ -824,6 +837,7 @@ method configure-modules-load(::?CLASS:D: --> Nil)
 multi method generate-initramfs(::?CLASS:D: --> Nil)
 {
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
+    my Str:D $kernel = $.config.kernel;
 
     # dracut
     self.generate-initramfs('add_dracutmodules');
@@ -837,7 +851,10 @@ multi method generate-initramfs(::?CLASS:D: --> Nil)
     Voidvault::Utils.void-chroot-dracut(:$chroot-dir);
 
     # xbps-reconfigure
-    Voidvault::Utils.void-chroot-xbps-reconfigure-linux(:$chroot-dir);
+    Voidvault::Utils.void-chroot-xbps-reconfigure-kernel(
+        :$chroot-dir,
+        :$kernel
+    );
 }
 
 multi method generate-initramfs(

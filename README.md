@@ -169,6 +169,7 @@ VOIDVAULT_KEYMAP="us"
 VOIDVAULT_TIMEZONE="America/Los_Angeles"
 VOIDVAULT_REPOSITORY="/path/to/void/repository"
 VOIDVAULT_IGNORE_CONF_REPOS=1
+VOIDVAULT_KERNEL="linux"
 VOIDVAULT_PACKAGES="space separated list of packages"
 VOIDVAULT_AUGMENT=1
 VOIDVAULT_CHROOT_DIR="/mnt"
@@ -334,6 +335,7 @@ variable values for all configuration options aside from:
 - `--guest-pass`
 - `--hostname`
 - `--ignore-conf-repos`
+- `--kernel`
 - `--packages`
 - `--repository`
 - `--root-pass-hash`
@@ -365,6 +367,7 @@ No console input is read for configuration options:
 - `--grub-pass-hash`
 - `--guest-pass-hash`
 - `--ignore-conf-repos`
+- `--kernel`
 - `--packages`
 - `--repository`
 - `--root-pass-hash`

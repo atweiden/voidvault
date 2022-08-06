@@ -27,6 +27,7 @@ my role Args[Mode:D $ where Mode::BASE]
     has Str $.guest-pass-hash;
     has Str $.hostname;
     has Bool $.ignore-conf-repos;
+    has Str $.kernel;
     has Str $.keymap;
     has Str $.locale;
     has Str $.packages;

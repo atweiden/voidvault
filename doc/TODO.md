@@ -43,8 +43,6 @@ Todo
 
 ### General
 
-- enable specifying kernel
-  - `--with-kernel=linux-lts`
 - enable replacing sudo with [doas][doas]
   - `--with-sudo=doas`
 - implement {EXT4,[F2FS][F2FS]}+LVM on LUKS alternative setup with

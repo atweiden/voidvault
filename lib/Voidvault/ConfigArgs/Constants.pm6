@@ -85,7 +85,7 @@ Usage:
             [--disk-type=<disktype>] [--locale=<locale>]
             [--keymap=<keymap>] [--timezone=<timezone>]
             [--repository=<repository>] [--ignore-conf-repos]
-            [--packages=<packages>]
+            [--packages=<packages>] [--kernel=<package>]
             [--augment]
             [--chroot-dir=<path>]
             [--disable-ipv6]
@@ -142,6 +142,8 @@ Options:
     Hostname
   --ignore-conf-repos
     Only honor repositories specified on cmdline
+  --kernel=<package>
+    Kernel package to install
   --keymap=<keymap>
     Keymap
   --locale=<locale>

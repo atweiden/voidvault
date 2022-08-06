@@ -546,18 +546,24 @@ method void-chroot-mkdir(
     });
 }
 
-# chroot into C<$chroot-dir> to then C<dracut>
-method void-chroot-xbps-reconfigure-linux(
-    AbsolutePath:D :$chroot-dir! where .so
+# chroot into C<$chroot-dir> to then C<xbps-reconfigure> kernel
+method void-chroot-xbps-reconfigure-kernel(
+    AbsolutePath:D :$chroot-dir! where .so,
+    Str:D :$kernel! where .so
     --> Nil
 )
 {
+    # extract numbered series linux kernel dependency from kernel package
     my Str:D $xbps-linux = do {
-        my Str:D $xbps-linux-version-raw =
-            qqx{xbps-query --rootdir $chroot-dir --property pkgver linux}.trim;
-        my Str:D $xbps-linux-version =
-            $xbps-linux-version-raw.substr(6..*).split(/'.'|'_'/)[^2].join('.');
-        sprintf(Q{linux%s}, $xbps-linux-version);
+        # allow numbered series kernel packages named e.g. C<linux$X.$Y>
+        # or C<linux-$A$X.$Y> where C<$A> is a modifier word
+        my Regex:D $r = /(linux['-'\w+]*\d+['.'\d+]*).*/;
+        my Str:D $xbps-linux =
+            qqx{xbps-query --rootdir $chroot-dir --property run_depends $kernel}
+            .lines
+            .grep($r)
+            .first;
+        with $xbps-linux ~~ $r { ~$0 }
     };
     run(qqw<void-chroot $chroot-dir xbps-reconfigure --force $xbps-linux>);
 }

@@ -99,9 +99,7 @@ constant @PACKAGE-BASE = qw<
     kmod
     ldns
     less
-    linux
     linux-firmware
-    linux-firmware-network
     lynx
     lz4
     man-db

@@ -82,6 +82,21 @@ https://madaidans-insecurities.github.io/guides/linux-hardening.html).
 
 #### New cmdline options
 
+*Specify kernel*
+
+Use the newly added `--kernel` cmdline option to specify an arbitrary
+kernel package to replace the default (`linux`). Any of the kernels
+available in the official repositories, including `linux`, `linux-lts`
+and `linux-mainline`, can be specified, e.g. `--kernel=linux-lts`.
+
+A custom kernel package from a private or third party repository can also
+be specified, so long as its template declares a runtime dependency on
+a numbered series Linux kernel package, e.g. `depends="linux5.10"`.
+
+> This limitation exists because Voidvault looks for a numbered series Linux
+> kernel package in the output of `xbps-query --property run_depends $kernel`,
+> and then calls `xbps-reconfigure` on it.
+
 *Specify custom chroot directory*
 
 Use the newly added `--chroot-dir` cmdline option to specify a custom
@@ -169,7 +184,6 @@ Offset
 - `voidvault --clean disable-cow` now recursively copies in files
   from original directory where CoW was enabled using latest [ArchWiki
   recommendations](https://wiki.archlinux.org/title/Btrfs#Disabling_CoW)
-- Install `linux-firmware-intel` on Intel CPUs, previously omitted
 
 ### Internal
 
