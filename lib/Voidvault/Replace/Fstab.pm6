@@ -1,6 +1,7 @@
 use v6;
 use Voidvault::Constants;
 use Voidvault::Parser::FstabEntry;
+use Voidvault::Parser::FstabEntry::Grammar;
 use Voidvault::Types;
 unit role Voidvault::Replace::Fstab;
 
@@ -95,7 +96,14 @@ sub gen-fstab-entry-path-index(Str:D @line, Str:D :$path! where .so --> Int:D)
 # identify fstab entry of interest
 sub gen-regex-fstab-entry(Str:D $path where .so --> Regex:D)
 {
-    my Regex:D $regex-fstab-entry = /^ 'UUID=' \S+ \s+ $path \s.* $/;
+    my Regex:D $regex-fstab-entry = /
+        ^
+        <Voidvault::Parser::FstabEntry::Grammar::filesystem>
+        \s+
+        $path
+        \s.*
+        $
+    /;
 }
 
 multi method replace(Str:D $ where $FILE --> Nil)
