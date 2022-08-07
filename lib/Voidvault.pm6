@@ -24,11 +24,7 @@ constant $VERSION = v2.0.0;
 # instantiation
 # -----------------------------------------------------------------------------
 
-method new(
-    Str :$mode,
-    *%opts (Bool :$ignore-conf-repos, :@repository, *%)
-    --> Nil
-)
+method new(*@arg, *%opts (Bool :$ignore-conf-repos, :@repository, *%) --> Nil)
 {
     my LibcFlavor:D $libc-flavor = $Void::Constants::LIBC-FLAVOR;
 
@@ -36,7 +32,7 @@ method new(
     $*USER == 0 or die('root privileges required');
 
     # verify cmdline arguments
-    my Voidvault::ConfigArgs $config-args .= new(:$mode, |%opts);
+    my Voidvault::ConfigArgs $config-args .= new(@arg, |%opts);
 
     # ensure pressing Ctrl-C works
     signal(SIGINT).tap({ exit(130) });

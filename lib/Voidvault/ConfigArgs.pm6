@@ -71,6 +71,18 @@ my role Args[Mode:D $ where Mode::<2FA>]
     has Str $.bootvault-device;
 }
 
+my role FilesystemArgs[FilesystemMode:D $ where FilesystemMode::ALL]
+{
+    has Str $.vault-filesystem;
+    has Str $.bootvault-filesystem;
+}
+
+my role FilesystemArgs[FilesystemMode:D $ where FilesystemMode::LVM]
+{
+    also does FilesystemArgs[FilesystemMode::ALL];
+    has Str $.lvm-vg-name;
+}
+
 my role Opts
 {
     # alternative to duplicating code in C<Mode::<1FA>>, C<Mode::<2FA>>
@@ -200,12 +212,27 @@ class Voidvault::ConfigArgs
     submethod BUILD(Voidvault::ConfigArgs::Parser :$!parser!)
     {*}
 
-    method new(Str :mode($m), *%opts --> Voidvault::ConfigArgs:D)
+    method new(*@arg, *%opts --> Voidvault::ConfigArgs:D)
     {
-        my Mode:D $mode = Voidvault::ConfigArgs::Utils.gen-mode(:mode($m));
         my $parser = try Voidvault::ConfigArgs::Parser[$mode].bless(|%opts);
         bail($!.message) if $!;
         self.bless(:$parser);
+    }
+
+    multi sub new(*@ ($a, $b, *@) --> Hash:D)
+    {
+        my Mode:D $mode = Voidvault::ConfigArgs::Utils.gen-mode(:mode($m));
+        my %new;
+    }
+
+    multi sub new(*@ ($a, *@) --> Hash:D)
+    {
+        my %new;
+    }
+
+    multi sub new(*@ --> Hash:D)
+    {
+        my %new;
     }
 
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config:D)
