@@ -68,7 +68,7 @@ EOF
 
 constant $HELP-NEW = q:to/EOF/.trim;
 Usage:
-  voidvault [options] new [mode]
+  voidvault [options] new [mode] [fs[/fs][+lvm]]
 
   voidvault [--admin-name=<username>] [--admin-pass=<password>]
             [--guest-name=<username>] [--guest-pass=<password>]
@@ -86,9 +86,7 @@ Usage:
             [--keymap=<keymap>] [--timezone=<timezone>]
             [--repository=<repository>] [--ignore-conf-repos]
             [--packages=<packages>] [--kernel=<package>]
-            [--augment]
-            [--chroot-dir=<path>]
-            [--disable-ipv6]
+            [--chroot-dir=<path>] [--augment] [--disable-ipv6]
             [--enable-classic-ifnames] [--enable-serial-console]
             new
 
@@ -102,6 +100,9 @@ Usage:
 
   voidvault [--bootvault-device=<device>]
             new 2fa
+
+  voidvault [--lvm-vg-name=<name>]
+            new [fs[/fs][+lvm]]
 
 Options:
   --admin-name=<username>
@@ -211,8 +212,14 @@ Options (2FA):
   --bootvault-device=<device>
     Target block device for encrypted boot volume
 
+Options (LVM):
+  --lvm-vg-name=<name>
+    Name for LVM volume group
+
 Arguments:
-  mode      Activate mode
+  mode      Bootstrap mode
+  fs        Filesystem for Vault/Bootvault
+  lvm       Create Vault filesystem on LVM
 
 Mode
   base      Make LUKS1 vault with encrypted /boot (Default)
@@ -224,6 +231,15 @@ Mode
   2fa       Make LUKS2 vault with detached header inside LUKS1 boot partition
 
             Make LUKS1 boot partition on separate device from LUKS2 vault
+
+Filesystem
+  | btrfs (Default)
+  | ext2
+  | ext3
+  | ext4
+  | f2fs
+  | nilfs2
+  | xfs
 EOF
 
 # for checking non-bootstrap command requirements not otherwise checked
