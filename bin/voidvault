@@ -116,10 +116,9 @@ multi sub MAIN('help', $? --> Nil)
 # new
 # -----------------------------------------------------------------------------
 
-multi sub MAIN('new', Str $mode?, *%opts --> Nil)
+multi sub MAIN('new', *@arg, *%opts --> Nil)
 {
-    %opts<mode> = $mode if $mode;
-    Voidvault.new(|%opts);
+    Voidvault.new(@arg, |%opts);
 }
 
 
