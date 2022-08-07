@@ -2,15 +2,14 @@
 
 constant $HELP = q:to/EOF/.trim;
 Usage:
-  voidvault [options] new [mode]
-
-  voidvault --filesystem=ext4/ext2 --lvm-vg-name=vg0
+  voidvault [options] new [mode] [filesystem[/filesystem][+lvm]]
 
 Options:
-  --filesystem=<filesystem>[/<filesystem>]
-    Filesystem with which to format Vault/Bootvault
   --lvm-vg-name=<name>
     Name for LVM volume group (for non-btrfs Vaults)
+
+Filesystem
+  Filesystem with which to format Vault/Bootvault
 
 Filesystem (Vault)
   | btrfs
