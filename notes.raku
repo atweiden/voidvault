@@ -1,34 +1,3 @@
-=head HELP TEXT
-
-constant $HELP = q:to/EOF/.trim;
-Usage:
-  voidvault [options] new [mode] [filesystem[/filesystem][+lvm]]
-
-Options:
-  --lvm-vg-name=<name>
-    Name for LVM volume group (for non-btrfs Vaults)
-
-Filesystem
-  Filesystem with which to format Vault/Bootvault
-
-Filesystem (Vault)
-  | btrfs
-  | ext2
-  | ext3
-  | ext4
-  | f2fs
-  | nilfs2
-  | xfs
-
-Filesystem (Bootvault)
-  | ext2
-  | ext3
-  | ext4
-  | f2fs
-  | nilfs2
-  | xfs
-EOF
-
 =head DOCUMENTATION
 
 constant $README = q:to/EOF/.trim;
