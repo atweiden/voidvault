@@ -1160,6 +1160,17 @@ enum DeviceLocator is export <ID PARTUUID UUID>;
 # hard disk type
 subset DiskType of Str is export where { %disktypes.keys.grep($_) };
 
+# filesystem
+enum Filesystem is export <
+    BTRFS
+    EXT2
+    EXT3
+    EXT4
+    F2FS
+    NILFS2
+    XFS
+>;
+
 # graphics card type
 subset Graphics of Str is export where { %graphics.keys.grep($_) };
 

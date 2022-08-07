@@ -71,15 +71,26 @@ my role Args[Mode:D $ where Mode::<2FA>]
     has Str $.bootvault-device;
 }
 
-my role FilesystemArgs[FilesystemMode:D $ where FilesystemMode::ALL]
+my role FilesystemArgs[
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .not
+]
 {
-    has Str $.vault-filesystem;
-    has Str $.bootvault-filesystem;
+    method vaultfs(--> Str) { $vaultfs }
+    method bootvaultfs(--> Str) { $bootvaultfs }
+    method lvm(--> Bool) { $lvm }
 }
 
-my role FilesystemArgs[FilesystemMode:D $ where FilesystemMode::LVM]
+# user passed C<+lvm> on cmdline
+my role FilesystemArgs[
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
 {
-    also does FilesystemArgs[FilesystemMode::ALL];
+    also does FilesystemArgs[$vaultfs, $bootvaultfs, False];
+    # lvm vg name opt accepted since user passed C<+lvm> on cmdline
     has Str $.lvm-vg-name;
 }
 
@@ -181,28 +192,18 @@ my role ToConfig[Mode:D $ where Mode::<2FA>]
     }
 }
 
-my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::BASE]
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
 {
-    also does Args[Mode::BASE];
+    also does Args[$mode];
+    also does FilesystemArgs[$vaultfs, $bootvaultfs, $lvm];
     also does Opts;
     also does Strict;
-    also does ToConfig[Mode::BASE];
-}
-
-my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<1FA>]
-{
-    also does Args[Mode::<1FA>];
-    also does Opts;
-    also does Strict;
-    also does ToConfig[Mode::<1FA>];
-}
-
-my role Voidvault::ConfigArgs::Parser[Mode:D $ where Mode::<2FA>]
-{
-    also does Args[Mode::<2FA>];
-    also does Opts;
-    also does Strict;
-    also does ToConfig[Mode::<2FA>];
+    also does ToConfig[$mode];
 }
 
 class Voidvault::ConfigArgs
@@ -214,25 +215,26 @@ class Voidvault::ConfigArgs
 
     method new(*@arg, *%opts --> Voidvault::ConfigArgs:D)
     {
-        my $parser = try Voidvault::ConfigArgs::Parser[$mode].bless(|%opts);
+        my List:D $args = args(@arg);
+        my $parser = try Voidvault::ConfigArgs::Parser[|$args].bless(|%opts);
         bail($!.message) if $!;
         self.bless(:$parser);
     }
 
-    multi sub new(*@ ($a, $b, *@) --> Hash:D)
+    multi sub args(*@ ($a, $b, *@) --> List:D)
     {
         my Mode:D $mode = Voidvault::ConfigArgs::Utils.gen-mode(:mode($m));
-        my %new;
+        my List $args;
     }
 
-    multi sub new(*@ ($a, *@) --> Hash:D)
+    multi sub args(*@ ($a, *@) --> List:D)
     {
-        my %new;
+        my List $args;
     }
 
-    multi sub new(*@ --> Hash:D)
+    multi sub args(*@ --> List:D)
     {
-        my %new;
+        my List $args;
     }
 
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config:D)

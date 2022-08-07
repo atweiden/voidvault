@@ -1,4 +1,5 @@
 use v6;
+use Voidvault::Config::Filesystem;
 use Voidvault::Config::Utils;
 use Voidvault::Constants;
 use Voidvault::Types;
@@ -154,6 +155,12 @@ has Str $.vault-sector-size =
     ?%*ENV<VOIDVAULT_VAULT_SECTOR_SIZE>
         ?? %*ENV<VOIDVAULT_VAULT_SECTOR_SIZE>
         !! Nil;
+
+# filesystem
+has Voidvault::Config::Filesystem:D $.filesystem =
+    ?%*ENV<VOIDVAULT_FILESYSTEM>
+        ?? Voidvault::Config::Filesystem.new(%*ENV<VOIDVAULT_FILESYSTEM>)
+        !! Voidvault::Config::Filesystem.new;
 
 # name for host (default: vault)
 has HostName:D $.host-name =
