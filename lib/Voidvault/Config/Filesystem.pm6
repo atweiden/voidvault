@@ -64,11 +64,7 @@ class Voidvault::Config::Filesystem
         Filesystem $vaultfs,
         Filesystem $bootvaultfs,
         Bool $lvm,
-        *%opts (
-            Str :lvm-vg-name($),
-            # for convenience, allow passing miscellaneous options
-            *%
-        )
+        *%opts (Str :lvm-vg-name($))
         --> Voidvault::Config::Filesystem:D
     )
     {
@@ -81,7 +77,7 @@ class Voidvault::Config::Filesystem
         Filesystem:D $ where Filesystem::BTRFS,
         Filesystem:D $,
         Bool:D $ where .so,
-        Str :lvm-vg-name($)
+        *% (Str :lvm-vg-name($))
         --> Fs:D
     )
     {
@@ -90,9 +86,9 @@ class Voidvault::Config::Filesystem
 
     multi sub fs(
         Mode:D $mode,
-        Filesystem:D $vaultfs,
-        Filesystem:D $bootvaultfs,
-        Bool:D $lvm,
+        Filesystem $vaultfs,
+        Filesystem $bootvaultfs,
+        Bool $lvm,
         Str :$lvm-vg-name
         --> Fs:D
     )
