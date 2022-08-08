@@ -251,4 +251,7 @@ constant $SUBJECT-LS-KEYMAPS = 'voidvault ls keymaps';
 constant $SUBJECT-LS-LOCALES = 'voidvault ls locales';
 constant $SUBJECT-LS-TIMEZONES = 'voidvault ls timezones';
 
+# maximum number of accepted cmdline positional arguments
+constant $MAX-COUNT-POSITIONAL-ARGS = 2;
+
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
