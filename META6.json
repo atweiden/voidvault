@@ -71,6 +71,7 @@
         "Voidvault::Types"                        : "lib/Voidvault/Types.pm6",
         "Voidvault::Utils"                        : "lib/Voidvault/Utils.pm6",
         "X::Void::XBPS"                           : "lib/X/Void/XBPS.pm6",
+        "X::Voidvault::Config::Filesystem"        : "lib/X/Voidvault/Config/Filesystem.pm6",
         "X::Voidvault::ConfigArgs"                : "lib/X/Voidvault/ConfigArgs.pm6",
         "X::Voidvault::Parser::Filesystem"        : "lib/X/Voidvault/Parser/Filesystem.pm6",
         "X::Voidvault::Parser::FstabEntry"        : "lib/X/Voidvault/Parser/FstabEntry.pm6",
