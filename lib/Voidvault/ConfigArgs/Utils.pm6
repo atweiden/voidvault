@@ -2,6 +2,7 @@ use v6;
 use Void::Constants;
 use Voidvault::ConfigArgs::Constants;
 use Voidvault::Types;
+use X::Voidvault::ConfigArgs;
 unit class Voidvault::ConfigArgs::Utils;
 
 multi method USAGE(Bool:D :error($)! where .so, *%opts (Str :subject($)))
@@ -151,35 +152,5 @@ multi sub exit-unless-requirements-satisfied(
     --> Nil
 )
 {*}
-
-method gen-mode(*%opts (Str :mode($)) --> Mode:D)
-{
-    my Mode:D $mode = gen-mode(|%opts);
-}
-
-multi sub gen-mode(Str:D :mode($)! where 'base' --> Mode:D)
-{
-    my Mode:D $mode = Mode::BASE;
-}
-
-multi sub gen-mode(Str:D :mode($)! where '1fa' --> Mode:D)
-{
-    my Mode:D $mode = Mode::<1FA>;
-}
-
-multi sub gen-mode(Str:D :mode($)! where '2fa' --> Mode:D)
-{
-    my Mode:D $mode = Mode::<2FA>;
-}
-
-multi sub gen-mode(Str:D :$mode! where .so --> Mode:D)
-{
-    die("Sorry, invalid mode 「$mode」");
-}
-
-multi sub gen-mode(Str :mode($) --> Mode:D)
-{
-    my Mode:D $mode = Mode::BASE;
-}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

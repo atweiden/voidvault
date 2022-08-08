@@ -4,9 +4,14 @@ use Voidvault::Config::Base;
 use Voidvault::Config::OneFA;
 use Voidvault::Config::TwoFA;
 use Voidvault::ConfigArgs::Utils;
+use Voidvault::Parser::Filesystem;
+use Voidvault::Parser::Mode;
 use Voidvault::Types;
+use X::Voidvault::ConfigArgs;
+use X::Voidvault::Parser::Filesystem;
+use X::Voidvault::Parser::Mode;
 
-my role Args[Mode:D $ where Mode::BASE]
+my role Opts[Mode:D $ where Mode::BASE]
 {
     has Str $.admin-name;
     has Str $.admin-pass;
@@ -50,9 +55,9 @@ my role Args[Mode:D $ where Mode::BASE]
     has Str $.vault-sector-size;
 }
 
-my role Args[Mode:D $ where Mode::<1FA>]
+my role Opts[Mode:D $ where Mode::<1FA>]
 {
-    also does Args[Mode::BASE];
+    also does Opts[Mode::BASE];
     has Str $.bootvault-name;
     has Str $.bootvault-pass;
     has Str $.bootvault-key-file;
@@ -65,15 +70,21 @@ my role Args[Mode:D $ where Mode::<1FA>]
     has Str $.bootvault-sector-size;
 }
 
-my role Args[Mode:D $ where Mode::<2FA>]
+my role Opts[Mode:D $ where Mode::<2FA>]
 {
-    also does Args[Mode::<1FA>];
+    also does Opts[Mode::<1FA>];
     has Str $.bootvault-device;
 }
 
+# C<FilesystemArgs> stores positional argument pertaining to filesystem
+# setup without interfering with C<GetOpts>' ability to iterate through
+# cmdline opts, by way of recording positional argument as parameterized
+# variables and then reporting those variables via methods (C<vaultfs>,
+# C<bootvaultfs>, and C<lvm>)
 my role FilesystemArgs[
     Filesystem $vaultfs,
     Filesystem $bootvaultfs,
+    # user didn't pass C<+lvm> on cmdline
     Bool:D $lvm where .not
 ]
 {
@@ -82,65 +93,96 @@ my role FilesystemArgs[
     method lvm(--> Bool) { $lvm }
 }
 
-# user passed C<+lvm> on cmdline
+# cheat a bit on the name "Args" vis-a-vis attribute C<$.lvm-vg-name>,
+# which becomes an accepted cmdline option upon role C<FilesystemArgs>
+# being mixed in to C<Voidvault::ConfigArgs::Parser>
 my role FilesystemArgs[
     Filesystem $vaultfs,
     Filesystem $bootvaultfs,
+    # user passed C<+lvm> on cmdline
     Bool:D $lvm where .so
 ]
 {
     also does FilesystemArgs[$vaultfs, $bootvaultfs, False];
+
     # lvm vg name opt accepted since user passed C<+lvm> on cmdline
     has Str $.lvm-vg-name;
+
+    # necessary override
+    method lvm(--> Bool) { $lvm }
 }
 
-my role Opts
+# C<GetOpts> provides method C<get-opts> for iterating through attributes.
+# When mixed in to role C<Voidvault::ConfigArgs::Parser>, these attributes
+# reflect proper cmdline options the valid set of which changes dynamically
+# based on positional arguments. C<GetOpts> doesn't iterate through these
+# positional arguments, however.
+my role GetOpts
 {
     # alternative to duplicating code in C<Mode::<1FA>>, C<Mode::<2FA>>
-    method opts(::?CLASS:D: --> Hash:D)
+    method get-opts(::?CLASS:D: --> Hash:D)
     {
         # list all attributes (think: C<Voidvault::ConfigArgs::Parser>)
         my List $attributes = self.^attributes(:local);
         # C<Attribute.get_value> requires C<self>, no multi methods now
         my $*self = self;
-        my %opts = opts(:$attributes);
+        my %opts = get-opts(:$attributes);
     }
 
-    multi sub opts(List :$attributes! --> Hash:D)
+    multi sub get-opts(
+        List :$attributes!
+        --> Hash:D
+    )
     {
         my Pair:D @opt = $attributes.map(-> Attribute:D $attribute {
-            opts(:$attribute);
+            get-opts(:$attribute);
         });
         my %opts = @opt.hash;
     }
 
-    multi sub opts(Attribute:D :$attribute! --> Pair:D)
+    multi sub get-opts(
+        Attribute:D :$attribute!
+        --> Pair:D
+    )
     {
         my Str:D $name = get-attribute-name($attribute);
         my \value = $attribute.get_value($*self);
-        opts($name, value);
+        get-opts($name, value);
     }
 
     # untyped repository array must become C<Array[Str:D]>
-    multi sub opts(Str:D $name where 'repository', \value where .so --> Pair:D)
+    multi sub get-opts(
+        Str:D $name where 'repository',
+        \value where .so
+        --> Pair:D
+    )
     {
         my Str:D @value = |value;
         my Pair:D $name-value = $name => @value;
     }
 
-    multi sub opts(Str:D $name where 'repository', \value --> Pair:D)
+    multi sub get-opts(
+        Str:D $name where 'repository',
+        \value
+        --> Pair:D
+    )
     {
         my Str:D @value;
         my Pair:D $name-value = $name => @value;
     }
 
-    multi sub opts(Str:D $name, \value --> Pair:D)
+    multi sub get-opts(
+        Str:D $name,
+        \value
+        --> Pair:D
+    )
     {
         my Pair:D $name-value = $name => value;
     }
 }
 
-my role Strict
+# C<OptsStrict> rejects invalid cmdline options.
+my role OptsStrict
 {
     # credit: ufobat/p6-StrictClass
     submethod TWEAK(*%opts --> Nil)
@@ -172,7 +214,7 @@ my role ToConfig[Mode:D $ where Mode::BASE]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
-        Voidvault::Config::Base.new(|self.opts);
+        Voidvault::Config::Base.new(|self.get-opts);
     }
 }
 
@@ -180,7 +222,7 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
-        Voidvault::Config::OneFA.new(|self.opts);
+        Voidvault::Config::OneFA.new(|self.get-opts);
     }
 }
 
@@ -188,7 +230,7 @@ my role ToConfig[Mode:D $ where Mode::<2FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
-        Voidvault::Config::TwoFA.new(|self.opts);
+        Voidvault::Config::TwoFA.new(|self.get-opts);
     }
 }
 
@@ -199,10 +241,10 @@ my role Voidvault::ConfigArgs::Parser[
     Bool $lvm
 ]
 {
-    also does Args[$mode];
+    also does Opts[$mode];
     also does FilesystemArgs[$vaultfs, $bootvaultfs, $lvm];
-    also does Opts;
-    also does Strict;
+    also does OptsStrict;
+    also does GetOpts;
     also does ToConfig[$mode];
 }
 
@@ -215,26 +257,80 @@ class Voidvault::ConfigArgs
 
     method new(*@arg, *%opts --> Voidvault::ConfigArgs:D)
     {
-        my List:D $args = args(@arg);
+        my List:D $args = try args(@arg);
+        bail($!.message) if $!;
+
         my $parser = try Voidvault::ConfigArgs::Parser[|$args].bless(|%opts);
         bail($!.message) if $!;
+
         self.bless(:$parser);
     }
 
     multi sub args(*@ ($a, $b, *@) --> List:D)
     {
-        my Mode:D $mode = Voidvault::ConfigArgs::Utils.gen-mode(:mode($m));
-        my List $args;
+        # both C<$mode> and C<$filesystem> expected since two positional args
+        my (Mode:D $mode, List:D $filesystem) = parse-mode-filesystem($a, $b);
+
+        # C<Mode $mode, Filesystem $vaultfs, Filesystem $bootvaultfs, Bool $lvm>
+        my List:D $args = ($mode, |$filesystem);
     }
 
     multi sub args(*@ ($a, *@) --> List:D)
     {
-        my List $args;
+        CATCH { when X::Voidvault::Parser::Mode::Invalid { .resume }
+                when X::Voidvault::Parser::Filesystem::Invalid { .resume } }
+
+        # attempt to parse first positional arg as mode
+        with Voidvault::Parser::Mode.parse($a)
+        {
+            return ($^a, Filesystem, Filesystem, Bool) if $^a;
+        }
+
+        # attempt to parse first positional arg as filesystem
+        with Voidvault::Parser::Filesystem.parse($a)
+        {
+            # mode defaults to base
+            return (Mode::BASE, |$^a) if $^a;
+        }
+
+        die(X::Voidvault::ConfigArgs::Positional::Invalid['mode|fs'].new(:content($a)));
     }
 
     multi sub args(*@ --> List:D)
     {
-        my List $args;
+        # mode defaults to base
+        my List:D $args = (Mode::BASE, Filesystem, Filesystem, Bool);
+    }
+
+    sub parse-mode-filesystem($a, $b --> List:D)
+    {
+        # prevent infinite loop
+        state $already-tried = False;
+
+        # facilitate passing mode and fs positional args in any order
+        CATCH { when X::Voidvault::Parser::Mode::Invalid { .resume }
+                when X::Voidvault::Parser::Filesystem::Invalid { .resume } }
+
+        # attempt to parse first positional arg as mode, second as fs
+        my (Mode $mode, List $filesystem) =
+            Voidvault::Parser::Mode.parse($a),
+            Voidvault::Parser::Filesystem.parse($b);
+
+        given ($mode.so, $filesystem.so)
+        {
+            when (True, True)
+            { break ($mode, $filesystem); }
+            when (True, False)
+            { die(X::Voidvault::ConfigArgs::Positional::Invalid['fs'].new(:fs($b))); }
+            when (False, True)
+            { die(X::Voidvault::ConfigArgs::Positional::Invalid['mode'].new(:mode($a))); }
+            when (False, False)
+            { die(X::Voidvault::ConfigArgs::Positional::Invalid['mode+fs'].new(:mode($a), :fs($b)))
+                  if $already-tried;
+              $already-tried = True;
+              # attempt to parse second positional arg as mode, first as fs
+              parse-mode-filesystem($b, $a); }
+        }
     }
 
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config:D)
