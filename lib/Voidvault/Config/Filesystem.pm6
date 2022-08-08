@@ -2,9 +2,11 @@ use v6;
 use Voidvault::Config::Utils;
 use Voidvault::Parser::Filesystem;
 use Voidvault::Types;
+use X::Voidvault::Config::Filesystem;
 
 my role Lvm[Bool:D $ where .so]
 {
+    # name for lvm volume group
     has LvmVolumeGroupName:D $.lvm-vg-name =
         ?%*ENV<VOIDVAULT_LVM_VG_NAME>
             ?? Voidvault::Config::Utils.gen-lvm-vg-name(%*ENV<VOIDVAULT_LVM_VG_NAME>)
@@ -59,7 +61,23 @@ class Voidvault::Config::Filesystem
 {
     has Fs:D $.fs is required;
 
-    method new(
+    # handle environment variable C<VOIDVAULT_LVM_VG_NAME> absent any
+    # fs cmdline positional args
+    multi method new(
+        Mode:D $mode,
+        Str:D $content
+        --> Voidvault::Config::Filesystem:D
+    )
+    {
+        # TODO: gracefully handle error case
+        my List:D $filesystem = Voidvault::Parser::Filesystem.parse($content);
+        # TODO: also pass in C<--lvm-vg-name> cmdline option
+        my Fs:D $fs = fs($mode, |$filesystem);
+        self.bless(:$fs);
+    }
+
+    # handle direct invocation via fs cmdline positional args
+    multi method new(
         Mode:D $mode,
         Filesystem $vaultfs,
         Filesystem $bootvaultfs,
@@ -73,15 +91,39 @@ class Voidvault::Config::Filesystem
     }
 
     multi sub fs(
+        Mode:D $ where Mode::BASE,
+        Filesystem $,
+        Filesystem:D $ where .so,
+        Bool $,
+        *% (Str :lvm-vg-name($))
+        --> Fs:D
+    )
+    {
+        die(X::Voidvault::Config::Filesystem::Impermissible['base+bootvaultfs'].new);
+    }
+
+    multi sub fs(
         Mode:D $,
         Filesystem:D $ where Filesystem::BTRFS,
-        Filesystem:D $,
+        Filesystem $,
         Bool:D $ where .so,
         *% (Str :lvm-vg-name($))
         --> Fs:D
     )
     {
-        die("Sorry, Btrfs can't be paired with LVM");
+        die(X::Voidvault::Config::Filesystem::Impermissible['btrfs+lvm'].new);
+    }
+
+    multi sub fs(
+        Mode:D $,
+        Filesystem $,
+        Filesystem:D $ where Filesystem::BTRFS,
+        Bool $,
+        *% (Str :lvm-vg-name($))
+        --> Fs:D
+    )
+    {
+        die(X::Voidvault::Config::Filesystem::Impermissible['bootvaultbtrfs'].new);
     }
 
     multi sub fs(
