@@ -159,8 +159,8 @@ has Str $.vault-sector-size =
 # filesystem
 has Voidvault::Config::Filesystem:D $.filesystem =
     ?%*ENV<VOIDVAULT_FILESYSTEM>
-        ?? Voidvault::Config::Filesystem.new(%*ENV<VOIDVAULT_FILESYSTEM>)
-        !! Voidvault::Config::Filesystem.new;
+        ?? Voidvault::Config::Filesystem.new(self!mode, %*ENV<VOIDVAULT_FILESYSTEM>)
+        !! prompt-filesystem(self!mode);
 
 # name for host (default: vault)
 has HostName:D $.host-name =
@@ -386,5 +386,20 @@ proto submethod BUILD(
     # in case downstream user of C<Voidvault::Config> needs more building
     {*}
 }
+
+
+# -----------------------------------------------------------------------------
+# helper functions
+# -----------------------------------------------------------------------------
+
+# return active C<Mode>
+method !mode(--> Mode:D)
+{
+    mode($?CLASS.^name);
+}
+
+multi sub mode(Str:D $ where /Base/ --> Mode:D) { Mode::BASE }
+multi sub mode(Str:D $ where /OneFA/ --> Mode:D) { Mode::<1FA> }
+multi sub mode(Str:D $ where /TwoFA/ --> Mode:D) { Mode::<2FA> }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
