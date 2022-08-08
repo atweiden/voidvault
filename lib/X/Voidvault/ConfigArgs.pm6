@@ -1,5 +1,22 @@
 use v6;
 
+# X::Voidvault::ConfigArgs::Positional::Extraneous {{{
+
+role X::Voidvault::ConfigArgs::Positional::Extraneous
+{
+    also is Exception;
+
+    has UInt:D $.extra is required;
+
+    method message(::?CLASS:D: --> Str:D)
+    {
+        my Str:D $message = "Sorry, received extraneous positional argument";
+        $message ~= 's' if $.extra > 1;
+        $message;
+    }
+}
+
+# end X::Voidvault::ConfigArgs::Positional::Extraneous }}}
 # X::Voidvault::ConfigArgs::Positional::Invalid {{{
 
 role X::Voidvault::ConfigArgs::Positional::Invalid['mode']

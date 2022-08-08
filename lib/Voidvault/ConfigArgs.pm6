@@ -3,6 +3,7 @@ use Voidvault::Config;
 use Voidvault::Config::Base;
 use Voidvault::Config::OneFA;
 use Voidvault::Config::TwoFA;
+use Voidvault::ConfigArgs::Constants;
 use Voidvault::ConfigArgs::Utils;
 use Voidvault::Parser::Filesystem;
 use Voidvault::Parser::Mode;
@@ -6841,6 +6842,13 @@ class Voidvault::ConfigArgs
         bail($!.message) if $!;
 
         self.bless(:$parser);
+    }
+
+    # three+ positional args present
+    multi sub args(@arg ($, $, $, *@) --> List:D)
+    {
+        my UInt:D $extra = @arg.elems - $MAX-COUNT-POSITIONAL-ARGS;
+        die(X::Voidvault::ConfigArgs::Positional::Extraneous.new(:$extra));
     }
 
     # two positional args present
