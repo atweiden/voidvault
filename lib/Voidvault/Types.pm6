@@ -1173,6 +1173,12 @@ subset LibcFlavor of Str is export where { @libc.grep($_) };
 # locale
 subset Locale of Str is export where { %locales.keys.grep($_) };
 
+# LVM volume group name
+subset LvmVolumeGroupName of Str is export where
+{
+    Voidvault::Grammar.parse($_, :rule<lvm-vg-name>);
+}
+
 # mode
 enum Mode is export <BASE 1FA 2FA>;
 
