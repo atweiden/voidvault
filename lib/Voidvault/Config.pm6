@@ -159,7 +159,10 @@ has Str $.vault-sector-size =
 # filesystem
 has Voidvault::Config::Filesystem:D $.filesystem =
     ?%*ENV<VOIDVAULT_FILESYSTEM>
-        ?? Voidvault::Config::Filesystem.new(self!mode, %*ENV<VOIDVAULT_FILESYSTEM>)
+        ?? Voidvault::Config::Filesystem.new(
+            self!mode,
+            %*ENV<VOIDVAULT_FILESYSTEM>
+        )
         !! prompt-filesystem(self!mode);
 
 # name for host (default: vault)

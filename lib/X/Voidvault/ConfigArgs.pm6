@@ -1,41 +1,5 @@
 use v6;
 
-# X::Voidvault::ConfigArgs::Positional::Impermissible {{{
-
-role X::Voidvault::ConfigArgs::Positional::Impermissible['base+bootvaultfs']
-{
-    also is Exception;
-
-    method message(::?CLASS:D: --> Str:D)
-    {
-        my Str:D $message =
-            "Sorry, unexpectedly received Bootvault filesystem in base mode";
-    }
-}
-
-role X::Voidvault::ConfigArgs::Positional::Impermissible['bootvaultbtrfs']
-{
-    also is Exception;
-
-    method message(::?CLASS:D: --> Str:D)
-    {
-        my Str:D $message =
-            "Sorry, unexpectedly received Bootvault filesystem of Btrfs";
-    }
-}
-
-role X::Voidvault::ConfigArgs::Positional::Impermissible['btrfs+lvm']
-{
-    also is Exception;
-
-    method message(::?CLASS:D: --> Str:D)
-    {
-        my Str:D $message =
-            "Sorry, unexpectedly received Vault filesystem of Btrfs with LVM";
-    }
-}
-
-# end X::Voidvault::ConfigArgs::Positional::Impermissible }}}
 # X::Voidvault::ConfigArgs::Positional::Invalid {{{
 
 role X::Voidvault::ConfigArgs::Positional::Invalid['mode']
