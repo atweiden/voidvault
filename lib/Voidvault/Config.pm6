@@ -265,6 +265,7 @@ proto submethod BUILD(
     Str :$disk-type,
     Bool :$enable-classic-ifnames,
     Bool :$enable-serial-console,
+    Voidvault::Config::Filesystem :$filesystem,
     Str :$graphics,
     Str :$grub-name,
     Str :$grub-pass,
@@ -313,6 +314,8 @@ proto submethod BUILD(
         if $enable-classic-ifnames;
     $!enable-serial-console = $enable-serial-console
         if $enable-serial-console;
+    $!filesystem = $filesystem
+        if $filesystem;
     $!graphics = gen-graphics($graphics)
         if $graphics;
     $!host-name = gen-host-name($hostname)

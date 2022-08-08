@@ -1,66 +1,107 @@
 use v6;
+use Voidvault::Config::Utils;
 use Voidvault::Parser::Filesystem;
 use Voidvault::Types;
 
-my role Base[
-    Filesystem:D $vaultfs,
-    Filesystem:D $bootvaultfs,
-    Bool:D $lvm where .not
-]
+my role Lvm[Bool:D $ where .so]
 {
-    # filesystem for vault
-    method vaultfs(--> Filesystem:D) { $vaultfs }
-
-    # filesystem for bootvault
-    method bootvaultfs(--> Filesystem:D) { $bootvaultfs }
-
-    # whether to create vault filesystem on lvm
-    method lvm(--> Bool:D) { $lvm }
-}
-
-my role Base[
-    Filesystem:D $vaultfs,
-    Filesystem:D $bootvaultfs,
-    Bool:D $lvm where .so
-]
-{
-    also does Base[$vaultfs, $bootvaultfs, False];
-
     has LvmVolumeGroupName:D $.lvm-vg-name =
         ?%*ENV<VOIDVAULT_LVM_VG_NAME>
-            ?? %*ENV<VOIDVAULT_LVM_VG_NAME>
-            !! 'vg0';
+            ?? Voidvault::Config::Utils.gen-lvm-vg-name(%*ENV<VOIDVAULT_LVM_VG_NAME>)
+            !! prompt-name(:lvm-vg);
+
+    # whether to create vault filesystem on lvm
+    method lvm(--> Bool:D) { True }
+}
+
+my role Lvm[Bool $]
+{
+    method lvm(--> Bool:D) { False }
+}
+
+my role FsVault
+{
+    # filesystem for vault
+    has Filesystem:D $.vault is required;
+}
+
+my role FsBootvault
+{
+    # filesystem for bootvault
+    has Filesystem:D $.bootvault is required;
+}
+
+my role Fs[Mode:D $ where Mode::BASE, Bool:D $ where .so]
+{
+    also does Lvm[True];
+    also does FsVault;
+}
+
+my role Fs[Mode:D $ where Mode::BASE, Bool $]
+{
+    also does Lvm[False];
+    also does FsVault;
+}
+
+my role Fs[Mode:D $ where Mode::<1FA>..Mode::<2FA>, Bool:D $ where .so]
+{
+    also does Fs[Mode::BASE, True];
+    also does FsBootvault;
+}
+
+my role Fs[Mode:D $ where Mode::<1FA>..Mode::<2FA>, Bool $]
+{
+    also does Fs[Mode::BASE, False];
+    also does FsBootvault;
 }
 
 class Voidvault::Config::Filesystem
 {
-    multi method new(Str:D $filesystem --> Voidvault::Config::Filesystem:D)
+    has Fs:D $.fs is required;
+
+    method new(
+        Mode:D $mode,
+        Filesystem $vaultfs,
+        Filesystem $bootvaultfs,
+        Bool $lvm,
+        *%opts (
+            Str :lvm-vg-name($),
+            # for convenience, allow passing miscellaneous options
+            *%
+        )
+        --> Voidvault::Config::Filesystem:D
+    )
     {
-        my %filesystem = try Voidvault::Parser::Filesystem.parse($filesystem);
+        my Fs:D $fs = fs($mode, $vaultfs, $bootvaultfs, $lvm, |%opts);
+        self.bless(:$fs);
     }
 
-    multi method new(--> Voidvault::Config::Filesystem:D)
-    {
-        self.bless;
-    }
-
-    multi sub new(
+    multi sub fs(
+        Mode:D $,
         Filesystem:D $ where Filesystem::BTRFS,
         Filesystem:D $,
-        Bool:D $ where .so
-        --> Nil
+        Bool:D $ where .so,
+        Str :lvm-vg-name($)
+        --> Fs:D
     )
     {
         die("Sorry, Btrfs can't be paired with LVM");
     }
 
-    multi sub new(
+    multi sub fs(
+        Mode:D $mode,
         Filesystem:D $vaultfs,
         Filesystem:D $bootvaultfs,
-        Bool:D $lvm
-        --> Voidvault::Config::Filesystem:D
+        Bool:D $lvm,
+        Str :$lvm-vg-name
+        --> Fs:D
     )
     {
+        my %opts;
+        %opts<vault> = $vaultfs if $vaultfs;
+        %opts<bootvault> = $bootvaultfs if $bootvaultfs;
+        %opts<lvm-vg-name> = $lvm-vg-name if $lvm-vg-name;
+        my Fs:D $fs = Fs[$mode, $lvm].new(|%opts);
     }
 }
 
