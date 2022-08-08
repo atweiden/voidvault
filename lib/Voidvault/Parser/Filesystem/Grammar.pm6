@@ -1,22 +1,31 @@
 use v6;
 unit grammar Voidvault::Parser::Filesystem::Grammar;
 
-proto token fs {*}
-token fs:sym<btrfs> { <sym> }
-token fs:sym<ext2> { <sym> }
-token fs:sym<ext3> { <sym> }
-token fs:sym<ext4> { <sym> }
-token fs:sym<f2fs> { <sym> }
-token fs:sym<nilfs2> { <sym> }
-token fs:sym<xfs> { <sym> }
+token fs-btrfs { :i btrfs }
+token fs-ext2 { :i ext2 }
+token fs-ext3 { :i ext3 }
+token fs-ext4 { :i ext4 }
+token fs-f2fs { :i f2fs }
+token fs-nilfs2 { :i nilfs2 }
+token fs-xfs { :i xfs }
+token fs
+{
+    | <fs-btrfs>
+    | <fs-ext2>
+    | <fs-ext3>
+    | <fs-ext4>
+    | <fs-f2fs>
+    | <fs-nilfs2>
+    | <fs-xfs>
+}
 
-token lvm { lvm }
+token lvm { :i lvm }
 
 token TOP
 {
     ^
-    $<vaultfs>=<.fs>
-    ['/' $<bootvaultfs>=<.fs>]?
+    $<vaultfs>=<fs>
+    ['/' $<bootvaultfs>=<fs>]?
     ['+'<lvm>]?
     $
 }

@@ -81,18 +81,7 @@ my role Opts[Mode:D $ where Mode::<2FA>]
 # cmdline opts, by way of recording positional argument as parameterized
 # variables and then reporting those variables via methods (C<vaultfs>,
 # C<bootvaultfs>, and C<lvm>)
-my role FilesystemArgs[
-    Filesystem $vaultfs,
-    Filesystem $bootvaultfs,
-    # user didn't pass C<+lvm> on cmdline
-    Bool:D $lvm where .not
-]
-{
-    method vaultfs(--> Str) { $vaultfs }
-    method bootvaultfs(--> Str) { $bootvaultfs }
-    method lvm(--> Bool) { $lvm }
-}
-
+#
 # cheat a bit on the name "Args" vis-a-vis attribute C<$.lvm-vg-name>,
 # which becomes an accepted cmdline option upon role C<FilesystemArgs>
 # being mixed in to C<Voidvault::ConfigArgs::Parser>
@@ -103,12 +92,23 @@ my role FilesystemArgs[
     Bool:D $lvm where .so
 ]
 {
-    also does FilesystemArgs[$vaultfs, $bootvaultfs, False];
-
     # lvm vg name opt accepted since user passed C<+lvm> on cmdline
     has Str $.lvm-vg-name;
+    method vaultfs(--> Filesystem) { $vaultfs }
+    method bootvaultfs(--> Filesystem) { $bootvaultfs }
+    method lvm(--> Bool) { $lvm }
+}
 
-    # necessary override
+# duplicate methods for minimum amount of code duplication ironically
+my role FilesystemArgs[
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    # user didn't pass C<+lvm> on cmdline
+    Bool $lvm
+]
+{
+    method vaultfs(--> Filesystem) { $vaultfs }
+    method bootvaultfs(--> Filesystem) { $bootvaultfs }
     method lvm(--> Bool) { $lvm }
 }
 
@@ -116,7 +116,7 @@ my role FilesystemArgs[
 # When mixed in to role C<Voidvault::ConfigArgs::Parser>, these attributes
 # reflect proper cmdline options the valid set of which changes dynamically
 # based on positional arguments. C<GetOpts> doesn't iterate through these
-# positional arguments, however.
+# positional arguments, however, only cmdline options (flags).
 my role GetOpts
 {
     # alternative to duplicating code in C<Mode::<1FA>>, C<Mode::<2FA>>
@@ -181,7 +181,7 @@ my role GetOpts
     }
 }
 
-# C<OptsStrict> rejects invalid cmdline options.
+# C<OptsStrict> rejects invalid cmdline options
 my role OptsStrict
 {
     # credit: ufobat/p6-StrictClass
@@ -210,11 +210,21 @@ my role OptsStrict
     }
 }
 
+my role Retrospective
+{
+    method received-arg(::?CLASS:D: 'fs' --> Bool:D)
+    {
+        (self.vaultfs, self.bootvaultfs, self.lvm).grep(*.defined).so;
+    }
+}
+
 my role ToConfig[Mode:D $ where Mode::BASE]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
-        Voidvault::Config::Base.new(|self.get-opts);
+        my Voidvault::Config::Filesystem $filesystem .=
+            new(Mode::BASE, self.vaultfs, self.bootvaultfs, self.lvm);
+        Voidvault::Config::Base.new(|self.get-opts, :$filesystem);
     }
 }
 
@@ -222,7 +232,9 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
-        Voidvault::Config::OneFA.new(|self.get-opts);
+        my Voidvault::Config::Filesystem $filesystem .=
+            new(Mode::<1FA>, self.vaultfs, self.bootvaultfs, self.lvm);
+        Voidvault::Config::OneFA.new(|self.get-opts, :$filesystem);
     }
 }
 
@@ -230,23 +242,5418 @@ my role ToConfig[Mode:D $ where Mode::<2FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
-        Voidvault::Config::TwoFA.new(|self.get-opts);
+        my Voidvault::Config::Filesystem $filesystem .=
+            new(Mode::<2FA>, self.vaultfs, self.bootvaultfs, self.lvm);
+        Voidvault::Config::TwoFA.new(|self.get-opts, :$filesystem);
     }
 }
 
+# Mode::BASE {{{
+
+# --- +lvm {{{
+
 my role Voidvault::ConfigArgs::Parser[
-    Mode:D $mode,
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+# --- end +lvm }}}
+# --- -lvm {{{
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::BASE];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::BASE,
     Filesystem $vaultfs,
     Filesystem $bootvaultfs,
     Bool $lvm
 ]
 {
-    also does Opts[$mode];
-    also does FilesystemArgs[$vaultfs, $bootvaultfs, $lvm];
+    also does Opts[Mode::BASE];
+    also does FilesystemArgs[Filesystem, Filesystem, False];
     also does OptsStrict;
     also does GetOpts;
-    also does ToConfig[$mode];
+    also does ToConfig[Mode::BASE];
 }
+
+# --- end -lvm }}}
+
+# end Mode::BASE }}}
+# Mode::<1FA> {{{
+
+# --- +lvm {{{
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+# --- end +lvm }}}
+# --- -lvm {{{
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<1FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<1FA>];
+    also does FilesystemArgs[Filesystem, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<1FA>];
+}
+
+# --- end -lvm }}}
+
+# end Mode::<1FA> }}}
+# Mode::<2FA> {{{
+
+# --- +lvm {{{
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool:D $lvm where .so
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem, True];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+# --- end +lvm }}}
+# --- -lvm {{{
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::BTRFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT3,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::EXT4,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::F2FS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::NILFS2,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs where Filesystem::XFS,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::BTRFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT3,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::EXT4,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::F2FS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::NILFS2,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs where Filesystem::XFS,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+my role Voidvault::ConfigArgs::Parser[
+    Mode:D $mode where Mode::<2FA>,
+    Filesystem $vaultfs,
+    Filesystem $bootvaultfs,
+    Bool $lvm
+]
+{
+    also does Opts[Mode::<2FA>];
+    also does FilesystemArgs[Filesystem, Filesystem, False];
+    also does OptsStrict;
+    also does GetOpts;
+    also does ToConfig[Mode::<2FA>];
+}
+
+# --- end -lvm }}}
+
+# end Mode::<2FA> }}}
 
 class Voidvault::ConfigArgs
 {
@@ -260,53 +5667,49 @@ class Voidvault::ConfigArgs
         my List:D $args = try args(@arg);
         bail($!.message) if $!;
 
-        my $parser = try Voidvault::ConfigArgs::Parser[|$args].bless(|%opts);
+        my $parser = try Voidvault::ConfigArgs::Parser[|$args].new(|%opts);
         bail($!.message) if $!;
 
         self.bless(:$parser);
     }
 
+    # two positional args present
     multi sub args(*@ ($a, $b, *@) --> List:D)
     {
-        # both C<$mode> and C<$filesystem> expected since two positional args
-        my (Mode:D $mode, List:D $filesystem) = parse-mode-filesystem($a, $b);
-
-        # C<Mode $mode, Filesystem $vaultfs, Filesystem $bootvaultfs, Bool $lvm>
-        my List:D $args = ($mode, |$filesystem);
+        # expect to receive both mode and filesystem or error because
+        # two positional args present
+        my List:D $args =
+            my (Mode:D $mode,
+                Filesystem:D $vaultfs,
+                Filesystem $bootvaultfs,
+                Bool $lvm) = parse-mode-and-fs($a, $b);
     }
 
+    # one positional arg present
     multi sub args(*@ ($a, *@) --> List:D)
     {
-        CATCH { when X::Voidvault::Parser::Mode::Invalid { .resume }
-                when X::Voidvault::Parser::Filesystem::Invalid { .resume } }
-
-        # attempt to parse first positional arg as mode
-        with Voidvault::Parser::Mode.parse($a)
-        {
-            return ($^a, Filesystem, Filesystem, Bool) if $^a;
-        }
-
-        # attempt to parse first positional arg as filesystem
-        with Voidvault::Parser::Filesystem.parse($a)
-        {
-            # mode defaults to base
-            return (Mode::BASE, |$^a) if $^a;
-        }
-
-        die(X::Voidvault::ConfigArgs::Positional::Invalid['mode|fs'].new(:content($a)));
+        # expect to receive mode or filesystem, however mode is guaranteed
+        my List:D $args =
+            my (Mode:D $mode,
+                Filesystem $vaultfs,
+                Filesystem $bootvaultfs,
+                Bool $lvm) = parse-mode-or-fs($a);
     }
 
+    # no positional args present
     multi sub args(*@ --> List:D)
     {
         # mode defaults to base
         my List:D $args = (Mode::BASE, Filesystem, Filesystem, Bool);
     }
 
-    sub parse-mode-filesystem($a, $b --> List:D)
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        *%opts (Bool :ran-once($))
+        --> List:D
+    )
     {
-        # prevent infinite loop
-        state $already-tried = False;
-
         # facilitate passing mode and fs positional args in any order
         CATCH { when X::Voidvault::Parser::Mode::Invalid { .resume }
                 when X::Voidvault::Parser::Filesystem::Invalid { .resume } }
@@ -316,21 +5719,92 @@ class Voidvault::ConfigArgs
             Voidvault::Parser::Mode.parse($a),
             Voidvault::Parser::Filesystem.parse($b);
 
-        given ($mode.so, $filesystem.so)
+        parse-mode-and-fs($a, $b, :$mode, :$filesystem, |%opts);
+    }
+
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        :$mode! where .so,
+        :$filesystem! where .so,
+        *% (Bool :ran-once($))
+        --> List:D
+    )
+    {
+        ($mode, |$filesystem);
+    }
+
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        :mode($)! where .so,
+        :filesystem($)!,
+        *% (Bool :ran-once($))
+        --> List:D
+    )
+    {
+        die(X::Voidvault::ConfigArgs::Positional::Invalid['fs'].new(:fs($b)));
+    }
+
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        :filesystem($)! where .so,
+        :mode($)!,
+        *% (Bool :ran-once($))
+        --> List:D
+    )
+    {
+        die(X::Voidvault::ConfigArgs::Positional::Invalid['mode'].new(:mode($a)));
+    }
+
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        :mode($)!,
+        :filesystem($)!,
+        # prevent infinite loop
+        Bool:D :ran-once($)! where .so
+        --> List:D
+    )
+    {
+        # un-reverse order of mode and filesystem for better error message
+        die(X::Voidvault::ConfigArgs::Positional::Invalid['mode+fs'].new(:mode($b), :fs($a)));
+    }
+
+    multi sub parse-mode-and-fs(
+        $a,
+        $b,
+        :mode($)!,
+        :filesystem($)!,
+        *% (Bool :ran-once($))
+        --> List:D
+    )
+    {
+        # attempt to parse first positional arg as filesystem, second as mode
+        parse-mode-and-fs($b, $a, :ran-once);
+    }
+
+    sub parse-mode-or-fs($a --> List:D)
+    {
+        # facilitate passing either mode or fs as positional arg
+        CATCH { when X::Voidvault::Parser::Mode::Invalid { .resume }
+                when X::Voidvault::Parser::Filesystem::Invalid { .resume } }
+
+        # attempt to parse positional arg as mode
+        with Voidvault::Parser::Mode.parse($a)
         {
-            when (True, True)
-            { break ($mode, $filesystem); }
-            when (True, False)
-            { die(X::Voidvault::ConfigArgs::Positional::Invalid['fs'].new(:fs($b))); }
-            when (False, True)
-            { die(X::Voidvault::ConfigArgs::Positional::Invalid['mode'].new(:mode($a))); }
-            when (False, False)
-            { die(X::Voidvault::ConfigArgs::Positional::Invalid['mode+fs'].new(:mode($a), :fs($b)))
-                  if $already-tried;
-              $already-tried = True;
-              # attempt to parse second positional arg as mode, first as fs
-              parse-mode-filesystem($b, $a); }
+            return ($^a, Filesystem, Filesystem, Bool) if $^a;
         }
+
+        # attempt to parse positional arg as filesystem
+        with Voidvault::Parser::Filesystem.parse($a)
+        {
+            # mode defaults to base
+            return (Mode::BASE, |$^a) if $^a;
+        }
+
+        die(X::Voidvault::ConfigArgs::Positional::Invalid['mode|fs'].new(:content($a)));
     }
 
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config:D)

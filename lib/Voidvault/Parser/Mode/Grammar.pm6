@@ -1,10 +1,15 @@
 use v6;
 unit grammar Voidvault::Parser::Mode::Grammar;
 
-proto token mode {*}
-token mode:sym<base> { <sym> }
-token mode:sym<1fa> { <sym> }
-token mode:sym<2fa> { <sym> }
+token mode-base { :i base }
+token mode-onefa { :i 1fa }
+token mode-twofa { :i 2fa }
+token mode
+{
+    | <mode-base>
+    | <mode-onefa>
+    | <mode-twofa>
+}
 
 token TOP { ^ <mode> $ }
 

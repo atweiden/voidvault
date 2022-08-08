@@ -8,8 +8,7 @@ method parse(Str:D $content --> Mode:D)
 {
     my Voidvault::Parser::Mode::Actions $actions .= new;
     my $mode = Voidvault::Parser::Mode::Grammar.parse($content, :$actions).made;
-    die(X::Voidvault::Parser::Mode::Invalid.new(:$content))
-        unless $mode;
+    die(X::Voidvault::Parser::Mode::Invalid.new(:$content)) unless $mode;
     $mode;
 }
 
