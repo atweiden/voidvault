@@ -277,6 +277,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -293,6 +294,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -309,6 +311,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -325,6 +328,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -341,6 +345,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -357,6 +362,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -373,6 +379,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -389,6 +396,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -405,6 +413,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -421,6 +430,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -437,6 +447,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -453,6 +464,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -469,6 +481,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -485,6 +498,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -501,6 +515,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -517,6 +532,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -533,6 +549,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -549,6 +566,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -565,6 +583,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -581,6 +600,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -597,6 +617,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -613,6 +634,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -629,6 +651,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -645,6 +668,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -661,6 +685,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -677,6 +702,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -693,6 +719,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -709,6 +736,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -725,6 +753,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -741,6 +770,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -757,6 +787,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -773,6 +804,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -789,6 +821,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -805,6 +838,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -821,6 +855,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -837,6 +872,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -853,6 +889,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -869,6 +906,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -885,6 +923,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -901,6 +940,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -917,6 +957,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -933,6 +974,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -949,6 +991,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -965,6 +1008,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -981,6 +1025,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -997,6 +1042,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1013,6 +1059,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1029,6 +1076,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1045,6 +1093,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1061,6 +1110,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1077,6 +1127,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1093,6 +1144,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1109,6 +1161,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1125,6 +1178,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1141,6 +1195,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1157,6 +1212,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1173,6 +1229,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1189,6 +1246,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1205,6 +1263,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1221,6 +1280,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1237,6 +1297,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1253,6 +1314,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1269,6 +1331,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1285,6 +1348,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -1304,6 +1368,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1320,6 +1385,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1336,6 +1402,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1352,6 +1419,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1368,6 +1436,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1384,6 +1453,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1400,6 +1470,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1416,6 +1487,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1432,6 +1504,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1448,6 +1521,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1464,6 +1538,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1480,6 +1555,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1496,6 +1572,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1512,6 +1589,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1528,6 +1606,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1544,6 +1623,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1560,6 +1640,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1576,6 +1657,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1592,6 +1674,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1608,6 +1691,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1624,6 +1708,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1640,6 +1725,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1656,6 +1742,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1672,6 +1759,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1688,6 +1776,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1704,6 +1793,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1720,6 +1810,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1736,6 +1827,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1752,6 +1844,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1768,6 +1861,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1784,6 +1878,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1800,6 +1895,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1816,6 +1912,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1832,6 +1929,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1848,6 +1946,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1864,6 +1963,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1880,6 +1980,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1896,6 +1997,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1912,6 +2014,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1928,6 +2031,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1944,6 +2048,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1960,6 +2065,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1976,6 +2082,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -1992,6 +2099,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2008,6 +2116,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2024,6 +2133,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2040,6 +2150,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2056,6 +2167,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2072,6 +2184,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2088,6 +2201,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2104,6 +2218,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2120,6 +2235,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2136,6 +2252,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2152,6 +2269,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2168,6 +2286,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2184,6 +2303,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2200,6 +2320,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2216,6 +2337,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2232,6 +2354,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2248,6 +2371,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2264,6 +2388,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2280,6 +2405,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2296,6 +2422,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2312,6 +2439,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::BASE];
+    also does ModeArgs[Mode::BASE];
     also does FilesystemArgs[Filesystem, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -2335,6 +2463,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2351,6 +2480,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2367,6 +2497,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2383,6 +2514,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2399,6 +2531,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2415,6 +2548,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2431,6 +2565,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2447,6 +2582,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2463,6 +2599,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2479,6 +2616,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2495,6 +2633,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2511,6 +2650,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2527,6 +2667,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2543,6 +2684,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2559,6 +2701,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2575,6 +2718,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2591,6 +2735,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2607,6 +2752,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2623,6 +2769,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2639,6 +2786,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2655,6 +2803,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2671,6 +2820,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2687,6 +2837,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2703,6 +2854,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2719,6 +2871,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2735,6 +2888,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2751,6 +2905,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2767,6 +2922,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2783,6 +2939,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2799,6 +2956,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2815,6 +2973,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2831,6 +2990,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2847,6 +3007,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2863,6 +3024,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2879,6 +3041,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2895,6 +3058,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2911,6 +3075,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2927,6 +3092,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2943,6 +3109,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2959,6 +3126,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2975,6 +3143,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -2991,6 +3160,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3007,6 +3177,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3023,6 +3194,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3039,6 +3211,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3055,6 +3228,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3071,6 +3245,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3087,6 +3262,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3103,6 +3279,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3119,6 +3296,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3135,6 +3313,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3151,6 +3330,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3167,6 +3347,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3183,6 +3364,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3199,6 +3381,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3215,6 +3398,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3231,6 +3415,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3247,6 +3432,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3263,6 +3449,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3279,6 +3466,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3295,6 +3483,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3311,6 +3500,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3327,6 +3517,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3343,6 +3534,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -3362,6 +3554,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3378,6 +3571,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3394,6 +3588,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3410,6 +3605,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3426,6 +3622,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3442,6 +3639,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3458,6 +3656,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3474,6 +3673,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3490,6 +3690,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3506,6 +3707,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3522,6 +3724,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3538,6 +3741,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3554,6 +3758,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3570,6 +3775,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3586,6 +3792,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3602,6 +3809,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3618,6 +3826,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3634,6 +3843,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3650,6 +3860,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3666,6 +3877,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3682,6 +3894,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3698,6 +3911,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3714,6 +3928,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3730,6 +3945,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3746,6 +3962,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3762,6 +3979,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3778,6 +3996,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3794,6 +4013,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3810,6 +4030,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3826,6 +4047,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3842,6 +4064,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3858,6 +4081,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3874,6 +4098,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3890,6 +4115,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3906,6 +4132,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3922,6 +4149,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3938,6 +4166,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3954,6 +4183,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3970,6 +4200,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -3986,6 +4217,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4002,6 +4234,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4018,6 +4251,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4034,6 +4268,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4050,6 +4285,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4066,6 +4302,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4082,6 +4319,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4098,6 +4336,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4114,6 +4353,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4130,6 +4370,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4146,6 +4387,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4162,6 +4404,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4178,6 +4421,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4194,6 +4438,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4210,6 +4455,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4226,6 +4472,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4242,6 +4489,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4258,6 +4506,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4274,6 +4523,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4290,6 +4540,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4306,6 +4557,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4322,6 +4574,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4338,6 +4591,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4354,6 +4608,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4370,6 +4625,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<1FA>];
+    also does ModeArgs[Mode::<1FA>];
     also does FilesystemArgs[Filesystem, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -4393,6 +4649,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4409,6 +4666,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4425,6 +4683,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4441,6 +4700,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4457,6 +4717,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4473,6 +4734,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4489,6 +4751,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4505,6 +4768,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4521,6 +4785,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4537,6 +4802,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4553,6 +4819,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4569,6 +4836,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4585,6 +4853,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4601,6 +4870,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4617,6 +4887,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4633,6 +4904,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4649,6 +4921,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4665,6 +4938,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4681,6 +4955,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4697,6 +4972,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4713,6 +4989,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4729,6 +5006,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4745,6 +5023,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4761,6 +5040,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4777,6 +5057,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4793,6 +5074,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4809,6 +5091,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4825,6 +5108,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4841,6 +5125,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4857,6 +5142,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4873,6 +5159,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4889,6 +5176,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4905,6 +5193,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4921,6 +5210,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4937,6 +5227,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4953,6 +5244,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4969,6 +5261,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -4985,6 +5278,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5001,6 +5295,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5017,6 +5312,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5033,6 +5329,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5049,6 +5346,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5065,6 +5363,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5081,6 +5380,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5097,6 +5397,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5113,6 +5414,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5129,6 +5431,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5145,6 +5448,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5161,6 +5465,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5177,6 +5482,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5193,6 +5499,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5209,6 +5516,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5225,6 +5533,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5241,6 +5550,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5257,6 +5567,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5273,6 +5584,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5289,6 +5601,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5305,6 +5618,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5321,6 +5635,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5337,6 +5652,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5353,6 +5669,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5369,6 +5686,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5385,6 +5703,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5401,6 +5720,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem, True];
     also does OptsStrict;
     also does GetArgs;
@@ -5420,6 +5740,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5436,6 +5757,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5452,6 +5774,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5468,6 +5791,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5484,6 +5808,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5500,6 +5825,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5516,6 +5842,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5532,6 +5859,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::BTRFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5548,6 +5876,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5564,6 +5893,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5580,6 +5910,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5596,6 +5927,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5612,6 +5944,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5628,6 +5961,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5644,6 +5978,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5660,6 +5995,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5676,6 +6012,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5692,6 +6029,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5708,6 +6046,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5724,6 +6063,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5740,6 +6080,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5756,6 +6097,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5772,6 +6114,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5788,6 +6131,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT3, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5804,6 +6148,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5820,6 +6165,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5836,6 +6182,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5852,6 +6199,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5868,6 +6216,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5884,6 +6233,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5900,6 +6250,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5916,6 +6267,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::EXT4, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5932,6 +6284,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5948,6 +6301,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5964,6 +6318,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5980,6 +6335,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -5996,6 +6352,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6012,6 +6369,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6028,6 +6386,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6044,6 +6403,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::F2FS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6060,6 +6420,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6076,6 +6437,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6092,6 +6454,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6108,6 +6471,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6124,6 +6488,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6140,6 +6505,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6156,6 +6522,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6172,6 +6539,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::NILFS2, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6188,6 +6556,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6204,6 +6573,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6220,6 +6590,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6236,6 +6607,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6252,6 +6624,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6268,6 +6641,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6284,6 +6658,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6300,6 +6675,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem::XFS, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6316,6 +6692,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::BTRFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6332,6 +6709,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6348,6 +6726,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT3, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6364,6 +6743,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::EXT4, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6380,6 +6760,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::F2FS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6396,6 +6777,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::NILFS2, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6412,6 +6794,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem::XFS, False];
     also does OptsStrict;
     also does GetArgs;
@@ -6428,6 +6811,7 @@ my role Voidvault::ConfigArgs::Parser[
 ]
 {
     also does Opts[Mode::<2FA>];
+    also does ModeArgs[Mode::<2FA>];
     also does FilesystemArgs[Filesystem, Filesystem, False];
     also does OptsStrict;
     also does GetArgs;
