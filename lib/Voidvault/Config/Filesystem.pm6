@@ -100,7 +100,9 @@ class Voidvault::Config::Filesystem
         my %opts;
         %opts<vault> = $vaultfs if $vaultfs;
         %opts<bootvault> = $bootvaultfs if $bootvaultfs;
-        %opts<lvm-vg-name> = $lvm-vg-name if $lvm-vg-name;
+        %opts<lvm-vg-name> =
+            Voidvault::Config::Utils.gen-lvm-vg-name($lvm-vg-name)
+                if $lvm-vg-name;
         my Fs:D $fs = Fs[$mode, $lvm].new(|%opts);
     }
 }
