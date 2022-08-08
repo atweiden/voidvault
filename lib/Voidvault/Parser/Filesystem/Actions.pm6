@@ -1,6 +1,5 @@
 use v6;
 use Voidvault::Types;
-use X::Voidvault::Parser::Filesystem;
 unit class Voidvault::Parser::Filesystem::Actions;
 
 method fs:sym<btrfs>($/ --> Nil)
@@ -55,11 +54,11 @@ method lvm($/ --> Nil)
 
 method TOP($/ --> Nil)
 {
-    my %filesystem;
-    %filesystem<vaultfs> = $<vaultfs>.made;
-    %filesystem<bootvaultfs> = $<bootvaultfs>.made if $<bootvaultfs>;
-    %filesystem<lvm> = $<lvm>.made if $<lvm>;
-    make(%filesystem);
+    my Filesystem:D $vaultfs = $<vaultfs>.made;
+    my Filesystem $bootvaultfs = $<bootvaultfs>.made if $<bootvaultfs>;
+    my Bool $lvm = $<lvm>.made if $<lvm>;
+    my List:D $filesystem = ($vaultfs, $bootvaultfs, $lvm);
+    make($filesystem);
 }
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

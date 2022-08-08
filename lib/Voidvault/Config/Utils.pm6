@@ -270,6 +270,14 @@ sub gen-locale(Str:D $l --> Locale:D) is export
     my Locale:D $locale = $l or die("Sorry, invalid locale 「$l」");
 }
 
+# confirm lvm volume group name $l is valid LvmVolumeGroupName and return
+# LvmVolumeGroupName
+method gen-lvm-vg-name(Str:D $l --> LvmVolumeGroupName:D)
+{
+    my LvmVolumeGroupName:D $lvm-vg-name =
+        $l or die("Sorry, invalid LVM volume group name 「$l」");
+}
+
 # confirm processor $p is valid Processor and return Processor
 sub gen-processor(Str:D $p --> Processor:D) is export
 {
@@ -616,6 +624,31 @@ multi sub prompt-name(
         EOF
         tprompt(
             HostName,
+            $response-default,
+            :$prompt-text,
+            :$help-text
+        );
+    }
+}
+
+multi sub prompt-name(
+    Bool:D :lvm-vg($)! where .so
+    --> LvmVolumeGroupName:D
+) is export
+{
+    my LvmVolumeGroupName:D $lvm-vg-name = do {
+        my LvmVolumeGroupName:D $response-default = 'vg0';
+        my Str:D $prompt-text =
+            "Enter LVM volume group name [$response-default]: ";
+        my Str:D $help-text = q:to/EOF/.trim;
+        Determining name of LVM volume group...
+
+        Name must be unique in /dev/. Name must differ from that of Vault.
+
+        Leave blank if you don't know what this is
+        EOF
+        tprompt(
+            LvmVolumeGroupName,
             $response-default,
             :$prompt-text,
             :$help-text
