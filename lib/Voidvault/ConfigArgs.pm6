@@ -239,6 +239,7 @@ my role ToConfig[Mode:D $ where Mode::BASE]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
+        # instantiate if fs positional arg, else C<prompt-filesystem>
         my Voidvault::Config::Filesystem $filesystem .=
             new(|self.get-args) if self.received-arg('fs');
         Voidvault::Config::Base.new(|self.get-opts, :$filesystem);
