@@ -243,9 +243,13 @@ my role ToConfig[Mode:D $ where Mode::BASE]
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
         # instantiate if fs positional arg, else C<prompt-filesystem>
-        my Voidvault::Config::Filesystem $filesystem .=
-            new(|self.get-args, |self.get-opts) if self.received-arg('fs');
-        Voidvault::Config::Base.new(|self.get-opts, :$filesystem);
+        my %opts;
+        %opts<filesystem> =
+            Voidvault::Config::Filesystem.new(
+                |self.get-args,
+                |self.get-opts
+            ) if self.received-arg('fs');
+        Voidvault::Config::Base.new(|self.get-opts, |%opts);
     }
 }
 
@@ -253,9 +257,13 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
-        my Voidvault::Config::Filesystem $filesystem .=
-            new(|self.get-args, |self.get-opts) if self.received-arg('fs');
-        Voidvault::Config::OneFA.new(|self.get-opts, :$filesystem);
+        my %opts;
+        %opts<filesystem> =
+            Voidvault::Config::Filesystem.new(
+                |self.get-args,
+                |self.get-opts
+            ) if self.received-arg('fs');
+        Voidvault::Config::OneFA.new(|self.get-opts, |%opts);
     }
 }
 
@@ -263,9 +271,13 @@ my role ToConfig[Mode:D $ where Mode::<2FA>]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
-        my Voidvault::Config::Filesystem $filesystem .=
-            new(|self.get-args, |self.get-opts) if self.received-arg('fs');
-        Voidvault::Config::TwoFA.new(|self.get-opts, :$filesystem);
+        my %opts;
+        %opts<filesystem> =
+            Voidvault::Config::Filesystem.new(
+                |self.get-args,
+                |self.get-opts
+            ) if self.received-arg('fs');
+        Voidvault::Config::TwoFA.new(|self.get-opts, |%opts);
     }
 }
 
