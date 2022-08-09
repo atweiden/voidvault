@@ -206,15 +206,15 @@ class Voidvault::Config::Filesystem
         %*opts<bootvault> =
             $bootvaultfs ?? $bootvaultfs !! bootvaultfs(%*opts<vault>);
     }
-}
 
-# default bootvaultfs given vaultfs
-multi sub bootvaultfs(Filesystem::BTRFS --> Filesystem::EXT4) {*}
-multi sub bootvaultfs(Filesystem::EXT2 --> Filesystem::EXT2) {*}
-multi sub bootvaultfs(Filesystem::EXT3 --> Filesystem::EXT3) {*}
-multi sub bootvaultfs(Filesystem::EXT4 --> Filesystem::EXT4) {*}
-multi sub bootvaultfs(Filesystem::F2FS --> Filesystem::F2FS) {*}
-multi sub bootvaultfs(Filesystem::NILFS2 --> Filesystem::NILFS2) {*}
-multi sub bootvaultfs(Filesystem::XFS --> Filesystem::XFS) {*}
+    # default bootvaultfs given vaultfs
+    multi sub bootvaultfs(Filesystem::BTRFS --> Filesystem::EXT4) {*}
+    multi sub bootvaultfs(Filesystem::EXT2 --> Filesystem::EXT2) {*}
+    multi sub bootvaultfs(Filesystem::EXT3 --> Filesystem::EXT3) {*}
+    multi sub bootvaultfs(Filesystem::EXT4 --> Filesystem::EXT4) {*}
+    multi sub bootvaultfs(Filesystem::F2FS --> Filesystem::F2FS) {*}
+    multi sub bootvaultfs(Filesystem::NILFS2 --> Filesystem::NILFS2) {*}
+    multi sub bootvaultfs(Filesystem::XFS --> Filesystem::XFS) {*}
+}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
