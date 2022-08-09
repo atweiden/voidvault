@@ -148,9 +148,12 @@ my role OptsStrict
         # pluralize if necessary
         $message ~= 's' if $count > 1;
         $message ~= ": $invalid-options";
+        $message;
     }
 }
 
+# C<GetArgs> provides method C<get-args> for returning cmdline positional
+# arguments.
 my role GetArgs
 {
     method get-args(::?CLASS:D: --> List:D)
@@ -230,8 +233,8 @@ my role GetOpts
 
 my role Retrospective
 {
-    # C<received-arg('fs')> returns C<True> if fs positional arg was
-    # passed on cmdline
+    # C<received-arg('fs')> returns C<True> if any part of fs positional
+    # argument was passed on cmdline
     method received-arg(::?CLASS:D: 'fs' --> Bool:D)
     {
         (self.vaultfs, self.bootvaultfs, self.lvm).grep(*.defined).so;
@@ -242,9 +245,11 @@ my role ToConfig[Mode:D $ where Mode::BASE]
 {
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
-        # instantiate if fs positional arg, else C<prompt-filesystem>
         my %opts;
         %opts<filesystem> =
+            # instantiate C<Voidvault::Config::Filesystem> here if fs
+            # positional argument passed, or wait for C<prompt-filesystem>
+            # during <Voidvault::Config> instantiation
             Voidvault::Config::Filesystem.new(
                 |self.get-args,
                 |self.get-opts
