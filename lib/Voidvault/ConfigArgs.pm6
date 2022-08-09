@@ -6901,8 +6901,8 @@ class Voidvault::ConfigArgs
     }
 
     multi sub parse-mode-and-fs(
-        $a,
-        $b,
+        $,
+        $,
         :$mode! where .so,
         :$filesystem! where .so,
         *% (Bool :ran-once($))
@@ -6913,7 +6913,7 @@ class Voidvault::ConfigArgs
     }
 
     multi sub parse-mode-and-fs(
-        $a,
+        $,
         $b,
         :mode($)! where .so,
         :filesystem($)!,
@@ -6926,7 +6926,7 @@ class Voidvault::ConfigArgs
 
     multi sub parse-mode-and-fs(
         $a,
-        $b,
+        $,
         :filesystem($)! where .so,
         :mode($)!,
         *% (Bool :ran-once($))
