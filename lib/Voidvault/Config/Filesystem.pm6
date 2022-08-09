@@ -82,7 +82,11 @@ class Voidvault::Config::Filesystem
         Filesystem $vaultfs,
         Filesystem $bootvaultfs,
         Bool $lvm,
-        *%opts (Str :lvm-vg-name($))
+        *%opts (
+            Str :lvm-vg-name($),
+            # for api convenience++, esp from C<Voidvault::ConfigArgs>
+            *%
+        )
         --> Voidvault::Config::Filesystem:D
     )
     {
@@ -95,7 +99,10 @@ class Voidvault::Config::Filesystem
         Filesystem $,
         Filesystem:D $ where .so,
         Bool $,
-        *% (Str :lvm-vg-name($))
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
         --> Fs:D
     )
     {
@@ -107,7 +114,10 @@ class Voidvault::Config::Filesystem
         Filesystem:D $ where Filesystem::BTRFS,
         Filesystem $,
         Bool:D $ where .so,
-        *% (Str :lvm-vg-name($))
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
         --> Fs:D
     )
     {
@@ -119,7 +129,10 @@ class Voidvault::Config::Filesystem
         Filesystem $,
         Filesystem:D $ where Filesystem::BTRFS,
         Bool $,
-        *% (Str :lvm-vg-name($))
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
         --> Fs:D
     )
     {
@@ -131,7 +144,8 @@ class Voidvault::Config::Filesystem
         Filesystem $vaultfs,
         Filesystem $bootvaultfs,
         Bool $lvm,
-        Str :$lvm-vg-name
+        Str :$lvm-vg-name,
+        *%
         --> Fs:D
     )
     {
