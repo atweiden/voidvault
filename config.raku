@@ -99,12 +99,16 @@ my role Config[Mode:D $mode, Bool:D $lvm]
     voidvault [--chroot-dir=<path>] [--augment]
               new
 
+=head2 C<ConfigSystem>: software settings
+
+    voidvault [--packages=<packages>] [--kernel=<package>]
+              new
+
 =head2 C<ConfigSystem>: system settings
 
     voidvault [--hostname=<hostname>] [--processor=<processor>]
               [--graphics=<graphics>] [--disk-type=<disktype>]
               [--locale=<locale>] [--keymap=<keymap>] [--timezone=<timezone>]
-              [--packages=<packages>] [--kernel=<package>]
               [--disable-ipv6] [--enable-classic-ifnames]
               [--enable-serial-console]
               new
