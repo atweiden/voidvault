@@ -230,6 +230,8 @@ my role GetOpts
 
 my role Retrospective
 {
+    # C<received-arg('fs')> returns C<True> if fs positional arg was
+    # passed on cmdline
     method received-arg(::?CLASS:D: 'fs' --> Bool:D)
     {
         (self.vaultfs, self.bootvaultfs, self.lvm).grep(*.defined).so;
