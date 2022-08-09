@@ -1,6 +1,7 @@
 use v6;
 use Crypt::Libcrypt:auth<atweiden>;
 use Void::Constants;
+use Voidvault::Config::Filesystem;
 use Voidvault::Constants;
 use Voidvault::Parser::CryptsetupHuman;
 use Voidvault::Types;
@@ -552,6 +553,71 @@ sub prompt-disk-type(--> DiskType:D) is export
             :$title,
             :$confirm-topic
         );
+    }
+}
+
+sub prompt-config-filesystem(
+    Mode:D $mode
+    --> Voidvault::Config::Filesystem:D
+) is export
+{
+    my Voidvault::Config::Filesystem:D $filesystem = do {
+        my Str:D @menu = Filesystem.keys.sort.map(*.lc);
+        my Filesystem:D $vaultfs = do {
+            my Str:D $default-item = 'btrfs';
+            prompt-filesystem('vault', @menu, :$default-item);
+        };
+        my Filesystem $bootvaultfs = do {
+            my Str:D @menu = @menu.grep(none 'btrfs');
+            my Str:D $default-item = default-bootvaultfs($vaultfs).lc;
+            prompt-filesystem('bootvault', @menu, :$default-item);
+        } if $mode != Mode::BASE;
+        my Bool $lvm = prompt-lvm() if $vaultfs != Filesystem::BTRFS;
+        Voidvault::Config::Filesystem.new($mode, $vaultfs, $bootvaultfs, $lvm);
+    };
+}
+
+sub prompt-filesystem(
+    Str:D $subject where .so,
+    Str:D @menu,
+    Str:D :$default-item! where .so
+    --> Filesystem:D
+)
+{
+    my Filesystem:D $filesystem = do {
+        my Str:D $prompt-text = "Select filesystem for {$subject.tc}:";
+        my Str:D $title = "{$subject.uc} FILESYSTEM SELECTION";
+        my Str:D $confirm-topic = "$subject filesystem selected";
+        dprompt(
+            Filesystem,
+            @menu,
+            :$default-item,
+            :$prompt-text,
+            :$title,
+            :$confirm-topic
+        );
+    };
+}
+
+sub prompt-lvm(--> Graphics:D)
+{
+    my Bool:D $lvm = do {
+        my Str:D $lvm = do {
+            my %menu = 'no' => "Don't enable LVM", 'yes' => "Enable LVM";
+            my Bool:D $default-item = 'no';
+            my Str:D $prompt-text = 'Enable LVM for Vault filesystem?';
+            my Str:D $title = 'LVM SETUP';
+            my Str:D $confirm-topic = 'LVM';
+            dprompt(
+                Str,
+                %menu,
+                :$default-item,
+                :$prompt-text,
+                :$title,
+                :$confirm-topic
+            );
+        };
+        $lvm eq 'yes';
     }
 }
 

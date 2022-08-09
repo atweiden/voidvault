@@ -163,7 +163,7 @@ has Voidvault::Config::Filesystem:D $.filesystem =
             self!mode,
             %*ENV<VOIDVAULT_FILESYSTEM>
         )
-        !! prompt-filesystem(self!mode);
+        !! prompt-config-filesystem(self!mode);
 
 # name for host (default: vault)
 has HostName:D $.host-name =
