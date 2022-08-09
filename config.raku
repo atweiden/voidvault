@@ -74,6 +74,11 @@ my role Config[Mode:D $mode, Bool:D $lvm]
     voidvault [--repository=<repository>] [--ignore-conf-repos]
               new
 
+=head2 C<ConfigInstaller>: installer settings
+
+    voidvault [--chroot-dir=<path>] [--augment]
+              new
+
 =head2 C<ConfigSecurity>: security settings
 
     voidvault [--vault-name=<vaultname>] [--vault-pass=<password>]
@@ -94,12 +99,7 @@ my role Config[Mode:D $mode, Bool:D $lvm]
     voidvault [--bootvault-device=<device>]
               new 2fa
 
-=head2 C<ConfigInstaller>: installer settings
-
-    voidvault [--chroot-dir=<path>] [--augment]
-              new
-
-=head2 C<ConfigSystem>: software settings
+=head2 C<ConfigSoftware>: software settings
 
     voidvault [--packages=<packages>] [--kernel=<package>]
               new
