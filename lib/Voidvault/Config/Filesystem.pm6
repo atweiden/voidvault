@@ -186,8 +186,10 @@ class Voidvault::Config::Filesystem
         Filesystem $,
         Filesystem $,
         Bool $,
-        Str :lvm-vg-name($),
-        *%
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
         --> Fs:D
     )
     {*}
@@ -198,8 +200,10 @@ class Voidvault::Config::Filesystem
         Filesystem $,
         Filesystem $bootvaultfs,
         Bool $lvm,
-        Str :$lvm-vg-name,
-        *%
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
         --> Fs:D
     )
     {
