@@ -4,6 +4,9 @@ use Voidvault::Parser::Filesystem;
 use Voidvault::Types;
 use X::Voidvault::Config::Filesystem;
 
+# default filesystem for vault
+my constant $DEFAULT-VAULTFS = Filesystem::BTRFS;
+
 my role Lvm[Bool:D $ where .so]
 {
     # name for lvm volume group
@@ -94,6 +97,32 @@ class Voidvault::Config::Filesystem
         self.bless(:$fs);
     }
 
+    proto sub fs(
+        Mode:D $,
+        Filesystem $vaultfs,
+        Filesystem $,
+        Bool $,
+        *% (
+            Str :lvm-vg-name($),
+            *%
+        )
+        --> Fs:D
+    )
+    {
+        my %*opts;
+
+        %*opts<vault> = $vaultfs ?? $vaultfs !! $DEFAULT-VAULTFS;
+
+        # either error or get C<%*opts<bootvault>> if applicable
+        {*}
+
+        %*opts<lvm-vg-name> =
+            Voidvault::Config::Utils.gen-lvm-vg-name($lvm-vg-name)
+                if $lvm-vg-name;
+
+        my Fs:D $fs = Fs[$mode, $lvm].new(|%*opts);
+    }
+
     multi sub fs(
         Mode:D $ where Mode::BASE,
         Filesystem $,
@@ -140,8 +169,33 @@ class Voidvault::Config::Filesystem
     }
 
     multi sub fs(
-        Mode:D $mode,
-        Filesystem $vaultfs,
+        Mode:D $,
+        Filesystem $,
+        Filesystem $,
+        Bool $ where .not,
+        Str:D :lvm-vg-name($) where .so,
+        *%
+        --> Fs:D
+    )
+    {
+        die(X::Voidvault::Config::Filesystem::Impermissible['lvm-vg-name'].new);
+    }
+
+    multi sub fs(
+        Mode:D $ where Mode::BASE,
+        Filesystem $,
+        Filesystem $,
+        Bool $,
+        Str :lvm-vg-name($),
+        *%
+        --> Fs:D
+    )
+    {*}
+
+    # every other mode beyond base creates filesystem on bootvault
+    multi sub fs(
+        Mode:D $,
+        Filesystem $,
         Filesystem $bootvaultfs,
         Bool $lvm,
         Str :$lvm-vg-name,
@@ -149,14 +203,18 @@ class Voidvault::Config::Filesystem
         --> Fs:D
     )
     {
-        my %opts;
-        %opts<vault> = $vaultfs if $vaultfs;
-        %opts<bootvault> = $bootvaultfs if $bootvaultfs;
-        %opts<lvm-vg-name> =
-            Voidvault::Config::Utils.gen-lvm-vg-name($lvm-vg-name)
-                if $lvm-vg-name;
-        my Fs:D $fs = Fs[$mode, $lvm].new(|%opts);
+        %*opts<bootvault> =
+            $bootvaultfs ?? $bootvaultfs !! bootvaultfs(%*opts<vault>);
     }
 }
+
+# default bootvaultfs given vaultfs
+multi sub bootvaultfs(Filesystem::BTRFS --> Filesystem::EXT4) {*}
+multi sub bootvaultfs(Filesystem::EXT2 --> Filesystem::EXT2) {*}
+multi sub bootvaultfs(Filesystem::EXT3 --> Filesystem::EXT3) {*}
+multi sub bootvaultfs(Filesystem::EXT4 --> Filesystem::EXT4) {*}
+multi sub bootvaultfs(Filesystem::F2FS --> Filesystem::F2FS) {*}
+multi sub bootvaultfs(Filesystem::NILFS2 --> Filesystem::NILFS2) {*}
+multi sub bootvaultfs(Filesystem::XFS --> Filesystem::XFS) {*}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
