@@ -48,13 +48,13 @@ my role Fs[Mode:D $ where Mode::BASE, Bool $]
     also does FsVault;
 }
 
-my role Fs[Mode:D $ where Mode::<1FA>..Mode::<2FA>, Bool:D $ where .so]
+my role Fs[Mode:D $, Bool:D $ where .so]
 {
     also does Fs[Mode::BASE, True];
     also does FsBootvault;
 }
 
-my role Fs[Mode:D $ where Mode::<1FA>..Mode::<2FA>, Bool $]
+my role Fs[Mode:D $, Bool $]
 {
     also does Fs[Mode::BASE, False];
     also does FsBootvault;
