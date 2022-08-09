@@ -235,9 +235,16 @@ my role Retrospective
 {
     # C<received-arg('fs')> returns C<True> if any part of fs positional
     # argument was passed on cmdline
-    method received-arg(::?CLASS:D: 'fs' --> Bool:D)
+    multi method received-arg(::?CLASS:D: 'fs' --> Bool:D)
     {
         (self.vaultfs, self.bootvaultfs, self.lvm).grep(*.defined).so;
+    }
+
+    # C<received-arg('fs', 'lvm')> returns C<True> if lvm part of fs
+    # positional argument was passed on cmdline
+    multi method received-arg(::?CLASS:D: 'fs', 'lvm' --> Bool:D)
+    {
+        self.lvm.defined;
     }
 }
 
@@ -246,14 +253,18 @@ my role ToConfig[Mode:D $ where Mode::BASE]
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::Base:D)
     {
         my %opts;
-        %opts<filesystem> =
+        %opts<filesystem> = do {
             # instantiate C<Voidvault::Config::Filesystem> here if fs
             # positional argument passed, or wait for C<prompt-filesystem>
             # during <Voidvault::Config> instantiation
-            Voidvault::Config::Filesystem.new(
-                |self.get-args,
-                |self.get-opts
-            ) if self.received-arg('fs');
+            my %opts;
+            %opts<lvm> =
+                Voidvault::Config::Filesystem::Lvm.new(
+                    |self.get-args,
+                    |self.get-opts
+                ) if self.received-arg('fs', 'lvm');
+            Voidvault::Config::Filesystem.new(|self.get-args, |%opts);
+        } if self.received-arg('fs');
         Voidvault::Config::Base.new(|self.get-opts, |%opts);
     }
 }
@@ -263,11 +274,15 @@ my role ToConfig[Mode:D $ where Mode::<1FA>]
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::OneFA:D)
     {
         my %opts;
-        %opts<filesystem> =
-            Voidvault::Config::Filesystem.new(
-                |self.get-args,
-                |self.get-opts
-            ) if self.received-arg('fs');
+        %opts<filesystem> = do {
+            my %opts;
+            %opts<lvm> =
+                Voidvault::Config::Filesystem::Lvm.new(
+                    |self.get-args,
+                    |self.get-opts
+                ) if self.received-arg('fs', 'lvm');
+            Voidvault::Config::Filesystem.new(|self.get-args, |%opts);
+        } if self.received-arg('fs');
         Voidvault::Config::OneFA.new(|self.get-opts, |%opts);
     }
 }
@@ -277,11 +292,15 @@ my role ToConfig[Mode:D $ where Mode::<2FA>]
     method Voidvault::Config(::?CLASS:D: --> Voidvault::Config::TwoFA:D)
     {
         my %opts;
-        %opts<filesystem> =
-            Voidvault::Config::Filesystem.new(
-                |self.get-args,
-                |self.get-opts
-            ) if self.received-arg('fs');
+        %opts<filesystem> = do {
+            my %opts;
+            %opts<lvm> =
+                Voidvault::Config::Filesystem::Lvm.new(
+                    |self.get-args,
+                    |self.get-opts
+                ) if self.received-arg('fs', 'lvm');
+            Voidvault::Config::Filesystem.new(|self.get-args, |%opts);
+        } if self.received-arg('fs');
         Voidvault::Config::TwoFA.new(|self.get-opts, |%opts);
     }
 }
