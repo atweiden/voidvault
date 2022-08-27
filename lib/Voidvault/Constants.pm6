@@ -83,7 +83,7 @@ constant @PACKAGE-BASE = qw<
     e2fsprogs
     efibootmgr
     eudev
-    exfat-utils
+    exfatprogs
     file
     findutils
     gawk

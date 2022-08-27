@@ -188,7 +188,7 @@ mvp
   - e2fsprogs
   - efibootmgr
   - ethtool
-  - exfat-utils
+  - exfatprogs
   - expect
   - file
   - findutils
