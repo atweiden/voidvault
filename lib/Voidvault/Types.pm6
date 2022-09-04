@@ -33,6 +33,7 @@ constant %graphics = Map.new(
 # keymaps {{{
 
 constant %keymaps = Map.new(
+    '3l'                                  => '"Three Layout: an alternative keyboard layout designed for efficiently typing both English text and computer programs"',
     'ANSI-dvorak'                         => '"ANSI Dvorak keymap"',
     'adnw'                                => '"German Neo2 console keymap (AdNW version)"',
     'amiga-de'                            => '"German keymap for Linux/m68k for Amiga 2000/3000/4000 keyboards"',
@@ -104,6 +105,7 @@ constant %keymaps = Map.new(
     'dvorak-ukp'                          => '"UK Dvorak keymap adapted for UK punctuation"',
     'emacs'                               => '"US QWERTY keymap customized for use with Emacs"',
     'emacs2'                              => '"US QWERTY keymap customized for use with Emacs"',
+    'en'                                  => '"Keymap for factory standard PinePhone keyboard"',
     'es'                                  => '"Spanish QWERTY keymap"',
     'es-cp850'                            => '"Teclado español ajustado a la pagina de codigos CP-850"',
     'es-olpc'                             => '"Spanish QWERTY keymap for OLPC"',
@@ -128,6 +130,7 @@ constant %keymaps = Map.new(
     'gr-pc'                               => '"Greek QWERTY keymap"',
     'hu'                                  => '"The standard Hungarian QWERTZ keymap (iso8859-2)"',
     'hu101'                               => '"Hungarian keymap for 101 key keyboards (iso8859-2)"',
+    'ie'                                  => '"Irish keyboard map"',
     'il'                                  => '"Hebrew QWERTY keymap, non-phonetic"',
     'il-heb'                              => '"Hebrew QWERTY keymap, non-phonetic"',
     'il-phonetic'                         => '"Hebrew QWERTY keymap, phonetic"',
