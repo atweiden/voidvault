@@ -1,12 +1,13 @@
 Voidvault
 =========
 
-Last tested | ISO                                                             | Result
------------ | --------------------------------------------------------------- | ------
-2021-11-08  | [void-live-x86_64-20210930.iso][void-live-iso-x86_64-glibc]     | PASS
-2021-11-08  | [void-live-x86_64-musl-20210930.iso][void-live-iso-x86_64-musl] | PASS
-2021-11-08  | [void-live-i686-20210930.iso][void-live-iso-i686-glibc]         | PASS
+Last tested | ISO                                                                                | Result
+----------- | ---------------------------------------------------------------------------------- | ------
+2022-12-06  | [void-live-x86_64-20221001-base.iso][void-live-x86_64-20221001-base.iso]           | PASS
+2022-12-06  | [void-live-x86_64-musl-20221001-base.iso][void-live-x86_64-musl-20221001-base.iso] | PASS
+2022-12-06  | [void-live-i686-20221001-base.iso][void-live-i686-20221001-base.iso]               | N/A¹
 
+¹: Void upstream [32-bit ISO][void-live-i686-20221001-base.iso] fails to boot in VirtualBox
 
 Bootstrap Void with FDE
 
@@ -91,7 +92,7 @@ Subvolume name    | Mounting point    | Mount options
 `@`               | `/`               |
 `@home`           | `/home`           | `nodev,nosuid`
 `@opt`            | `/opt`            | `nodev`
-`@srv`            | `/srv`            | `nodev,noexec,nosuid` + [nodatacow][nodatacow]¹
+`@srv`            | `/srv`            | `nodev,noexec,nosuid` + [nodatacow][nodatacow]²
 `@var`            | `/var`            | `nodev,noexec,nosuid`
 `@var-cache-xbps` | `/var/cache/xbps` | `nodev,noexec,nosuid`
 `@var-lib-ex`     | `/var/lib/ex`     | `nodev,noexec,nosuid` + nodatacow
@@ -100,7 +101,7 @@ Subvolume name    | Mounting point    | Mount options
 `@var-spool`      | `/var/spool`      | `nodev,noexec,nosuid` + nodatacow
 `@var-tmp`        | `/var/tmp`        | `nodev,noexec,nosuid` + nodatacow
 
-¹: via `chattr -R +C`, not mount options
+²: via `chattr -R +C`, not mount options
 
 Additionally, Voidvault mounts the following directories with [protective
 mount options][protective mount options]:
@@ -279,7 +280,7 @@ See: [INSTALL.md](INSTALL.md).
 Dependencies
 ------------
 
-Name        | Provides                                                          | Included in Void ISO²?
+Name        | Provides                                                          | Included in Void ISO³?
 ---         | ---                                                               | ---
 btrfs-progs | Btrfs support                                                     | Y
 coreutils   | `chmod`, `chown`, `chroot`, `cp`, `rm`                            | Y
@@ -287,14 +288,14 @@ cryptsetup  | FDE with LUKS                                                     
 dosfstools  | create VFAT filesystem for UEFI with `mkfs.vfat`                  | Y
 e2fsprogs   | `chattr`                                                          | Y
 efibootmgr  | UEFI support                                                      | Y
-eudev³      | `udevadm`                                                         | Y
+eudev⁴      | `udevadm`                                                         | Y
 expect      | interactive command prompt automation                             | N
-glibc⁴      | libcrypt, locale data in `/usr/share/i18n/locales`                | Y
+glibc⁵      | libcrypt, locale data in `/usr/share/i18n/locales`                | Y
 gptfdisk    | GPT disk partitioning with `sgdisk`                               | N
 grub        | FDE on `/boot`, `grub-mkpasswd-pbkdf2`                            | Y
 kbd         | keymap data in `/usr/share/kbd/keymaps`, `setfont`                | Y
 kmod        | `modprobe`                                                        | Y
-musl⁴       | libcrypt                                                          | Y
+musl⁵       | libcrypt                                                          | Y
 openssl     | user password salts                                               | Y
 procps-ng   | `pkill`                                                           | Y
 rakudo      | `voidvault` Raku runtime                                          | N
@@ -302,11 +303,11 @@ tzdata      | timezone data in `/usr/share/zoneinfo/zone.tab`                   
 util-linux  | `blkid`, `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`, `unshare` | Y
 xbps        | `xbps-install`, `xbps-query`, `xbps-reconfigure`                  | Y
 
-²: the [official installation medium](https://voidlinux.org/download/)
+³: the [official installation medium](https://voidlinux.org/download/)
 
-³: 2FA mode only
+⁴: 2FA mode only
 
-⁴: glibc or musl
+⁵: glibc or musl
 
 
 Optional Dependencies
@@ -404,9 +405,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-iso-i686-glibc]: https://repo-default.voidlinux.org/live/current/void-live-i686-20210930.iso
-[void-live-iso-x86_64-glibc]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-20210930.iso
-[void-live-iso-x86_64-musl]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-musl-20210930.iso
+[void-live-i686-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-i686-20221001-base.iso
+[void-live-x86_64-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-20221001-base.iso
+[void-live-x86_64-musl-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-musl-20221001-base.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen
