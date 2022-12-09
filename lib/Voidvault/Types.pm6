@@ -753,6 +753,7 @@ constant @timezones = qw<
     America/Cayman
     America/Chicago
     America/Chihuahua
+    America/Ciudad_Juarez
     America/Costa_Rica
     America/Creston
     America/Cuiaba
