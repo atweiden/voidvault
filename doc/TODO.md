@@ -38,6 +38,7 @@ Todo
   once switched to luks2 (thereby enabling passing the `--persistent`
   flag alongside it), or once [void-runit][void-runit] supports parsing
   `--perf-no_read_workqueue` from `/etc/crypttab`
+  - pending [next release of void-runit][next release of void-runit]
 - validate configurable cryptsetup options
   - `--vault-cipher`
 
@@ -88,6 +89,7 @@ Todo
 [--perf-no_read_workqueue iii]: https://blog.cloudflare.com/speeding-up-linux-disk-encryption/
 [--perf-no_read_workqueue iv]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.9-rc1&id=39d42fa96ba1b7d2544db3f8ed5da8fb0d5cb877
 [void-runit]: https://github.com/void-linux/void-runit/blob/master/crypt.awk
+[next release of void-runit]: https://github.com/void-linux/void-runit/commit/ccdfcb744d7f8858baff2f1aab2fdb352cc4d33f
 [doas]: https://momi.ca/2020/03/20/doas.html
 [F2FS]: https://savannah.gnu.org/bugs/?59976
 [fscrypt support]: https://wiki.archlinux.org/title/Fscrypt#File_system
