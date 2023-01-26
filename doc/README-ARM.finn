@@ -243,7 +243,6 @@ mvp
   - vim
   - wget
   - which
-  - wireless_tools
   - wpa_supplicant
   - xbps
   - xz
