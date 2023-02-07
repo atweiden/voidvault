@@ -129,6 +129,7 @@ multi method replace(
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $file = sprintf(Q{%s%s/%s.conf}, $chroot-dir, $FILE, $subject);
     my Str:D @module = qw<
+        bluetooth
         dracut-systemd
         plymouth
         systemd
