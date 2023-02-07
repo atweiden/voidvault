@@ -176,6 +176,11 @@ method disable-ipv6(Str:D @grub-cmdline-linux --> Nil)
     push(@grub-cmdline-linux, 'ipv6.disable=1');
 }
 
+method disable-zswap(Str:D @grub-cmdline-linux --> Nil)
+{
+    push(@grub-cmdline-linux, 'zswap.enabled=0');
+}
+
 method finalize(
     Str:D $subject where 'GRUB_CMDLINE_LINUX_DEFAULT',
     Str:D @grub-cmdline-linux,

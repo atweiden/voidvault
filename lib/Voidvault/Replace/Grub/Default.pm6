@@ -37,6 +37,7 @@ multi method replace(
         if $graphics eq 'RADEON';
     $utils.disable-ipv6(@grub-cmdline-linux)
         if $disable-ipv6.so;
+    $utils.disable-zswap(@grub-cmdline-linux);
 
     # replace GRUB_CMDLINE_LINUX_DEFAULT
     $utils.finalize($subject, @grub-cmdline-linux, :$chroot-dir);
