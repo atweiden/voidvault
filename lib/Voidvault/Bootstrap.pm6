@@ -426,6 +426,7 @@ multi method configure-users(::?CLASS:D: 'admin' --> Nil)
     $user-name-admin ALL=(ALL) ALL
     $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/reboot
     $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/shutdown
+    $user-name-admin ALL=(ALL) NOPASSWD: /usr/bin/zzz
     EOF
     spurt($file, "\n" ~ $sudoers, :append);
 }
