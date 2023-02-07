@@ -65,6 +65,7 @@ constant @PACKAGE-BASE = qw<
     base-files
     bash
     bash-completion
+    binutils
     btrfs-progs
     busybox-huge
     bzip2
