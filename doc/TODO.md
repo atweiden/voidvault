@@ -1,6 +1,10 @@
 Todo
 ====
 
+### Installer
+
+- fix setting timezone to UTC
+
 ### Security
 
 - add `random.trust_bootloader=0` to unprivilege bootloader [once
