@@ -23,6 +23,13 @@ multi method replace(Str:D $ where $FILE --> Nil)
     # only allow sudo when the user is logged in to a real tty
     Defaults requiretty
 
+    # set PATH environment variable for commands run using sudo
+    Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+    # always use indicated umask regardless of what umask user has set
+    Defaults umask=0022
+    Defaults umask_override
+
     # prevent arbitrary code execution as your user when sudoing to another
     # user due to TTY hijacking via TIOCSTI ioctl
     Defaults use_pty
