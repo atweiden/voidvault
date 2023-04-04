@@ -400,7 +400,7 @@ method ls-timezones(--> Array[Timezone:D])
 {
     # equivalent to `timedatectl list-timezones --no-pager`
     # see: src/basic/time-util.c in systemd source code
-    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone.tab';
+    my Str:D $zoneinfo-file = '/usr/share/zoneinfo/zone1970.tab';
     my Str:D @zoneinfo =
         $zoneinfo-file
         .IO.lines

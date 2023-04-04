@@ -299,7 +299,7 @@ musl⁵       | libcrypt                                                        
 openssl     | user password salts                                               | Y
 procps-ng   | `pkill`                                                           | Y
 rakudo      | `voidvault` Raku runtime                                          | N
-tzdata      | timezone data in `/usr/share/zoneinfo/zone.tab`                   | Y
+tzdata      | timezone data in `/usr/share/zoneinfo/zone1970.tab`               | Y
 util-linux  | `blkid`, `hwclock`, `lsblk`, `mkfs`, `mount`, `umount`, `unshare` | Y
 xbps        | `xbps-install`, `xbps-query`, `xbps-reconfigure`                  | Y
 

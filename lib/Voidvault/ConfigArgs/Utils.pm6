@@ -129,7 +129,7 @@ multi sub ensure-requirements(
     --> Nil
 )
 {
-    '/usr/share/zoneinfo/zone.tab'.IO.f.so
+    '/usr/share/zoneinfo/zone1970.tab'.IO.f.so
         or push(@*missing-dependency, 'tzdata');
 }
 
