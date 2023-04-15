@@ -593,6 +593,7 @@ proto method mkvault(
     Str:D :$vault-hash! where .so,
     Str:D :$vault-iter-time! where .so,
     Str:D :$vault-key-size! where .so,
+    DiskType :$disk-type,
     # pass C<:open> to open vault after creating it
     Bool :open($),
     *%opts (
