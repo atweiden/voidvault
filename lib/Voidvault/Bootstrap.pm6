@@ -126,27 +126,30 @@ method sfdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
-    my Str:D $sfdisk-cmdline = qqw<
-        sfdisk
-        --delete
-        --wipe always
-        --no-reread
-        --no-tell-kernel
-        $device
-    >.join(' ');
     my Str:D $sfdisk-size-bios =
         Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
     my Str:D $sfdisk-size-efi =
         Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
-    shell($sfdisk-cmdline, :in(qq:to/EOF/));
+    my Str:D @sfdisk-cmdline-args =
+        $device,
+        $device,
+        $sfdisk-size-bios,
+        $Voidvault::Constants::SFDISK-TYPESTR-BIOS,
+        $sfdisk-size-efi,
+        $Voidvault::Constants::SFDISK-TYPESTR-EFI,
+        $Voidvault::Constants::SFDISK-TYPESTR-LINUX;
+    my Str:D $sfdisk-cmdline = sprintf(q:to/EOF/.trim, |@sfdisk-cmdline-args);
+    sfdisk %s <<'EOS'
     label: gpt
-    device: $device
+    device: %s
     unit: sectors
 
-    1 : size=$sfdisk-size-bios, type={$Voidvault::Constants::SFDISK-TYPESTR-BIOS}
-    2 : size=$sfdisk-size-efi, type={$Voidvault::Constants::SFDISK-TYPESTR-EFI}
-    3 : type={$Voidvault::Constants::SFDISK-TYPESTR-LINUX}
+    1 : size=%s, type=%s
+    2 : size=%s, type=%s
+    3 : type=%s
+    EOS
     EOF
+    shell($sfdisk-cmdline);
 }
 
 method mkefi(::?CLASS:D: --> Nil)

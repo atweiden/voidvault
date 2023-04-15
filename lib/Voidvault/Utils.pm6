@@ -194,7 +194,7 @@ multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
 method sfdisk-size-to-sectors(Str:D $content --> Str:D)
 {
     my Str:D $size = $content.split(/<alpha>/).first;
-    my Str:D $sectors = sprintf('size=%s', $size * 1024 * 1024 / 512 );
+    my Str:D $sectors = sprintf('%s', $size * 1024 * 1024 / 512 );
 }
 
 
