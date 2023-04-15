@@ -19,7 +19,7 @@ multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
 method mkdisk(::?CLASS:D: --> Nil)
 {
     # partition device with extra boot partition
-    self.sgdisk;
+    self.fdisk;
 
     # create uefi partition
     self.mkefi;
@@ -46,8 +46,8 @@ method mkdisk(::?CLASS:D: --> Nil)
     self.disable-cow;
 }
 
-# partition device with gdisk
-method sgdisk(::?CLASS:D: --> Nil)
+# partition device with fdisk
+method fdisk(::?CLASS:D: --> Nil)
 {
     my Str:D $device = $.config.device;
 
@@ -56,20 +56,34 @@ method sgdisk(::?CLASS:D: --> Nil)
     # create 550M EF00 EFI system partition
     # create 1024M sized partition for LUKS1-encrypted boot
     # create max sized partition for LUKS2-encrypted vault
-    run(qqw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
-        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
-        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
-        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
-        --new=3:0:+{$Voidvault::Constants::GDISK-SIZE-BOOT}
-        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
-        --new=4:0:0
-        --typecode=4:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
-    >, $device);
+    shell("fdisk --wipe always $device", :in(qq:to/EOF/));
+    g
+    n
+
+    +{$Voidvault::Constants::FDISK-SIZE-BIOS}
+    t
+
+    {$Voidvault::Constants::FDISK-TYPECODE-BIOS}
+    n
+
+    +{$Voidvault::Constants::FDISK-SIZE-EFI}
+    t
+    2
+    {$Voidvault::Constants::FDISK-TYPECODE-EFI}
+    n
+
+    +{$Voidvault::Constants::FDISK-SIZE-BOOT}
+    t
+    3
+    {$Voidvault::Constants::FDISK-TYPECODE-LINUX}
+    n
+
+
+    t
+    4
+    {$Voidvault::Constants::FDISK-TYPECODE-LINUX}
+    w
+    EOF
 }
 
 method mkbootvault(::?CLASS:D: --> Nil)

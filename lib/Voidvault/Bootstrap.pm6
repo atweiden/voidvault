@@ -102,7 +102,7 @@ multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
 method mkdisk(::?CLASS:D: --> Nil)
 {
     # partition device
-    self.sgdisk;
+    self.fdisk;
 
     # create uefi partition
     self.mkefi;
@@ -117,8 +117,8 @@ method mkdisk(::?CLASS:D: --> Nil)
     self.disable-cow;
 }
 
-# partition device with gdisk
-method sgdisk(::?CLASS:D: --> Nil)
+# partition device with fdisk
+method fdisk(::?CLASS:D: --> Nil)
 {
     my Str:D $device = $.config.device;
 
@@ -126,18 +126,74 @@ method sgdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
-    run(qqw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
-        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
-        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
-        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
-        --new=3:0:0
-        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
-    >, $device);
+    #
+    # C<g>: Creates a new GPT (GUID Partition Table) disk label. This
+    # erases any existing partition table on the device and initializes
+    # it with a GPT label.
+    #
+    # C<n>: Creates a new partition. Since no additional parameters are
+    # specified, it will use the default values. It will start at the
+    # first available sector and set the end sector based on the size
+    # specified in the next line.
+    #
+    # C<+2M>: Specifies the size of the new partition as 2 MiB. The
+    # partition will be created with this size.
+    #
+    # C<t>: Changes the partition type. It requires a partition number and
+    # a new partition type, which will be provided in the following lines.
+    #
+    # C<4>: Sets the partition type to BIOS boot (code 4). Since it is
+    # the first partition created, the partition number is implicitly 1.
+    #
+    # C<n>: Creates another new partition using default start sector and
+    # setting the end sector based on the size specified in the next line.
+    #
+    # C<+550M>: Specifies the size of the new partition as 550 MiB. The
+    # partition will be created with this size.
+    #
+    # C<t>: Changes the partition type. It requires a partition number and
+    # a new partition type, which will be provided in the following lines.
+    #
+    # C<2>: Specifies the partition number to modify the type of. In
+    # this case, it's partition 2 (EFI system partition).
+    #
+    # C<1>: Sets the partition type to EFI System (code 1).
+    #
+    # C<n>: Creates another new partition using default start sector and
+    # setting the end sector based on the remaining free space on
+    # the disk.
+    #
+    # C<t>: Changes the partition type. It requires a partition number and
+    # a new partition type, which will be provided in the following lines.
+    #
+    # C<3>: Specifies the partition number to modify the type of. In
+    # this case, it's partition 3 (the maximum-sized partition).
+    #
+    # C<30>: Sets the partition type to Linux filesystem (code 30).
+    #
+    # C<w>: Writes the changes to the disk and exits fdisk.
+    shell("fdisk --wipe always $device", :in(qq:to/EOF/));
+    g
+    n
+
+    +{$Voidvault::Constants::FDISK-SIZE-BIOS}
+    t
+
+    {$Voidvault::Constants::FDISK-TYPECODE-BIOS}
+    n
+
+    +{$Voidvault::Constants::FDISK-SIZE-EFI}
+    t
+    2
+    {$Voidvault::Constants::FDISK-TYPECODE-EFI}
+    n
+
+
+    t
+    3
+    {$Voidvault::Constants::FDISK-TYPECODE-LINUX}
+    w
+    EOF
 }
 
 method mkefi(::?CLASS:D: --> Nil)
