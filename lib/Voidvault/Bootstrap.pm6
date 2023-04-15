@@ -134,11 +134,18 @@ method sfdisk(::?CLASS:D: --> Nil)
         --no-tell-kernel
         $device
     >.join(' ');
+    my Str:D $sfdisk-size-bios =
+        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
+    my Str:D $sfdisk-size-efi =
+        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
     shell($sfdisk-cmdline, :in(qq:to/EOF/));
     label: gpt
-    ,{$Voidvault::Constants::SFDISK-SIZE-BIOS},{$Voidvault::Constants::SFDISK-TYPESTR-BIOS}
-    ,{$Voidvault::Constants::SFDISK-SIZE-EFI},{$Voidvault::Constants::SFDISK-TYPESTR-EFI}
-    ,,{$Voidvault::Constants::SFDISK-TYPESTR-LINUX}
+    device: $device
+    unit: sectors
+
+    1 : size=$sfdisk-size-bios, type={$Voidvault::Constants::SFDISK-TYPESTR-BIOS}
+    2 : size=$sfdisk-size-efi, type={$Voidvault::Constants::SFDISK-TYPESTR-EFI}
+    3 : type={$Voidvault::Constants::SFDISK-TYPESTR-LINUX}
     EOF
 }
 
