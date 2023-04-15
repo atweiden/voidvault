@@ -22,8 +22,8 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE, '1fa' --> Nil)
     my Str:D $bootvault-device = self!gen-crypttab-device('boot');
 
     my Str:D $key = qq:to/EOF/;
-    $vault-name   $vault-device   $vault-key-file   luks,force,header=$vault-header
-    $bootvault-name   $bootvault-device   $bootvault-key-file   luks
+    $vault-name   $vault-device   $vault-key-file   luks,no-read-workqueue,no-write-workqueue,force,header=$vault-header
+    $bootvault-name   $bootvault-device   $bootvault-key-file   luks,no-read-workqueue,no-write-workqueue
     EOF
     spurt($file, "\n" ~ $key, :append);
 }
@@ -38,7 +38,7 @@ multi method replace(::?CLASS:D: Str:D $ where $FILE --> Nil)
     my Str:D $vault-device = self!gen-crypttab-device('vault');
 
     my Str:D $key = qq:to/EOF/;
-    $vault-name   $vault-device   $vault-key-file   luks
+    $vault-name   $vault-device   $vault-key-file   luks,no-read-workqueue,no-write-workqueue
     EOF
     spurt($file, "\n" ~ $key, :append);
 }

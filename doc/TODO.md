@@ -36,13 +36,6 @@ Todo
 - load [kernel crypto modules][kernel crypto modules] for performance
   if applicable
   - `--vault-cipher=xchacha20,aes-adiantum --vault-key-size=256` => `modprobe ...`
-- pass [`--perf-no_read_workqueue`][--perf-no_read_workqueue
-  i] flag to `luksOpen` ([[1]][--perf-no_read_workqueue ii]
-  [[2]][--perf-no_read_workqueue iii] [[3]][--perf-no_read_workqueue iv])
-  once switched to luks2 (thereby enabling passing the `--persistent`
-  flag alongside it), or once [void-runit][void-runit] supports parsing
-  `--perf-no_read_workqueue` from `/etc/crypttab`
-  - pending [next release of void-runit][next release of void-runit]
 - validate configurable cryptsetup options
   - `--vault-cipher`
 
@@ -88,12 +81,6 @@ Todo
 [parted]: https://rainbow.chard.org/2013/01/30/how-to-align-partitions-for-best-performance-using-parted/
 [alignment validator]: https://bananaman.github.io/friendly-guides/pages/storage_alignment.html
 [kernel crypto modules]: https://www.reddit.com/r/crypto/comments/b3we04/aesadiantum_new_mode_in_linux_kernel_5/ej32sjf/
-[--perf-no_read_workqueue i]: https://www.reddit.com/r/Fedora/comments/rzvhyg/default_luks_encryption_settings_on_fedora_can_be/
-[--perf-no_read_workqueue ii]: https://github.com/cloudflare/linux/issues/1
-[--perf-no_read_workqueue iii]: https://blog.cloudflare.com/speeding-up-linux-disk-encryption/
-[--perf-no_read_workqueue iv]: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.9-rc1&id=39d42fa96ba1b7d2544db3f8ed5da8fb0d5cb877
-[void-runit]: https://github.com/void-linux/void-runit/blob/master/crypt.awk
-[next release of void-runit]: https://github.com/void-linux/void-runit/commit/ccdfcb744d7f8858baff2f1aab2fdb352cc4d33f
 [doas]: https://momi.ca/2020/03/20/doas.html
 [F2FS]: https://savannah.gnu.org/bugs/?59976
 [fscrypt support]: https://wiki.archlinux.org/title/Fscrypt#File_system

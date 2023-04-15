@@ -77,6 +77,8 @@ method mkbootvault(::?CLASS:D: --> Nil)
     my VaultType:D $bootvault-type = 'LUKS1';
     my Str:D $partition-bootvault = self.gen-partition('boot');
     my VaultName:D $bootvault-name = $.config.bootvault-name;
+    # assume bootvault is on same device as vault, or on non-HDD drive
+    my DiskType:D $disk-type = $.config.disk-type;
     my VaultPass $bootvault-pass = $.config.bootvault-pass;
     my Str:D $bootvault-cipher = $.config.bootvault-cipher;
     my Str:D $bootvault-hash = $.config.bootvault-hash;
@@ -89,6 +91,7 @@ method mkbootvault(::?CLASS:D: --> Nil)
         :vault-type($bootvault-type),
         :partition-vault($partition-bootvault),
         :vault-name($bootvault-name),
+        :$disk-type,
         :vault-pass($bootvault-pass)
         :vault-cipher($bootvault-cipher),
         :vault-hash($bootvault-hash),
@@ -133,6 +136,7 @@ method mkvault(::?CLASS:D: --> Nil)
     my VaultType:D $vault-type = 'LUKS2';
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
+    my DiskType:D $disk-type = $.config.disk-type;
     my VaultPass $vault-pass = $.config.vault-pass;
     my AbsolutePath:D $vault-header = do {
         my AbsolutePath:D $vault-header-chomped = $.config.vault-header-chomped;
@@ -150,6 +154,7 @@ method mkvault(::?CLASS:D: --> Nil)
         :$vault-type,
         :$partition-vault,
         :$vault-name,
+        :$disk-type,
         :$vault-pass,
         :$vault-header,
         :$vault-cipher,

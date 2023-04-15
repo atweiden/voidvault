@@ -152,6 +152,7 @@ method mkvault(::?CLASS:D: --> Nil)
     my VaultType:D $vault-type = 'LUKS1';
     my Str:D $partition-vault = self.gen-partition('vault');
     my VaultName:D $vault-name = $.config.vault-name;
+    my DiskType:D $disk-type = $.config.disk-type;
     my VaultPass $vault-pass = $.config.vault-pass;
     my Str:D $vault-cipher = $.config.vault-cipher;
     my Str:D $vault-hash = $.config.vault-hash;
@@ -164,6 +165,7 @@ method mkvault(::?CLASS:D: --> Nil)
         :$vault-type,
         :$partition-vault,
         :$vault-name,
+        :$disk-type,
         :$vault-pass,
         :$vault-cipher,
         :$vault-hash,

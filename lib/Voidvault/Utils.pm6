@@ -627,6 +627,7 @@ multi method mkvault(
     Str:D :$vault-iter-time! where .so,
     Str:D :$vault-key-size! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         Str :vault-header($),
         VaultPass :vault-pass($),
         Str :vault-offset($),
@@ -918,6 +919,7 @@ method open-vault(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         # prefixed C<VaultHeader> path is C<AbsolutePath>
         Str :vault-header($),
         VaultPass :vault-pass($),
@@ -932,7 +934,12 @@ method open-vault(
     )
 )
 {
-    open-vault(:$vault-type, :$partition-vault, :$vault-name, |%opts);
+    open-vault(
+        :$vault-type,
+        :$partition-vault,
+        :$vault-name,
+        |%opts
+    );
 }
 
 # LUKS encrypted volume password was given
@@ -942,6 +949,7 @@ multi sub open-vault(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         Str :vault-header($),
         Str :vault-cipher($),
         Str :vault-hash($),
@@ -972,6 +980,7 @@ multi sub open-vault(
     VaultType:D :$vault-type! where .so,
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
+    DiskType:D :$disk-type! where .so,
     VaultPass :vault-pass($),
     *%opts (
         Str :vault-header($),
@@ -991,6 +1000,7 @@ multi sub open-vault(
             :$vault-type,
             :$partition-vault,
             :$vault-name,
+            :$disk-type,
             |%opts
         );
 
@@ -1007,6 +1017,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         Str :vault-header($),
         Str :vault-cipher($),
         Str :vault-hash($),
@@ -1034,6 +1045,7 @@ multi sub build-cryptsetup-luks-open-cmdline(
     VaultName:D :$vault-name! where .so,
     VaultPass:D :$vault-pass! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         Str :vault-header($),
         Str :vault-cipher($),
         Str :vault-hash($),
@@ -1085,6 +1097,7 @@ sub gen-cryptsetup-luks-open(
     Str:D :$partition-vault! where .so,
     VaultName:D :$vault-name! where .so,
     *%opts (
+        DiskType:D :disk-type($)! where .so,
         Str :vault-header($),
         Str :vault-cipher($),
         Str :vault-hash($),
@@ -1104,6 +1117,7 @@ sub gen-cryptsetup-luks-open(
 
 sub build-cryptsetup-luks-open-options-cmdline(
     VaultType:D :$vault-type! where .so,
+    DiskType:D :$disk-type! where .so,
     Str :$vault-header,
     Str :$vault-cipher,
     Str :$vault-hash,
@@ -1116,9 +1130,13 @@ sub build-cryptsetup-luks-open-options-cmdline(
 )
 {
     my Str:D @opt;
-    push(@opt, '--header', $vault-header) if $vault-header;
-    push(@opt, '--perf-no_read_workqueue', '--persistent')
-        if $vault-type eq 'LUKS2';
+    if $disk-type !eq 'HDD' {
+        push(@opt, '--perf-no_read_workqueue');
+        push(@opt, '--perf-no_write_workqueue');
+        push(@opt, '--persistent') if $vault-type eq 'LUKS2';
+    }
+    push(@opt, '--header', $vault-header)
+        if $vault-header;
     push(@opt, '--cipher', $vault-cipher)
         if $vault-type eq 'PLAIN' && $vault-cipher;
     push(@opt, '--hash', $vault-hash)
