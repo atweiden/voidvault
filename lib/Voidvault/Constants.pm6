@@ -223,13 +223,13 @@ constant $PBKDF2-LENGTH-HASH = 100;
 # grub-mkpasswd-pbkdf2 length of salt
 constant $PBKDF2-LENGTH-SALT = 100;
 
-# for fdisk
-constant $FDISK-SIZE-BIOS = '2M';
-constant $FDISK-SIZE-EFI = '550M';
-constant $FDISK-SIZE-BOOT = '1024M';
-constant $FDISK-TYPECODE-BIOS = '4';
-constant $FDISK-TYPECODE-EFI = '1';
-constant $FDISK-TYPECODE-LINUX = '30';
+# for sfdisk
+constant $SFDISK-SIZE-BIOS = '2M';
+constant $SFDISK-SIZE-EFI = '550M';
+constant $SFDISK-SIZE-BOOT = '1024M';
+constant $SFDISK-TYPESTR-BIOS = '21686148-6449-6E6F-744E-656564454649';
+constant $SFDISK-TYPESTR-EFI = 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B';
+constant $SFDISK-TYPESTR-LINUX = '0FC63DAF-8483-4772-8E79-3D69D8477DE4';
 
 # for C<--vault-offset> and C<--bootvault-offset>
 constant $CRYPTSETUP-LUKS-BYTES-PER-SECTOR = 512;

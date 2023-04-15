@@ -11,7 +11,7 @@ also is Voidvault::Bootstrap::OneFA;
 # worker functions
 # -----------------------------------------------------------------------------
 
-method fdisk(::?CLASS:D: --> Nil)
+method sfdisk(::?CLASS:D: --> Nil)
 {
     my Str:D $bootvault-device = $.config.bootvault-device;
 
@@ -19,27 +19,19 @@ method fdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create 1024M sized partition for LUKS1-encrypted boot
-    shell("fdisk --wipe always $bootvault-device", :in(qq:to/EOF/));
-    g
-    n
-
-    +{$Voidvault::Constants::FDISK-SIZE-BIOS}
-    t
-
-    {$Voidvault::Constants::FDISK-TYPECODE-BIOS}
-    n
-
-    +{$Voidvault::Constants::FDISK-SIZE-EFI}
-    t
-    2
-    {$Voidvault::Constants::FDISK-TYPECODE-EFI}
-    n
-
-    +{$Voidvault::Constants::FDISK-SIZE-BOOT}
-    t
-    3
-    {$Voidvault::Constants::FDISK-TYPECODE-LINUX}
-    w
+    my Str:D $sfdisk-cmdline = qqw<
+        sfdisk
+        --delete
+        --wipe always
+        --no-reread
+        --no-tell-kernel
+        $bootvault-device
+    >.join(' ');
+    shell($sfdisk-cmdline, :in(qq:to/EOF/));
+    label: gpt
+    ,{$Voidvault::Constants::SFDISK-SIZE-BIOS},{$Voidvault::Constants::SFDISK-TYPESTR-BIOS}
+    ,{$Voidvault::Constants::SFDISK-SIZE-EFI},{$Voidvault::Constants::SFDISK-TYPESTR-EFI}
+    ,{$Voidvault::Constants::SFDISK-SIZE-BOOT},{$Voidvault::Constants::SFDISK-TYPESTR-LINUX}
     EOF
 }
 
