@@ -178,6 +178,11 @@ Offset
   key to LUKS volume step earlier during bootstrap
 - [Change default repo](https://github.com/void-linux/void-packages/commit/3a5377265a48f07e8d8f3073a7d73a5a067a8e1b)
   from alpha.de.repo.voidlinux.org to repo-default.voidlinux.org
+- Read time zones from `zone1970.tab`
+- Pass options `--perf-no_read_workqueue` and `--perf_no_write_workqueue`
+  to `cryptsetup luksOpen` for performance++
+- Replace `sgdisk` (from package `gptfdisk`) with `sfdisk` (from package
+  `util-linux`)
 
 ### Fixes
 
