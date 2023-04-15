@@ -3,9 +3,9 @@ Voidvault
 
 Last tested | ISO                                                                                | Result
 ----------- | ---------------------------------------------------------------------------------- | ------
-2022-12-06  | [void-live-x86_64-20221001-base.iso][void-live-x86_64-20221001-base.iso]           | PASS
-2022-12-06  | [void-live-x86_64-musl-20221001-base.iso][void-live-x86_64-musl-20221001-base.iso] | PASS
-2022-12-06  | [void-live-i686-20221001-base.iso][void-live-i686-20221001-base.iso]               | N/A¹
+2023-04-15  | [void-live-x86_64-20221001-base.iso][void-live-x86_64-20221001-base.iso]           | PASS
+2023-04-15  | [void-live-x86_64-musl-20221001-base.iso][void-live-x86_64-musl-20221001-base.iso] | PASS
+2023-04-15  | [void-live-i686-20221001-base.iso][void-live-i686-20221001-base.iso]               | N/A¹
 
 ¹: Void upstream [32-bit ISO][void-live-i686-20221001-base.iso] fails to boot in VirtualBox
 
