@@ -126,6 +126,7 @@ method sfdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
+    try sink shell("sfdisk --delete $device");
     my Str:D $sfdisk-size-bios =
         Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
     my Str:D $sfdisk-size-efi =
@@ -139,7 +140,7 @@ method sfdisk(::?CLASS:D: --> Nil)
         $Voidvault::Constants::SFDISK-TYPESTR-EFI,
         $Voidvault::Constants::SFDISK-TYPESTR-LINUX;
     my Str:D $sfdisk-cmdline = sprintf(q:to/EOF/.trim, |@sfdisk-cmdline-args);
-    sfdisk %s <<'EOS'
+    sfdisk --force --no-reread --no-tell-kernel --wipe always %s <<'EOS'
     label: gpt
     device: %s
     unit: sectors

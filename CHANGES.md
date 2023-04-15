@@ -1,6 +1,15 @@
 Changes
 =======
 
+New in 2.0.1
+------------
+
+### Changes
+
+- Run `sfdisk --delete <device>` before partitioning device
+- Run `sfdisk --force --no-reread --no-tell-kernel --wipe always <device>`
+  to partition device
+
 New in 2.0.0
 ------------
 
