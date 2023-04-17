@@ -166,7 +166,6 @@ method enable-security-features(Str:D @grub-cmdline-linux --> Nil)
         landlock
         lockdown
         yama
-        loadpin
         safesetid
         integrity
         apparmor
