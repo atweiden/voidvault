@@ -3,11 +3,9 @@ Voidvault
 
 Last tested | ISO                                                                                | Result
 ----------- | ---------------------------------------------------------------------------------- | ------
-2023-04-15  | [void-live-x86_64-20221001-base.iso][void-live-x86_64-20221001-base.iso]           | PASS
-2023-04-15  | [void-live-x86_64-musl-20221001-base.iso][void-live-x86_64-musl-20221001-base.iso] | PASS
-2023-04-15  | [void-live-i686-20221001-base.iso][void-live-i686-20221001-base.iso]               | N/A¹
-
-¹: Void upstream [32-bit ISO][void-live-i686-20221001-base.iso] fails to boot in VirtualBox
+2023-07-11  | [void-live-x86_64-20230628-base.iso][void-live-x86_64-20230628-base.iso]           | PASS
+2023-07-11  | [void-live-x86_64-musl-20230628-base.iso][void-live-x86_64-musl-20230628-base.iso] | PASS
+2023-07-11  | [void-live-i686-20230628-base.iso][void-live-i686-20230628-base.iso]               | FAIL
 
 Bootstrap Void with FDE
 
@@ -404,9 +402,9 @@ information, see http://unlicense.org/ or the accompanying UNLICENSE file.
 [protective mount options]: https://www.softpanorama.org/Commercial_linuxes/Security/protective_partitioning_of_the_system.shtml
 [runit]: http://smarden.org/runit
 [Sysctl]: https://wiki.archlinux.org/index.php/Sysctl
-[void-live-i686-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-i686-20221001-base.iso
-[void-live-x86_64-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-20221001-base.iso
-[void-live-x86_64-musl-20221001-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-musl-20221001-base.iso
+[void-live-i686-20230628-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-i686-20230628-base.iso
+[void-live-x86_64-20230628-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-20230628-base.iso
+[void-live-x86_64-musl-20230628-base.iso]: https://repo-default.voidlinux.org/live/current/void-live-x86_64-musl-20230628-base.iso
 [Xorg]: https://wiki.archlinux.org/index.php/Xorg
 [zram]: https://www.kernel.org/doc/Documentation/blockdev/zram.txt
 [zramen]: https://github.com/atweiden/zramen
