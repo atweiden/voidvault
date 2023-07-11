@@ -91,6 +91,7 @@ constant %keymaps = Map.new(
     'dk-latin1'                           => '"Danish QWERTY keymap with dead accents"',
     'dvorak'                              => '"Dvorak keymap"',
     'dvorak-ca-fr'                        => '"Canada - French Dvorak keymap"',
+    'dvorak-de'                           => '"German Dvorak keymap"',
     'dvorak-es'                           => '"Spanish Dvorak keymap"',
     'dvorak-fr'                           => '"French Dvorak keymap"',
     'dvorak-l'                            => '"Left single-handed Dvorak keymap"',
