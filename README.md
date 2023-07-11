@@ -5,7 +5,7 @@ Last tested | ISO                                                               
 ----------- | ---------------------------------------------------------------------------------- | ------
 2023-07-11  | [void-live-x86_64-20230628-base.iso][void-live-x86_64-20230628-base.iso]           | PASS
 2023-07-11  | [void-live-x86_64-musl-20230628-base.iso][void-live-x86_64-musl-20230628-base.iso] | PASS
-2023-07-11  | [void-live-i686-20230628-base.iso][void-live-i686-20230628-base.iso]               | FAIL
+2023-07-11  | [void-live-i686-20230628-base.iso][void-live-i686-20230628-base.iso]               | PASS
 
 Bootstrap Void with FDE
 
