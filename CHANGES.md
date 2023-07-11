@@ -6,9 +6,7 @@ New in 2.0.1
 
 ### Changes
 
-- Run `sfdisk --delete <device>` before partitioning device
-- Run `sfdisk --force --no-reread --no-tell-kernel --wipe always <device>`
-  to partition device
+- Revert to using gptfisk for disk partitioning again instead of sfdisk
 
 New in 2.0.0
 ------------

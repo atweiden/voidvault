@@ -11,7 +11,7 @@ also is Voidvault::Bootstrap::OneFA;
 # worker functions
 # -----------------------------------------------------------------------------
 
-method sfdisk(::?CLASS:D: --> Nil)
+method sgdisk(::?CLASS:D: --> Nil)
 {
     my Str:D $bootvault-device = $.config.bootvault-device;
 
@@ -19,34 +19,18 @@ method sfdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create 1024M sized partition for LUKS1-encrypted boot
-    try sink shell("sfdisk --delete $bootvault-device");
-    my Str:D $sfdisk-size-bios =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
-    my Str:D $sfdisk-size-efi =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
-    my Str:D $sfdisk-size-boot =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BOOT);
-    my Str:D @sfdisk-cmdline-args =
-        $bootvault-device,
-        $bootvault-device,
-        $sfdisk-size-bios,
-        $Voidvault::Constants::SFDISK-TYPESTR-BIOS,
-        $sfdisk-size-efi,
-        $Voidvault::Constants::SFDISK-TYPESTR-EFI,
-        $sfdisk-size-boot,
-        $Voidvault::Constants::SFDISK-TYPESTR-LINUX;
-    my Str:D $sfdisk-cmdline = sprintf(q:to/EOF/.trim, |@sfdisk-cmdline-args);
-    sfdisk --force --no-reread --no-tell-kernel --wipe always %s <<'EOS'
-    label: gpt
-    device: %s
-    unit: sectors
-
-    1 : size=%s, type=%s
-    2 : size=%s, type=%s
-    3 : size=%s, type=%s
-    EOS
-    EOF
-    shell($sfdisk-cmdline);
+    run(qqw<
+        sgdisk
+        --zap-all
+        --clear
+        --mbrtogpt
+        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
+        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
+        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
+        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
+        --new=3:0:+{$Voidvault::Constants::GDISK-SIZE-BOOT}
+        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
+    >, $bootvault-device);
 }
 
 multi method install-bootloader(
