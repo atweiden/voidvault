@@ -102,7 +102,7 @@ multi method bootstrap(::?CLASS:D: 'mount-efi' --> Nil)
 method mkdisk(::?CLASS:D: --> Nil)
 {
     # partition device
-    self.sgdisk;
+    self.sfdisk;
 
     # create uefi partition
     self.mkefi;
@@ -117,8 +117,8 @@ method mkdisk(::?CLASS:D: --> Nil)
     self.disable-cow;
 }
 
-# partition device with sgdisk
-method sgdisk(::?CLASS:D: --> Nil)
+# partition device with sfdisk
+method sfdisk(::?CLASS:D: --> Nil)
 {
     my Str:D $device = $.config.device;
 
@@ -126,18 +126,31 @@ method sgdisk(::?CLASS:D: --> Nil)
     # create 2M EF02 BIOS boot sector
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
-    run(qqw<
-        sgdisk
-        --zap-all
-        --clear
-        --mbrtogpt
-        --new=1:0:+{$Voidvault::Constants::GDISK-SIZE-BIOS}
-        --typecode=1:{$Voidvault::Constants::GDISK-TYPECODE-BIOS}
-        --new=2:0:+{$Voidvault::Constants::GDISK-SIZE-EFI}
-        --typecode=2:{$Voidvault::Constants::GDISK-TYPECODE-EFI}
-        --new=3:0:0
-        --typecode=3:{$Voidvault::Constants::GDISK-TYPECODE-LINUX}
-    >, $device);
+    try sink shell("sfdisk --delete $device");
+    my Str:D $sfdisk-size-bios =
+        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
+    my Str:D $sfdisk-size-efi =
+        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
+    my Str:D @sfdisk-cmdline-args =
+        $device,
+        $device,
+        $sfdisk-size-bios,
+        $Voidvault::Constants::SFDISK-TYPESTR-BIOS,
+        $sfdisk-size-efi,
+        $Voidvault::Constants::SFDISK-TYPESTR-EFI,
+        $Voidvault::Constants::SFDISK-TYPESTR-LINUX;
+    my Str:D $sfdisk-cmdline = sprintf(q:to/EOF/.trim, |@sfdisk-cmdline-args);
+    sfdisk --force --no-reread --no-tell-kernel --wipe always %s <<'EOS'
+    label: gpt
+    device: %s
+    unit: sectors
+
+    1 : size=%s, type=%s
+    2 : size=%s, type=%s
+    3 : type=%s
+    EOS
+    EOF
+    shell($sfdisk-cmdline);
 }
 
 method mkefi(::?CLASS:D: --> Nil)

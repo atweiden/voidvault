@@ -44,7 +44,6 @@ my constant @DEPENDENCY-PRE-VOIDSTRAP = qw<
     dosfstools
     e2fsprogs
     efibootmgr
-    gptfdisk
     kbd
     kmod
     openssl
@@ -88,7 +87,6 @@ constant @PACKAGE-BASE = qw<
     file
     findutils
     gawk
-    gptfdisk
     grep
     grub
     gzip
@@ -225,13 +223,13 @@ constant $PBKDF2-LENGTH-HASH = 100;
 # grub-mkpasswd-pbkdf2 length of salt
 constant $PBKDF2-LENGTH-SALT = 100;
 
-# for sgdisk
-constant $GDISK-SIZE-BIOS = '2M';
-constant $GDISK-SIZE-EFI = '550M';
-constant $GDISK-SIZE-BOOT = '1024M';
-constant $GDISK-TYPECODE-BIOS = 'EF02';
-constant $GDISK-TYPECODE-EFI = 'EF00';
-constant $GDISK-TYPECODE-LINUX = '8300';
+# for sfdisk
+constant $SFDISK-SIZE-BIOS = '2M';
+constant $SFDISK-SIZE-EFI = '550M';
+constant $SFDISK-SIZE-BOOT = '1024M';
+constant $SFDISK-TYPESTR-BIOS = '21686148-6449-6E6F-744E-656564454649';
+constant $SFDISK-TYPESTR-EFI = 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B';
+constant $SFDISK-TYPESTR-LINUX = '0FC63DAF-8483-4772-8E79-3D69D8477DE4';
 
 # for C<--vault-offset> and C<--bootvault-offset>
 constant $CRYPTSETUP-LUKS-BYTES-PER-SECTOR = 512;
