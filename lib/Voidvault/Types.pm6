@@ -163,6 +163,7 @@ constant %keymaps = Map.new(
     'mac-euro2'                           => '"Euro and cent"',
     'mac-fi-latin1'                       => '"Finnish QWERTY keymap for Macintosh"',
     'mac-fr'                              => '"French AZERTY Macintosh keyboard"',
+    'mac-fr-legacy'                       => '"French AZERTY Macintosh keyboard"',
     'mac-fr_CH-latin1'                    => '"Swiss-French QWERTY keymap for PowerBook G3 (Bronze Series)"',
     'mac-it'                              => '"Apple AZERTY Keyboard Italiana"',
     'mac-no-latin1'                       => '"Apple QWERTY Norwegian keymap"',
