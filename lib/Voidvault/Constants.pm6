@@ -12,7 +12,7 @@ constant $DIRECTORY-EFI = '/boot/efi';
 
 constant $FILE-CRYPTTAB = '/etc/crypttab';
 constant $FILE-DHCPCD = '/etc/dhcpcd.conf';
-constant $FILE-DNSCRYPT-PROXY = '/etc/dnscrypt-proxy.toml';
+constant $FILE-DNSCRYPT-PROXY = '/etc/dnscrypt-proxy/dnscrypt-proxy.toml';
 constant $FILE-DRACUT = '/etc/dracut.conf.d';
 constant $FILE-EFI-STARTUP = sprintf(Q{%s/startup.nsh}, $DIRECTORY-EFI);
 constant $FILE-FSTAB = '/etc/fstab';

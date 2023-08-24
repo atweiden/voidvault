@@ -128,7 +128,7 @@ sed \
   -e "/^listen_addresses/s/\(.*\)/#\1/" \
   -e "/^#listen_addresses/p" \
   -e "s/^#\(listen_addresses = \[.*\)\]/\1, '10.192.122.1:53']/" \
-  /etc/dnscrypt-proxy.toml
+  /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 sv restart dnscrypt-proxy
 EOF
 
@@ -174,7 +174,7 @@ sed \
   -i \
   -e "/^listen_addresses/d" \
   -e "/^#listen_addresses/s/^#\(.*\)/\1/" \
-  /etc/dnscrypt-proxy.toml
+  /etc/dnscrypt-proxy/dnscrypt-proxy.toml
 sv restart dnscrypt-proxy
 EOF
 
