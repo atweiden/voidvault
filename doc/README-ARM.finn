@@ -172,7 +172,6 @@ mvp
   - cdrtools
   - chrony
   - coreutils
-  - crda
   - cronie
   - cryptsetup
   - curl

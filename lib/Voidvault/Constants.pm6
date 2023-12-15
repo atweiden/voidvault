@@ -70,7 +70,6 @@ constant @PACKAGE-BASE = qw<
     bzip2
     ca-certificates
     coreutils
-    crda
     cryptsetup
     curl
     dash
