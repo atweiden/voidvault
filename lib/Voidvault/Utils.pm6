@@ -477,8 +477,19 @@ method udevadm(UdevProperty:D $property, Str:D :$device! where .so --> Str:D)
 {
     my Str:D $device-information =
         qqx<udevadm info --query=all --name=$device>.trim;
-    my Str:D $result =
-        $device-information.lines.grep(/$property'='/).first.split('=').tail;
+    my Str:D $property-information =
+        $device-information.lines.grep(/$property'='/).first;
+    my Str:D $result = udevadm($property, $property-information);
+}
+
+multi sub udevadm('DEVLINKS', Str:D $property-information --> Str:D)
+{
+    my Str:D $result = $property-information.split(/\s+/)[2];
+}
+
+multi sub udevadm('ID_SERIAL_SHORT', Str:D $property-information --> Str:D)
+{
+    my Str:D $result = $property-information.split('=').tail;
 }
 
 # chroot into C<$chroot-dir> to then C<dracut>
