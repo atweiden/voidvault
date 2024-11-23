@@ -86,10 +86,11 @@ method TOP($/ --> Nil)
     my Int:D $number = $<number>.made;
     my OffsetUnit:D $unit = $<valid-unit>.made;
     my Int:D $bytes = bytes-per-unit($unit);
-    my Rat:D $offset = ($number * $bytes) / $.bytes-per-sector;
+    my UInt:D $offset = Int(($number * $bytes) / $.bytes-per-sector);
     die(X::Voidvault::Parser::VaultOffset::Alignment.new(:content(~$/)))
         unless $offset %% 8;
-    make($offset);
+    my %offset-sector-size = :$offset, :sector-size($.bytes-per-sector);
+    make(%offset-sector-size);
 }
 
 # units --digits 10 --terse kibibytes bytes
