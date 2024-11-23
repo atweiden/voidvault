@@ -2,7 +2,7 @@ use v6;
 use Crypt::Libcrypt:auth<atweiden>;
 use Void::Constants;
 use Voidvault::Constants;
-use Voidvault::Parser::VaultOffset;
+use Voidvault::Parser::CryptsetupHuman;
 use Voidvault::Types;
 unit module Voidvault::Config::Utils;
 
@@ -226,6 +226,13 @@ sub enable-echo()
 # string formatting, resolution and validation
 # -----------------------------------------------------------------------------
 
+# convert human-readable value C<$s> into sectors for cryptsetup
+sub cryptsetup-sectors-from-human(Str:D $s --> Str:D) is export
+{
+    # coerce to C<Str> for shell execution
+    my Str:D $sectors = ~Voidvault::Parser::CryptsetupHuman.parse($s)<sectors>;
+}
+
 # confirm path $p is valid AbsolutePath and return AbsolutePath
 sub gen-absolute-path(Str:D $p --> AbsolutePath:D) is export
 {
@@ -325,13 +332,6 @@ sub gen-vault-pass(Str:D $p --> VaultPass:D) is export
     Sorry, invalid Vault Pass. Length needed: 1-512. Length given: {$p.chars}
     EOF
     my VaultPass:D $vault-pass = $p or die($message);
-}
-
-# convert human-readable offset $o into valid form for cryptsetup luksFormat
-sub gen-vault-offset(Str:D $o --> Str:D) is export
-{
-    # coerce to C<Str> for shell execution
-    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset.parse($o)<offset>;
 }
 
 

@@ -1,8 +1,8 @@
 use v6;
 
-# X::Voidvault::Parser::VaultOffset::Alignment {{{
+# X::Voidvault::Parser::CryptsetupHuman::Alignment {{{
 
-class X::Voidvault::Parser::VaultOffset::Alignment
+class X::Voidvault::Parser::CryptsetupHuman::Alignment
 {
     also is Exception;
 
@@ -15,10 +15,10 @@ class X::Voidvault::Parser::VaultOffset::Alignment
     }
 }
 
-# end X::Voidvault::Parser::VaultOffset::Alignment }}}
-# X::Voidvault::Parser::VaultOffset::Invalid {{{
+# end X::Voidvault::Parser::CryptsetupHuman::Alignment }}}
+# X::Voidvault::Parser::CryptsetupHuman::Invalid {{{
 
-class X::Voidvault::Parser::VaultOffset::Invalid
+class X::Voidvault::Parser::CryptsetupHuman::Invalid
 {
     also is Exception;
 
@@ -27,14 +27,14 @@ class X::Voidvault::Parser::VaultOffset::Invalid
     method message(::?CLASS:D: --> Str:D)
     {
         my Str:D $message =
-            "Sorry, received invalid cryptsetup LUKS offset ($.content)";
+            "Sorry, received invalid value ($.content)";
     }
 }
 
-# end X::Voidvault::Parser::VaultOffset::Invalid }}}
-# X::Voidvault::Parser::VaultOffset::SectorSize {{{
+# end X::Voidvault::Parser::CryptsetupHuman::Invalid }}}
+# X::Voidvault::Parser::CryptsetupHuman::SectorSize {{{
 
-class X::Voidvault::Parser::VaultOffset::SectorSize
+class X::Voidvault::Parser::CryptsetupHuman::SectorSize
 {
     also is Exception;
 
@@ -47,6 +47,6 @@ class X::Voidvault::Parser::VaultOffset::SectorSize
     }
 }
 
-# end X::Voidvault::Parser::VaultOffset::SectorSize }}}
+# end X::Voidvault::Parser::CryptsetupHuman::SectorSize }}}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

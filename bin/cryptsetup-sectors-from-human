@@ -1,14 +1,14 @@
 #!/usr/bin/env raku
 use v6;
-use Voidvault::Parser::VaultOffset;
-use X::Voidvault::Parser::VaultOffset;
+use Voidvault::Parser::CryptsetupHuman;
+use X::Voidvault::Parser::CryptsetupHuman;
 
 constant $HELP = q:to/EOF/.trim;
 Usage:
-  gen-cryptsetup-luks-offset [--json] [--sector-size=<bytes>] <offset>
-  gen-cryptsetup-luks-offset 5G
-  offset="$(gen-cryptsetup-luks-offset --json 5GiB | jq '."offset"')"
-  cryptsetup --offset "$offset" luksFormat /dev/sda
+  cryptsetup-sectors-from-human [--json] [--sector-size=<bytes>] <human>
+  cryptsetup-sectors-from-human 5G
+  offset="$(cryptsetup-sectors-from-human --json 5GiB | jq '."sectors"')"
+  cryptsetup luksFormat --offset "$offset" /dev/sda
 
 Options:
   -h, --help
@@ -16,9 +16,9 @@ Options:
   --json
     Output JSON
   --sector-size=<bytes>
-    Sector size for use with LUKS encrypted volume
+    Sector size for use with cryptsetup
 
-Offset
+Human
   K,KiB     kibibytes
   M,MiB     mebibytes
   G,GiB     gibibtes
@@ -32,14 +32,14 @@ EOF
 
 sub MAIN(Str:D $content, Bool :$json, *%opts (UInt :sector-size($)) --> Nil)
 {
-    my %offset-sector-size =
-        try Voidvault::Parser::VaultOffset.parse($content, |%opts);
+    my %sectors-sector-size =
+        try Voidvault::Parser::CryptsetupHuman.parse($content, |%opts);
     bail($!.message) if $!;
     my Str:D $output =
-        $json ?? Rakudo::Internals::JSON.to-json(%offset-sector-size)
-              !! sprintf("%d sector offset, %d byte sector size",
-                         %offset-sector-size<offset>,
-                         %offset-sector-size<sector-size>);
+        $json ?? Rakudo::Internals::JSON.to-json(%sectors-sector-size)
+              !! sprintf("%d sectors, %d byte sector size",
+                         %sectors-sector-size<sectors>,
+                         %sectors-sector-size<sector-size>);
     say($output);
 }
 

@@ -66,7 +66,7 @@ has Str:D $.bootvault-key-size =
 
 has Str $.bootvault-offset =
     ?%*ENV<VOIDVAULT_BOOTVAULT_OFFSET>
-        ?? gen-vault-offset(%*ENV<VOIDVAULT_BOOTVAULT_OFFSET>)
+        ?? cryptsetup-sectors-from-human(%*ENV<VOIDVAULT_BOOTVAULT_OFFSET>)
         !! Nil;
 
 has Str $.bootvault-sector-size =

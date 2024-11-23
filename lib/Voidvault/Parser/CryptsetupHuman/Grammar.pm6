@@ -1,5 +1,5 @@
 use v6;
-unit grammar Voidvault::Parser::VaultOffset::Grammar;
+unit grammar Voidvault::Parser::CryptsetupHuman::Grammar;
 
 token number
 {

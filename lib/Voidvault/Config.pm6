@@ -147,7 +147,7 @@ has Str:D $.vault-key-size =
 
 has Str $.vault-offset =
     ?%*ENV<VOIDVAULT_VAULT_OFFSET>
-        ?? gen-vault-offset(%*ENV<VOIDVAULT_VAULT_OFFSET>)
+        ?? cryptsetup-sectors-from-human(%*ENV<VOIDVAULT_VAULT_OFFSET>)
         !! Nil;
 
 has Str $.vault-sector-size =
@@ -368,7 +368,7 @@ proto submethod BUILD(
         if $vault-iter-time;
     $!vault-key-size = $vault-key-size
         if $vault-key-size;
-    $!vault-offset = gen-vault-offset($vault-offset)
+    $!vault-offset = cryptsetup-sectors-from-human($vault-offset)
         if $vault-offset;
     $!vault-sector-size = $vault-sector-size
         if $vault-sector-size;

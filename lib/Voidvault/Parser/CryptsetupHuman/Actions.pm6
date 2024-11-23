@@ -1,7 +1,7 @@
 use v6;
 use Voidvault::Constants;
-use X::Voidvault::Parser::VaultOffset;
-unit class Voidvault::Parser::VaultOffset::Actions;
+use X::Voidvault::Parser::CryptsetupHuman;
+unit class Voidvault::Parser::CryptsetupHuman::Actions;
 
 has UInt:D $.bytes-per-sector = bytes-per-sector();
 
@@ -15,8 +15,8 @@ sub bytes-per-sector(--> UInt:D)
 submethod TWEAK(--> Nil)
 {
     is-valid-bytes-per-sector($!bytes-per-sector) or do {
-        my UInt:D $sector-size = $!bytes-per-sector;
-        die(X::Voidvault::Parser::VaultOffset::SectorSize.new(:$sector-size));
+        my $x = X::Voidvault::Parser::CryptsetupHuman::SectorSize;
+        die($x.new(:sector-size($!bytes-per-sector)));
     };
 }
 
@@ -37,13 +37,13 @@ submethod BUILD(:$sector-size --> Nil)
 
 method new(
     *%opts (:sector-size($))
-    --> Voidvault::Parser::VaultOffset::Actions:D
+    --> Voidvault::Parser::CryptsetupHuman::Actions:D
 )
 {
     self.bless(|%opts);
 }
 
-my enum OffsetUnit <
+my enum HumanUnit <
     KIBIBYTE
     MEBIBYTE
     GIBIBYTE
@@ -57,22 +57,22 @@ method number($/ --> Nil)
 
 method binary-prefix:sym<K>($/ --> Nil)
 {
-    make(OffsetUnit::KIBIBYTE);
+    make(HumanUnit::KIBIBYTE);
 }
 
 method binary-prefix:sym<M>($/ --> Nil)
 {
-    make(OffsetUnit::MEBIBYTE);
+    make(HumanUnit::MEBIBYTE);
 }
 
 method binary-prefix:sym<G>($/ --> Nil)
 {
-    make(OffsetUnit::GIBIBYTE);
+    make(HumanUnit::GIBIBYTE);
 }
 
 method binary-prefix:sym<T>($/ --> Nil)
 {
-    make(OffsetUnit::TEBIBYTE);
+    make(HumanUnit::TEBIBYTE);
 }
 
 multi method valid-unit($/ where $<binary-prefix>.so --> Nil)
@@ -84,22 +84,22 @@ method TOP($/ --> Nil)
 {
     # user requests this number of units
     my Int:D $number = $<number>.made;
-    my OffsetUnit:D $unit = $<valid-unit>.made;
+    my HumanUnit:D $unit = $<valid-unit>.made;
     my Int:D $bytes = bytes-per-unit($unit);
-    my UInt:D $offset = Int(($number * $bytes) / $.bytes-per-sector);
-    die(X::Voidvault::Parser::VaultOffset::Alignment.new(:content(~$/)))
-        unless $offset %% 8;
-    my %offset-sector-size = :$offset, :sector-size($.bytes-per-sector);
-    make(%offset-sector-size);
+    my UInt:D $sectors = Int(($number * $bytes) / $.bytes-per-sector);
+    die(X::Voidvault::Parser::CryptsetupHuman::Alignment.new(:content(~$/)))
+        unless $sectors %% 8;
+    my %sectors-sector-size = :$sectors, :sector-size($.bytes-per-sector);
+    make(%sectors-sector-size);
 }
 
 # units --digits 10 --terse kibibytes bytes
-multi sub bytes-per-unit(OffsetUnit::KIBIBYTE --> 1024) {*}
+multi sub bytes-per-unit(HumanUnit::KIBIBYTE --> 1024) {*}
 # units --digits 10 --terse mebibytes bytes
-multi sub bytes-per-unit(OffsetUnit::MEBIBYTE --> 1048576) {*}
+multi sub bytes-per-unit(HumanUnit::MEBIBYTE --> 1048576) {*}
 # units --digits 10 --terse gibibytes bytes
-multi sub bytes-per-unit(OffsetUnit::GIBIBYTE --> 1073741824) {*}
+multi sub bytes-per-unit(HumanUnit::GIBIBYTE --> 1073741824) {*}
 # units --digits 13 --terse tebibytes bytes
-multi sub bytes-per-unit(OffsetUnit::TEBIBYTE --> 1099511627776) {*}
+multi sub bytes-per-unit(HumanUnit::TEBIBYTE --> 1099511627776) {*}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:
