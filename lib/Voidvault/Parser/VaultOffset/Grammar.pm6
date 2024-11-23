@@ -8,8 +8,7 @@ token number
 
 token valid-unit
 {
-    | <binary-prefix> <.ibyte>?
-    | <sector>
+    <binary-prefix> <.ibyte>?
 }
 
 proto token binary-prefix {*}
@@ -21,11 +20,6 @@ token binary-prefix:sym<T> { <sym> ** 1 }
 token ibyte
 {
     iB
-}
-
-token sector
-{
-    S
 }
 
 token TOP

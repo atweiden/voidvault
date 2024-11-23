@@ -32,5 +32,21 @@ class X::Voidvault::Parser::VaultOffset::Invalid
 }
 
 # end X::Voidvault::Parser::VaultOffset::Invalid }}}
+# X::Voidvault::Parser::VaultOffset::SectorSize {{{
+
+class X::Voidvault::Parser::VaultOffset::SectorSize
+{
+    also is Exception;
+
+    has UInt:D $.sector-size is required;
+
+    method message(::?CLASS:D: --> Str:D)
+    {
+        my Str:D $message =
+            "Sorry, received invalid cryptsetup sector size ($.sector-size)";
+    }
+}
+
+# end X::Voidvault::Parser::VaultOffset::SectorSize }}}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

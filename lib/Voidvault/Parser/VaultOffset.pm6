@@ -4,9 +4,9 @@ use Voidvault::Parser::VaultOffset::Grammar;
 use X::Voidvault::Parser::VaultOffset;
 unit class Voidvault::Parser::VaultOffset;
 
-method parse(Str:D $content --> Rat:D)
+method parse(Str:D $content, *%opts (UInt :sector-size($)) --> Rat:D)
 {
-    my Voidvault::Parser::VaultOffset::Actions $actions .= new;
+    my Voidvault::Parser::VaultOffset::Actions $actions .= new(|%opts);
     my $offset =
         Voidvault::Parser::VaultOffset::Grammar.parse($content, :$actions).made;
     die(X::Voidvault::Parser::VaultOffset::Invalid.new(:$content))

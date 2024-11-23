@@ -3,15 +3,35 @@ use Voidvault::Constants;
 use X::Voidvault::Parser::VaultOffset;
 unit class Voidvault::Parser::VaultOffset::Actions;
 
-my constant \BYTES-PER-SECTOR =
-    $Voidvault::Constants::CRYPTSETUP-LUKS-BYTES-PER-SECTOR;
+has UInt:D $.bytes-per-sector = bytes-per-sector();
+
+submethod TWEAK(--> Nil)
+{
+    is-valid-bytes-per-sector($.bytes-per-sector)
+        or die(X::Voidvault::Parser::VaultOffset::SectorSize.new);
+}
+
+sub bytes-per-sector(--> UInt:D)
+{
+    my Str:D $df = qx{df --output=source /}.lines.tail;
+    my UInt:D $bytes-per-sector =
+        +qqx{lsblk --raw --output PHY-SEC $df}.lines.tail;
+}
+
+sub is-valid-bytes-per-sector(UInt:D $bytes-per-sector --> Bool:D)
+{
+    # must be power of 2 and in range 512 - 4096
+    return False if $bytes-per-sector < 512;
+    return False if $bytes-per-sector > 4096;
+    my Bool:D $is-valid-bytes-per-sector =
+        $bytes-per-sector +& ($bytes-per-sector - 1) == 0;
+}
 
 my enum OffsetUnit <
     KIBIBYTE
     MEBIBYTE
     GIBIBYTE
     TEBIBYTE
-    SECTOR
 >;
 
 method number($/ --> Nil)
@@ -39,19 +59,9 @@ method binary-prefix:sym<T>($/ --> Nil)
     make(OffsetUnit::TEBIBYTE);
 }
 
-method sector($/ --> Nil)
-{
-    make(OffsetUnit::SECTOR);
-}
-
 multi method valid-unit($/ where $<binary-prefix>.so --> Nil)
 {
     make($<binary-prefix>.made);
-}
-
-multi method valid-unit($/ where $<sector>.so --> Nil)
-{
-    make($<sector>.made);
 }
 
 method TOP($/ --> Nil)
@@ -60,7 +70,7 @@ method TOP($/ --> Nil)
     my Int:D $number = $<number>.made;
     my OffsetUnit:D $unit = $<valid-unit>.made;
     my Int:D $bytes = bytes-per-unit($unit);
-    my Rat:D $offset = ($number * $bytes) / BYTES-PER-SECTOR;
+    my Rat:D $offset = ($number * $bytes) / $.bytes-per-sector;
     die(X::Voidvault::Parser::VaultOffset::Alignment.new(:content(~$/)))
         unless $offset %% 8;
     make($offset);
@@ -74,7 +84,5 @@ multi sub bytes-per-unit(OffsetUnit::MEBIBYTE --> 1048576) {*}
 multi sub bytes-per-unit(OffsetUnit::GIBIBYTE --> 1073741824) {*}
 # units --digits 13 --terse tebibytes bytes
 multi sub bytes-per-unit(OffsetUnit::TEBIBYTE --> 1099511627776) {*}
-# cryptsetup defines each sector (S) as 512 bytes
-multi sub bytes-per-unit(OffsetUnit::SECTOR --> BYTES-PER-SECTOR) {*}
 
 # vim: set filetype=raku foldmethod=marker foldlevel=0:

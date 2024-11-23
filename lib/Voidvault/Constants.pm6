@@ -230,9 +230,6 @@ constant $SFDISK-TYPESTR-BIOS = '21686148-6449-6E6F-744E-656564454649';
 constant $SFDISK-TYPESTR-EFI = 'C12A7328-F81F-11D2-BA4B-00A0C93EC93B';
 constant $SFDISK-TYPESTR-LINUX = '0FC63DAF-8483-4772-8E79-3D69D8477DE4';
 
-# for C<--vault-offset> and C<--bootvault-offset>
-constant $CRYPTSETUP-LUKS-BYTES-PER-SECTOR = 512;
-
 # for C<--enable-serial-console>
 constant $CONSOLE-VIRTUAL = 'tty0';
 constant $CONSOLE-SERIAL = 'ttyS0';
