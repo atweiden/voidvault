@@ -5,17 +5,19 @@ unit class Voidvault::Parser::VaultOffset::Actions;
 
 has UInt:D $.bytes-per-sector = bytes-per-sector();
 
-submethod TWEAK(--> Nil)
-{
-    is-valid-bytes-per-sector($.bytes-per-sector)
-        or die(X::Voidvault::Parser::VaultOffset::SectorSize.new);
-}
-
 sub bytes-per-sector(--> UInt:D)
 {
     my Str:D $df = qx{df --output=source /}.lines.tail;
     my UInt:D $bytes-per-sector =
         +qqx{lsblk --raw --output PHY-SEC $df}.lines.tail;
+}
+
+submethod TWEAK(--> Nil)
+{
+    is-valid-bytes-per-sector($!bytes-per-sector) or do {
+        my UInt:D $sector-size = $!bytes-per-sector;
+        die(X::Voidvault::Parser::VaultOffset::SectorSize.new(:$sector-size));
+    };
 }
 
 sub is-valid-bytes-per-sector(UInt:D $bytes-per-sector --> Bool:D)
@@ -25,6 +27,20 @@ sub is-valid-bytes-per-sector(UInt:D $bytes-per-sector --> Bool:D)
     return False if $bytes-per-sector > 4096;
     my Bool:D $is-valid-bytes-per-sector =
         $bytes-per-sector +& ($bytes-per-sector - 1) == 0;
+}
+
+submethod BUILD(:$sector-size --> Nil)
+{
+    # coerce possible C<IntStr>
+    $!bytes-per-sector = +$sector-size if $sector-size;
+}
+
+method new(
+    *%opts (:sector-size($))
+    --> Voidvault::Parser::VaultOffset::Actions:D
+)
+{
+    self.bless(|%opts);
 }
 
 my enum OffsetUnit <
