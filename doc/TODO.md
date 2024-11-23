@@ -1,6 +1,11 @@
 Todo
 ====
 
+### Config
+
+- warn if `{,boot}vault-offset` value is problematic
+  - in particular, bootvault is 1024M in size
+
 ### Installer
 
 - fix setting timezone to UTC
