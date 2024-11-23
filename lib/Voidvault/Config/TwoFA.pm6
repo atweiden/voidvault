@@ -75,7 +75,7 @@ multi submethod BUILD(
         if $bootvault-iter-time;
     $!bootvault-key-size = $bootvault-key-size
         if $bootvault-key-size;
-    $!bootvault-offset = $bootvault-offset
+    $!bootvault-offset = gen-vault-offset($bootvault-offset)
         if $bootvault-offset;
     $!bootvault-sector-size = $bootvault-sector-size
         if $bootvault-sector-size;
