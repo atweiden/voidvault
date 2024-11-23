@@ -127,10 +127,10 @@ method sfdisk(::?CLASS:D: --> Nil)
     # create 550M EF00 EFI system partition
     # create max sized partition for LUKS-encrypted vault
     try sink shell("sfdisk --delete $device");
-    my Str:D $sfdisk-size-bios =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
-    my Str:D $sfdisk-size-efi =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
+    my Str:D $sfdisk-size-bios = Voidvault::Utils.sfdisk-size-to-sectors(
+        $Voidvault::Constants::SFDISK-SIZE-BIOS, :$device);
+    my Str:D $sfdisk-size-efi = Voidvault::Utils.sfdisk-size-to-sectors(
+            $Voidvault::Constants::SFDISK-SIZE-EFI, :$device);
     my Str:D @sfdisk-cmdline-args =
         $device,
         $device,

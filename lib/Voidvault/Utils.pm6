@@ -191,10 +191,11 @@ multi sub build-mount-options-cmdline(Str:D :mount-option(@) --> Str:D)
 # sfdisk
 # -----------------------------------------------------------------------------
 
-method sfdisk-size-to-sectors(Str:D $content --> Str:D)
+method sfdisk-size-to-sectors(Str:D $content, Str:D :$device! --> Str:D)
 {
-    my Str:D $size = $content.split(/<alpha>/).first;
-    my Str:D $sectors = sprintf('%s', $size * 1024 * 1024 / 512 );
+    my UInt:D $size = +$content.split(/<alpha>/).first;
+    my UInt:D $hw-sector-size = Voidvault::Utils.hw-sector-size($device);
+    my Str:D $sectors = sprintf('%d', $size * 1024 * 1024 / $hw-sector-size);
 }
 
 
@@ -277,6 +278,13 @@ multi sub groupadd(
     @group-name.map(-> Str:D $group-name {
         run(qqw<void-chroot $chroot-dir groupadd $group-name>);
     });
+}
+
+method hw-sector-size(Str:D $device --> UInt:D)
+{
+    my Str:D $basename = $device.IO.basename;
+    my UInt:D $hw-sector-size =
+        +slurp("/sys/block/$basename/queue/hw_sector_size").trim;
 }
 
 method install-resource(

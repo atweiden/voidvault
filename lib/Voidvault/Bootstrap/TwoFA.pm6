@@ -20,12 +20,12 @@ method sfdisk(::?CLASS:D: --> Nil)
     # create 550M EF00 EFI system partition
     # create 1024M sized partition for LUKS1-encrypted boot
     try sink shell("sfdisk --delete $bootvault-device");
-    my Str:D $sfdisk-size-bios =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BIOS);
-    my Str:D $sfdisk-size-efi =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-EFI);
-    my Str:D $sfdisk-size-boot =
-        Voidvault::Utils.sfdisk-size-to-sectors($Voidvault::Constants::SFDISK-SIZE-BOOT);
+    my Str:D $sfdisk-size-bios = Voidvault::Utils.sfdisk-size-to-sectors(
+        $Voidvault::Constants::SFDISK-SIZE-BIOS, :device($bootvault-device));
+    my Str:D $sfdisk-size-efi = Voidvault::Utils.sfdisk-size-to-sectors(
+        $Voidvault::Constants::SFDISK-SIZE-EFI, :device($bootvault-device));
+    my Str:D $sfdisk-size-boot = Voidvault::Utils.sfdisk-size-to-sectors(
+        $Voidvault::Constants::SFDISK-SIZE-BOOT, :device($bootvault-device));
     my Str:D @sfdisk-cmdline-args =
         $bootvault-device,
         $bootvault-device,

@@ -7,6 +7,7 @@ New in 2.0.1
 ### Changes
 
 - Rename `gen-cryptsetup-luks-offset` to `cryptsetup-sectors-from-human`
+- Read physical block (sector) size of target device for sfdisk
 - Run `sfdisk --delete <device>` before partitioning device
 - Run `sfdisk --force --no-reread --no-tell-kernel --wipe always <device>`
   to partition device

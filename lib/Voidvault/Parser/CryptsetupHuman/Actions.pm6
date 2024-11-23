@@ -7,6 +7,7 @@ has UInt:D $.bytes-per-sector = bytes-per-sector();
 
 sub bytes-per-sector(--> UInt:D)
 {
+    # C<Voidvault::Utils.hw-sector-size> requires knowing device
     my Str:D $df = qx{df --output=source /}.lines.tail;
     my UInt:D $bytes-per-sector =
         +qqx{lsblk --raw --output PHY-SEC $df}.lines.tail;
