@@ -330,8 +330,8 @@ sub gen-vault-pass(Str:D $p --> VaultPass:D) is export
 # convert human-readable offset $o into valid form for cryptsetup luksFormat
 sub gen-vault-offset(Str:D $o --> Str:D) is export
 {
-    # C<Rat> inevitably must be converted into C<Str> for shell execution
-    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset.parse($o);
+    # coerce to C<Str> for shell execution
+    my Str:D $vault-offset = ~Voidvault::Parser::VaultOffset.parse($o)<offset>;
 }
 
 
