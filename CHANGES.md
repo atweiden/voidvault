@@ -6,6 +6,7 @@ New in 2.0.1
 
 ### Changes
 
+- Switch SSD I/O scheduler to `none`, eMMC to `bfq`
 - Rename `gen-cryptsetup-luks-offset` to `cryptsetup-sectors-from-human`
 - Read physical block (sector) size of target device for sfdisk
 - Run `sfdisk --delete <device>` before partitioning device
