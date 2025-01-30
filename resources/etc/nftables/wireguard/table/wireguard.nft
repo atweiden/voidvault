@@ -19,8 +19,8 @@ table ip nat {
 
   chain postrouting {
     type nat hook postrouting priority 100; policy accept;
-    # accept packets from WireGuard VPN interface for packets being
-    # routed through box, alter outgoing packets to have server IP address
+    # accept incoming packets from WireGuard VPN interface
+    # alter outgoing packets to have server IP address
     oifname $INET_INTERFACE counter log level info prefix "nft#ip#nat#postrouting (masquerade wireguard): " masquerade random,persistent
     counter comment "count accepted packets"
     counter log level info prefix "nft#ip#nat#postrouting: "
@@ -48,12 +48,10 @@ table ip6 nat6 {
 
   chain postrouting {
     type nat hook postrouting priority 100; policy accept;
-    # accept packets from WireGuard VPN interface for packets being
-    # routed through box, alter outgoing packets to have server IP address
+    # accept incoming packets from WireGuard VPN interface
+    # alter outgoing packets to have server IP address
     oifname $INET_INTERFACE counter log level info prefix "nft#ip6#nat6#postrouting (masquerade wireguard): " masquerade random,persistent
     counter comment "count accepted packets"
     counter log level info prefix "nft#ip6#nat6#postrouting: "
   }
 }
-
-# vim: set filetype=conf foldmethod=marker foldlevel=0 nowrap:

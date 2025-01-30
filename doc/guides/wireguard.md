@@ -103,8 +103,14 @@ sysctl --write net.ipv6.conf.all.proxy_ndp=1
 sysctl --write net.ipv6.conf.default.proxy_ndp=1
 sysctl --write net.ipv4.ip_dynaddr=7
 # activate nftables includes for wireguard
+mkdir --parents /etc/nftables/includes/constants
 mkdir --parents /etc/nftables/includes/table/inet/filter/forward
 mkdir --parents /etc/nftables/includes/table/inet/filter/input
+ln \
+  --symbolic \
+  --force \
+  /etc/nftables/wireguard/constants/wireguard.nft \
+  /etc/nftables/includes/constants
 ln \
   --symbolic \
   --force \
@@ -138,9 +144,14 @@ chmod 700 /etc/wireguard/wg0.conf.post-up.sh
 cat > /etc/wireguard/wg0.conf.post-down.sh <<EOF
 #!/bin/bash
 # deactivate nftables includes for wireguard
+rm --force /etc/nftables/includes/constants/wireguard.nft
 rm --force /etc/nftables/includes/table/wireguard.nft
 rm --force /etc/nftables/includes/table/inet/filter/forward/wireguard.nft
 rm --force /etc/nftables/includes/table/inet/filter/input/wireguard.nft
+rmdir \
+  --ignore-fail-on-non-empty \
+  --parents \
+  /etc/nftables/includes/constants
 rmdir \
   --ignore-fail-on-non-empty \
   --parents \
