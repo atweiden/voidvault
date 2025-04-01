@@ -66,8 +66,6 @@ could cause catastrophic data loss and system instability.
 - [hides process information][hidepid] from all other users besides admin
 - [denies console login as root][denies console login as root]
 - disables GRUB recovery mode
-- uses mq-deadline I/O scheduler for SSDs, BFQ for HDDs (see:
-  [resources/etc/udev/rules.d/60-io-schedulers.rules](resources/etc/udev/rules.d/60-io-schedulers.rules))
 - enables runit service for dnscrypt-proxy, nftables and socklog
 - configures [Xorg][Xorg], but does not install any Xorg packages (see:
   [resources/etc/X11](resources/etc/X11))
