@@ -6,6 +6,12 @@ Todo
 - warn if `{,boot}vault-offset` value is problematic
   - in particular, bootvault is 1024M in size
 
+### Filesystem
+
+- enable configuring Btrfs to use [negative ZSTD compression
+  level][zstd-compression] for speed
+  - may default HDD to this pending arrival of linux>=[6.15][linux6.15]
+
 ### Installer
 
 - fix setting timezone to UTC
@@ -64,6 +70,8 @@ Todo
 - test voidvault installation to hdd in secondary drive bay
   - see: https://github.com/atweiden/voidvault/issues/7
 
+[zstd-compression]: https://lore.kernel.org/linux-btrfs/20250130175821.1792279-1-neelx@suse.com/T/
+[linux6.15]: https://kernelnewbies.org/Linux_6.15
 [random.trust_bootloader]: https://lore.kernel.org/lkml/20220324050930.207107-1-Jason@zx2c4.com/T/
 [jitterentropy-rngd i]: https://github.com/void-linux/void-packages/pull/36401
 [jitterentropy-rngd ii]: https://github.com/Whonix/security-misc/blob/master/usr/lib/modules-load.d/30_security-misc.conf
