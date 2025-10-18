@@ -1252,7 +1252,7 @@ method configure-rc-local(::?CLASS:D: --> Nil)
     my AbsolutePath:D $chroot-dir = $.config.chroot-dir;
     my Str:D $rc-local = q:to/EOF/;
     # create zram swap device
-    zramen --discard none make
+    zramen make
 
     # disable blinking cursor in Linux tty
     echo 0 > /sys/class/graphics/fbcon/cursor_blink
