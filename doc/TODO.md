@@ -14,6 +14,7 @@ Todo
 
 ### Installer
 
+- replace genfstab from arch-install-scripts with xgenfstab from xtools
 - fix setting timezone to UTC
 
 ### Security
