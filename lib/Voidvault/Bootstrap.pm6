@@ -709,7 +709,9 @@ method genfstab(::?CLASS:D: --> Nil)
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 
     # generate /etc/fstab
-    shell("%?RESOURCES{$resource} -U -p $chroot-dir >> $file");
+    my Str:D $genfstab-cmdline =
+        sprintf("%s -U -p %s >> %s", %?RESOURCES{$resource}, $chroot-dir, $file);
+    shell($genfstab-cmdline);
 
     # configure /etc/fstab
     self.configure-fstab;
