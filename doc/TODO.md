@@ -8,6 +8,7 @@ Todo
 
 ### Filesystem
 
+- enable configuring maximum size of LUKS-encrypted vault partition
 - enable configuring Btrfs to use [negative ZSTD compression
   level][zstd-compression] for speed
   - may default HDD to this pending arrival of linux>=[6.15][linux6.15]
