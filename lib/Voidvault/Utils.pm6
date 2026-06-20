@@ -208,6 +208,22 @@ method blkid(Str:D $device, Str:D :$tag = 'none' --> Str:D)
     my Str:D $value = qqx<blkid --match-tag $tag --output value $device>.trim;
 }
 
+method blockdev(Str:D $device, *%opts (Bool :rereadpt($)) --> Nil)
+{
+    blockdev($device, |%opts);
+}
+
+multi sub blockdev(Str:D $device, Bool:D :rereadpt($)! where .so --> Nil)
+{
+    # requires root
+    run(qqw<blockdev --rereadpt $device>);
+}
+
+multi sub blockdev(Str:D $device, *% --> Nil)
+{
+    run(qw<blockdev --help>);
+}
+
 method device-info(Str:D $device --> DeviceInfo:D)
 {
     my $uuid = Voidvault::Utils.blkid($device, :tag<UUID>);

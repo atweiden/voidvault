@@ -104,6 +104,9 @@ method mkdisk(::?CLASS:D: --> Nil)
     # partition device
     self.sfdisk;
 
+    # re-read partition table
+    self.blockdev-rereadpt;
+
     # create uefi partition
     self.mkefi;
 
@@ -151,6 +154,12 @@ method sfdisk(::?CLASS:D: --> Nil)
     EOS
     EOF
     shell($sfdisk-cmdline);
+}
+
+method blockdev-rereadpt(::?CLASS:D: --> Nil)
+{
+    my Str:D $device = $.config.device;
+    Voidvault::Utils.blockdev($device, :rereadpt);
 }
 
 method mkefi(::?CLASS:D: --> Nil)
