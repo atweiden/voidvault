@@ -718,10 +718,12 @@ method genfstab(::?CLASS:D: --> Nil)
     Voidvault::Utils.install-resource($resource, :$chroot-dir);
 
     # generate /etc/fstab
-    my Str:D $genfstab-cmdline = do {
-        my AbsolutePath:D $resource = %?RESOURCES{$resource}.IO.absolute;
-        sprintf("%s -U -p %s >> %s", $resource, $chroot-dir, $file)
-    };
+    my Str:D $genfstab-cmdline = sprintf(
+        "%s -U -p %s >> %s",
+        %?RESOURCES{$resource}.IO.absolute,
+        $chroot-dir,
+        $file
+    );
     shell($genfstab-cmdline);
 
     # configure /etc/fstab
